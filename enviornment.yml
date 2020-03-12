@@ -1,4 +1,4 @@
-name: project-template
+name: wefe
 dependencies:
   - numpy
   - scipy

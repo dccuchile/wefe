@@ -74,15 +74,16 @@ plot_gallery = True
 master_doc = 'index'
 
 # General information about the project.
-project = u'sklearn-template'
-copyright = u'2016, Vighnesh Birodkar'
+project = u'wefe'
+copyright = u'Pablo Badilla'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-from skltemplate import __version__
+# from wefe import __version__
+__version__ = '0.0.1'
 version = __version__
 # The full version, including alpha/beta/rc tags.
 release = __version__
@@ -127,7 +128,6 @@ html_style = 'css/project-template.css'
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
-
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -211,28 +211,26 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'project-templatedoc'
-
+htmlhelp_basename = 'wefe'
 
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
+    # The paper size ('letterpaper' or 'a4paper').
+    #'papersize': 'letterpaper',
 
-# The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
+    # The font size ('10pt', '11pt' or '12pt').
+    #'pointsize': '10pt',
 
-# Additional stuff for the LaTeX preamble.
-#'preamble': '',
+    # Additional stuff for the LaTeX preamble.
+    #'preamble': '',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'project-template.tex', u'project-template Documentation',
-   u'Vighnesh Birodkar', 'manual'),
+    ('index', 'project-template.tex', u'project-template Documentation', u'Vighnesh Birodkar', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -255,19 +253,14 @@ latex_documents = [
 # If false, no module index is generated.
 #latex_domain_indices = True
 
-
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    ('index', 'project-template', u'project-template Documentation',
-     [u'Vighnesh Birodkar'], 1)
-]
+man_pages = [('index', 'project-template', u'project-template Documentation', [u'Vighnesh Birodkar'], 1)]
 
 # If true, show URL addresses after external links.
 #man_show_urls = False
-
 
 # -- Options for Texinfo output -------------------------------------------
 
@@ -275,9 +268,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'project-template', u'project-template Documentation',
-   u'Vighnesh Birodkar', 'project-template', 'One line description of project.',
-   'Miscellaneous'),
+    ('index', 'project-template', u'project-template Documentation', u'Vighnesh Birodkar', 'project-template',
+     'One line description of project.', 'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
@@ -292,12 +284,10 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
 
-
 # Example configuration for intersphinx: refer to the Python standard library.
 # intersphinx configuration
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/{.major}'.format(
-        sys.version_info), None),
+    'python': ('https://docs.python.org/{.major}'.format(sys.version_info), None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
     'matplotlib': ('https://matplotlib.org/', None),
@@ -309,8 +299,10 @@ sphinx_gallery_conf = {
     'doc_module': 'skltemplate',
     'backreferences_dir': os.path.join('generated'),
     'reference_url': {
-        'skltemplate': None}
+        'skltemplate': None
+    }
 }
+
 
 def setup(app):
     # a copy button to copy snippet of code from the documentation

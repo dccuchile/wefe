@@ -3,16 +3,23 @@ import logging
 
 from ..query import Query
 from ..word_embedding_model import WordEmbeddingModel
-from ..utils import get_embeddings_from_word_set, verify_metric_input
+from .metric import BaseMetric
 
 
-class MAC():
+class MAC(BaseMetric):
+    """A implementation of Mean Average Cosine Similarity. 
+
+    References
+    -------
+        Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov. 
+        Black is to criminalas caucasian is to police: Detecting and removing multiclass bias in word embeddings.  
+        In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics:
+        Human Lan-guage Technologies, Volume 1 (Long and Short Papers),pages 615–621, 
+        Minneapolis, Minnesota, June 2019. As-sociation for Computational Linguistics   
+    """
 
     def __init__(self, disable_vocab_warnings: bool = True):
-        self.template_required = (1, 'n')
-        self.method_name = 'Mean Average Cosine Similarity (MAC)'
-        self.abbreviated_method_name = 'MAC'
-        self.disable_vocab_warnings = disable_vocab_warnings
+        super().__init__((1, 'n'), 'Mean Average Cosine Similarity', 'MAC')
 
     def calc_s(self, t, A_j):
 
@@ -27,19 +34,39 @@ class MAC():
 
         return mac
 
-    def run_query(self, query: Query, word_embeddings_wrapper: WordEmbeddingModel):
+    def run_query(self, query: Query, word_embedding: WordEmbeddingModel, lost_vocabulary_threshold: float = 0.2,
+                  warn_filtered_words: bool = False):
+        """Calculates the MAC metric over the provided parameters. 
 
-        verify_metric_input(query, word_embeddings_wrapper, self.template_required, self.method_name)
+        Parameters
+        ----------
+        query : Query
+            A Query object that contains the target and attribute words for be tested.
+        word_embedding : WordEmbeddingModel
+            A WordEmbeddingModel object that contain certain word embedding pretrained model.
+        lost_vocabulary_threshold : bool, optional
+            Indicates when a test is invalid due the loss of certain amount of words in any word set, by default 0.2
+        warn_filtered_words : bool, optional
+            A flag that indicates if the function will warn about the filtered words, by default False.
+        """
 
-        T = get_embeddings_from_word_set(query.target_sets[0], word_embeddings_wrapper,
-                                         warn_filtered_words=self.disable_vocab_warnings)
+        self._check_input(query, word_embedding, lost_vocabulary_threshold, warn_filtered_words)
 
-        A = [
-            get_embeddings_from_word_set(current_attribute_set, word_embeddings_wrapper,
-                                         warn_filtered_words=self.disable_vocab_warnings)
-            for current_attribute_set in query.attribute_sets
-        ]
+        # get the query name
+        query_name = self._generate_query_name(query)
 
-        A_names = query.attribute_sets_names
-        T_name = query.target_sets_names[0]
-        return {'exp_name': "{} wrt {}".format(T_name, A_names), 'result': self.calc_mac(T, A)}
+        # get the embeddings
+        embeddings = self._get_embeddings_from_query(query, word_embedding, warn_filtered_words,
+                                                     lost_vocabulary_threshold)
+        # if there is any/some set has less words than the allowed limit, return the default value (nan)
+        if embeddings is None:
+            return {'query_name': query_name, 'result': np.nan}
+
+        # get the target and attribute embeddings dicts
+        target_embeddings_dict, attribute_embeddings_dict = embeddings
+        target_0_embeddings = list(target_embeddings_dict[0].values())
+        attribute_embeddings_all_sets = [list(target_dict.values()) for target_dict in attribute_embeddings_dict]
+
+        result = self.calc_mac(target_0_embeddings, attribute_embeddings_all_sets)
+
+        return {'query_name': query_name, 'result': result}

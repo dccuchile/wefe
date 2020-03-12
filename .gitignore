@@ -65,3 +65,9 @@ doc/generated/
 
 # PyBuilder
 target/
+
+# vscode
+.vscode/
+
+# jupyter
+*.ipynb

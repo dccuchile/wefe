@@ -2,12 +2,12 @@ import numpy as np
 import logging
 import pandas as pd
 
-from .metric import Metric
+from .metric import BaseMetric
 from ..word_embedding_model import WordEmbeddingModel
 from ..query import Query
 
 
-class WEAT(Metric):
+class WEAT(BaseMetric):
     """A implementation of WEAT. It measures the degree of association between two sets of target words and two sets of attribute words through a permutation test.  
     
     References
@@ -42,15 +42,15 @@ class WEAT(Metric):
         second_term = np.array([self.__calc_s(y, A, B) for y in Y])
         return np.sum(first_term) - np.sum(second_term)
 
-    def run_query(self, query: Query, word_embeddings_wrapper: WordEmbeddingModel, return_effect_size: bool = False,
-                  lost_vocabulary_threshold: bool = 0.2, warn_filtered_words: bool = False):
+    def run_query(self, query: Query, word_embedding: WordEmbeddingModel, return_effect_size: bool = False,
+                  lost_vocabulary_threshold: bool = 0.2, warn_filtered_words: bool = False) -> dict:
         """Calculates the WEAT metric over the provided parameters. 
         
         Parameters
         ----------
         query : Query
             A Query object that contains the target and attribute words for be tested.
-        word_embeddings_wrapper : WordEmbeddingModel
+        word_embedding : WordEmbeddingModel
             A WordEmbeddingModel object that contain certain word embedding pretrained model.
         return_effect_size : bool, optional
             Indicates if the returned result is the effect size, by default False.
@@ -58,28 +58,36 @@ class WEAT(Metric):
             Indicates when a test is invalid due the loss of certain amount of words in any word set, by default 0.2
         warn_filtered_words : bool, optional
             A flag that indicates if the function will warn about the filtered words, by default False.
+
+        Returns
+        -------
+        dict
+            A dictionary with the query name and the result of the query.
         """
-        self.check_input(query, word_embeddings_wrapper)
-        query_name = self.generate_query_name(query)
+
+        self._check_input(query, word_embedding, lost_vocabulary_threshold, warn_filtered_words)
+        query_name = self._generate_query_name(query)
 
         # get the embeddings
-        embeddings_and_remaining_words = self.get_embeddings_from_query(query, word_embeddings_wrapper,
-                                                                        warn_filtered_words, lost_vocabulary_threshold)
+        embeddings = self._get_embeddings_from_query(query, word_embedding, warn_filtered_words,
+                                                     lost_vocabulary_threshold)
 
         # if there is any/some set has less words than the allowed limit, return the default value (nan)
-        if embeddings_and_remaining_words is None:
-            return {'exp_name': query_name, 'result': np.nan}
+        if embeddings is None:
+            return {'query_name': query_name, 'result': np.nan}
 
         # get the target and attribute embeddings
-        target_embeddings, attribute_embeddings, _, _ = embeddings_and_remaining_words
+        target_embeddings, attribute_embeddings = embeddings
 
-        print(target_embeddings[0], len(attribute_embeddings))
+        target_0 = list(target_embeddings[0].values())
+        target_1 = list(target_embeddings[1].values())
+        attribute_0 = list(attribute_embeddings[0].values())
+        attribute_1 = list(attribute_embeddings[1].values())
+
         # if the requested value is the effect size:
         if return_effect_size:
-            result = self.__calc_effect_size(target_embeddings[0], target_embeddings[1], attribute_embeddings[0],
-                                             attribute_embeddings[1])
+            result = self.__calc_effect_size(target_0, target_1, attribute_0, attribute_1)
             return {'query_name': query_name, 'result': result}
 
-        result = self.__calc_weat(target_embeddings[0], target_embeddings[1], attribute_embeddings[0],
-                                  attribute_embeddings[1])
-        return {'exp_name': query_name, 'result': result}
+        result = self.__calc_weat(target_0, target_1, attribute_0, attribute_1)
+        return {'query_name': query_name, 'result': result}

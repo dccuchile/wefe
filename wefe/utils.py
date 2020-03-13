@@ -5,6 +5,7 @@ import numpy as np
 from gensim.models import KeyedVectors
 from .word_embedding_model import WordEmbeddingModel
 from .query import Query
+from .metrics.metric import BaseMetric
 
 
 def load_weat_w2v():
@@ -15,15 +16,14 @@ def load_weat_w2v():
 
 
 ## RUNNERS
-
-
-def run_queries(metric, queries, word_vectors_wrappers, queries_set_name='Unnamed queries set',
-                lost_vocabulary_threshold=0.2, metric_params={}, return_averaged=None, average_with_abs_values=True):
+def run_queries(metric: BaseMetric, queries: list, word_embeddings_models: list,
+                queries_set_name: str = 'Unnamed queries set', lost_vocabulary_threshold: float = 0.2,
+                metric_params: dict = {}, return_averaged: any = None, average_with_abs_values: bool = True):
     """
     Arguments:
         metric {[type]} -- Any type of metric that, when instantiated, can be called the run_experiment method.
         queries {list} -- A list with Experiment instances that will be runned.
-        word_vectors_wrappers {WordVectorsWrappers} -- A list with WordVectorsWrappers instances that will be runned. 
+        word_embeddings_models {WordVectorsWrappers} -- A list with WordVectorsWrappers instances that will be runned. 
 
     
     Keyword Arguments:
@@ -36,8 +36,8 @@ def run_queries(metric, queries, word_vectors_wrappers, queries_set_name='Unname
     # check inputs:
 
     # metric handling
-    if metric is None:
-        raise Exception('metric parameter must not be None')
+    # if not issubclass(metric, BaseMetric):
+    # raise Exception('metric parameter must be instance of BaseMetric')
 
     # queries handling
     if not isinstance(queries, (list, np.ndarray)):
@@ -49,13 +49,13 @@ def run_queries(metric, queries, word_vectors_wrappers, queries_set_name='Unname
             raise TypeError('item on index {} must be a Query instance. given: {}'.format(idx, query))
 
     # word vectors wrappers handling
-    if not isinstance(word_vectors_wrappers, (list, np.ndarray)):
+    if not isinstance(word_embeddings_models, (list, np.ndarray)):
         raise TypeError(
-            'word_vectors_wrappers parameter must be a list or a numpy array. given: {}'.format(word_vectors_wrappers))
-    if len(word_vectors_wrappers) == 0:
+            'word_vectors_wrappers parameter must be a list or a numpy array. given: {}'.format(word_embeddings_models))
+    if len(word_embeddings_models) == 0:
         raise Exception('word_vectors_wrappers parameter must be a non empty list or numpy array. given: {}'.format(
-            word_vectors_wrappers))
-    for idx, word_vectors_wrapper in enumerate(word_vectors_wrappers):
+            word_embeddings_models))
+    for idx, word_vectors_wrapper in enumerate(word_embeddings_models):
         if word_vectors_wrapper is None or not isinstance(word_vectors_wrapper, WordEmbeddingModel):
             raise TypeError('item on index {} must be a WordVectorsWrapper instance. given: {}'.format(
                 idx, word_vectors_wrapper))
@@ -79,22 +79,22 @@ def run_queries(metric, queries, word_vectors_wrappers, queries_set_name='Unname
     metric_instance = metric()
     results = []
 
-    exp_names = []
+    query_names = []
 
     for query in queries:
-        for word_vector_wrapper in word_vectors_wrappers:
+        for word_vector_wrapper in word_embeddings_models:
             result = metric_instance.run_query(query, word_vector_wrapper, lost_vocabulary_threshold, **metric_params)
             result['model_name'] = word_vector_wrapper.model_name
             results.append(result)
 
-            if result['exp_name'] not in exp_names:
-                exp_names.append(result['exp_name'])
+            if result['query_name'] not in query_names:
+                query_names.append(result['query_name'])
 
     # get original column order
     # reorder the results in a legible table
-    pivoted_results = pd.DataFrame(results).pivot(index='model_name', columns='exp_name', values='result')
-    pivoted_results = pivoted_results.reindex(index=[wvw.model_name for wvw in word_vectors_wrappers],
-                                              columns=exp_names)
+    pivoted_results = pd.DataFrame(results).pivot(index='model_name', columns='query_name', values='result')
+    pivoted_results = pivoted_results.reindex(index=[wvw.model_name for wvw in word_embeddings_models],
+                                              columns=query_names)
     if return_averaged == 'include' or return_averaged == 'only':
         if average_with_abs_values:
             averaged_results = pd.DataFrame(pivoted_results.abs().mean(1))

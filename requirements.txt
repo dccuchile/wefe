@@ -1,3 +1,7 @@
 numpy
 scipy
 scikit-learn
+pandas
+gensim
+plotly
+patoolib

@@ -22,7 +22,7 @@ import sphinx_rtd_theme
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
-
+sys.path.insert(0, os.path.abspath('..'))
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -68,7 +68,7 @@ source_suffix = '.rst'
 #source_encoding = 'utf-8-sig'
 
 # Generate the plots for the gallery
-plot_gallery = True
+plot_gallery = False
 
 # The master toctree document.
 master_doc = 'index'
@@ -82,8 +82,8 @@ copyright = u'Pablo Badilla'
 # built documents.
 #
 # The short X.Y version.
-# from wefe import __version__
-__version__ = '0.0.1'
+from wefe import __version__
+# __version__ = '0.0.1'
 version = __version__
 # The full version, including alpha/beta/rc tags.
 release = __version__
@@ -296,10 +296,10 @@ intersphinx_mapping = {
 
 # sphinx-gallery configuration
 sphinx_gallery_conf = {
-    'doc_module': 'skltemplate',
+    'doc_module': 'wefe',
     'backreferences_dir': os.path.join('generated'),
     'reference_url': {
-        'skltemplate': None
+        'wefe': None
     }
 }
 

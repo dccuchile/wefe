@@ -1,3 +1,10 @@
+"""
+============================
+Plotting Template Classifier
+============================
+An example plot of :class:`wefe.metrics.WEAT`
+"""
+
 from wefe.datasets.datasets import load_weat
 from wefe.metrics.WEAT import WEAT
 from wefe.utils import load_weat_w2v

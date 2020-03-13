@@ -7,9 +7,10 @@ import json
 import numpy as np
 
 
-def fetch_eds(occupations_year: int = 2015):
+def fetch_eds(occupations_year: int = 2015) -> dict:
     """Fetch the word sets used in the experiments of Word embeddings quantify 100 years of gender and ethnic stereotypes paper. 
-    
+    It includes gender (male, female), ethnicity(asian, black, white) and religion(christianity and islam) and adjetives (appearence, intelligence, otherization, sensitive) word sets.
+
     Parameters
     ----------
     occupations_year : int, optional
@@ -20,14 +21,14 @@ def fetch_eds(occupations_year: int = 2015):
     
     Returns
     -------
-    word_sets_dict : dict
+    dict
         A dictionary with the word sets.
 
     References
     ----------
-    Garg, N., Schiebinger, L., Jurafsky, D., & Zou, J. (2018). Word embeddings quantify 100 years of gender and ethnic stereotypes. 
-    Proceedings of the National Academy of Sciences, 115(16), E3635-E3644.
-    """
+        Garg, N., Schiebinger, L., Jurafsky, D., & Zou, J. (2018). Word embeddings quantify 100 years of gender and ethnic stereotypes. 
+        Proceedings of the National Academy of Sciences, 115(16), E3635-E3644.
+        """
 
     EDS_BASE_URL = 'https://raw.githubusercontent.com/nikhgarg/EmbeddingDynamicStereotypes/master/data/'
     EDS_WORD_SETS_NAMES = [
@@ -89,13 +90,22 @@ def fetch_eds(occupations_year: int = 2015):
     return word_sets_dict
 
 
-def fetch_debiaswe():
-    """[summary]
+def fetch_debiaswe() -> dict:
+    """Fetch the word sets used in the paper Man is to Computer Programmer as Woman is to Homemaker? from the source.
+    It includes gender (male, female) terms and related word sets.
+
     
     Returns
     -------
-    [type]
-        [description]
+    dict
+        A dictionary in which each key correspond to the name of the set and its values correspond to the word set.
+
+
+    References
+    -------
+        Man is to Computer Programmer as Woman is to Homemaker? 
+        Debiasing Word Embeddings by Tolga Bolukbasi, Kai-Wei Chang, James Zou, Venkatesh Saligrama, and Adam Kalai. 
+        Proceedings of NIPS 2016.
     """
 
     DEBIAS_WE_BASE_URL = 'https://raw.githubusercontent.com/tolga-b/debiaswe/master/data/'
@@ -129,11 +139,11 @@ def fetch_bingliu():
 
     References
     -------
-    Minqing Hu and Bing Liu. "Mining and Summarizing Customer Reviews." 
-    Proceedings of the ACM SIGKDD International Conference on Knowledge 
-    Discovery and Data Mining (KDD-2004), Aug 22-25, 2004, Seattle, 
-    Washington, USA, 
-    """
+        Minqing Hu and Bing Liu. "Mining and Summarizing Customer Reviews." 
+        Proceedings of the ACM SIGKDD International Conference on Knowledge 
+        Discovery and Data Mining (KDD-2004), Aug 22-25, 2004, Seattle, 
+        Washington, USA, 
+        """
 
     # download the file
     if not os.path.exists('./lexicon.rar'):
@@ -168,18 +178,22 @@ def fetch_bingliu():
     return bingliu_lexicon
 
 
-def fetch_debias_multiclass():
-    """[summary]
-    
+def fetch_debias_multiclass() -> dict:
+    """Fetch the word sets used in the paper Black is to criminalas caucasian is to police: Detecting and removing multiclass bias in word embeddings. 
+    It includes gender (male, female), ethnicity(asian, black, white) and religion(christianity, judaism and islam) target and attribute word sets.
+
     Returns
     -------
-    [type]
-        [description]
+    dict
+        A dictionary in which each key correspond to the name of the set and its values correspond to the word set.
 
     References
-    ------
-    Black is to Criminal as Caucasian is to Police: Detecting and Removing Multiclass Bias in Word Embeddings
-    Thomas Manzini, Yao Chong Lim, Yulia Tsvetkov, Alan W Black
+    -------
+        Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov. 
+        Black is to criminalas caucasian is to police: Detecting and removing multiclass bias in word embeddings.  
+        In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics:
+        Human Lan-guage Technologies, Volume 1 (Long and Short Papers),pages 615–621, 
+        Minneapolis, Minnesota, June 2019. As-sociation for Computational Linguistics   
     """
 
     BASE_URL = 'https://raw.githubusercontent.com/TManzini/DebiasMulticlassWordEmbedding/master/Debiasing/data/vocab/'
@@ -245,6 +259,7 @@ def fetch_debias_multiclass():
 
 def load_weat():
     """Loads the datasets used in the Semantics derived automatically from language corpora contain human-like biases paper tests. 
+    It includes gender (male, female), ethnicity(black, white) and pleasant, unpleasant word sets, among others.
 
     Returns
     -------
@@ -253,7 +268,9 @@ def load_weat():
 
     References
     ----------
-    Caliskan, A., Bryson, J. J., & Narayanan, A. (2017). Semantics derived automatically from language corpora contain human-like biases. Science, 356(6334), 183-186.
+        Caliskan, A., Bryson, J. J., & Narayanan, A. (2017). 
+        Semantics derived automatically from language corpora contain human-like biases. 
+        Science, 356(6334), 183-186.
 
     """
     with open('./wefe/datasets/WEAT.json') as WEAT_json:

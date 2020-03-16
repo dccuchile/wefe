@@ -66,7 +66,6 @@ class WEAT(BaseMetric):
         """
 
         self._check_input(query, word_embedding, lost_vocabulary_threshold, warn_filtered_words)
-        query_name = self._generate_query_name(query)
 
         # get the embeddings
         embeddings = self._get_embeddings_from_query(query, word_embedding, warn_filtered_words,
@@ -87,7 +86,7 @@ class WEAT(BaseMetric):
         # if the requested value is the effect size:
         if return_effect_size:
             result = self.__calc_effect_size(target_0, target_1, attribute_0, attribute_1)
-            return {'query_name': query_name, 'result': result}
+            return {'query_name': query.query_name, 'result': result}
 
         result = self.__calc_weat(target_0, target_1, attribute_0, attribute_1)
-        return {'query_name': query_name, 'result': result}
+        return {'query_name': query.query_name, 'result': result}

@@ -20,7 +20,7 @@ def test_weat():
                   ['Pleasant', 'Unpleasant'])
     results = weat.run_query(query, model)
 
-    assert results['exp_name'] == 'Flowers vs Insects wrt Pleasant vs Unpleasant'
+    assert results['query_name'] == 'Flowers and Insects wrt Pleasant and Unpleasant'
     assert isinstance(results['result'], (np.float32, np.float64, float))
 
     results = weat.run_query(query, model, return_effect_size=True)
@@ -37,7 +37,7 @@ def test_rnd():
                   ['Flowers', 'Insects'], ['Pleasant'])
     results = rnd.run_query(query, model)
 
-    assert results['exp_name'] == 'Flowers vs Insects wrt Pleasant'
+    assert results['query_name'] == 'Flowers and Insects wrt Pleasant'
     assert isinstance(results['result'], (np.float32, np.float64, float))
 
 
@@ -52,5 +52,5 @@ def test_rnsb():
                   ['Pleasant', 'Unpleasant'])
     results = rnsb.run_query(query, model)
 
-    assert results['exp_name'] == 'Flowers, Insects wrt Pleasant and Unpleasant'
+    assert results['query_name'] == 'Flowers and Insects wrt Pleasant and Unpleasant'
     assert isinstance(results['result'], (np.float32, np.float64, float))

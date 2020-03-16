@@ -123,15 +123,12 @@ class RNSB(BaseMetric):
         # check the inputs
         self._check_input(query, word_embedding, lost_vocabulary_threshold, warn_filtered_words)
 
-        # get the query name
-        query_name = self._generate_query_name(query)
-
         # get the embeddings
         embeddings = self._get_embeddings_from_query(query, word_embedding, warn_filtered_words,
                                                      lost_vocabulary_threshold)
         # if there is any/some set has less words than the allowed limit, return the default value (nan)
         if embeddings is None:
-            return {'query_name': query_name, 'result': np.nan}
+            return {'query_name': query.query_name, 'result': np.nan}
 
         # get the target and attribute embeddings dicts
         target_embeddings_dict, attribute_embeddings_dict = embeddings
@@ -149,7 +146,7 @@ class RNSB(BaseMetric):
             trained_classifier, target_embeddings_all_sets, target_words_all_sets)
 
         return {
-            'query_name': query_name,
+            'query_name': query.query_name,
             'result': divergence,
             'negative_sentiment_probabilities': negative_sentiment_probabilities,
             'negative_sentiment_distribution': negative_sentiment_distribution

@@ -197,3 +197,35 @@ def test_templates():
 
     for attribute_name, subquery in zip(attribute_names, subqueries):
         assert attribute_name == subquery.attribute_sets_names
+
+
+def test_generate_query_name():
+
+    weat_word_set = load_weat()
+    query = Query([weat_word_set['Flowers'], weat_word_set['Insects']], [weat_word_set['Pleasant 5']],
+                  ['Flowers', 'Insects'], ['Pleasant'])
+
+    assert query.query_name == 'Flowers and Insects wrt Pleasant'
+
+    query = Query([weat_word_set['Flowers']], [weat_word_set['Pleasant 5']], ['Flowers'], ['Pleasant'])
+
+    assert query.query_name == 'Flowers wrt Pleasant'
+
+    query = Query([weat_word_set['Flowers'], weat_word_set['Instruments']],
+                  [weat_word_set['Pleasant 5'], weat_word_set['Unpleasant 5']], ['Flowers', 'Instruments'],
+                  ['Pleasant', 'Unpleasant'])
+
+    assert query.query_name == 'Flowers and Instruments wrt Pleasant and Unpleasant'
+
+    query = Query(
+        [weat_word_set['Flowers'], weat_word_set['Instruments'], weat_word_set['Weapons'], weat_word_set['Insects']],
+        [weat_word_set['Pleasant 5'], weat_word_set['Unpleasant 5']], ['Flowers', 'Instruments', 'Weapons', 'Insects'],
+        ['Pleasant', 'Unpleasant'])
+
+    assert query.query_name == 'Flowers, Instruments, Weapons and Insects wrt Pleasant and Unpleasant'
+
+    query = Query(
+        [weat_word_set['Flowers'], weat_word_set['Instruments'], weat_word_set['Weapons'], weat_word_set['Insects']],
+        [weat_word_set['Pleasant 5'], weat_word_set['Unpleasant 5']])
+
+    assert query.query_name == 'Target set 0, Target set 1, Target set 2 and Target set 3 wrt Attribute set 0 and Attribute set 1'

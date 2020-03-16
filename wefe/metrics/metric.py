@@ -71,7 +71,7 @@ class BaseMetric:
 
         # check if the word_embedding is a instance of WordEmbeddingModel
         if not isinstance(word_embedding, WordEmbeddingModel):
-            raise TypeError('word_embedding must be a WordVectorsWrapper instance. Given: {}'.format(word_embedding))
+            raise TypeError('word_embedding must be a WordEmbeddingModel instance. Given: {}'.format(word_embedding))
 
         if not isinstance(lost_vocabulary_threshold, (float, np.float, np.float32, np.float64)):
             raise TypeError('lost_vocabulary_threshold must be a float. Given: {}'.format(lost_vocabulary_threshold))
@@ -139,8 +139,8 @@ class BaseMetric:
         return selected_embeddings
 
     def _get_embeddings_from_query(self, query: Query, word_embedding: WordEmbeddingModel,
-                                   warn_filtered_words: bool = False, lost_words_threshold: float = 0.2
-                                  ) -> Union[Tuple[np.ndarray, np.ndarray, list, list], None]:
+                                   warn_filtered_words: bool = False,
+                                   lost_words_threshold: float = 0.2) -> Union[Tuple[list, list], None]:
         """Obtains the word vectors associated with the provided Query. 
         The words that does not appears in the word embedding pretrained model vocabulary are filtered. 
         If the remaining words are percentage lower than the specified threshold, then the function will return none.
@@ -156,11 +156,9 @@ class BaseMetric:
 
         Returns
         -------
-        Union[Tuple[np.ndarray, np.ndarray, list, list], None]
-            4 iterables that contains in order: the target set embeddings, the attribute set embeddings, target set remaining words,  
-            and the attribute set remaining words. If the remaining words are percentage lower than the specified threshold, 
-            then the function will return only None.
-
+        Union[Tuple[list, list], None]
+            Two lists with dictionaries that contains targets and attributes embeddings. Each dict key represents the word and its value 
+            represents the embedding vector. If some set has proportionally fewer words than the threshold, it returns None.
         """
 
         def is_percentage_of_filtered_words_under_threshold(embeddings, word_set, word_set_name, lost_words_threshold):
@@ -210,36 +208,3 @@ class BaseMetric:
             return None
 
         return target_embeddings, attribute_embeddings
-
-    def _generate_query_name(self, query: Query) -> str:
-        """Generates the query name from the name of its target and attribute sets.
-        
-        Parameters
-        ----------
-        query : Query
-            The query to be tested.
-        
-        Returns
-        -------
-        str
-            The name of the query.
-        """
-
-        target_sets_names = query.target_sets_names
-        attribute_sets_names = query.attribute_sets_names
-
-        if len(target_sets_names) == 1:
-            target = target_sets_names[0]
-        if len(target_sets_names) == 2:
-            target = target_sets_names[0] + " and " + target_sets_names[1]
-        else:
-            target = ', '.join([str(x) for x in target_sets_names]) + ' and ' + target_sets_names[-1]
-
-        if len(attribute_sets_names) == 1:
-            attribute = attribute_sets_names[0]
-        if len(attribute_sets_names) == 2:
-            attribute = attribute_sets_names[0] + " and " + attribute_sets_names[1]
-        else:
-            attribute = ', '.join([str(x) for x in attribute_sets_names]) + ' and ' + attribute_sets_names[-1]
-
-        return target + ' wrt ' + attribute

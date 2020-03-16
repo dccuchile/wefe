@@ -91,15 +91,12 @@ class RND(BaseMetric):
         # check the inputs
         self._check_input(query, word_embedding, lost_vocabulary_threshold, warn_filtered_words)
 
-        # get the query name
-        query_name = self._generate_query_name(query)
-
         # get the embeddings
         embeddings = self._get_embeddings_from_query(query, word_embedding, warn_filtered_words,
                                                      lost_vocabulary_threshold)
         # if there is any/some set has less words than the allowed limit, return the default value (nan)
         if embeddings is None:
-            return {'query_name': query_name, 'result': np.nan}
+            return {'query_name': query.query_name, 'result': np.nan}
 
         # get the target and attribute embeddings
         target_embeddings_dict, attribute_embeddings_dict = embeddings
@@ -112,4 +109,4 @@ class RND(BaseMetric):
                                                       attribute_words, distance_type, average_distances,
                                                       warn_filtered_words)
 
-        return {"query_name": query_name, "result": distance, "results_by_word": distances_by_word}
+        return {"query_name": query.query_name, "result": distance, "results_by_word": distances_by_word}

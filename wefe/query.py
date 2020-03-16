@@ -86,6 +86,8 @@ class Query:
             else:
                 self.attribute_sets_names = attribute_sets_names
 
+        self.query_name = self._generate_query_name()
+
     def __eq__(self, other):
 
         if not isinstance(other, Query):
@@ -174,3 +176,37 @@ class Query:
                       for target_subset, target_subset_name in zip(target_subsets, target_subsets_names)]
 
         return np.array(subqueries).flatten().tolist()
+
+    def _generate_query_name(self) -> str:
+        """Generates the query name from the name of its target and attribute sets.
+        
+        Parameters
+        ----------
+        query : Query
+            The query to be tested.
+        
+        Returns
+        -------
+        str
+            The name of the query.
+        """
+
+        target_sets_names = self.target_sets_names
+        attribute_sets_names = self.attribute_sets_names
+        print(target_sets_names, attribute_sets_names)
+
+        if len(target_sets_names) == 1:
+            target = target_sets_names[0]
+        elif len(target_sets_names) == 2:
+            target = target_sets_names[0] + " and " + target_sets_names[1]
+        else:
+            target = ', '.join([str(x) for x in target_sets_names[0:-1]]) + ' and ' + target_sets_names[-1]
+
+        if len(attribute_sets_names) == 1:
+            attribute = attribute_sets_names[0]
+        elif len(attribute_sets_names) == 2:
+            attribute = attribute_sets_names[0] + " and " + attribute_sets_names[1]
+        else:
+            attribute = ', '.join([str(x) for x in attribute_sets_names[0:-1]]) + ' and ' + attribute_sets_names[-1]
+
+        return target + ' wrt ' + attribute

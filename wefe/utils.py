@@ -1,11 +1,13 @@
 import pandas as pd
 import logging
 import numpy as np
+import plotly.express as px
 
 from gensim.models import KeyedVectors
 from .word_embedding_model import WordEmbeddingModel
 from .query import Query
-from .metrics.metric import BaseMetric
+from typing import Union
+from wefe.metrics import MAC, RND, RNSB, WEAT, BaseMetric
 
 
 def load_weat_w2v():
@@ -16,26 +18,41 @@ def load_weat_w2v():
 
 
 ## RUNNERS
-def run_queries(metric: BaseMetric, queries: list, word_embeddings_models: list,
+def run_queries(metric: Union[MAC, RND, RNSB, WEAT, BaseMetric], queries: list, word_embeddings_models: list,
                 queries_set_name: str = 'Unnamed queries set', lost_vocabulary_threshold: float = 0.2,
-                metric_params: dict = {}, return_averaged: any = None, average_with_abs_values: bool = True):
-    """
-    Arguments:
-        metric {[type]} -- Any type of metric that, when instantiated, can be called the run_experiment method.
-        queries {list} -- A list with Experiment instances that will be runned.
-        word_embeddings_models {WordVectorsWrappers} -- A list with WordVectorsWrappers instances that will be runned. 
-
+                metric_params: dict = {}, include_average_by_embedding: Union[None, str] = 'include',
+                average_with_abs_values: bool = True) -> pd.DataFrame:
+    """Run several queries over a several word embedding models using a specific metic.
     
-    Keyword Arguments:
-        experiment_name {str} -- [description] (default: {'Unnamed experiment})
-        run_experiment_params {dict} -- [description] (default: {{}})
-        return_averaged {str} -- {'include', 'only'} (default: {None})
-        average_with_abs_values {bool} -- [description] (default: {True})
+    Parameters
+    ----------
+    metric : Union[MAC, RND, RNSB, WEAT, BaseMetric]
+        A metric class.
+    queries : list
+        An iterable with a set of queries.
+    word_embeddings_models : list
+        An iterable with a set of word embedding pretrianed models.
+    queries_set_name : str, optional
+        The name of the set of queries or the criteria that will be tested, by default 'Unnamed queries set'
+    lost_vocabulary_threshold : float, optional
+        The threshold that will be passed to the , by default 0.2
+    metric_params : dict, optional
+        A dict with the given metric custom params if it needed, by default {}
+    include_average_by_embedding : {None, 'include', 'only'}, optional
+        It indicates if the result dataframe will include an average by model name of all calculated results, by default 'include'.
+    average_with_abs_values : bool, optional
+        Indicates if the average by embedding will be calculated from the absolute values of the results, by default True.
+
+    Returns
+    -------
+    pd.DataFrame
+        A dataframe with the results. The index contains the word embedding model name and the columns the experiment name. 
+        Each cell represents the result of run a metric using a specific word embedding model and query.
     """
 
     # check inputs:
 
-    # metric handling
+    # metric handling (TODO: issubclass not working...)
     # if not issubclass(metric, BaseMetric):
     # raise Exception('metric parameter must be instance of BaseMetric')
 
@@ -69,7 +86,7 @@ def run_queries(metric: BaseMetric, queries: list, word_embeddings_models: list,
         raise Exception('run_experiment_params must be a dict with a params for the metric')
 
     # return average handling
-    if not return_averaged in ['include', 'only'] and not return_averaged is None:
+    if not include_average_by_embedding in ['include', 'only'] and not include_average_by_embedding is None:
         raise Exception('return_averaged param must be any of {\'include\',\'only\', None}')
 
     # average_with_abs_values handling
@@ -95,44 +112,70 @@ def run_queries(metric: BaseMetric, queries: list, word_embeddings_models: list,
     pivoted_results = pd.DataFrame(results).pivot(index='model_name', columns='query_name', values='result')
     pivoted_results = pivoted_results.reindex(index=[wvw.model_name for wvw in word_embeddings_models],
                                               columns=query_names)
-    if return_averaged == 'include' or return_averaged == 'only':
+    if include_average_by_embedding == 'include' or include_average_by_embedding == 'only':
         if average_with_abs_values:
             averaged_results = pd.DataFrame(pivoted_results.abs().mean(1))
         else:
             averaged_results = pd.DataFrame(pivoted_results.mean(1))
-        averaged_results.columns = [
-            '{}: {} average score'.format(metric_instance.abbreviated_method_name, queries_set_name)
-        ]
+        averaged_results.columns = ['{}: {} average score'.format(metric_instance.metric_short_name, queries_set_name)]
         results = pd.concat([pivoted_results, averaged_results],
-                            axis=1) if return_averaged == 'include' else averaged_results
+                            axis=1) if include_average_by_embedding == 'include' else averaged_results
         return results
 
     else:
         return pivoted_results
 
 
-def graphic_results(results, ax=None, by='query'):
-    import plotly.express as px
+def plot_queries_results(results: pd.DataFrame, by: str = 'query'):
+    """Plot the results obtained by a run_queries execution
+    
+    Parameters
+    ----------
+    results : pd.DataFrame
+        A dataframe that contains the result of having executed run_queries with a set of queries and word embeddings.
+    by : {'query', 'model'}, optional
+        The aggregation function , by default 'query'
+    
+    Returns
+    -------
+    plotly.Figure
+        A Figure that contains the generated graphic.
+    
+    Raises
+    ------
+    TypeError
+        if results is not a instance of pandas DataFrame.
+    """
+
+    if not isinstance(results, pd.DataFrame):
+        raise TypeError(
+            'results must be a pandas DataFrame, result of having executed running_queries. Given: {}'.format(results))
+
+    results_copy = results.copy(deep=True)
 
     if by == 'model':
-        results = results
+        results_copy = results_copy
     else:
-        results = results.T
+        results_copy = results_copy.T
 
-    results['exp_name'] = results.index
-    id_vars = ['exp_name']
-    cols = results.columns
+    results_copy['query_name'] = results_copy.index
+
+    cols = results_copy.columns
+    id_vars = ['query_name']
     values_vars = [col_name for col_name in cols if col_name not in id_vars]
-    melted_results = pd.melt(results, id_vars=id_vars, value_vars=values_vars, var_name='Word Embedding Model')
 
-    xaxis_title = 'Model' if by == 'model' else 'query'
+    # melt the dataframe
+    melted_results = pd.melt(results_copy, id_vars=id_vars, value_vars=values_vars, var_name='Word Embedding Model')
 
-    fig = px.bar(melted_results, x='exp_name', y="value", color='Word Embedding Model', barmode='group')
+    # configure the plot
+    xaxis_title = 'Model' if by == 'model' else 'Query'
+
+    fig = px.bar(melted_results, x='query_name', y="value", color='Word Embedding Model', barmode='group')
     fig.update_layout(
         xaxis_title=xaxis_title,
-        yaxis_title='Bias',
+        yaxis_title='Bias measure',
     )
-    fig.for_each_trace(lambda t: t.update(name=t.name.split('=')[1]))
+    fig.for_each_trace(lambda t: t.update(name=" ".join(t.name.split('=')[1:])))  # delete Word Embedding Model = ...
     fig.for_each_trace(lambda t: t.update(x=['wrt<br>'.join(label.split('wrt')) for label in t.x]))
-    fig.show()
+    # fig.show()
     return fig

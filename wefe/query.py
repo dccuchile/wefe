@@ -193,7 +193,6 @@ class Query:
 
         target_sets_names = self.target_sets_names
         attribute_sets_names = self.attribute_sets_names
-        print(target_sets_names, attribute_sets_names)
 
         if len(target_sets_names) == 1:
             target = target_sets_names[0]

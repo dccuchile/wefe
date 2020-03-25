@@ -31,14 +31,14 @@ def test_create_word_embedding_model():
         WordEmbeddingModel(weat_we, 'A', 12)
 
     model_1 = WordEmbeddingModel(weat_we, 'weat_we')
-    assert model_1.word_embedding == weat_we
-    assert model_1.model_name == 'weat_we'
-    assert model_1.vocab_prefix == ''
+    assert model_1.model_ == weat_we
+    assert model_1.model_name_ == 'weat_we'
+    assert model_1.vocab_prefix_ == ''
 
     model_2 = WordEmbeddingModel(weat_we)
-    assert model_2.model_name == 'Unnamed word embedding model'
-    assert model_2.vocab_prefix == ''
+    assert model_2.model_name_ == 'Unnamed word embedding model'
+    assert model_2.vocab_prefix_ == ''
 
     model_3 = WordEmbeddingModel(weat_we, 'weat_we', '\\c\\en')
-    assert model_3.model_name == 'weat_we'
-    assert model_3.vocab_prefix == '\\c\\en'
+    assert model_3.model_name_ == 'weat_we'
+    assert model_3.vocab_prefix_ == '\\c\\en'

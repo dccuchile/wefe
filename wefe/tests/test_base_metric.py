@@ -1,6 +1,6 @@
 import pytest
 from ..utils import load_weat_w2v
-from ..metrics.metric import BaseMetric
+from ..metrics.base_metric import BaseMetric
 from ..word_embedding_model import WordEmbeddingModel
 from ..datasets.datasets import load_weat
 from ..query import Query

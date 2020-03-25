@@ -9,14 +9,14 @@ from sklearn.base import BaseEstimator
 
 from ..query import Query
 from ..word_embedding_model import WordEmbeddingModel
-from .metric import BaseMetric
+from .base_metric import BaseMetric
 
 
 class RNSB(BaseMetric):
-    """A implementation of Relative Relative Negative Sentiment Bias.
+    """A implementation of Relative Relative Negative Sentiment Bias (RNSB).
     
     References
-    -------
+    ----------
     Chris Sweeney and Maryam Najafian.
     A transparent framework for evaluating unintended demographic bias in word embeddings.
     In Proceedings of the 57th Annual Meeting of the Associationfor Computational Linguistics, pages 1662–1667, 2019.
@@ -128,7 +128,7 @@ class RNSB(BaseMetric):
                                                      lost_vocabulary_threshold)
         # if there is any/some set has less words than the allowed limit, return the default value (nan)
         if embeddings is None:
-            return {'query_name': query.query_name, 'result': np.nan}
+            return {'query_name': query.query_name_, 'result': np.nan}
 
         # get the target and attribute embeddings dicts
         target_embeddings_dict, attribute_embeddings_dict = embeddings
@@ -146,7 +146,7 @@ class RNSB(BaseMetric):
             trained_classifier, target_embeddings_all_sets, target_words_all_sets)
 
         return {
-            'query_name': query.query_name,
+            'query_name': query.query_name_,
             'result': divergence,
             'negative_sentiment_probabilities': negative_sentiment_probabilities,
             'negative_sentiment_distribution': negative_sentiment_distribution

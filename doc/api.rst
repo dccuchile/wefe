@@ -2,7 +2,7 @@
 WEFE API
 ####################
 
-This is the api of WEFE
+This is the documentation of the api of WEFE. Next, the main classes:
 
 .. currentmodule:: wefe
 
@@ -17,7 +17,7 @@ WordEmbeddingModel
    WordEmbeddingModel
 
 Query
-======
+==================
 
 .. autosummary::
    :toctree: generated/
@@ -25,14 +25,15 @@ Query
 
    Query
 
-MetricBase
+
+BaseMetric
 ==========
 
 .. autosummary::
    :toctree: generated/
    :template: class.rst
 
-   metrics.metric
+   metrics.BaseMetric
 
 WEAT
 =====
@@ -62,31 +63,36 @@ RNSB
    RNSB
 
 
+Dataloaders
+===========
+
+The following functions allow us to load word sets used in previous works. 
+
 Fetch BingLiu
-=====
+-------------
 
 .. autosummary::
-   :toctree: generated/functions
+   :toctree: generated/dataloaders/
    :template: function.rst
 
    fetch_bingliu
 
 
 Fetch Debias Multiclass Word sets
-=====
+---------------------------------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: generated/dataloaders/
    :template: function.rst
 
    fetch_debias_multiclass
 
 
 Fetch Debias Word Embedding Word Sets
-=====
+-------------------------------------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: generated/dataloaders/
    :template: function.rst
 
    fetch_debiaswe
@@ -94,19 +100,19 @@ Fetch Debias Word Embedding Word Sets
 
 
 Fetch Embedding Dynamic Stereotypes Word Sets
-=====
+---------------------------------------------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: generated/dataloaders/
    :template: function.rst
 
    fetch_eds
 
 Load Word Embedding Association Test Word Sets
-=====
+----------------------------------------------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: generated/dataloaders/
    :template: function.rst
 
    load_weat

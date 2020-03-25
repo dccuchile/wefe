@@ -2,16 +2,18 @@ import numpy as np
 import logging
 import pandas as pd
 
-from .metric import BaseMetric
+from .base_metric import BaseMetric
 from ..word_embedding_model import WordEmbeddingModel
 from ..query import Query
 
 
 class WEAT(BaseMetric):
-    """A implementation of WEAT. It measures the degree of association between two sets of target words and two sets of attribute words through a permutation test.  
+    """A implementation of Word Embedding Association Test (WEAT). 
+    
+    It measures the degree of association between two sets of target words and two sets of attribute words through a permutation test.  
     
     References
-    -------
+    ----------
     Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan. 
     Semantics derived automatically from language corpora contain human-like biases.
     Science,356(6334):183–186, 2017.
@@ -73,7 +75,7 @@ class WEAT(BaseMetric):
 
         # if there is any/some set has less words than the allowed limit, return the default value (nan)
         if embeddings is None:
-            return {'query_name': query_name, 'result': np.nan}
+            return {'query_name': query.query_name_, 'result': np.nan}
 
         # get the target and attribute embeddings
         target_embeddings, attribute_embeddings = embeddings
@@ -86,7 +88,7 @@ class WEAT(BaseMetric):
         # if the requested value is the effect size:
         if return_effect_size:
             result = self.__calc_effect_size(target_0, target_1, attribute_0, attribute_1)
-            return {'query_name': query.query_name, 'result': result}
+            return {'query_name': query.query_name_, 'result': result}
 
         result = self.__calc_weat(target_0, target_1, attribute_0, attribute_1)
-        return {'query_name': query.query_name, 'result': result}
+        return {'query_name': query.query_name_, 'result': result}

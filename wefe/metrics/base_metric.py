@@ -80,16 +80,16 @@ class BaseMetric:
             raise TypeError('warn_filtered_words must be a bool. Given: {}'.format(warn_filtered_words))
 
         # check the cardinality of the target sets of the provided query
-        if self.metric_template[0] != 'n' and query.template[0] != self.metric_template[0]:
+        if self.metric_template[0] != 'n' and query.template_[0] != self.metric_template[0]:
             raise Exception(
                 'The cardinality of the set of target words of the provided query ({}) is different from the cardinality required by {}: ({})'
-                .format(query.template[0], self.metric_name, self.metric_template[0]))
+                .format(query.template_[0], self.metric_name, self.metric_template[0]))
 
         # check the cardinality of the attribute sets of the provided query
-        if self.metric_template[1] != 'n' and query.template[1] != self.metric_template[1]:
+        if self.metric_template[1] != 'n' and query.template_[1] != self.metric_template[1]:
             raise Exception(
                 'The cardinality of the set of attributes words of the provided query ({}) is different from the cardinality required by {}: ({})'
-                .format(query.template[1], self.metric_name, self.metric_template[1]))
+                .format(query.template_[1], self.metric_name, self.metric_template[1]))
 
     def __get_embeddings_from_word_set(self, word_set: list, word_embedding: WordEmbeddingModel,
                                        warn_filtered_words: bool) -> dict:
@@ -111,9 +111,9 @@ class BaseMetric:
         """
 
         # get the word embedding attributes
-        embeddings = word_embedding.word_embedding
-        vocab_prefix = word_embedding.vocab_prefix
-        model_name = word_embedding.model_name
+        embeddings = word_embedding.model_
+        vocab_prefix = word_embedding.vocab_prefix_
+        model_name = word_embedding.model_name_
 
         selected_embeddings = {}
         filtered_words = []
@@ -181,7 +181,7 @@ class BaseMetric:
         attribute_embeddings = []
 
         # get target sets embeddings
-        for target_set, target_set_name in zip(query.target_sets, query.target_sets_names):
+        for target_set, target_set_name in zip(query.target_sets_, query.target_sets_names_):
             embeddings = self.__get_embeddings_from_word_set(target_set, word_embedding, warn_filtered_words)
 
             # if the filtered words are greater than the threshold, log and change the flag.
@@ -192,7 +192,7 @@ class BaseMetric:
                 target_embeddings.append(embeddings)
 
         # get attribute sets embeddings
-        for attribute_set, attribute_set_name in zip(query.attribute_sets, query.attribute_sets_names):
+        for attribute_set, attribute_set_name in zip(query.attribute_sets_, query.attribute_sets_names_):
             embeddings = self.__get_embeddings_from_word_set(attribute_set, word_embedding, warn_filtered_words)
 
             # if the filtered words are greater than the threshold, log and change the flag.

@@ -4,15 +4,16 @@ from typing import Union
 
 from ..query import Query
 from ..word_embedding_model import WordEmbeddingModel
-from .metric import BaseMetric
+from .base_metric import BaseMetric
 
 
 class RND(BaseMetric):
-    """A implementation of Relative Norm Distance. 
+    """A implementation of Relative Norm Distance (RND). 
+    
     It measures the relative strength of association of a set of neutral words with respect to two groups.
 
     References
-    -------
+    ----------
     Nikhil Garg, Londa Schiebinger, Dan Ju-rafsky, and James Zou.   
     Word embeddings quantify 100 years of gender and ethnic stereotypes.
     Proceedings of the National Academy of Sciences, 115(16):E3635–E3644,2018.
@@ -96,7 +97,7 @@ class RND(BaseMetric):
                                                      lost_vocabulary_threshold)
         # if there is any/some set has less words than the allowed limit, return the default value (nan)
         if embeddings is None:
-            return {'query_name': query.query_name, 'result': np.nan}
+            return {'query_name': query.query_name_, 'result': np.nan}
 
         # get the target and attribute embeddings
         target_embeddings_dict, attribute_embeddings_dict = embeddings
@@ -109,4 +110,4 @@ class RND(BaseMetric):
                                                       attribute_words, distance_type, average_distances,
                                                       warn_filtered_words)
 
-        return {"query_name": query.query_name, "result": distance, "results_by_word": distances_by_word}
+        return {"query_name": query.query_name_, "result": distance, "results_by_word": distances_by_word}

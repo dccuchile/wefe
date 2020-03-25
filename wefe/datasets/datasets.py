@@ -26,8 +26,8 @@ def fetch_eds(occupations_year: int = 2015) -> dict:
 
     References
     ----------
-        Garg, N., Schiebinger, L., Jurafsky, D., & Zou, J. (2018). Word embeddings quantify 100 years of gender and ethnic stereotypes. 
-        Proceedings of the National Academy of Sciences, 115(16), E3635-E3644.
+        Word embeddings quantify 100 years of gender and ethnic stereotypes. 
+        Garg, N., Schiebinger, L., Jurafsky, D., & Zou, J. (2018). Proceedings of the National Academy of Sciences, 115(16), E3635-E3644.
         """
 
     EDS_BASE_URL = 'https://raw.githubusercontent.com/nikhgarg/EmbeddingDynamicStereotypes/master/data/'
@@ -102,7 +102,7 @@ def fetch_debiaswe() -> dict:
 
 
     References
-    -------
+    ----------
         Man is to Computer Programmer as Woman is to Homemaker? 
         Debiasing Word Embeddings by Tolga Bolukbasi, Kai-Wei Chang, James Zou, Venkatesh Saligrama, and Adam Kalai. 
         Proceedings of NIPS 2016.
@@ -138,7 +138,7 @@ def fetch_bingliu():
         A dictionary with the positive and negative words.
 
     References
-    -------
+    ----------
         Minqing Hu and Bing Liu. "Mining and Summarizing Customer Reviews." 
         Proceedings of the ACM SIGKDD International Conference on Knowledge 
         Discovery and Data Mining (KDD-2004), Aug 22-25, 2004, Seattle, 
@@ -188,7 +188,7 @@ def fetch_debias_multiclass() -> dict:
         A dictionary in which each key correspond to the name of the set and its values correspond to the word set.
 
     References
-    -------
+    ----------
         Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov. 
         Black is to criminalas caucasian is to police: Detecting and removing multiclass bias in word embeddings.  
         In Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics:
@@ -268,9 +268,8 @@ def load_weat():
 
     References
     ----------
-        Caliskan, A., Bryson, J. J., & Narayanan, A. (2017). 
         Semantics derived automatically from language corpora contain human-like biases. 
-        Science, 356(6334), 183-186.
+        Caliskan, A., Bryson, J. J., & Narayanan, A. (2017). Science, 356(6334), 183-186.
 
     """
     with open('./wefe/datasets/WEAT.json') as WEAT_json:

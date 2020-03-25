@@ -3,11 +3,11 @@ import logging
 
 from ..query import Query
 from ..word_embedding_model import WordEmbeddingModel
-from .metric import BaseMetric
+from .base_metric import BaseMetric
 
 
 class MAC(BaseMetric):
-    """A implementation of Mean Average Cosine Similarity. 
+    """A implementation of Mean Average Cosine Similarity (MAC). 
 
     References
     -------
@@ -57,7 +57,7 @@ class MAC(BaseMetric):
                                                      lost_vocabulary_threshold)
         # if there is any/some set has less words than the allowed limit, return the default value (nan)
         if embeddings is None:
-            return {'query_name': query.query_name, 'result': np.nan}
+            return {'query_name': query.query_name_, 'result': np.nan}
 
         # get the target and attribute embeddings dicts
         target_embeddings_dict, attribute_embeddings_dict = embeddings
@@ -66,4 +66,4 @@ class MAC(BaseMetric):
 
         result = self.calc_mac(target_0_embeddings, attribute_embeddings_all_sets)
 
-        return {'query_name': query.query_name, 'result': result}
+        return {'query_name': query.query_name_, 'result': result}

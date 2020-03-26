@@ -4,9 +4,7 @@ from ..utils import load_weat_w2v
 from ..word_embedding_model import WordEmbeddingModel
 from ..datasets.datasets import load_weat
 from ..query import Query
-from ..metrics.WEAT import WEAT
-from ..metrics.RND import RND
-from ..metrics.RNSB import RNSB
+from ..metrics import WEAT, RND, RNSB, MAC
 
 
 def test_weat():
@@ -53,4 +51,17 @@ def test_rnsb():
     results = rnsb.run_query(query, model)
 
     assert results['query_name'] == 'Flowers and Insects wrt Pleasant and Unpleasant'
+    assert isinstance(results['result'], (np.float32, np.float64, float))
+
+
+def test_mac():
+    weat_word_set = load_weat()
+    model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
+
+    mac = MAC()
+    query = Query([weat_word_set['Flowers']], [weat_word_set['Pleasant 5'], weat_word_set['Pleasant 9']], ['Flowers'],
+                  ['Pleasant', 'Pleasant 2'])
+    results = mac.run_query(query, model)
+
+    assert results['query_name'] == 'Flowers wrt Pleasant and Pleasant 2'
     assert isinstance(results['result'], (np.float32, np.float64, float))

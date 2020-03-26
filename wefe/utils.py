@@ -2,23 +2,21 @@ import pandas as pd
 import logging
 import numpy as np
 import plotly.express as px
-
+import plotly.graph_objects as go
+from scipy import stats
 from gensim.models import KeyedVectors
+
 from .word_embedding_model import WordEmbeddingModel
 from .query import Query
-from typing import Union
-from wefe.metrics import MAC, RND, RNSB, WEAT, BaseMetric
+from typing import Union, Iterable
+from wefe.metrics import MAC, RND, RNSB, WEAT
+
+# -----------------------------------------------------------------------------
+# ---------------------------------- Runners ----------------------------------
+# -----------------------------------------------------------------------------
 
 
-def load_weat_w2v():
-    from gensim.models import KeyedVectors
-    # load dummy weat word vectors:
-    weat_we = KeyedVectors.load_word2vec_format('./wefe/datasets/weat_w2v.txt', binary=False)
-    return weat_we
-
-
-## RUNNERS
-def run_queries(metric: Union[MAC, RND, RNSB, WEAT, BaseMetric], queries: list, word_embeddings_models: list,
+def run_queries(metric: Union[MAC, RND, RNSB, WEAT], queries: list, word_embeddings_models: list,
                 queries_set_name: str = 'Unnamed queries set', lost_vocabulary_threshold: float = 0.2,
                 metric_params: dict = {}, include_average_by_embedding: Union[None, str] = 'include',
                 average_with_abs_values: bool = True) -> pd.DataFrame:
@@ -26,7 +24,7 @@ def run_queries(metric: Union[MAC, RND, RNSB, WEAT, BaseMetric], queries: list, 
     
     Parameters
     ----------
-    metric : Union[MAC, RND, RNSB, WEAT, BaseMetric]
+    metric : Union[MAC, RND, RNSB, WEAT]
         A metric class.
     queries : list
         An iterable with a set of queries.
@@ -72,10 +70,9 @@ def run_queries(metric: Union[MAC, RND, RNSB, WEAT, BaseMetric], queries: list, 
     if len(word_embeddings_models) == 0:
         raise Exception('word_vectors_wrappers parameter must be a non empty list or numpy array. given: {}'.format(
             word_embeddings_models))
-    for idx, word_vectors_wrapper in enumerate(word_embeddings_models):
-        if word_vectors_wrapper is None or not isinstance(word_vectors_wrapper, WordEmbeddingModel):
-            raise TypeError('item on index {} must be a WordVectorsWrapper instance. given: {}'.format(
-                idx, word_vectors_wrapper))
+    for idx, model in enumerate(word_embeddings_models):
+        if model is None or not isinstance(model, WordEmbeddingModel):
+            raise TypeError('item on index {} must be a WordEmbeddingModel instance. given: {}'.format(idx, model))
 
     # experiment name handling
     if not isinstance(queries_set_name, str):
@@ -99,9 +96,9 @@ def run_queries(metric: Union[MAC, RND, RNSB, WEAT, BaseMetric], queries: list, 
     query_names = []
 
     for query in queries:
-        for word_vector_wrapper in word_embeddings_models:
-            result = metric_instance.run_query(query, word_vector_wrapper, lost_vocabulary_threshold, **metric_params)
-            result['model_name'] = word_vector_wrapper.model_name
+        for model in word_embeddings_models:
+            result = metric_instance.run_query(query, model, lost_vocabulary_threshold, **metric_params)
+            result['model_name'] = model.model_name_
             results.append(result)
 
             if result['query_name'] not in query_names:
@@ -110,14 +107,14 @@ def run_queries(metric: Union[MAC, RND, RNSB, WEAT, BaseMetric], queries: list, 
     # get original column order
     # reorder the results in a legible table
     pivoted_results = pd.DataFrame(results).pivot(index='model_name', columns='query_name', values='result')
-    pivoted_results = pivoted_results.reindex(index=[wvw.model_name for wvw in word_embeddings_models],
+    pivoted_results = pivoted_results.reindex(index=[model.model_name_ for model in word_embeddings_models],
                                               columns=query_names)
     if include_average_by_embedding == 'include' or include_average_by_embedding == 'only':
         if average_with_abs_values:
             averaged_results = pd.DataFrame(pivoted_results.abs().mean(1))
         else:
             averaged_results = pd.DataFrame(pivoted_results.mean(1))
-        averaged_results.columns = ['{}: {} average score'.format(metric_instance.metric_short_name, queries_set_name)]
+        averaged_results.columns = ['{}: {} average score'.format(metric_instance.metric_short_name_, queries_set_name)]
         results = pd.concat([pivoted_results, averaged_results],
                             axis=1) if include_average_by_embedding == 'include' else averaged_results
         return results
@@ -179,3 +176,129 @@ def plot_queries_results(results: pd.DataFrame, by: str = 'query'):
     fig.for_each_trace(lambda t: t.update(x=['wrt<br>'.join(label.split('wrt')) for label in t.x]))
     # fig.show()
     return fig
+
+
+# -----------------------------------------------------------------------------
+# --------------------------------- Rankings ----------------------------------
+# -----------------------------------------------------------------------------
+
+
+def create_ranking(results_dataframes: Iterable[pd.DataFrame]):
+    """Creates a ranking form the average scores of the provided dataframes.
+    
+    Parameters
+    ----------
+    results_dataframes : Iterable[pd.DataFrame]
+        A list or array of dataframes returned by the run_queries function.
+    
+    Returns
+    -------
+    pd.DataFrame
+        A dataframe with the ranked average scores.
+    
+    Raises
+    ------
+    Exception
+        If there is no average column in some result Dataframe.
+    TypeError
+        If some element of results_dataframes is not a pandas DataFrame.
+    """
+
+    def get_average_scores(results_dataframes: list):
+        remaining_columns = []
+
+        for idx, results in enumerate(results_dataframes):
+            is_average_inside_result_df = False
+
+            # find the col with that contains the average word inside.
+            for col in results.columns:
+                if 'average' in col:
+                    remaining_columns.append(results[[col]])
+                    is_average_inside_result_df = True
+
+            # if the result dataframe does not have a average column, raise a exception.
+            if is_average_inside_result_df == False:
+                raise Exception('There is no average column in the {} dataframe\n{}'.format(idx, results))
+
+        return pd.concat(remaining_columns, axis=1)
+
+    # check the input.
+    for idx, results_df in enumerate(results_dataframes):
+        if not isinstance(results_df, pd.DataFrame):
+            raise TypeError(
+                'All elements of results_dataframes must be a pandas Dataframe instance. Given at position {}: {}'.
+                format(idx, results_df))
+    # get the avg_scores columns and merge into one dataframe
+    avg_scores = get_average_scores(results_dataframes)
+
+    rankings = []
+    for col in avg_scores:
+        # for each avg_score column, calculate the ranking
+        rankings.append(avg_scores[col].values.argsort(axis=0).argsort(axis=0) + 1)
+    return pd.DataFrame(rankings, columns=avg_scores.index, index=avg_scores.columns).T
+
+
+def plot_ranking(ranking: pd.DataFrame, title: str = '', use_metric_as_facet: bool = True):
+
+    def melt_df(results):
+        results = results.copy()
+        results['exp_name'] = results.index
+        id_vars = ['exp_name']
+        cols = results.columns
+        values_vars = [col_name for col_name in cols if col_name not in id_vars]
+        melted_results = pd.melt(results, id_vars=id_vars, value_vars=values_vars, var_name='Metric')
+        melted_results.columns = ['Embedding model', 'Metric', 'Ranking']
+        return melted_results
+
+    melted_ranking = melt_df(ranking.copy(deep=True))
+
+    if use_metric_as_facet == True:
+        fig = px.bar(melted_ranking, x="Ranking", y="Embedding model", barmode="stack", color='Metric', orientation='h',
+                     facet_col='Metric')
+    else:
+        fig = px.bar(melted_ranking, x="Ranking", y="Embedding model", barmode="stack", color='Metric', orientation='h')
+
+    fig.update_layout(showlegend=False)
+    fig.update_yaxes(title_text='')
+    fig.update_yaxes(tickfont=dict(size=10))
+    fig.for_each_trace(lambda t: t.update(name=t.name.split('=')[1]))
+    fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[1]))
+    return fig
+
+
+# -----------------------------------------------------------------------------
+# ------------------------------- Correlations --------------------------------
+# -----------------------------------------------------------------------------
+
+
+def calculate_ranking_correlations(ranking_dataframe, correlation_function=stats.spearmanr):
+
+    # correlation_function = 'stats.kendaltau'
+
+    matrix = []
+
+    for idx_1, metric_1 in enumerate(ranking_dataframe.columns):
+        matrix.append([])
+        for idx_2, metric_2 in enumerate(ranking_dataframe.columns):
+            matrix[idx_1].append(
+                correlation_function(ranking_dataframe.iloc[:, [idx_1]],
+                                     ranking_dataframe.iloc[:, [idx_2]]).correlation)
+
+    correlation_matrix = pd.DataFrame(matrix)
+    correlation_matrix.columns = ranking_dataframe.columns
+    correlation_matrix.index = ranking_dataframe.columns
+    return correlation_matrix
+
+
+def plot_ranking_correlations(correlation_matrix, title=''):
+    fig = go.Figure(data=go.Heatmap(z=correlation_matrix, x=correlation_matrix.columns, y=correlation_matrix.index,
+                                    hoverongaps=False, zmin=0.0, zmax=1, colorscale='Darkmint'))
+    fig.update_layout(title=title, font=dict(color="#000000"))
+    return fig
+
+
+def load_weat_w2v():
+    from gensim.models import KeyedVectors
+    # load dummy weat word vectors:
+    weat_we = KeyedVectors.load_word2vec_format('./wefe/datasets/weat_w2v.txt', binary=False)
+    return weat_we

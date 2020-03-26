@@ -18,7 +18,7 @@ class MAC(BaseMetric):
         Minneapolis, Minnesota, June 2019. As-sociation for Computational Linguistics   
     """
 
-    def __init__(self, disable_vocab_warnings: bool = True):
+    def __init__(self):
         super().__init__((1, 'n'), 'Mean Average Cosine Similarity', 'MAC')
 
     def calc_s(self, t, A_j):

@@ -6,32 +6,57 @@ from typing import Union, NoReturn, Tuple
 
 
 class BaseMetric:
+    """ A base class fot implement any metric. 
+    
+    It contains several utils for common Metric operations such as check the inputs before execute 
+    a query and transform a queries words into word embeddings, among others.
 
-    def __init__(self, metric_template: tuple, metric_name: str, metric_short_name: str):
+    """
+
+    def __init__(self, metric_template: Tuple[Union[int, str], Union[int, str]], metric_name: str,
+                 metric_short_name: str):
         """Initializes a BaseMetric.
 
         Parameters
         ----------
-        metric_template : tuple
-            The template required by the metric.
+        metric_template : Tuple[Union[int, str], Union[int, str]]
+            The template (the size of target and attribute sets) required for the operation of the metric.
         metric_name : str
             The name of the metric.
         metric_short_name : str
             The initials or short name of the metric.
+
         Raises
         ------
         TypeError
-            If any element of the template is not an integer or string.
+            If some element of the template is not an integer or string.
+        TypeError
+            If metric_name is not a string
+        TypeError
+            If metric_short_name is not a string
+
+        Attributes
+        ----------
+        metric_template_ : Tuple[Union[int, str], Union[int, str]]
+            A tuple that indicates the size of target and attribute sets required for the operation of the metric.
+        metric_name : str
+            The name of the metric.
+        metric_short_name: 
+            A short name of abbreviation of the metric.
         """
 
-        # check types of template_required
+        # check types
         if not isinstance(metric_template[0], (str, int)) or not isinstance(metric_template[1], (str, int)):
             raise TypeError(
                 'Both components of template_required must be int or str. Given: {}'.format(metric_template))
+        if not isinstance(metric_name, str):
+            raise TypeError('metric_name must be a str. given: {}'.format(metric_name))
+        if not isinstance(metric_short_name, str):
+            raise TypeError('metric_short_name must be a str. given: {}'.format(metric_short_name))
 
-        self.metric_template = metric_template
-        self.metric_name = metric_name
-        self.metric_short_name = metric_short_name
+        self.metric_template_ = metric_template
+        self.metric_name_ = metric_name
+        self.metric_short_name_ = metric_short_name
 
     def _check_input(self, query: Query, word_embedding: WordEmbeddingModel,
                      lost_vocabulary_threshold: Union[float, np.float32, np.float64],
@@ -79,21 +104,23 @@ class BaseMetric:
         if not isinstance(warn_filtered_words, bool):
             raise TypeError('warn_filtered_words must be a bool. Given: {}'.format(warn_filtered_words))
 
+        # templates:
+
         # check the cardinality of the target sets of the provided query
-        if self.metric_template[0] != 'n' and query.template_[0] != self.metric_template[0]:
+        if self.metric_template_[0] != 'n' and query.template_[0] != self.metric_template_[0]:
             raise Exception(
                 'The cardinality of the set of target words of the provided query ({}) is different from the cardinality required by {}: ({})'
-                .format(query.template_[0], self.metric_name, self.metric_template[0]))
+                .format(query.template_[0], self.metric_name_, self.metric_template_[0]))
 
         # check the cardinality of the attribute sets of the provided query
-        if self.metric_template[1] != 'n' and query.template_[1] != self.metric_template[1]:
+        if self.metric_template_[1] != 'n' and query.template_[1] != self.metric_template_[1]:
             raise Exception(
                 'The cardinality of the set of attributes words of the provided query ({}) is different from the cardinality required by {}: ({})'
-                .format(query.template_[1], self.metric_name, self.metric_template[1]))
+                .format(query.template_[1], self.metric_name_, self.metric_template_[1]))
 
-    def __get_embeddings_from_word_set(self, word_set: list, word_embedding: WordEmbeddingModel,
-                                       warn_filtered_words: bool) -> dict:
-        """Transforms a set of words into their respective embeddings. Filters out words that are not in the model's vocabulary.
+    def __get_embeddings_from_word_set_(self, word_set: list, word_embedding: WordEmbeddingModel,
+                                        warn_filtered_words: bool) -> dict:
+        """Transforms a set of words into their respective embeddings and filters out words that are not in the model's vocabulary.
         
         Parameters
         ----------
@@ -170,7 +197,7 @@ class BaseMetric:
             if percentage_of_filtered_words > lost_words_threshold:
                 logging.warning(
                     'Words lost during conversion of {} to {} embeddings greater than the threshold of lost vocabulary ({} > {}).'
-                    .format(word_set_name if word_set_name != '' else 'Unnamed Word set', word_embedding.model_name,
+                    .format(word_set_name if word_set_name != '' else 'Unnamed Word set', word_embedding.model_name_,
                             round(percentage_of_filtered_words, 2), lost_words_threshold))
                 return True
             return False
@@ -182,7 +209,7 @@ class BaseMetric:
 
         # get target sets embeddings
         for target_set, target_set_name in zip(query.target_sets_, query.target_sets_names_):
-            embeddings = self.__get_embeddings_from_word_set(target_set, word_embedding, warn_filtered_words)
+            embeddings = self.__get_embeddings_from_word_set_(target_set, word_embedding, warn_filtered_words)
 
             # if the filtered words are greater than the threshold, log and change the flag.
             if is_percentage_of_filtered_words_under_threshold(embeddings, target_set, target_set_name,
@@ -193,7 +220,7 @@ class BaseMetric:
 
         # get attribute sets embeddings
         for attribute_set, attribute_set_name in zip(query.attribute_sets_, query.attribute_sets_names_):
-            embeddings = self.__get_embeddings_from_word_set(attribute_set, word_embedding, warn_filtered_words)
+            embeddings = self.__get_embeddings_from_word_set_(attribute_set, word_embedding, warn_filtered_words)
 
             # if the filtered words are greater than the threshold, log and change the flag.
             if is_percentage_of_filtered_words_under_threshold(embeddings, attribute_set, attribute_set_name,

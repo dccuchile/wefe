@@ -4,6 +4,33 @@ from ..metrics.base_metric import BaseMetric
 from ..word_embedding_model import WordEmbeddingModel
 from ..datasets.datasets import load_weat
 from ..query import Query
+import numpy as np
+
+
+def test_create_base_metric():
+
+    with pytest.raises(TypeError, match='Both components of template_required must be int or str*'):
+        BaseMetric((None, 2), 'Example Metric', 'EM')
+
+    with pytest.raises(TypeError, match='Both components of template_required must be int or str*'):
+        BaseMetric((1, None), 'Example Metric', 'EM')
+
+    with pytest.raises(TypeError, match='Both components of template_required must be int or str*'):
+        BaseMetric(({}, 2), 'Example Metric', 'EM')
+
+    with pytest.raises(TypeError, match='Both components of template_required must be int or str*'):
+        BaseMetric((1, {}), 'Example Metric', 'EM')
+
+    with pytest.raises(TypeError, match='metric_name must be a str*'):
+        BaseMetric((1, 'n'), 1, 'EM')
+
+    with pytest.raises(TypeError, match='metric_short_name must be a str*'):
+        BaseMetric((1, 'n'), 'Example Metric', 0)
+
+    base_metric = BaseMetric((2, 'n'), 'Example Metric', 'EM')
+    assert base_metric.metric_template_ == (2, 'n')
+    assert base_metric.metric_name_ == 'Example Metric'
+    assert base_metric.metric_short_name_ == 'EM'
 
 
 def test_get_embeddings_from_word_set():
@@ -38,8 +65,10 @@ def test_validate_metric_input():
 
     flowers = weat['Flowers']
     weapons = weat['Weapons']
+    instruments = weat['Instruments']
     pleasant = weat['Pleasant 5']
     unpleasant = weat['Unpleasant 5']
+
     query = Query([flowers, weapons], [pleasant, unpleasant], ['Flowers', 'Weapons'], ['Pleasant', 'Unpleasant'])
 
     with pytest.raises(TypeError, match='query parameter must be a Query instance.'):
@@ -53,3 +82,33 @@ def test_validate_metric_input():
 
     with pytest.raises(TypeError, match='warn_filtered_words must be a bool. '):
         base_metric._check_input(query, model, 0.2, None)
+
+    query = Query([flowers, weapons, instruments], [pleasant, unpleasant], ['Flowers', 'Weapons', 'Instruments'],
+                  ['Pleasant', 'Unpleasant'])
+    with pytest.raises(Exception, match='The cardinality of the set of target words of the provided query*'):
+        base_metric._check_input(query, model, 0.2, False)
+
+    query = Query([flowers, weapons], [pleasant, unpleasant], ['Flowers', 'Weapons'], ['Pleasant', 'Unpleasant'])
+    with pytest.raises(Exception, match='The cardinality of the set of attributes words of the provided query*'):
+        base_metric._check_input(query, model, 0.2, False)
+
+
+def test_some_set_has_fewer_words_than_the_threshold():
+    base_metric = BaseMetric((2, 3), 'Example Metric', 'EM')
+    weat = load_weat()
+    w2v = load_weat_w2v()
+    model = WordEmbeddingModel(w2v, 'weat_w2v', '')
+
+    flowers = weat['Flowers']
+    weapons = weat['Weapons']
+    pleasant = weat['Pleasant 5']
+    unpleasant = weat['Unpleasant 5']
+
+    query = Query([flowers, ['bla', 'asd']], [pleasant, unpleasant], ['Flowers', 'bla'], ['Pleasant', 'Unpleasant'])
+    assert None == base_metric._get_embeddings_from_query(query, model)
+    query = Query([['bla', 'asd'], weapons], [pleasant, unpleasant], ['Flowers', 'bla'], ['Pleasant', 'Unpleasant'])
+    assert None == base_metric._get_embeddings_from_query(query, model)
+    query = Query([flowers, weapons], [['bla', 'asd'], unpleasant], ['Flowers', 'Weapons'], ['bla', 'Unpleasant'])
+    assert None == base_metric._get_embeddings_from_query(query, model)
+    query = Query([flowers, weapons], [pleasant, ['bla', 'asd']], ['Flowers', 'Weapons'], ['Pleasant', 'bla'])
+    assert None == base_metric._get_embeddings_from_query(query, model)

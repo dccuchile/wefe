@@ -1,0 +1,182 @@
+######################
+Case Uses and Examples
+######################
+
+WEAT Replication
+----------------
+
+The following code represents a replica of the experiments performed on the paper:
+
+    Semantics derived automatically from language corpora contain human-like biases.
+    Aylin Caliskan, Joanna J. Bryson, Arvind Narayanan
+
+At the end of the code are the results obtained by the execution of the code
+Note:
+The results do not coincide perfectly because the vocabularies, models and implementation of WEAT used during the development of the paper and now may be different. 
+In most cases, however, it can be seen that there is an concordance between the results. 
+
+>>> from wefe.metrics import WEAT
+>>> from wefe.datasets import load_weat
+>>> from wefe.query import Query
+>>> from wefe.word_embedding_model import WordEmbeddingModel
+>>> from wefe.utils import run_queries
+>>> 
+>>> import gensim.downloader as api
+>>> 
+>>> # Load the wordset
+>>> weat_wordset = load_weat()
+>>> 
+>>> # Define the 10 Queries:
+>>> queries = [
+>>>     Query([weat_wordset['Flowers'], weat_wordset['Insects']],
+>>>           [weat_wordset['Pleasant 5'], weat_wordset['Unpleasant 5']],
+>>>           ['Flowers', 'Insects'], ['Pleasant(5)', 'Unpleasant(5)']),
+>>>     Query([weat_wordset['Instruments'], weat_wordset['Weapons']],
+>>>           [weat_wordset['Pleasant 5'], weat_wordset['Unpleasant 5']],
+>>>           ['Instruments', 'Weapons'], ['Pleasant(5)', 'Unpleasant(5)']),
+>>>     Query([
+>>>         weat_wordset['European american names 5'],
+>>>         weat_wordset['African american names 5']
+>>>     ], [weat_wordset['Pleasant 5'], weat_wordset['Unpleasant 5']],
+>>>           ['European american names(5)', 'African american names(5)'],
+>>>           ['Pleasant(5)', 'Unpleasant(5)']),
+>>>     Query([
+>>>         weat_wordset['European american names 7'],
+>>>         weat_wordset['African american names 7']
+>>>     ], [weat_wordset['Pleasant 5'], weat_wordset['Unpleasant 5']],
+>>>           ['European american names(7)', 'African american names(7)'],
+>>>           ['Pleasant(5)', 'Unpleasant(5)']),
+>>>     Query([
+>>>         weat_wordset['European american names 7'],
+>>>         weat_wordset['African american names 7']
+>>>     ], [weat_wordset['Pleasant 9'], weat_wordset['Unpleasant 9']],
+>>>           ['European american names(7)', 'African american names(7)'],
+>>>           ['Pleasant(9)', 'Unpleasant(9)']),
+>>>     Query([weat_wordset['Male names'], weat_wordset['Female names']],
+>>>           [weat_wordset['Career'], weat_wordset['Family']],
+>>>           ['Male names', 'Female names'], ['Career', 'Family']),
+>>>     Query([weat_wordset['Math'], weat_wordset['Arts']],
+>>>           [weat_wordset['Male terms'], weat_wordset['Female terms']],
+>>>           ['Math', 'Arts'], ['Male terms', 'Female terms']),
+>>>     Query([weat_wordset['Science'], weat_wordset['Arts 2']],
+>>>           [weat_wordset['Male terms'], weat_wordset['Female terms']],
+>>>           ['Science', 'Arts 2'], ['Male terms', 'Female terms']),
+>>>     Query([weat_wordset['Mental disease'], weat_wordset['Physical disease']],
+>>>           [weat_wordset['Temporary'], weat_wordset['Permanent']],
+>>>           ['Mental disease', 'Physical disease'], ['Temporary', 'Permanent']),
+>>>     Query([
+>>>         weat_wordset['Young peoples names'], weat_wordset['Old peoples names']
+>>>     ], [weat_wordset['Pleasant 9'], weat_wordset['Unpleasant 9']],
+>>>           ['Young peoples names', 'Old peoples names'],
+>>>           ['Pleasant(9)', 'Unpleasant(9)'])
+>>> ]
+>>> 
+>>> # Load the embedding models
+>>> w2v = WordEmbeddingModel( api.load('word2vec-google-news-300'), 'word2vec-google-news-300')
+>>> glove = WordEmbeddingModel( api.load('glove-wiki-gigaword-300'), 'glove-wiki-gigaword-300')
+>>> 
+>>> # Execute the queries with the models and WEAT
+>>> run_queries(WEAT,
+>>>             queries, [w2v, glove],
+>>>             include_average_by_embedding=None,
+>>>             warn_filtered_words=True,
+>>>             metric_params={'return_effect_size': True},
+>>>             lost_vocabulary_threshold=.25).T.round(2)
+
+
+This table shows the output of the execution of the previous code:
+
++------------------------------------------------------------------------------------------+------------------------+-----------------------+
+|                                      Query / Model                                       |word2vec-google-news-300|glove-wiki-gigaword-300|
++==========================================================================================+========================+=======================+
+|Flowers and Insects wrt Pleasant(5) and Unpleasant(5)                                     |                    1.55|                   1.40|
++------------------------------------------------------------------------------------------+------------------------+-----------------------+
+|Instruments and Weapons wrt Pleasant(5) and Unpleasant(5)                                 |                    1.64|                   1.45|
++------------------------------------------------------------------------------------------+------------------------+-----------------------+
+|European american names(5) and African american names(5) wrt Pleasant(5) and Unpleasant(5)|                    0.67|                   1.19|
++------------------------------------------------------------------------------------------+------------------------+-----------------------+
+|European american names(7) and African american names(7) wrt Pleasant(5) and Unpleasant(5)|                    1.40|                   1.38|
++------------------------------------------------------------------------------------------+------------------------+-----------------------+
+|European american names(7) and African american names(7) wrt Pleasant(9) and Unpleasant(9)|                    0.73|                   1.40|
++------------------------------------------------------------------------------------------+------------------------+-----------------------+
+|Male names and Female names wrt Career and Family                                         |                    1.95|                   1.75|
++------------------------------------------------------------------------------------------+------------------------+-----------------------+
+|Math and Arts wrt Male terms and Female terms                                             |                    1.12|                   1.33|
++------------------------------------------------------------------------------------------+------------------------+-----------------------+
+|Science and Arts 2 wrt Male terms and Female terms                                        |                    1.26|                   1.57|
++------------------------------------------------------------------------------------------+------------------------+-----------------------+
+|Mental disease and Physical disease wrt Temporary and Permanent                           |                    1.35|                   1.31|
++------------------------------------------------------------------------------------------+------------------------+-----------------------+
+|Young peoples names and Old peoples names wrt Pleasant(9) and Unpleasant(9)               |                   -0.20|                   0.85|
++------------------------------------------------------------------------------------------+------------------------+-----------------------+
+
+
+RNSB Replication
+----------------
+
+The following code represents a replica of the experiments performed on the paper:
+
+    Chris Sweeney and Maryam Najafian.
+    A transparent framework for evaluating unintended demographic bias in word embeddings.
+    In Proceedings of the 57th Annual Meeting of the Associationfor Computational Linguistics, pages 1662–1667, 2019.
+
+Note: Due the formulation of the metric (it trains a logistic regression in each execution) we can never get the same results. 
+However, those obtained by the code are very similar to those obtained by the paper's makers.
+
+>>> from wefe.datasets import fetch_bingliu
+>>> from wefe.metrics import RNSB
+>>> from wefe.query import Query
+>>> from wefe.word_embedding_model import WordEmbeddingModel
+>>> 
+>>> import pandas as pd
+>>> import plotly.express as px
+>>> import gensim.downloader as api
+>>> 
+>>> # Create and fetch the word sets
+>>> RNSB_words = [
+>>>     'swedish', 'irish', 'mexican', 'chinese', 'filipino', 'german', 'english',
+>>>     'french', 'norwegian', 'american', 'indian', 'dutch', 'russian',
+>>>     'scottish', 'italian'
+>>> ]
+>>> bing_liu = fetch_bingliu()
+>>> 
+>>> # Fetch the models
+>>> glove = WordEmbeddingModel(api.load('glove-wiki-gigaword-300'),
+>>>                            'glove-wiki-gigaword-300')
+>>> conceptnet = WordEmbeddingModel(api.load('conceptnet-numberbatch-17-06-300'),
+>>>                                 'conceptnet-numberbatch-17',
+>>>                                 vocab_prefix='/c/en/')
+>>> 
+>>> # Create the query
+>>> query = Query([RNSB_words],
+>>>               [bing_liu['Positive words'], bing_liu['Negative words']],
+>>>               ['Ethnicity words'], ['Positive Words', 'Negative Words'])
+>>> 
+>>> # Run the queries
+>>> glove_results = RNSB().run_query(query, glove)
+>>> conceptnet_results = RNSB().run_query(query, conceptnet)
+>>> 
+>>> # Show the results obtained with glove
+>>> fig = px.bar(pd.DataFrame(glove_results['negative_sentiment_distribution'],
+>>>                           columns=['Word', 'Sentiment probability']),
+>>>              x='Word',
+>>>              y='Sentiment probability',
+>>>              title='Glove negative sentiment distribution')
+>>> fig.show()
+
+.. raw:: html
+
+    <object data="glove_rnsb.svg" type="image/svg+xml"></object>
+
+>>> fig = px.bar(pd.DataFrame(
+>>>     conceptnet_results['negative_sentiment_distribution'],
+>>>     columns=['Word', 'Sentiment probability']),
+>>>              x='Word',
+>>>              y='Sentiment probability',
+>>>              title='Conceptnet negative sentiment distribution')
+>>> fig.show()
+
+
+.. raw:: html
+
+    <object data="conceptnet_rnsb.svg" type="image/svg+xml"></object>

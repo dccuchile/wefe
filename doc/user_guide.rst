@@ -6,178 +6,158 @@
 User guide
 ==================================================
 
-WIP
----
 
-WIP...
+Run a Query
+===================================================================
 
-.. The central piece of transformer, regressor, and classifier is
-.. :class:`sklearn.base.BaseEstimator`. All estimators in scikit-learn are derived
-.. from this class. In more details, this base class enables to set and get
-.. parameters of the estimator. It can be imported as::
+The following code will show how to run aquery using one Word Embedding and a particular metric (WEAT).
+The common flow to perform a query in WEFE consist in three steps, which will be displayed next to the code:
 
-..     >>> from sklearn.base import BaseEstimator
+>>> from wefe.query import Query
+>>> from wefe.word_embedding_model import WordEmbeddingModel
+>>> from wefe.metrics.WEAT import WEAT
+>>> from wefe.datasets.datasets import load_weat
+>>> import gensim.downloader as api
 
-.. Once imported, you can create a class which inherate from this base class::
+1. Load the Word Embedding pretrained model from gensim and then, create a WordEmbeddingModel instance with it.
+For this example, we will use a twitter_25 .
 
-..     >>> class MyOwnEstimator(BaseEstimator):
-..     ...     pass
+>>> twitter_25 = api.load('glove-twitter-25')
+>>> model = WordEmbeddingModel(twitter_25, 'glove twitter dim=25')
 
-.. Transformer
-.. -----------
+2. Create the Query with a loaded, fetched or custom target and attribute word sets.
+For this example, we will create a query with gender terms with respect to family and career. 
+The words we will use will be taken from the set of words used in the WEAT paper (included in the package).
 
-.. Transformers are scikit-learn estimators which implement a ``transform`` method.
-.. The use case is the following:
+>>> # load the weat word sets
+>>> word_sets = load_weat()
+>>> 
+>>> gender_query_1 = Query([word_sets['Male terms'], word_sets['Female terms']],
+>>>                        [word_sets['Career'], word_sets['Family']],
+>>>                        ['Male terms', 'Female terms'], ['Career', 'Family'])
 
-.. * at ``fit``, some parameters can be learned from ``X`` and ``y``;
-.. * at ``transform``, `X` will be transformed, using the parameters learned
-..   during ``fit``.
+3. Instance the metric that you will use and then, execute run_query with the parameters created in the past steps.
+In this case we will use the WEAT metric. 
 
-.. .. _mixin: https://en.wikipedia.org/wiki/Mixin
+>>> weat = WEAT()
+>>> result = weat.run_query(query, model)
+>>> print(result)
+{'query_name': 'Male Terms and Female Terms wrt Arts and Science',
+ 'result': -0.010003209}
 
-.. In addition, scikit-learn provides a
-.. mixin_, i.e. :class:`sklearn.base.TransformerMixin`, which
-.. implement the combination of ``fit`` and ``transform`` called ``fit_transform``::
+Run several Queries
+===================
 
-.. One can import the mixin class as::
+This package also implements several scripts that allows you to run several queries on several word embedding models and 
+The following code will show how to run various gender and ethnicity queries over a different glove models trained using the twitter dataset. 
 
-..     >>> from sklearn.base import TransformerMixin
 
-.. Therefore, when creating a transformer, you need to create a class which
-.. inherits from both :class:`sklearn.base.BaseEstimator` and
-.. :class:`sklearn.base.TransformerMixin`. The scikit-learn API imposed ``fit`` to
-.. **return ``self``**. The reason is that it allows to pipeline ``fit`` and
-.. ``transform`` imposed by the :class:`sklearn.base.TransformerMixin`. The
-.. ``fit`` method is expected to have ``X`` and ``y`` as inputs. Note that
-.. ``transform`` takes only ``X`` as input and is expected to return the
-.. transformed version of ``X``::
+>>> from wefe.query import Query
+>>> from wefe.datasets.datasets import load_weat
+>>> from wefe.word_embedding_model import WordEmbeddingModel
+>>> from wefe.metrics.WEAT import WEAT
+>>> from wefe.utils import run_queries
+>>> import gensim.downloader as api
 
-..     >>> class MyOwnTransformer(BaseEstimator, TransformerMixin):
-..     ...     def fit(self, X, y=None):
-..     ...         return self
-..     ...     def transform(self, X):
-..     ...         return X
+1. Load the glove twitter models. This models were trained using the same dataset, but varying only in the dimensions of the embeddings. 
 
-.. We build a basic example to show that our :class:`MyOwnTransformer` is working
-.. within a scikit-learn ``pipeline``::
+>>> model_1 = WordEmbeddingModel(api.load('glove-twitter-25'), 'glove twitter dim=25')
+>>> model_2 = WordEmbeddingModel(api.load('glove-twitter-50'), 'glove twitter dim=50')
+>>> model_3 = WordEmbeddingModel(api.load('glove-twitter-100'), 'glove twitter dim=100')
+>>> models = [model_1, model_2, model_3]
 
-..     >>> from sklearn.datasets import load_iris
-..     >>> from sklearn.pipeline import make_pipeline
-..     >>> from sklearn.linear_model import LogisticRegression
-..     >>> X, y = load_iris(return_X_y=True)
-..     >>> pipe = make_pipeline(MyOwnTransformer(),
-..     ...                      LogisticRegression(random_state=10,
-..     ...                                         solver='lbfgs',
-..     ...                                         multi_class='auto'))
-..     >>> pipe.fit(X, y)  # doctest: +ELLIPSIS
-..     Pipeline(...)
-..     >>> pipe.predict(X)  # doctest: +ELLIPSIS
-..     array([...])
+2. Now, we will load the WEAT word set. From this, we will create three  queries that will intended to measure gender bias and two queries to measure ethnicity bias.
 
-.. Predictor
-.. ---------
+>>> # load the WEAT word set (included into the package)
+>>> word_sets = load_weat()
+>>> 
+>>> # create the gender queries.
+>>> gender_query_1 = Query([word_sets['Male terms'], word_sets['Female terms']],
+>>>                        [word_sets['Career'], word_sets['Family']],
+>>>                        ['Male terms', 'Female terms'], ['Carrer', 'Family'])
+>>> gender_query_2 = Query([word_sets['Male terms'], word_sets['Female terms']],
+>>>                        [word_sets['Science'], word_sets['Arts']],
+>>>                        ['Male terms', 'Female terms'], ['Science', 'Arts'])
+>>> gender_query_3 = Query([word_sets['Male terms'], word_sets['Female terms']],
+>>>                        [word_sets['Math'], word_sets['Arts 2']],
+>>>                        ['Male terms', 'Female terms'], ['Math', 'Arts'])
+>>>
+>>> # create the ethnicity queries.
+>>> ethnicity_query_1 = Query([word_sets['European american names 5'],
+>>>                            word_sets['African american names 5']],
+>>>                           [word_sets['Pleasant 5'], word_sets['Unpleasant 5']],
+>>>                           ['European Names', 'African Names'],
+>>>                           ['Pleasant', 'Unpleasant'])
+>>> 
+>>> ethnicity_query_2 = Query([word_sets['European american names 7'],
+>>>                            word_sets['African american names 7']], 
+>>>                           [word_sets['Pleasant 9'], word_sets['Unpleasant 9']],
+>>>                           ['European Names', 'African Names'],
+>>>                           ['Pleasant 2', 'Unpleasant 2'])
+>>>
+>>> queries = [gender_query_1, gender_query_2, gender_query_3, ethnicity_query_1, ethnicity_query_2]
 
-.. Regressor
-.. ~~~~~~~~~
+3. Run the queries over all Word Embeddings using WEAT:
 
-.. Similarly, regressors are scikit-learn estimators which implement a ``predict``
-.. method. The use case is the following:
+>>> WEAT_queries_results = run_queries(WEAT,
+>>>                       queries,
+>>>                       models,
+>>>                       queries_set_name='Gender and ethnicity Queries')
 
-.. * at ``fit``, some parameters can be learned from ``X`` and ``y``;
-.. * at ``predict``, predictions will be computed using ``X`` using the parameters
-..   learned during ``fit``.
++------------------------+----------------------------------------------------+---------------------------------------------------+------------------------------------------------+---------------------------------------------------------------+-------------------------------------------------------------------+---------------------------------------------------+
+| Model name - Queries   | Male terms and Female terms wrt Career and Family  | Male terms and Female terms wrt Science and Arts  | Male terms and Female terms wrt Math and Arts  | European Names and African Names wrt Pleasant and Unpleasant  | European Names and African Names wrt Pleasant 2 and Unpleasant 2  | WEAT: Gender and ethnicity Queries average score  |
++========================+====================================================+===================================================+================================================+===============================================================+===================================================================+===================================================+
+| glove twitter dim=25   | 0.715369                                           | 0.766402                                          | 0.121468                                       | NaN                                                           | 1.160488                                                          | 0.690932                                          |
++------------------------+----------------------------------------------------+---------------------------------------------------+------------------------------------------------+---------------------------------------------------------------+-------------------------------------------------------------------+---------------------------------------------------+
+| glove twitter dim=50   | 0.799666                                           | -0.660553                                         | -0.589894                                      | NaN                                                           | 1.007753                                                          | 0.764467                                          |
++------------------------+----------------------------------------------------+---------------------------------------------------+------------------------------------------------+---------------------------------------------------------------+-------------------------------------------------------------------+---------------------------------------------------+
+| glove twitter dim=100  | 0.681933                                           | 0.641153                                          | -0.399822                                      | NaN                                                           | 1.128199                                                          | 0.712777                                          |
++------------------------+----------------------------------------------------+---------------------------------------------------+------------------------------------------------+---------------------------------------------------------------+-------------------------------------------------------------------+---------------------------------------------------+
 
-.. In addition, scikit-learn provides a mixin_, i.e.
-.. :class:`sklearn.base.RegressorMixin`, which implements the ``score`` method
-.. which computes the :math:`R^2` score of the predictions.
 
-.. One can import the mixin as::
+Note that in the 4th column, all values are NaN. This is due the fact that the word set loaded lost more than 20% of the words when transformed into embeddings. 
+This parameter is configurable.
+On the other hand, note that the last column brings the average of the scores obtained per row. These are calculated from the absolute values of the values shown. 
+In general, the Nan are Ignored. Like the previous parameter, these are also configurable.
 
-..     >>> from sklearn.base import RegressorMixin
+Calculate Rankings
+==================
 
-.. Therefore, we create a regressor, :class:`MyOwnRegressor` which inherits from
-.. both :class:`sklearn.base.BaseEstimator` and
-.. :class:`sklearn.base.RegressorMixin`. The method ``fit`` gets ``X`` and ``y``
-.. as input and should return ``self``. It should implement the ``predict``
-.. function which should output the predictions of your regressor::
+If we run the same tests on another metric such as RNSB, we'll see that this one delivers results on a different scale than WEAT.
 
-..     >>> import numpy as np
-..     >>> class MyOwnRegressor(BaseEstimator, RegressorMixin):
-..     ...     def fit(self, X, y):
-..     ...         return self
-..     ...     def predict(self, X):
-..     ...         return np.mean(X, axis=1)
+>>> from wefe.metrics import RNSB
+>>> RNSB_queries_results = run_queries(RNSB,
+>>>                       queries,
+>>>                       models,
+>>>                       queries_set_name='Gender and ethnicity Queries')
 
-.. We illustrate that this regressor is working within a scikit-learn pipeline::
++-----------------------+----------------------------------------------------+---------------------------------------------------+------------------------------------------------+---------------------------------------------------------------+-------------------------------------------------------------------+---------------------------------------------------+
+| Model Name - Query    | Male terms and Female terms wrt Carrer and Family  | Male terms and Female terms wrt Science and Arts  | Male terms and Female terms wrt Math and Arts  | European Names and African Names wrt Pleasant and Unpleasant  | European Names and African Names wrt Pleasant 2 and Unpleasant 2  | RNSB: Gender and ethnicity Queries average score  |
++=======================+====================================================+===================================================+================================================+===============================================================+===================================================================+===================================================+
+| glove twitter dim=25  | 0.003582                                           | 0.003099                                          | 0.045298                                       | NaN                                                           | 0.033330                                                          | 0.021327                                          |
++-----------------------+----------------------------------------------------+---------------------------------------------------+------------------------------------------------+---------------------------------------------------------------+-------------------------------------------------------------------+---------------------------------------------------+
+| glove twitter dim=50  | 0.021572                                           | 0.008006                                          | 0.056258                                       | NaN                                                           | 0.049533                                                          | 0.033842                                          |
++-----------------------+----------------------------------------------------+---------------------------------------------------+------------------------------------------------+---------------------------------------------------------------+-------------------------------------------------------------------+---------------------------------------------------+
+| glove twitter dim=100 | 0.008817                                           | 0.004689                                          | 0.061267                                       | NaN                                                           | 0.111471                                                          | 0.046561                                          |
++-----------------------+----------------------------------------------------+---------------------------------------------------+------------------------------------------------+---------------------------------------------------------------+-------------------------------------------------------------------+---------------------------------------------------+
 
-..     >>> from sklearn.datasets import load_diabetes
-..     >>> X, y = load_diabetes(return_X_y=True)
-..     >>> pipe = make_pipeline(MyOwnTransformer(), MyOwnRegressor())
-..     >>> pipe.fit(X, y)  # doctest: +ELLIPSIS
-..     Pipeline(...)
-..     >>> pipe.predict(X)  # doctest: +ELLIPSIS
-..     array([...])
 
-.. Since we inherit from the :class:`sklearn.base.RegressorMixin`, we can call
-.. the ``score`` method which will return the :math:`R^2` score::
+A good solution is to make a ranking that allows you to compare scores on different scales. 
 
-..     >>> pipe.score(X, y)  # doctest: +ELLIPSIS
-..     -3.9...
+For this, we will use the create_ranking function.
+It takes both results DataFrames and uses the average columns to create the rankings.
 
-.. Classifier
-.. ~~~~~~~~~~
+>>> from wefe.utils import create_ranking
+>>> 
+>>> ranking = create_ranking([WEAT_queries_results, RNSB_queries_results])
+>>> ranking
 
-.. Similarly to regressors, classifiers implement ``predict``. In addition, they
-.. output the probabilities of the prediction using the ``predict_proba`` method:
-
-.. * at ``fit``, some parameters can be learned from ``X`` and ``y``;
-.. * at ``predict``, predictions will be computed using ``X`` using the parameters
-..   learned during ``fit``. The output corresponds to the predicted class for each sample;
-.. * ``predict_proba`` will give a 2D matrix where each column corresponds to the
-..   class and each entry will be the probability of the associated class.
-
-.. In addition, scikit-learn provides a mixin, i.e.
-.. :class:`sklearn.base.ClassifierMixin`, which implements the ``score`` method
-.. which computes the accuracy score of the predictions.
-
-.. One can import this mixin as::
-
-..     >>> from sklearn.base import ClassifierMixin
-
-.. Therefore, we create a classifier, :class:`MyOwnClassifier` which inherits
-.. from both :class:`slearn.base.BaseEstimator` and
-.. :class:`sklearn.base.ClassifierMixin`. The method ``fit`` gets ``X`` and ``y``
-.. as input and should return ``self``. It should implement the ``predict``
-.. function which should output the class inferred by the classifier.
-.. ``predict_proba`` will output some probabilities instead::
-
-..     >>> class MyOwnClassifier(BaseEstimator, ClassifierMixin):
-..     ...     def fit(self, X, y):
-..     ...         self.classes_ = np.unique(y)
-..     ...         return self
-..     ...     def predict(self, X):
-..     ...         return np.random.randint(0, self.classes_.size,
-..     ...                                  size=X.shape[0])
-..     ...     def predict_proba(self, X):
-..     ...         pred = np.random.rand(X.shape[0], self.classes_.size)
-..     ...         return pred / np.sum(pred, axis=1)[:, np.newaxis]
-
-.. We illustrate that this regressor is working within a scikit-learn pipeline::
-
-..     >>> X, y = load_iris(return_X_y=True)
-..     >>> pipe = make_pipeline(MyOwnTransformer(), MyOwnClassifier())
-..     >>> pipe.fit(X, y)  # doctest: +ELLIPSIS
-..     Pipeline(...)
-
-.. Then, you can call ``predict`` and ``predict_proba``::
-
-..     >>> pipe.predict(X)  # doctest: +ELLIPSIS
-..     array([...])
-..     >>> pipe.predict_proba(X)  # doctest: +ELLIPSIS
-..     array([...])
-
-.. Since our classifier inherits from :class:`sklearn.base.ClassifierMixin`, we
-.. can compute the accuracy by calling the ``score`` method::
-
-..     >>> pipe.score(X, y)  # doctest: +ELLIPSIS
-..     0...
++-----------------------+---------------------------------------------------+---------------------------------------------------+
+| Model Name - Ranking  | WEAT: Gender and ethnicity Queries average score  | RNSB: Gender and ethnicity Queries average score  |
++=======================+===================================================+===================================================+
+| glove twitter dim=25  | 3                                                 | 3                                                 |
++-----------------------+---------------------------------------------------+---------------------------------------------------+
+| glove twitter dim=50  | 2                                                 | 1                                                 |
++-----------------------+---------------------------------------------------+---------------------------------------------------+
+| glove twitter dim=100 | 1                                                 | 2                                                 |
++-----------------------+---------------------------------------------------+---------------------------------------------------+

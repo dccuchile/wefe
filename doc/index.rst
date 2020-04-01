@@ -21,6 +21,13 @@ Welcome to WEFE documentation!
    user_guide
    api
 
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Examples
+
+   examples
+
 `Getting started <quick_start.html>`_
 -------------------------------------
 

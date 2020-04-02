@@ -13,12 +13,13 @@ def test_weat():
     model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
 
     weat = WEAT()
-    query = Query([weat_word_set['Flowers'], weat_word_set['Insects']],
-                  [weat_word_set['Pleasant 5'], weat_word_set['Unpleasant 5']], ['Flowers', 'Insects'],
-                  ['Pleasant', 'Unpleasant'])
+    query = Query([weat_word_set['flowers'], weat_word_set['insects']],
+                  [weat_word_set['pleasant_5'], weat_word_set['unpleasant_5']],
+                  ['Flowers', 'Insects'], ['Pleasant', 'Unpleasant'])
     results = weat.run_query(query, model)
 
-    assert results['query_name'] == 'Flowers and Insects wrt Pleasant and Unpleasant'
+    assert results[
+        'query_name'] == 'Flowers and Insects wrt Pleasant and Unpleasant'
     assert isinstance(results['result'], (np.float32, np.float64, float))
 
     results = weat.run_query(query, model, return_effect_size=True)
@@ -31,8 +32,9 @@ def test_rnd():
     model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
 
     rnd = RND()
-    query = Query([weat_word_set['Flowers'], weat_word_set['Insects']], [weat_word_set['Pleasant 5']],
-                  ['Flowers', 'Insects'], ['Pleasant'])
+    query = Query([weat_word_set['flowers'], weat_word_set['insects']],
+                  [weat_word_set['pleasant_5']], ['Flowers', 'Insects'],
+                  ['Pleasant'])
     results = rnd.run_query(query, model)
 
     assert results['query_name'] == 'Flowers and Insects wrt Pleasant'
@@ -45,12 +47,29 @@ def test_rnsb():
     model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
 
     rnsb = RNSB()
-    query = Query([weat_word_set['Flowers'], weat_word_set['Insects']],
-                  [weat_word_set['Pleasant 5'], weat_word_set['Unpleasant 5']], ['Flowers', 'Insects'],
+    query = Query([weat_word_set['flowers'], weat_word_set['insects']],
+                  [weat_word_set['pleasant_5'], weat_word_set['unpleasant_5']],
+                  ['Flowers', 'Insects'], ['Pleasant', 'Unpleasant'])
+    results = rnsb.run_query(query, model)
+
+    assert results[
+        'query_name'] == 'Flowers and Insects wrt Pleasant and Unpleasant'
+    assert list(results.keys()) == [
+        'query_name', 'result', 'negative_sentiment_probabilities',
+        'negative_sentiment_distribution'
+    ]
+    assert isinstance(results['result'], (np.float32, np.float64, float))
+
+    query = Query([
+        weat_word_set['flowers'], weat_word_set['instruments'],
+        weat_word_set['male_terms'], weat_word_set['female_terms']
+    ], [weat_word_set['pleasant_5'], weat_word_set['unpleasant_5']],
+                  ['Flowers', 'Insects', 'Male terms', 'Female terms'],
                   ['Pleasant', 'Unpleasant'])
     results = rnsb.run_query(query, model)
 
-    assert results['query_name'] == 'Flowers and Insects wrt Pleasant and Unpleasant'
+    assert results[
+        'query_name'] == 'Flowers, Insects, Male terms and Female terms wrt Pleasant and Unpleasant'
     assert isinstance(results['result'], (np.float32, np.float64, float))
 
 
@@ -59,9 +78,14 @@ def test_mac():
     model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
 
     mac = MAC()
-    query = Query([weat_word_set['Flowers']], [weat_word_set['Pleasant 5'], weat_word_set['Pleasant 9']], ['Flowers'],
-                  ['Pleasant', 'Pleasant 2'])
+    query = Query(
+        [weat_word_set['flowers']], [
+            weat_word_set['pleasant_5'], weat_word_set['pleasant_9'],
+            weat_word_set['unpleasant_5'], weat_word_set['unpleasant_9']
+        ], ['Flowers'],
+        ['Pleasant 5 ', 'Pleasant 9', 'Unpleasant 5', 'Unpleasant 9'])
     results = mac.run_query(query, model)
 
-    assert results['query_name'] == 'Flowers wrt Pleasant and Pleasant 2'
+    assert results[
+        'query_name'] == 'Flowers wrt Pleasant 5 , Pleasant 9, Unpleasant 5 and Unpleasant 9'
     assert isinstance(results['result'], (np.float32, np.float64, float))

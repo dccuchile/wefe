@@ -9,6 +9,7 @@ from .datasets.datasets import fetch_bingliu, fetch_debias_multiclass, fetch_deb
 from ._version import __version__
 
 __all__ = [
-    'WordEmbeddingModel', 'Query', 'BaseMetric', 'WEAT', 'RND', 'RNSB', 'MAC', 'fetch_bingliu',
-    'fetch_debias_multiclass', 'fetch_debiaswe', 'fetch_eds', 'load_weat', '__version__'
+    'WordEmbeddingModel', 'Query', 'BaseMetric', 'WEAT', 'RND', 'RNSB', 'MAC',
+    'fetch_bingliu', 'fetch_debias_multiclass', 'fetch_debiaswe', 'fetch_eds',
+    'load_weat', '__version__'
 ]

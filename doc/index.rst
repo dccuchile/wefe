@@ -26,7 +26,9 @@ Welcome to WEFE documentation!
    :hidden:
    :caption: Examples
 
-   examples
+   replications
+   rank
+
 
 `Getting started <quick_start.html>`_
 -------------------------------------

@@ -1,6 +1,6 @@
-######################
-Case Uses and Examples
-######################
+##########################
+Paper Results Replications
+##########################
 
 WEAT Replication
 ----------------
@@ -28,60 +28,82 @@ In most cases, however, it can be seen that there is an concordance between the 
 >>> 
 >>> # Define the 10 Queries:
 >>> queries = [
->>>     Query([weat_wordset['Flowers'], weat_wordset['Insects']],
->>>           [weat_wordset['Pleasant 5'], weat_wordset['Unpleasant 5']],
+>>>     # Flowers vs Insects wrt Pleasant (5) and Unpleasant (5)
+>>>     Query([weat_wordset['flowers'], weat_wordset['insects']],
+>>>           [weat_wordset['pleasant_5'], weat_wordset['unpleasant_5']],
 >>>           ['Flowers', 'Insects'], ['Pleasant(5)', 'Unpleasant(5)']),
->>>     Query([weat_wordset['Instruments'], weat_wordset['Weapons']],
->>>           [weat_wordset['Pleasant 5'], weat_wordset['Unpleasant 5']],
+>>> 
+>>>     # Instruments vs Weapons wrt Pleasant (5) and Unpleasant (5)
+>>>     Query([weat_wordset['instruments'], weat_wordset['weapons']],
+>>>           [weat_wordset['pleasant_5'], weat_wordset['unpleasant_5']],
 >>>           ['Instruments', 'Weapons'], ['Pleasant(5)', 'Unpleasant(5)']),
+>>> 
+>>>     # European american names(5) vs African american names(5)
+>>>     # wrt Pleasant (5) and Unpleasant (5)
 >>>     Query([
->>>         weat_wordset['European american names 5'],
->>>         weat_wordset['African american names 5']
->>>     ], [weat_wordset['Pleasant 5'], weat_wordset['Unpleasant 5']],
+>>>         weat_wordset['european_american_names_5'],
+>>>         weat_wordset['african_american_names_5']
+>>>     ], [weat_wordset['pleasant_5'], weat_wordset['unpleasant_5']],
 >>>           ['European american names(5)', 'African american names(5)'],
 >>>           ['Pleasant(5)', 'Unpleasant(5)']),
+>>> 
+>>>     # European american names(7) vs African american names(7)
+>>>     # wrt Pleasant (5) and Unpleasant (5)
 >>>     Query([
->>>         weat_wordset['European american names 7'],
->>>         weat_wordset['African american names 7']
->>>     ], [weat_wordset['Pleasant 5'], weat_wordset['Unpleasant 5']],
+>>>         weat_wordset['european_american_names_7'],
+>>>         weat_wordset['african_american_names_7']
+>>>     ], [weat_wordset['pleasant_5'], weat_wordset['unpleasant_5']],
 >>>           ['European american names(7)', 'African american names(7)'],
 >>>           ['Pleasant(5)', 'Unpleasant(5)']),
+>>> 
+>>>     # European american names(7) vs African american names(7)
+>>>     # wrt Pleasant (9) and Unpleasant (9)
 >>>     Query([
->>>         weat_wordset['European american names 7'],
->>>         weat_wordset['African american names 7']
->>>     ], [weat_wordset['Pleasant 9'], weat_wordset['Unpleasant 9']],
+>>>         weat_wordset['european_american_names_7'],
+>>>         weat_wordset['african_american_names_7']
+>>>     ], [weat_wordset['pleasant_9'], weat_wordset['unpleasant_9']],
 >>>           ['European american names(7)', 'African american names(7)'],
 >>>           ['Pleasant(9)', 'Unpleasant(9)']),
->>>     Query([weat_wordset['Male names'], weat_wordset['Female names']],
->>>           [weat_wordset['Career'], weat_wordset['Family']],
+>>> 
+>>>     # Male and female names wrt Career and family
+>>>     Query([weat_wordset['male_names'], weat_wordset['female_names']],
+>>>           [weat_wordset['career'], weat_wordset['family']],
 >>>           ['Male names', 'Female names'], ['Career', 'Family']),
->>>     Query([weat_wordset['Math'], weat_wordset['Arts']],
->>>           [weat_wordset['Male terms'], weat_wordset['Female terms']],
+>>> 
+>>>     # Math and arts wrt male and female terms
+>>>     Query([weat_wordset['math'], weat_wordset['arts']],
+>>>           [weat_wordset['male_terms'], weat_wordset['female_terms']],
 >>>           ['Math', 'Arts'], ['Male terms', 'Female terms']),
->>>     Query([weat_wordset['Science'], weat_wordset['Arts 2']],
->>>           [weat_wordset['Male terms'], weat_wordset['Female terms']],
+>>> 
+>>>     # Science and arts wrt male and female terms
+>>>     Query([weat_wordset['science'], weat_wordset['arts_2']],
+>>>           [weat_wordset['male_terms'], weat_wordset['female_terms']],
 >>>           ['Science', 'Arts 2'], ['Male terms', 'Female terms']),
->>>     Query([weat_wordset['Mental disease'], weat_wordset['Physical disease']],
->>>           [weat_wordset['Temporary'], weat_wordset['Permanent']],
+>>> 
+>>>     # Mental and Physical disease wrt Temporary and Permanent
+>>>     Query([weat_wordset['mental_disease'], weat_wordset['physical_disease']],
+>>>           [weat_wordset['temporary'], weat_wordset['permanent']],
 >>>           ['Mental disease', 'Physical disease'], ['Temporary', 'Permanent']),
->>>     Query([
->>>         weat_wordset['Young peoples names'], weat_wordset['Old peoples names']
->>>     ], [weat_wordset['Pleasant 9'], weat_wordset['Unpleasant 9']],
->>>           ['Young peoples names', 'Old peoples names'],
->>>           ['Pleasant(9)', 'Unpleasant(9)'])
+>>> 
+>>>     # Young people names and Old people names disease wrt Pleasant(9) and Unpleasant(9)
+>>>     Query(
+>>>         [weat_wordset['young_people_names'], weat_wordset['old_people_names']],
+>>>         [weat_wordset['pleasant_9'], weat_wordset['unpleasant_9']],
+>>>         ['Young peoples names', 'Old peoples names'],
+>>>         ['Pleasant(9)', 'Unpleasant(9)'])
 >>> ]
 >>> 
 >>> # Load the embedding models
->>> w2v = WordEmbeddingModel( api.load('word2vec-google-news-300'), 'word2vec-google-news-300')
->>> glove = WordEmbeddingModel( api.load('glove-wiki-gigaword-300'), 'glove-wiki-gigaword-300')
+>>> w2v = WordEmbeddingModel(api.load('word2vec-google-news-300'),
+>>>                          'word2vec-google-news-300')
+>>> glove = WordEmbeddingModel(api.load('glove-wiki-gigaword-300'),
+>>>                            'glove-wiki-gigaword-300')
 >>> 
 >>> # Execute the queries with the models and WEAT
->>> run_queries(WEAT,
->>>             queries, [w2v, glove],
->>>             include_average_by_embedding=None,
->>>             warn_filtered_words=True,
->>>             metric_params={'return_effect_size': True},
->>>             lost_vocabulary_threshold=.25).T.round(2)
+>>> run_queries(WEAT, queries, [w2v, glove], include_average_by_embedding=None,
+>>>             warn_filtered_words=True, metric_params={
+>>>                 'return_effect_size': True
+>>>             }, lost_vocabulary_threshold=.25).T.round(2)
 
 
 This table shows the output of the execution of the previous code:
@@ -140,43 +162,63 @@ However, those obtained by the code are very similar to those obtained by the pa
 >>> ]
 >>> bing_liu = fetch_bingliu()
 >>> 
+>>> # Create the query
+>>> query = Query([RNSB_words],
+>>>               [bing_liu['positive_words'], bing_liu['negative_words']],
+>>>               ['Ethnicity words'], ['Positive Words', 'Negative Words'])
+>>> 
 >>> # Fetch the models
 >>> glove = WordEmbeddingModel(api.load('glove-wiki-gigaword-300'),
 >>>                            'glove-wiki-gigaword-300')
+>>> # note that conceptnet uses a /c/en/ prefix before each word.
 >>> conceptnet = WordEmbeddingModel(api.load('conceptnet-numberbatch-17-06-300'),
 >>>                                 'conceptnet-numberbatch-17',
 >>>                                 vocab_prefix='/c/en/')
->>> 
->>> # Create the query
->>> query = Query([RNSB_words],
->>>               [bing_liu['Positive words'], bing_liu['Negative words']],
->>>               ['Ethnicity words'], ['Positive Words', 'Negative Words'])
 >>> 
 >>> # Run the queries
 >>> glove_results = RNSB().run_query(query, glove)
 >>> conceptnet_results = RNSB().run_query(query, conceptnet)
 >>> 
 >>> # Show the results obtained with glove
->>> fig = px.bar(pd.DataFrame(glove_results['negative_sentiment_distribution'],
->>>                           columns=['Word', 'Sentiment probability']),
->>>              x='Word',
->>>              y='Sentiment probability',
->>>              title='Glove negative sentiment distribution')
->>> fig.show()
+>>> glove_fig = px.bar(
+>>>     pd.DataFrame(glove_results['negative_sentiment_distribution'],
+>>>                  columns=['Word', 'Sentiment distribution']), x='Word',
+>>>     y='Sentiment distribution', title='Glove negative sentiment distribution')
+>>> glove_fig.update_yaxes(range=[0, 0.2])
+>>> glove_fig.show()
 
-.. raw:: html
+.. image:: images/glove_rnsb.png
+  :alt: Glove RNSB sentiment distribution
 
-    <object data="glove_rnsb.svg" type="image/svg+xml"></object>
+>>> # Show the results obtained with conceptnet
+>>> conceptnet_fig = px.bar(
+>>>     pd.DataFrame(conceptnet_results['negative_sentiment_distribution'],
+>>>                  columns=['Word', 'Sentiment distribution']), x='Word',
+>>>     y='Sentiment distribution',
+>>>     title='Conceptnet negative sentiment distribution')
+>>> conceptnet_fig.update_yaxes(range=[0, 0.2])
+>>> conceptnet_fig.show()
 
->>> fig = px.bar(pd.DataFrame(
+
+
+.. image:: images/conceptnet_rnsb.png
+  :alt: Conceptnet RNSB sentiment distribution
+
+
+
+>>> # Finally, we show the fair distribution of sentiments.
+>>> fair_distribution = pd.DataFrame(
 >>>     conceptnet_results['negative_sentiment_distribution'],
->>>     columns=['Word', 'Sentiment probability']),
->>>              x='Word',
->>>              y='Sentiment probability',
->>>              title='Conceptnet negative sentiment distribution')
->>> fig.show()
+>>>     columns=['Word', 'Sentiment distribution'])
+>>> fair_distribution['Sentiment distribution'] = np.ones(
+>>>     fair_distribution.shape[0]) / fair_distribution.shape[0]
+>>> 
+>>> fair_distribution_fig = px.bar(fair_distribution, x='Word',
+>>>                                y='Sentiment distribution',
+>>>                                title='Fair negative sentiment distribution')
+>>> fair_distribution_fig.update_yaxes(range=[0, 0.2])
+>>> fair_distribution_fig.show()
 
 
-.. raw:: html
-
-    <object data="conceptnet_rnsb.svg" type="image/svg+xml"></object>
+.. image:: images/fair_rnsb.png
+  :alt: Fair RNSB sentiment distribution

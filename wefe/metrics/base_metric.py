@@ -20,7 +20,7 @@ class BaseMetric:
         Parameters
         ----------
         metric_template : Tuple[Union[int, str], Union[int, str]]
-            The template (the size of target and attribute sets) required for the operation of the metric.
+            The template (the cardinality of target and attribute sets) required for the operation of the metric.
         metric_name : str
             The name of the metric.
         metric_short_name : str
@@ -118,8 +118,13 @@ class BaseMetric:
                 'The cardinality of the set of attributes words of the provided query ({}) is different from the cardinality required by {}: ({})'
                 .format(query.template_[1], self.metric_name_, self.metric_template_[1]))
 
-    def __get_embeddings_from_word_set_(self, word_set: list, word_embedding: WordEmbeddingModel,
-                                        warn_filtered_words: bool) -> dict:
+    def __get_embeddings_from_word_set_(
+            self,
+            word_set: list,
+            word_embedding: WordEmbeddingModel,
+            warn_filtered_words: bool,
+            lowercase_words: bool = False,
+    ) -> dict:
         """Transforms a set of words into their respective embeddings and filters out words that are not in the model's vocabulary.
         
         Parameters
@@ -148,12 +153,16 @@ class BaseMetric:
         # filter the words
         for word in word_set:
             # add the vocab prefix if is required.
-            processed_word = vocab_prefix + word.lower() if vocab_prefix != '' else word.lower()
+            processed_word_lower = vocab_prefix + word.lower() if vocab_prefix != '' else word.lower()
+            processed_word = vocab_prefix + word if vocab_prefix != '' else word
 
             # check if the word is in the word vector vocab
             if (processed_word in embeddings.vocab):
                 # if it is, add the word vector to the return array
                 selected_embeddings[processed_word] = embeddings[processed_word]
+            elif (processed_word_lower in embeddings.vocab):
+                selected_embeddings[processed_word_lower] = embeddings[processed_word_lower]
+
             else:
                 filtered_words.append(processed_word)
 

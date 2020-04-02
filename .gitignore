@@ -71,3 +71,6 @@ target/
 
 # jupyter
 *.ipynb
+
+.results/*
+.results

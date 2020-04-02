@@ -61,12 +61,13 @@ def test_create_query():
     # create a real query:
     weat = load_weat()
 
-    flowers = weat['Flowers']
-    insects = weat['Insects']
-    pleasant = weat['Pleasant 5']
-    unpleasant = weat['Unpleasant 5']
+    flowers = weat['flowers']
+    insects = weat['insects']
+    pleasant = weat['pleasant_5']
+    unpleasant = weat['unpleasant_5']
 
-    query = Query([flowers, insects], [pleasant, unpleasant], ['Flowers', 'Insects'], ['Pleasant', 'Unpleasant'])
+    query = Query([flowers, insects], [pleasant, unpleasant],
+                  ['Flowers', 'Insects'], ['Pleasant', 'Unpleasant'])
 
     assert query.target_sets_[0] == flowers
     assert query.target_sets_[1] == insects
@@ -84,13 +85,13 @@ def test_eq():
 
     weat = load_weat()
 
-    flowers = weat['Flowers']
-    insects = weat['Insects']
-    weapons = weat['Weapons']
-    pleasant_1 = weat['Pleasant 5']
-    pleasant_2 = weat['Pleasant 9']
-    unpleasant_1 = weat['Unpleasant 5']
-    unpleasant_2 = weat['Unpleasant 9']
+    flowers = weat['flowers']
+    insects = weat['insects']
+    weapons = weat['weapons']
+    pleasant_1 = weat['pleasant_5']
+    pleasant_2 = weat['pleasant_9']
+    unpleasant_1 = weat['unpleasant_5']
+    unpleasant_2 = weat['unpleasant_9']
 
     query = Query([flowers, insects], [pleasant_1, unpleasant_1])
     query_2 = Query([flowers, weapons], [pleasant_1, unpleasant_1])
@@ -123,21 +124,25 @@ def test_eq():
     assert query_4 != query_5
 
     # cardinality
-    big_query_1 = Query([flowers, insects, weapons], [pleasant_1, unpleasant_1])
-    big_query_2 = Query([flowers, insects], [pleasant_1, unpleasant_1, unpleasant_2])
+    big_query_1 = Query([flowers, insects, weapons],
+                        [pleasant_1, unpleasant_1])
+    big_query_2 = Query([flowers, insects],
+                        [pleasant_1, unpleasant_1, unpleasant_2])
 
     query != big_query_1
     query != big_query_2
 
     # names
-    query_bad_name_1 = Query([flowers, insects], [pleasant_1, unpleasant_1], ['Flawer', 'Insects'],
+    query_bad_name_1 = Query([flowers, insects], [pleasant_1, unpleasant_1],
+                             ['Flawer', 'Insects'],
                              ['Pleasant 1', 'Unpleasant 2'])
-    query_bad_name_2 = Query([flowers, insects], [pleasant_1, unpleasant_1], ['Flowers', 'Insec'],
+    query_bad_name_2 = Query([flowers, insects], [pleasant_1, unpleasant_1],
+                             ['Flowers', 'Insec'],
                              ['Pleasant 1', 'Unpleasant 2'])
-    query_bad_name_3 = Query([flowers, insects], [pleasant_1, unpleasant_1], ['Flowers', 'Insects'],
-                             ['Pleas', 'Unpleasant 2'])
-    query_bad_name_4 = Query([flowers, insects], [pleasant_1, unpleasant_1], ['Flowers', 'Insects'],
-                             ['Pleasant 1', 'asant 2'])
+    query_bad_name_3 = Query([flowers, insects], [pleasant_1, unpleasant_1],
+                             ['Flowers', 'Insects'], ['Pleas', 'Unpleasant 2'])
+    query_bad_name_4 = Query([flowers, insects], [pleasant_1, unpleasant_1],
+                             ['Flowers', 'Insects'], ['Pleasant 1', 'asant 2'])
 
     assert query_bad_name_1 != query
     assert query_bad_name_2 != query
@@ -149,45 +154,54 @@ def test_templates():
 
     weat = load_weat()
 
-    flowers = weat['Flowers']
-    insects = weat['Insects']
-    weapons = weat['Weapons']
-    instruments = weat['Instruments']
-    pleasant = weat['Pleasant 5']
-    unpleasant = weat['Unpleasant 9']
+    flowers = weat['flowers']
+    insects = weat['insects']
+    weapons = weat['weapons']
+    instruments = weat['instruments']
+    pleasant = weat['pleasant_5']
+    unpleasant = weat['unpleasant_9']
 
-    query = Query([flowers, insects, weapons, instruments], [pleasant, unpleasant],
-                  ['Flowers', 'Insects', 'Weapons', 'Instruments'], ['Pleasant', 'Unpleasant'])
+    query = Query([flowers, insects, weapons, instruments],
+                  [pleasant, unpleasant],
+                  ['Flowers', 'Insects', 'Weapons', 'Instruments'],
+                  ['Pleasant', 'Unpleasant'])
 
     # input validation
-    with pytest.raises(TypeError, match='The new target cardinality (new_template[0])*'):
-        query.generate_subqueries(('2', 2))
-    with pytest.raises(TypeError, match='The new target cardinality (new_template[0])*'):
-        query.generate_subqueries((None, 2))
-    with pytest.raises(TypeError, match='The new attribute cardinality (new_template[1])*'):
-        query.generate_subqueries((2, '2'))
-    with pytest.raises(TypeError, match='The new attribute cardinality (new_template[1])*'):
-        query.generate_subqueries((2, None))
+    with pytest.raises(TypeError,
+                       match='The new target cardinality (new_template[0])*'):
+        query.get_subqueries(('2', 2))
+    with pytest.raises(TypeError,
+                       match='The new target cardinality (new_template[0])*'):
+        query.get_subqueries((None, 2))
+    with pytest.raises(
+            TypeError,
+            match='The new attribute cardinality (new_template[1])*'):
+        query.get_subqueries((2, '2'))
+    with pytest.raises(
+            TypeError,
+            match='The new attribute cardinality (new_template[1])*'):
+        query.get_subqueries((2, None))
 
     with pytest.raises(Exception, match='The new target cardinality*'):
-        query.generate_subqueries((5, 2))
+        query.get_subqueries((5, 2))
     with pytest.raises(Exception, match='The new attribute cardinality*'):
-        query.generate_subqueries((4, 3))
+        query.get_subqueries((4, 3))
 
     # equal subqueries
-    assert query.generate_subqueries((4, 2)) == [query]
+    assert query.get_subqueries((4, 2)) == [query]
 
     # target subqueries
-    subqueries = query.generate_subqueries((2, 2))
+    subqueries = query.get_subqueries((2, 2))
     assert len(subqueries) == 6
-    target_names = [['Flowers', 'Insects'], ['Flowers', 'Weapons'], ['Flowers', 'Instruments'], ['Insects', 'Weapons'],
+    target_names = [['Flowers', 'Insects'], ['Flowers', 'Weapons'],
+                    ['Flowers', 'Instruments'], ['Insects', 'Weapons'],
                     ['Insects', 'Instruments'], ['Weapons', 'Instruments']]
 
     for target_name, subquery in zip(target_names, subqueries):
         assert target_name == subquery.target_sets_names_
 
     # attribute subqueries
-    subqueries = query.generate_subqueries((4, 1))
+    subqueries = query.get_subqueries((4, 1))
     attribute_names = [['Pleasant'], ['Unpleasant']]
     assert len(subqueries) == 2
 
@@ -198,30 +212,35 @@ def test_templates():
 def test_generate_query_name():
 
     weat_word_set = load_weat()
-    query = Query([weat_word_set['Flowers'], weat_word_set['Insects']], [weat_word_set['Pleasant 5']],
-                  ['Flowers', 'Insects'], ['Pleasant'])
+    query = Query([weat_word_set['flowers'], weat_word_set['insects']],
+                  [weat_word_set['pleasant_5']], ['Flowers', 'Insects'],
+                  ['Pleasant'])
 
     assert query.query_name_ == 'Flowers and Insects wrt Pleasant'
 
-    query = Query([weat_word_set['Flowers']], [weat_word_set['Pleasant 5']], ['Flowers'], ['Pleasant'])
+    query = Query([weat_word_set['flowers']], [weat_word_set['pleasant_5']],
+                  ['Flowers'], ['Pleasant'])
 
     assert query.query_name_ == 'Flowers wrt Pleasant'
 
-    query = Query([weat_word_set['Flowers'], weat_word_set['Instruments']],
-                  [weat_word_set['Pleasant 5'], weat_word_set['Unpleasant 5']], ['Flowers', 'Instruments'],
-                  ['Pleasant', 'Unpleasant'])
+    query = Query([weat_word_set['flowers'], weat_word_set['instruments']],
+                  [weat_word_set['pleasant_5'], weat_word_set['unpleasant_5']],
+                  ['Flowers', 'Instruments'], ['Pleasant', 'Unpleasant'])
 
     assert query.query_name_ == 'Flowers and Instruments wrt Pleasant and Unpleasant'
 
-    query = Query(
-        [weat_word_set['Flowers'], weat_word_set['Instruments'], weat_word_set['Weapons'], weat_word_set['Insects']],
-        [weat_word_set['Pleasant 5'], weat_word_set['Unpleasant 5']], ['Flowers', 'Instruments', 'Weapons', 'Insects'],
-        ['Pleasant', 'Unpleasant'])
+    query = Query([
+        weat_word_set['flowers'], weat_word_set['instruments'],
+        weat_word_set['weapons'], weat_word_set['insects']
+    ], [weat_word_set['pleasant_5'], weat_word_set['unpleasant_5']],
+                  ['Flowers', 'Instruments', 'Weapons', 'Insects'],
+                  ['Pleasant', 'Unpleasant'])
 
     assert query.query_name_ == 'Flowers, Instruments, Weapons and Insects wrt Pleasant and Unpleasant'
 
-    query = Query(
-        [weat_word_set['Flowers'], weat_word_set['Instruments'], weat_word_set['Weapons'], weat_word_set['Insects']],
-        [weat_word_set['Pleasant 5'], weat_word_set['Unpleasant 5']])
+    query = Query([
+        weat_word_set['flowers'], weat_word_set['instruments'],
+        weat_word_set['weapons'], weat_word_set['insects']
+    ], [weat_word_set['pleasant_5'], weat_word_set['unpleasant_5']])
 
     assert query.query_name_ == 'Target set 0, Target set 1, Target set 2 and Target set 3 wrt Attribute set 0 and Attribute set 1'

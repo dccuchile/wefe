@@ -7,8 +7,8 @@ class WordEmbeddingModel:
     It can hold gensim's KeyedVectors or gensim's api loaded models. 
     It includes the name of the model and some vocab prefix if needed.
     """
-
-    def __init__(self, word_embedding: KeyedVectors, model_name: str = None, vocab_prefix: str = None):
+    def __init__(self, word_embedding: KeyedVectors, model_name: str = None,
+                 vocab_prefix: str = None):
         """Initializes the WordEmbeddingModel container. 
         
         Parameters
@@ -57,21 +57,25 @@ class WordEmbeddingModel:
 
         if not isinstance(word_embedding, KeyedVectors):
             raise TypeError(
-                "word_embedding must be an instance of a gensim's KeyedVectors. Given: {}".format(word_embedding))
+                "word_embedding must be an instance of a gensim's KeyedVectors. Given: {}"
+                .format(word_embedding))
         else:
             self.model_ = word_embedding
 
         if model_name is None:
             self.model_name_ = 'Unnamed word embedding model'
         elif not isinstance(model_name, str):
-            raise TypeError('model_name must be a string. Given: {}'.format(model_name))
+            raise TypeError(
+                'model_name must be a string. Given: {}'.format(model_name))
         else:
             self.model_name_ = model_name
 
         if vocab_prefix is None:
             self.vocab_prefix_ = ''
         elif not isinstance(vocab_prefix, str):
-            raise TypeError('vocab_prefix parameter must be a string. Given: {}'.format(vocab_prefix))
+            raise TypeError(
+                'vocab_prefix parameter must be a string. Given: {}'.format(
+                    vocab_prefix))
         else:
             self.vocab_prefix_ = vocab_prefix
 

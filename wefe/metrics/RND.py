@@ -18,20 +18,24 @@ class RND(BaseMetric):
     Word embeddings quantify 100 years of gender and ethnic stereotypes.
     Proceedings of the National Academy of Sciences, 115(16):E3635–E3644,2018.
     """
-
     def __init__(self):
         super().__init__((2, 1), 'Relative Norm Distance', 'RND')
 
-    def __calc_distance(self, vec1: np.ndarray, vec2: np.ndarray, distance_type='norm'):
+    def __calc_distance(self, vec1: np.ndarray, vec2: np.ndarray,
+                        distance_type='norm'):
         if distance_type == 'norm':
             return np.linalg.norm(np.subtract(vec1, vec2))
         elif distance_type == 'cos':
-            c = np.dot(vec1, vec2) / np.linalg.norm(vec1) / np.linalg.norm(vec2)
+            c = np.dot(vec1,
+                       vec2) / np.linalg.norm(vec1) / np.linalg.norm(vec2)
             return abs(c)
         else:
-            raise Exception('Parameter distance_type can be either "norm" or "cos". Given: {} '.format(distance_type))
+            raise Exception(
+                'Parameter distance_type can be either "norm" or "cos". Given: {} '
+                .format(distance_type))
 
-    def __calc_rnd(self, target_0: np.ndarray, target_1: np.ndarray, attribute: np.ndarray, attribute_words: list,
+    def __calc_rnd(self, target_0: np.ndarray, target_1: np.ndarray,
+                   attribute: np.ndarray, attribute_words: list,
                    distance_type: str, average_distances: bool,
                    disable_vocab_warnings: bool) -> Union[np.float64, list]:
 
@@ -46,15 +50,22 @@ class RND(BaseMetric):
 
             # calculate the distance
             current_distance = self.__calc_distance(
-                attribute_embedding, target_1_avg_vector, distance_type=distance_type) - self.__calc_distance(
-                    attribute_embedding, target_2_avg_vector, distance_type=distance_type)
+                attribute_embedding, target_1_avg_vector,
+                distance_type=distance_type) - self.__calc_distance(
+                    attribute_embedding, target_2_avg_vector,
+                    distance_type=distance_type)
 
             # add the distance of the neutral word to the accumulated distances.
             sum_of_distances += current_distance
             # add the distance of the neutral word to the list of distances by word
-            distance_by_words[attribute_words[attribute_word_index]] = current_distance
+            distance_by_words[
+                attribute_words[attribute_word_index]] = current_distance
 
-        sorted_distances_by_word = {k: v for k, v in sorted(distance_by_words.items(), key=lambda item: item[1])}
+        sorted_distances_by_word = {
+            k: v
+            for k, v in sorted(distance_by_words.items(),
+                               key=lambda item: item[1])
+        }
 
         if average_distances == True:
             # calculate the average of the distances and return
@@ -63,8 +74,9 @@ class RND(BaseMetric):
 
         return sum_of_distances, sorted_distances_by_word
 
-    def run_query(self, query: Query, word_embedding: WordEmbeddingModel, distance_type: str = 'norm',
-                  average_distances: bool = True, lost_vocabulary_threshold: float = 0.2,
+    def run_query(self, query: Query, word_embedding: WordEmbeddingModel,
+                  distance_type: str = 'norm', average_distances: bool = True,
+                  lost_vocabulary_threshold: float = 0.2,
                   warn_filtered_words: bool = True) -> dict:
         """Calculates the RND metric over the provided parameters. 
 
@@ -90,11 +102,13 @@ class RND(BaseMetric):
         """
 
         # check the inputs
-        self._check_input(query, word_embedding, lost_vocabulary_threshold, warn_filtered_words)
+        self._check_input(query, word_embedding, lost_vocabulary_threshold,
+                          warn_filtered_words)
 
         # get the embeddings
-        embeddings = self._get_embeddings_from_query(query, word_embedding, warn_filtered_words,
-                                                     lost_vocabulary_threshold)
+        embeddings = self._get_embeddings_from_query(
+            query, word_embedding, warn_filtered_words,
+            lost_vocabulary_threshold)
         # if there is any/some set has less words than the allowed limit, return the default value (nan)
         if embeddings is None:
             return {'query_name': query.query_name_, 'result': np.nan}
@@ -106,8 +120,13 @@ class RND(BaseMetric):
         attribute_embeddings = list(attribute_embeddings_dict[0].values())
         attribute_words = list(attribute_embeddings_dict[0].keys())
 
-        distance, distances_by_word = self.__calc_rnd(target_0_embeddings, target_1_embeddings, attribute_embeddings,
-                                                      attribute_words, distance_type, average_distances,
-                                                      warn_filtered_words)
+        distance, distances_by_word = self.__calc_rnd(
+            target_0_embeddings, target_1_embeddings, attribute_embeddings,
+            attribute_words, distance_type, average_distances,
+            warn_filtered_words)
 
-        return {"query_name": query.query_name_, "result": distance, "results_by_word": distances_by_word}
+        return {
+            "query_name": query.query_name_,
+            "result": distance,
+            "results_by_word": distances_by_word
+        }

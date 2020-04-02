@@ -6,7 +6,7 @@ from ..datasets.datasets import fetch_bingliu, fetch_debiaswe, fetch_eds, fetch_
 def test_fetch_bingliu():
     bingliu = fetch_bingliu()
     assert isinstance(bingliu, dict)
-    assert list(bingliu.keys()) == ['Positive words', 'Negative words']
+    assert list(bingliu.keys()) == ['positive_words', 'negative_words']
     assert len(list(bingliu.keys())) == 2
 
     for key in bingliu:
@@ -17,12 +17,15 @@ def test_fetch_eds():
     eds = fetch_eds()
     assert isinstance(eds, dict)
     assert list(eds.keys()) == [
-        'Adjectives appearance', 'Adjectives otherization', 'Adjectives sensitive', 'Names asian', 'Names black',
-        'Names chinese', 'Names hispanic', 'Names russian', 'Names white', 'Words christianity', 'Words islam',
-        'Words terrorism', 'Male Occupations', 'Female Occupations', 'Male terms', 'Female terms',
-        'Adjectives intelligence'
+        'adjectives_appearance', 'adjectives_otherization',
+        'adjectives_sensitive', 'names_asian', 'names_black', 'names_chinese',
+        'names_hispanic', 'names_russian', 'names_white', 'words_christianity',
+        'words_islam', 'words_terrorism', 'male_occupations',
+        'female_occupations', 'occupations_white', 'occupations_black',
+        'occupations_asian', 'occupations_hispanic', 'male_terms',
+        'female_terms', 'adjectives_intelligence'
     ]
-    assert len(list(eds.keys())) == 17
+    assert len(list(eds.keys())) == 21
 
     for key in eds:
         assert len(eds[key]) > 0
@@ -31,7 +34,10 @@ def test_fetch_eds():
 def test_fetch_debiaswe():
     debiaswe = fetch_debiaswe()
     assert isinstance(debiaswe, dict)
-    assert list(debiaswe.keys()) == ['Male terms', 'Female terms', 'Male related words', 'Female related words']
+    assert list(debiaswe.keys()) == [
+        'male_terms', 'female_terms', 'male_related_words',
+        'female_related_words'
+    ]
     assert len(list(debiaswe.keys())) == 4
 
     for key in debiaswe:
@@ -42,9 +48,11 @@ def test_fetch_debias_multiclass():
     debias_multiclass = fetch_debias_multiclass()
     assert isinstance(debias_multiclass, dict)
     assert list(debias_multiclass.keys()) == [
-        'Male terms', 'Female terms', 'Male related words', 'Female related words', 'Black terms', 'White terms',
-        'Asian terms', 'Black related words', 'White related words', 'Asian related words', 'Judaism terms',
-        'Christianity terms', 'Islam terms', 'Jew related words', 'Christian related words', 'Muslim related words'
+        'male_terms', 'female_terms', 'male_roles', 'female_roles',
+        'black_terms', 'white_terms', 'asian_terms', 'black_related_words',
+        'white_related_words', 'asian_related_words', 'judaism_terms',
+        'christianity_terms', 'islam_terms', 'jew_related_words',
+        'christian_related_words', 'muslim_related_words'
     ]
     assert len(list(debias_multiclass.keys())) == 16
 
@@ -56,11 +64,13 @@ def test_load_weat():
     weat = load_weat()
     assert isinstance(weat, dict)
     assert list(weat.keys()) == [
-        'Flowers', 'Insects', 'Pleasant 5', 'Unpleasant 5', 'Instruments', 'Weapons', 'European american names 5',
-        'African american names 5', 'European american names 7', 'African american names 7', 'Pleasant 9',
-        'Unpleasant 9', 'Male names', 'Female names', 'Career', 'Family', 'Math', 'Arts', 'Male terms', 'Female terms',
-        'Science', 'Arts 2', 'Male terms 2', 'Female terms 2', 'Mental disease', 'Physical disease', 'Temporary',
-        'Permanent', 'Young peoples names', 'Old peoples names'
+        'flowers', 'insects', 'pleasant_5', 'unpleasant_5', 'instruments',
+        'weapons', 'european_american_names_5', 'african_american_names_5',
+        'european_american_names_7', 'african_american_names_7', 'pleasant_9',
+        'unpleasant_9', 'male_names', 'female_names', 'career', 'family',
+        'math', 'arts', 'male_terms', 'female_terms', 'science', 'arts_2',
+        'male_terms_2', 'female_terms_2', 'mental_disease', 'physical_disease',
+        'temporary', 'permanent', 'young_people_names', 'old_people_names'
     ]
     for key in weat:
         assert len(weat[key]) > 0

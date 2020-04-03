@@ -77,12 +77,14 @@ def run_queries(metric: Union[MAC, RND, RNSB, WEAT], queries: list,
     # word vectors wrappers handling
     if not isinstance(word_embeddings_models, (list, np.ndarray)):
         raise TypeError(
-            'word_vectors_wrappers parameter must be a list or a numpy array. given: {}'
+            'word_embeddings_models parameter must be a list or a numpy array. given: {}'
             .format(word_embeddings_models))
+
     if len(word_embeddings_models) == 0:
         raise Exception(
-            'word_vectors_wrappers parameter must be a non empty list or numpy array. given: {}'
+            'word_embeddings_models parameter must be a non empty list or numpy array. given: {}'
             .format(word_embeddings_models))
+
     for idx, model in enumerate(word_embeddings_models):
         if model is None or not isinstance(model, WordEmbeddingModel):
             raise TypeError(
@@ -90,28 +92,28 @@ def run_queries(metric: Union[MAC, RND, RNSB, WEAT], queries: list,
                 .format(idx, model))
 
     # experiment name handling
-    if not isinstance(queries_set_name, str):
-        raise Exception(
-            'queries_set_name parameter must be a non-empty string. given: {}'.
-            format(queries_set_name))
+    if not isinstance(queries_set_name, str) or queries_set_name == '':
+        raise TypeError(
+            'When queries_set_name parameter is provided, it must be a non-empty string. given: {}'
+            .format(queries_set_name))
 
     # metric_params handling
     if not isinstance(metric_params, dict):
-        raise Exception(
+        raise TypeError(
             'run_experiment_params must be a dict with a params for the metric'
         )
 
     # return average handling
-    if not include_average_by_embedding in [
-            'include', 'only'
-    ] and not include_average_by_embedding is None:
+    if not include_average_by_embedding in ['include', 'only', None]:
         raise Exception(
-            'return_averaged param must be any of {\'include\',\'only\', None}'
-        )
+            "include_average_by_embedding param must be any of 'include','only', None. Given: {}"
+            .format(include_average_by_embedding))
 
     # average_with_abs_values handling
     if not isinstance(average_with_abs_values, bool):
-        raise Exception('average_with_abs_values param must be boolean')
+        raise TypeError(
+            'average_with_abs_values param must be boolean. Given: {}'.format(
+                average_with_abs_values))
 
     metric_instance = metric()
     results = []
@@ -304,7 +306,7 @@ def plot_ranking(ranking: pd.DataFrame, title: str = '',
     else:
         fig = px.bar(melted_ranking, x="Ranking", y="Embedding model",
                      barmode="stack", color='Metric', orientation='h')
-        fig.update_layout(xaxis={'categoryorder': 'category ascending'})
+        fig.update_layout(yaxis={'categoryorder': 'total ascending'})
 
     fig.update_layout(showlegend=False)
     fig.update_yaxes(title_text='')

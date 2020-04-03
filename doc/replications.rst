@@ -15,6 +15,7 @@ Note:
 The results do not coincide perfectly because the vocabularies, models and implementation of WEAT used during the development of the paper and now may be different. 
 In most cases, however, it can be seen that there is an concordance between the results. 
 
+
 >>> from wefe.metrics import WEAT
 >>> from wefe.datasets import load_weat
 >>> from wefe.query import Query
@@ -100,10 +101,17 @@ In most cases, however, it can be seen that there is an concordance between the 
 >>>                            'glove-wiki-gigaword-300')
 >>> 
 >>> # Execute the queries with the models and WEAT
->>> run_queries(WEAT, queries, [w2v, glove], include_average_by_embedding=None,
->>>             warn_filtered_words=True, metric_params={
->>>                 'return_effect_size': True
->>>             }, lost_vocabulary_threshold=.25).T.round(2)
+>>> results = run_queries(WEAT,
+>>>                       queries, [w2v, glove],
+>>>                       include_average_by_embedding=None,
+>>>                       warn_filtered_words=True,
+>>>                       metric_params={
+>>>                           'return_effect_size': True
+>>>                       },
+>>>                       lost_vocabulary_threshold=.25)
+>>> 
+>>> results.T.round(2)
+
 
 
 This table shows the output of the execution of the previous code:
@@ -131,6 +139,23 @@ This table shows the output of the execution of the previous code:
 +------------------------------------------------------------------------------------------+------------------------+-----------------------+
 |Young peoples names and Old peoples names wrt Pleasant(9) and Unpleasant(9)               |                   -0.20|                   0.85|
 +------------------------------------------------------------------------------------------+------------------------+-----------------------+
+
+The above results in bar chart:
+
+>>> from wefe.utils import plot_queries_results
+>>> 
+>>> fig = plot_queries_results(results)
+>>> fig.show()
+
+
+.. image:: images/WEAT_replication.png
+  :alt: WEAT experiments replication
+
+
+
+Note: This code is not executed when compiling the documentation due to the long processing time taken. 
+Instead, the tables and graphs of results were embedded. 
+The code is available for execution in TODO
 
 
 RNSB Replication
@@ -222,3 +247,7 @@ However, those obtained by the code are very similar to those obtained by the pa
 
 .. image:: images/fair_rnsb.png
   :alt: Fair RNSB sentiment distribution
+
+Note: This code is not executed when compiling the documentation due to the long processing time taken. 
+Instead, the tables and graphs of results were embedded. 
+The code is available for execution in TODO

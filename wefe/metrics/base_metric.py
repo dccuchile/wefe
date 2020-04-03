@@ -5,16 +5,16 @@ import numpy as np
 from typing import Union, NoReturn, Tuple
 
 
-class BaseMetric:
+class BaseMetric(object):
     """ A base class fot implement any metric. 
     
     It contains several utils for common Metric operations such as check the inputs before execute 
     a query and transform a queries words into word embeddings, among others.
 
     """
-
-    def __init__(self, metric_template: Tuple[Union[int, str], Union[int, str]], metric_name: str,
-                 metric_short_name: str):
+    def __init__(self,
+                 metric_template: Tuple[Union[int, str], Union[int, str]],
+                 metric_name: str, metric_short_name: str):
         """Initializes a BaseMetric.
 
         Parameters
@@ -46,21 +46,27 @@ class BaseMetric:
         """
 
         # check types
-        if not isinstance(metric_template[0], (str, int)) or not isinstance(metric_template[1], (str, int)):
+        if not isinstance(metric_template[0], (str, int)) or not isinstance(
+                metric_template[1], (str, int)):
             raise TypeError(
-                'Both components of template_required must be int or str. Given: {}'.format(metric_template))
+                'Both components of template_required must be int or str. Given: {}'
+                .format(metric_template))
         if not isinstance(metric_name, str):
-            raise TypeError('metric_name must be a str. given: {}'.format(metric_name))
+            raise TypeError(
+                'metric_name must be a str. given: {}'.format(metric_name))
         if not isinstance(metric_short_name, str):
-            raise TypeError('metric_short_name must be a str. given: {}'.format(metric_short_name))
+            raise TypeError(
+                'metric_short_name must be a str. given: {}'.format(
+                    metric_short_name))
 
         self.metric_template_ = metric_template
         self.metric_name_ = metric_name
         self.metric_short_name_ = metric_short_name
 
-    def _check_input(self, query: Query, word_embedding: WordEmbeddingModel,
-                     lost_vocabulary_threshold: Union[float, np.float32, np.float64],
-                     warn_filtered_words: bool) -> NoReturn:
+    def _check_input(
+            self, query: Query, word_embedding: WordEmbeddingModel,
+            lost_vocabulary_threshold: Union[float, np.float32, np.float64],
+            warn_filtered_words: bool) -> NoReturn:
         """Checks if the input of a metric is valid.
         
         Parameters
@@ -92,31 +98,44 @@ class BaseMetric:
 
         # check if the query passed is a instance of Query
         if not isinstance(query, Query):
-            raise TypeError('query parameter must be a Query instance. Given {}'.format(query))
+            raise TypeError(
+                'query parameter must be a Query instance. Given {}'.format(
+                    query))
 
         # check if the word_embedding is a instance of WordEmbeddingModel
         if not isinstance(word_embedding, WordEmbeddingModel):
-            raise TypeError('word_embedding must be a WordEmbeddingModel instance. Given: {}'.format(word_embedding))
+            raise TypeError(
+                'word_embedding must be a WordEmbeddingModel instance. Given: {}'
+                .format(word_embedding))
 
-        if not isinstance(lost_vocabulary_threshold, (float, np.float, np.float32, np.float64)):
-            raise TypeError('lost_vocabulary_threshold must be a float. Given: {}'.format(lost_vocabulary_threshold))
+        if not isinstance(lost_vocabulary_threshold,
+                          (float, np.float, np.float32, np.float64)):
+            raise TypeError(
+                'lost_vocabulary_threshold must be a float. Given: {}'.format(
+                    lost_vocabulary_threshold))
 
         if not isinstance(warn_filtered_words, bool):
-            raise TypeError('warn_filtered_words must be a bool. Given: {}'.format(warn_filtered_words))
+            raise TypeError(
+                'warn_filtered_words must be a bool. Given: {}'.format(
+                    warn_filtered_words))
 
         # templates:
 
         # check the cardinality of the target sets of the provided query
-        if self.metric_template_[0] != 'n' and query.template_[0] != self.metric_template_[0]:
+        if self.metric_template_[0] != 'n' and query.template_[
+                0] != self.metric_template_[0]:
             raise Exception(
                 'The cardinality of the set of target words of the provided query ({}) is different from the cardinality required by {}: ({})'
-                .format(query.template_[0], self.metric_name_, self.metric_template_[0]))
+                .format(query.template_[0], self.metric_name_,
+                        self.metric_template_[0]))
 
         # check the cardinality of the attribute sets of the provided query
-        if self.metric_template_[1] != 'n' and query.template_[1] != self.metric_template_[1]:
+        if self.metric_template_[1] != 'n' and query.template_[
+                1] != self.metric_template_[1]:
             raise Exception(
                 'The cardinality of the set of attributes words of the provided query ({}) is different from the cardinality required by {}: ({})'
-                .format(query.template_[1], self.metric_name_, self.metric_template_[1]))
+                .format(query.template_[1], self.metric_name_,
+                        self.metric_template_[1]))
 
     def __get_embeddings_from_word_set_(
             self,
@@ -153,15 +172,18 @@ class BaseMetric:
         # filter the words
         for word in word_set:
             # add the vocab prefix if is required.
-            processed_word_lower = vocab_prefix + word.lower() if vocab_prefix != '' else word.lower()
+            processed_word_lower = vocab_prefix + word.lower(
+            ) if vocab_prefix != '' else word.lower()
             processed_word = vocab_prefix + word if vocab_prefix != '' else word
 
             # check if the word is in the word vector vocab
             if (processed_word in embeddings.vocab):
                 # if it is, add the word vector to the return array
-                selected_embeddings[processed_word] = embeddings[processed_word]
+                selected_embeddings[processed_word] = embeddings[
+                    processed_word]
             elif (processed_word_lower in embeddings.vocab):
-                selected_embeddings[processed_word_lower] = embeddings[processed_word_lower]
+                selected_embeddings[processed_word_lower] = embeddings[
+                    processed_word_lower]
 
             else:
                 filtered_words.append(processed_word)
@@ -174,9 +196,11 @@ class BaseMetric:
 
         return selected_embeddings
 
-    def _get_embeddings_from_query(self, query: Query, word_embedding: WordEmbeddingModel,
+    def _get_embeddings_from_query(self, query: Query,
+                                   word_embedding: WordEmbeddingModel,
                                    warn_filtered_words: bool = False,
-                                   lost_words_threshold: float = 0.2) -> Union[Tuple[list, list], None]:
+                                   lost_words_threshold: float = 0.2
+                                   ) -> Union[Tuple[list, list], None]:
         """Obtains the word vectors associated with the provided Query. 
         The words that does not appears in the word embedding pretrained model vocabulary are filtered. 
         If the remaining words are percentage lower than the specified threshold, then the function will return none.
@@ -196,18 +220,22 @@ class BaseMetric:
             Two lists with dictionaries that contains targets and attributes embeddings. Each dict key represents the word and its value 
             represents the embedding vector. If some set has proportionally fewer words than the threshold, it returns None.
         """
-
-        def is_percentage_of_filtered_words_under_threshold(embeddings, word_set, word_set_name, lost_words_threshold):
+        def is_percentage_of_filtered_words_under_threshold(
+                embeddings, word_set, word_set_name, lost_words_threshold):
             remaining_words = list(embeddings.keys())
             number_of_filtered_words = len(word_set) - len(remaining_words)
-            percentage_of_filtered_words = number_of_filtered_words / len(word_set)
+            percentage_of_filtered_words = number_of_filtered_words / len(
+                word_set)
 
             # if the percentage of filtered words are greater than the threshold, log and return False
             if percentage_of_filtered_words > lost_words_threshold:
                 logging.warning(
                     'Words lost during conversion of {} to {} embeddings greater than the threshold of lost vocabulary ({} > {}).'
-                    .format(word_set_name if word_set_name != '' else 'Unnamed Word set', word_embedding.model_name_,
-                            round(percentage_of_filtered_words, 2), lost_words_threshold))
+                    .format(
+                        word_set_name if word_set_name != '' else
+                        'Unnamed Word set', word_embedding.model_name_,
+                        round(percentage_of_filtered_words,
+                              2), lost_words_threshold))
                 return True
             return False
 
@@ -217,30 +245,38 @@ class BaseMetric:
         attribute_embeddings = []
 
         # get target sets embeddings
-        for target_set, target_set_name in zip(query.target_sets_, query.target_sets_names_):
-            embeddings = self.__get_embeddings_from_word_set_(target_set, word_embedding, warn_filtered_words)
+        for target_set, target_set_name in zip(query.target_sets_,
+                                               query.target_sets_names_):
+            embeddings = self.__get_embeddings_from_word_set_(
+                target_set, word_embedding, warn_filtered_words)
 
             # if the filtered words are greater than the threshold, log and change the flag.
-            if is_percentage_of_filtered_words_under_threshold(embeddings, target_set, target_set_name,
-                                                               lost_words_threshold):
+            if is_percentage_of_filtered_words_under_threshold(
+                    embeddings, target_set, target_set_name,
+                    lost_words_threshold):
                 some_set_has_fewer_words_than_the_threshold = True
             else:
                 target_embeddings.append(embeddings)
 
         # get attribute sets embeddings
-        for attribute_set, attribute_set_name in zip(query.attribute_sets_, query.attribute_sets_names_):
-            embeddings = self.__get_embeddings_from_word_set_(attribute_set, word_embedding, warn_filtered_words)
+        for attribute_set, attribute_set_name in zip(
+                query.attribute_sets_, query.attribute_sets_names_):
+            embeddings = self.__get_embeddings_from_word_set_(
+                attribute_set, word_embedding, warn_filtered_words)
 
             # if the filtered words are greater than the threshold, log and change the flag.
-            if is_percentage_of_filtered_words_under_threshold(embeddings, attribute_set, attribute_set_name,
-                                                               lost_words_threshold):
+            if is_percentage_of_filtered_words_under_threshold(
+                    embeddings, attribute_set, attribute_set_name,
+                    lost_words_threshold):
                 some_set_has_fewer_words_than_the_threshold = True
             else:
                 attribute_embeddings.append(embeddings)
 
         # check if some set has fewer words than the threshold. if that's the case, return None
         if some_set_has_fewer_words_than_the_threshold == True:
-            logging.warning('Some set has fewer words than the allowed threshold. The metric will return nan.')
+            logging.warning(
+                'Some set has fewer words than the allowed threshold. The metric will return nan.'
+            )
             return None
 
         return target_embeddings, attribute_embeddings

@@ -6,6 +6,14 @@
 User guide
 ==========
 
+The following guide is designed to present the more general details about how to use the package. Below:
+
+- First, we will present how to run a simple query using some embedding model. 
+- Then how to run multiple queries on multiple embeddings.
+- After that, how to compare the results of running multiple sets of queries on multiple embeddings using different metrics through ranking calculation.
+- Finally, how to calculate the correlations between the rankings obtained.
+
+
 Run a Query
 ===================================================================
 
@@ -313,4 +321,38 @@ Each bar represents the sum of the rankings obtained by each embedding.
 Each color inside a bar represent a different criteria-metric ranking.
 
 .. image:: images/ranking_without_facet.png
+  :alt: Ranking without facet
+
+
+Ranking Correlations
+====================
+
+We can see how well the rankings obtained in the previous section relate using a correlation matrix.
+For this, we provide the function calculate_ranking_correlations. 
+This takes as inputs the rankings and calculates the Spearman correlation between them.
+
+>>> from wefe.utils import calculate_ranking_correlations, plot_ranking_correlations
+>>> correlations = calculate_ranking_correlations(ranking)
+>>> correlations
+
++---------------------------------------+--------------------------------------+-----------------------------------------+--------------------------------------+-----------------------------------------+---------------------------------------+
+|                                       |   WEAT: Gender Queries average score |   WEAT: Ethnicity Queries average score |   RNSB: Gender Queries average score |   RNSB: Ethnicity Queries average score | Model                                 |
++=======================================+======================================+=========================================+======================================+=========================================+=======================================+
+| WEAT: Gender Queries average score    |                                  1   |                                    -0.5 |                                 -1   |                                    -1   | WEAT: Gender Queries average score    |
++---------------------------------------+--------------------------------------+-----------------------------------------+--------------------------------------+-----------------------------------------+---------------------------------------+
+| WEAT: Ethnicity Queries average score |                                 -0.5 |                                     1   |                                  0.5 |                                     0.5 | WEAT: Ethnicity Queries average score |
++---------------------------------------+--------------------------------------+-----------------------------------------+--------------------------------------+-----------------------------------------+---------------------------------------+
+| RNSB: Gender Queries average score    |                                 -1   |                                     0.5 |                                  1   |                                     1   | RNSB: Gender Queries average score    |
++---------------------------------------+--------------------------------------+-----------------------------------------+--------------------------------------+-----------------------------------------+---------------------------------------+
+| RNSB: Ethnicity Queries average score |                                 -1   |                                     0.5 |                                  1   |                                     1   | RNSB: Ethnicity Queries average score |
++---------------------------------------+--------------------------------------+-----------------------------------------+--------------------------------------+-----------------------------------------+---------------------------------------+
+
+Finally, we also provide a function to graph the correlations. 
+This allows us to visually analyze in a very simple way how rankings relate to each other.
+
+
+>>> correlation_fig = plot_ranking_correlations(correlations)
+>>> correlation_fig.show()
+
+.. image:: images/ranking_correlations.png
   :alt: Ranking without facet

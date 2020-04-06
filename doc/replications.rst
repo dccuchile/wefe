@@ -1,6 +1,6 @@
-##########################
-Paper Results Replications
-##########################
+################################
+Replication of paper experiments
+################################
 
 WEAT Replication
 ----------------

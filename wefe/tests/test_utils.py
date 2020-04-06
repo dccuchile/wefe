@@ -1,6 +1,6 @@
 import pytest
 
-from wefe.utils import load_weat_w2v, run_queries, create_ranking
+from wefe.utils import load_weat_w2v, run_queries, create_ranking, calculate_ranking_correlations
 from wefe.datasets import load_weat
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
@@ -40,22 +40,17 @@ def queries_and_models():
         ['Male terms', 'Female terms'], ['Math', 'Arts'])
 
     # Create ethnicity queries
-    ethnicity_query_1 = Query([
-        word_sets['european_american_names_5'],
-        word_sets['african_american_names_5']
-    ], [word_sets['pleasant_5'], word_sets['unpleasant_5']],
-                              ['European Names', 'African Names'],
-                              ['Pleasant', 'Unpleasant'])
+    test_query_1 = Query([word_sets['insects'], word_sets['flowers']],
+                         [word_sets['pleasant_5'], word_sets['unpleasant_5']],
+                         ['Flowers', 'Insects'], ['Pleasant', 'Unpleasant'])
 
-    ethnicity_query_2 = Query([
-        word_sets['european_american_names_7'],
-        word_sets['african_american_names_7']
-    ], [word_sets['pleasant_9'], word_sets['unpleasant_9']],
-                              ['European Names', 'African Names'],
-                              ['Pleasant 2', 'Unpleasant 2'])
+    test_query_2 = Query([word_sets['weapons'], word_sets['instruments']],
+                         [word_sets['pleasant_5'], word_sets['unpleasant_5']],
+                         ['Instruments', 'Weapons'],
+                         ['Pleasant', 'Unpleasant'])
 
     gender_queries = [gender_query_1, gender_query_2, gender_query_3]
-    ethnicity_queries = [ethnicity_query_1, ethnicity_query_2]
+    negative_test_queries = [test_query_1, test_query_2]
 
     weat_w2v = load_weat_w2v()
     dummy_model_1 = weat_w2v
@@ -67,7 +62,7 @@ def queries_and_models():
         WordEmbeddingModel(dummy_model_2, 'dummy_model_2'),
         WordEmbeddingModel(dummy_model_3, 'dummy_model_3')
     ]
-    return gender_queries, ethnicity_queries, models
+    return gender_queries, negative_test_queries, models
 
 
 def test_run_query_input_validation(queries_and_models):
@@ -155,7 +150,7 @@ def test_run_query(queries_and_models):
     # -----------------------------------------------------------------
 
     # Load the inputs of the fixture
-    gender_queries, _, models = queries_and_models
+    gender_queries, negative_test_queries, models = queries_and_models
 
     results = run_queries(WEAT, gender_queries, models)
 
@@ -205,7 +200,92 @@ def test_run_query(queries_and_models):
     results = run_queries(WEAT, gender_queries, models,
                           include_average_by_embedding='include')
     assert results.shape == (3, 4)
+    avg = results.values[:, 3]
+    values = results.values[:, 0:3]
+    calc_avg = np.mean(values, axis=1)
+    assert np.array_equal(avg, calc_avg)
 
     results = run_queries(WEAT, gender_queries, models,
                           include_average_by_embedding=None)
     assert results.shape == (3, 3)
+
+    results = run_queries(WEAT, negative_test_queries, models,
+                          include_average_by_embedding='only',
+                          average_with_abs_values=False)
+    assert results.shape == (3, 1)
+    for row in results.values:
+        for val in row:
+            assert val <= 0
+
+
+def test_ranking_results(queries_and_models):
+
+    gender_queries, negative_test_queries, models = queries_and_models
+    results_gender = run_queries(WEAT, gender_queries, models,
+                                 queries_set_name='Gender Queries',
+                                 include_average_by_embedding=None)
+    results_test = run_queries(WEAT, negative_test_queries, models,
+                               queries_set_name='Negative Test Queries',
+                               include_average_by_embedding='include')
+
+    with pytest.raises(
+            TypeError, match=
+            'All elements of results_dataframes must be a pandas Dataframe instance*'
+    ):
+        create_ranking([None, results_gender, results_test])
+
+    with pytest.raises(Exception, match='There is no average column in*'):
+        create_ranking([results_gender, results_test])
+
+    results_gender = run_queries(WEAT, gender_queries, models,
+                                 queries_set_name='Gender Queries',
+                                 include_average_by_embedding='include')
+    results_test = run_queries(WEAT, negative_test_queries, models,
+                               queries_set_name='Negative Test Queries',
+                               include_average_by_embedding=None)
+
+    with pytest.raises(Exception, match='There is no average column in*'):
+        create_ranking([results_gender, results_test])
+
+    results_gender = run_queries(WEAT, gender_queries, models,
+                                 queries_set_name='Gender Queries',
+                                 include_average_by_embedding='include')
+    results_test = run_queries(WEAT, negative_test_queries, models,
+                               queries_set_name='Negative Test Queries',
+                               include_average_by_embedding='include')
+
+    ranking = create_ranking([results_gender, results_test])
+    assert ranking.shape == (3, 2)
+
+    for row in ranking.values:
+        for val in row:
+            assert val <= 3 and val >= 1
+
+
+def test_correlations(queries_and_models):
+
+    gender_queries, negative_test_queries, models = queries_and_models
+    results_gender = run_queries(WEAT, gender_queries, models,
+                                 queries_set_name='Gender Queries',
+                                 include_average_by_embedding='include')
+    results_test = run_queries(WEAT, negative_test_queries, models,
+                               queries_set_name='Negative Test Queries',
+                               include_average_by_embedding='include')
+
+    ranking = create_ranking([results_gender, results_test])
+
+    correlations = calculate_ranking_correlations(ranking)
+
+    assert correlations.shape == (2, 2)
+    assert np.array_equal(
+        correlations.columns.values,
+        np.array([
+            'WEAT: Gender Queries average score',
+            'WEAT: Negative Test Queries average score'
+        ]))
+    assert np.array_equal(
+        correlations.index.values,
+        np.array([
+            'WEAT: Gender Queries average score',
+            'WEAT: Negative Test Queries average score'
+        ]))

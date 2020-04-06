@@ -63,7 +63,6 @@ class RNSB(BaseMetric):
 
         # if there are a specified classifier, use it.
         if not classifier is None:
-            print(classifier)
             classifier = classifier(**classifier_params)
 
         # else, train logistic classifier

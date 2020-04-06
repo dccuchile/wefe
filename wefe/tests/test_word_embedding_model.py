@@ -6,20 +6,30 @@ from ..utils import load_weat_w2v
 def test_create_word_embedding_model():
 
     # target sets None
-    with pytest.raises(TypeError, match='word_embedding must be an instance of a gensim\'s KeyedVectors'):
+    with pytest.raises(
+            TypeError, match=
+            'word_embedding must be an instance of a gensim\'s KeyedVectors'):
         WordEmbeddingModel(None)
 
     # target sets int
-    with pytest.raises(TypeError, match='word_embedding must be an instance of a gensim\'s KeyedVectors'):
+    with pytest.raises(
+            TypeError, match=
+            'word_embedding must be an instance of a gensim\'s KeyedVectors'):
         WordEmbeddingModel('abc')
 
-    with pytest.raises(TypeError, match='word_embedding must be an instance of a gensim\'s KeyedVectors'):
+    with pytest.raises(
+            TypeError, match=
+            'word_embedding must be an instance of a gensim\'s KeyedVectors'):
         WordEmbeddingModel(1)
 
-    with pytest.raises(TypeError, match='word_embedding must be an instance of a gensim\'s KeyedVectors'):
+    with pytest.raises(
+            TypeError, match=
+            'word_embedding must be an instance of a gensim\'s KeyedVectors'):
         WordEmbeddingModel({})
 
-    with pytest.raises(TypeError, match='word_embedding must be an instance of a gensim\'s KeyedVectors'):
+    with pytest.raises(
+            TypeError, match=
+            'word_embedding must be an instance of a gensim\'s KeyedVectors'):
         WordEmbeddingModel({})
 
     weat_we = load_weat_w2v()
@@ -27,7 +37,8 @@ def test_create_word_embedding_model():
     with pytest.raises(TypeError, match='model_name must be a string'):
         WordEmbeddingModel(weat_we, 12)
 
-    with pytest.raises(TypeError, match='vocab_prefix parameter must be a string.'):
+    with pytest.raises(TypeError,
+                       match='vocab_prefix parameter must be a string.'):
         WordEmbeddingModel(weat_we, 'A', 12)
 
     model_1 = WordEmbeddingModel(weat_we, 'weat_we')
@@ -42,3 +53,15 @@ def test_create_word_embedding_model():
     model_3 = WordEmbeddingModel(weat_we, 'weat_we', '\\c\\en')
     assert model_3.model_name_ == 'weat_we'
     assert model_3.vocab_prefix_ == '\\c\\en'
+
+
+def test_word_embedding_model_eq():
+    model_1 = WordEmbeddingModel(load_weat_w2v(), 'weat_1')
+    model_2 = WordEmbeddingModel(load_weat_w2v(), 'weat_2')
+
+    assert model_1 == model_1
+    assert model_1 != model_2
+
+    model_1.model_ = None
+
+    assert model_1 != model_2

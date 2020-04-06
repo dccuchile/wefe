@@ -8,7 +8,7 @@ from gensim.models import KeyedVectors
 
 from .word_embedding_model import WordEmbeddingModel
 from .query import Query
-from typing import Union, Iterable
+from typing import Union, Iterable, Callable
 from wefe.metrics import MAC, RND, RNSB, WEAT
 
 # -----------------------------------------------------------------------------
@@ -321,24 +321,42 @@ def plot_ranking(ranking: pd.DataFrame, title: str = '',
 # -----------------------------------------------------------------------------
 
 
-def calculate_ranking_correlations(ranking_dataframe,
-                                   correlation_function=stats.spearmanr):
+def calculate_ranking_correlations(
+        rankings: pd.DataFrame,
+        correlation_function: Callable = stats.spearmanr) -> pd.DataFrame:
+    """Calculates the correlation between the calculated rankings. 
+    It could be calculated using the spearman or kendaltau metrics.
+    
+    Parameters
+    ----------
+    rankings : pd.DataFrame
+        DataFrame that contains the calculated rankings.
+    correlation_function : Callable, optional
+        Correlation function that will be called to calculate the correlation over rankings. It could be stats.spearmanr and stats.kendaltau. by default stats.spearmanr
 
-    # correlation_function = 'stats.kendaltau'
+    Returns
+    -------
+    pd.DataFrame
+        A dataframe with the calculated correlations.
+    """
+
+    if not isinstance(rankings, pd.DataFrame):
+        raise TypeError(
+            'rankings parameter must be a pandas DataFrame, result of having executed create_rankings. Given: {}'
+            .format(rankings))
 
     matrix = []
 
-    for idx_1, _ in enumerate(ranking_dataframe.columns):
+    for idx_1, _ in enumerate(rankings.columns):
         matrix.append([])
-        for idx_2, _ in enumerate(ranking_dataframe.columns):
+        for idx_2, _ in enumerate(rankings.columns):
             matrix[idx_1].append(
-                correlation_function(
-                    ranking_dataframe.iloc[:, [idx_1]],
-                    ranking_dataframe.iloc[:, [idx_2]]).correlation)
+                correlation_function(rankings.iloc[:, [idx_1]],
+                                     rankings.iloc[:, [idx_2]]).correlation)
 
     correlation_matrix = pd.DataFrame(matrix)
-    correlation_matrix.columns = ranking_dataframe.columns
-    correlation_matrix.index = ranking_dataframe.columns
+    correlation_matrix.columns = rankings.columns
+    correlation_matrix.index = rankings.columns
     return correlation_matrix
 
 

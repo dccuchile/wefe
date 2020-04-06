@@ -80,10 +80,8 @@ class WordEmbeddingModel:
             self.vocab_prefix_ = vocab_prefix
 
     def __eq__(self, other):
-        if self.model_ != other.word_embedding:
+        if self.model_ != other.model_:
             return False
-        if self.model_name_ != other.model_name:
-            return False
-        if self.model_name_ != other.model_name:
+        if self.model_name_ != other.model_name_:
             return False
         return True

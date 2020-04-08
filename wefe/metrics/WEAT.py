@@ -96,3 +96,4 @@ class WEAT(BaseMetric):
 
         result = self.__calc_weat(target_0, target_1, attribute_0, attribute_1)
         return {'query_name': query.query_name_, 'result': result}
+

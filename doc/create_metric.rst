@@ -249,3 +249,5 @@ Contribute
 
 If you would like to contribute your metric, please follow the conventions, document everything, create specific tests for the metric and make a pull request to the project github. 
 We would really appreciate it! 
+
+You can visit the Contribute section for more information.

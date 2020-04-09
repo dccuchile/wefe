@@ -47,6 +47,7 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
+.pytest_cache
 nosetests.xml
 coverage.xml
 *,cover
@@ -70,7 +71,8 @@ target/
 .vscode/
 
 # jupyter
-*.ipynb
+.ipynb_checkpoints/
 
 .results/*
 .results
+

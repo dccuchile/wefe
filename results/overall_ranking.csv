@@ -1,9 +1,0 @@
-model_name,WEAT,WEAT EZ,RND,RNSB
-conceptnet-numberbatch-17-06-300,3,7,3,3
-fasttext-wiki-news-subwords-300,8,11,6,6
-word2vec-google-news-300,13,16,9,9
-glove-wiki-gigaword-300,17,19,19,22
-glove-wiki-gigaword-200,23,20,21,21
-glove-wiki-gigaword-100,22,18,17,20
-glove-twitter-100,14,9,18,12
-glove-twitter-200,8,8,15,15

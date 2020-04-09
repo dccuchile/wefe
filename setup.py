@@ -21,17 +21,22 @@ URL = 'https://github.com/pabloBad/wefe'
 LICENSE = 'new BSD'
 DOWNLOAD_URL = 'https://github.com/pabloBad/wefe'
 VERSION = __version__
-INSTALL_REQUIRES = ['numpy', 'scipy', 'scikit-learn']
+INSTALL_REQUIRES = [
+    'numpy', 'scipy', 'scikit-learn', 'pandas', 'plotly', 'gensim', 'patool'
+]
 CLASSIFIERS = [
-    'Intended Audience :: Science/Research', 'Intended Audience :: Developers', 'License :: OSI Approved',
-    'Programming Language :: Python', 'Topic :: Software Development', 'Topic :: Scientific/Engineering',
-    'Operating System :: Microsoft :: Windows', 'Operating System :: POSIX', 'Operating System :: Unix',
-    'Operating System :: MacOS', 'Programming Language :: Python :: 2.7', 'Programming Language :: Python :: 3.5',
-    'Programming Language :: Python :: 3.6', 'Programming Language :: Python :: 3.7'
+    'Intended Audience :: Science/Research', 'Intended Audience :: Developers',
+    'License :: OSI Approved', 'Programming Language :: Python',
+    'Topic :: Software Development', 'Topic :: Scientific/Engineering',
+    'Operating System :: Microsoft :: Windows', 'Operating System :: POSIX',
+    'Operating System :: Unix', 'Operating System :: MacOS',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7'
 ]
 EXTRAS_REQUIRE = {
     'tests': ['pytest', 'pytest-cov'],
-    'docs': ['sphinx', 'sphinx-gallery', 'sphinx_rtd_theme', 'numpydoc', 'matplotlib']
+    'docs':
+    ['sphinx', 'sphinx-gallery', 'sphinx_rtd_theme', 'numpydoc', 'matplotlib']
 }
 
 setup(

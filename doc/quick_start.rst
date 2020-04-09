@@ -19,16 +19,11 @@ In this page, we will show how to install the package and how to run a basic que
 
 There are two different ways to install WEFE: 
 
-
-- With pip: 
-
-To install the package with pip, run in a console:
+To install the package with pip, run in a console::
 
     pip install wefe
 
-- With conda: 
-
-To install the package with conda, run in a console: 
+To install the package with conda, run in a console::
 
     conda install wefe
 
@@ -72,4 +67,4 @@ For this example, we will create a query with gender terms with respect to arts 
 {'query_name': 'Male Terms and Female Terms wrt Arts and Science',
  'result': -0.010003209}
 
-For more advanced examples, visit user guide.
+For more advanced examples, visit user `User Guide <user_guide.html>`_ section.

@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to WEFE documentation
-============================================
+Welcome to WEFE documentation!
+==============================
 
 .. toctree::
    :maxdepth: 2
@@ -19,18 +19,20 @@ Welcome to WEFE documentation
    :caption: Documentation
 
    user_guide
-   api
    create_metric
    contribute
+   api
 
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: Examples and Experiment Replications
+   :caption: Examples
 
    replications
    rank
 
+About
+=====
 
 Word Embedding Fairness Evaluation Framework (WEFE) is a package focused on providing an easy and well-designed framework for measuring word embedding bias. 
 
@@ -45,8 +47,8 @@ Documentation
 
 The following links contain information about how to install the package, how to use it and how to contribute, as well as detailed API documentation and extensive examples. 
 
-`Getting started <quick_start.html>`_
--------------------------------------
+`Quick start with WEFE <quick_start.html>`_
+-------------------------------------------
 
 Information regarding how to install and use WEFE.
 
@@ -74,7 +76,7 @@ It contains the list and specification of the functions and classes available in
 A complete guide on how to implement your own metrics using WEFE's interfaces and design.
 
 
-`Create your own Metric <contribute.html>`_
+`Contribute <contribute.html>`_
 ----------------------------------------------
 
 A little guide on how to contribute to the project.
@@ -117,7 +119,7 @@ A Survey on Bias and Fairness in Machine Learning
 
 
 Citations
-========
+=========
 
 We do not have any paper published yet 😭😭😭😭😭
 

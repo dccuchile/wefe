@@ -74,7 +74,7 @@ plot_gallery = False
 master_doc = 'index'
 
 # General information about the project.
-project = u'wefe'
+project = u'WEFE'
 copyright = u'Pablo Badilla'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -230,7 +230,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ('index', 'project-template.tex', u'project-template Documentation', u'Vighnesh Birodkar', 'manual'),
+    ('index', 'project-template.tex', u'project-template Documentation',
+     u'Vighnesh Birodkar', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -257,7 +258,8 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [('index', 'project-template', u'project-template Documentation', [u'Vighnesh Birodkar'], 1)]
+man_pages = [('index', 'project-template', u'project-template Documentation',
+              [u'Vighnesh Birodkar'], 1)]
 
 # If true, show URL addresses after external links.
 #man_show_urls = False
@@ -268,7 +270,8 @@ man_pages = [('index', 'project-template', u'project-template Documentation', [u
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'project-template', u'project-template Documentation', u'Vighnesh Birodkar', 'project-template',
+    ('index', 'project-template', u'project-template Documentation',
+     u'Vighnesh Birodkar', 'project-template',
      'One line description of project.', 'Miscellaneous'),
 ]
 
@@ -287,7 +290,8 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 # intersphinx configuration
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/{.major}'.format(sys.version_info), None),
+    'python':
+    ('https://docs.python.org/{.major}'.format(sys.version_info), None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
     'matplotlib': ('https://matplotlib.org/', None),

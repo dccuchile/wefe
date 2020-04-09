@@ -1,25 +1,14 @@
 .. -*- mode: rst -*-
 
-.. |Travis|_ |AppVeyor|_ |Codecov|_ |CircleCI|_ |ReadTheDocs|_
+|ReadTheDocs|_
 
-.. .. |Travis| image:: https://travis-ci.org/scikit-learn-contrib/project-template.svg?branch=master
-.. .. _Travis: https://travis-ci.org/scikit-learn-contrib/project-template
+.. |ReadTheDocs| image:: https://readthedocs.org/projects/wefe/badge/?version=latest
+.. _ReadTheDocs: https://wefe.readthedocs.io/en/latest/?badge=latest
 
-.. .. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/coy2qqaqr1rnnt5y/branch/master?svg=true
-.. .. _AppVeyor: https://ci.appveyor.com/project/glemaitre/project-template
 
-.. .. |Codecov| image:: https://codecov.io/gh/scikit-learn-contrib/project-template/branch/master/graph/badge.svg
-.. .. _Codecov: https://codecov.io/gh/scikit-learn-contrib/project-template
 
-.. .. |CircleCI| image:: https://circleci.com/gh/scikit-learn-contrib/project-template.svg?style=shield&circle-token=:circle-token
-.. .. _CircleCI: https://circleci.com/gh/scikit-learn-contrib/project-template/tree/master
-
-.. .. |ReadTheDocs| image:: https://readthedocs.org/projects/sklearn-template/badge/?version=latest
-.. .. _ReadTheDocs: https://sklearn-template.readthedocs.io/en/latest/?badge=latest
-
-#######################################################
-WEFE: The Word Embeddings Fairness Evaluation Framework
-#######################################################
+WEFE: The Word Embedding Fairness Evaluation Framework
+======================================================
 
 
 WEFE is a package focused on providing an easy and well-designed framework for measuring word embedding bias. 
@@ -29,21 +18,7 @@ In addition, it has multiple tools that allow you to run several queries on seve
 
 Although it is only in its early stages of development, it is expected that with time it will become more robust, that more metrics will be implemented and that it will extend to other types of bias measurement in NLP.
 
-The official documentation can be found at this `link <wefe.readthedocs.io>`_.
-
-
-Requirements
-------------
-
-These package will be installed along with the package, in case these have not already been installed:
-
-1. numpy
-2. scikit-learn
-3. scipy
-4. pandas
-5. gensim
-6. plotly
-7. patool
+The official documentation can be found at this `link <https://wefe.readthedocs.io/>`_.
 
 
 Installation

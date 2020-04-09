@@ -12,7 +12,7 @@ with open(ver_file) as f:
     exec(f.read())
 
 DISTNAME = 'wefe'
-DESCRIPTION = 'The Word Embeddings Fairness Evaluation Framework'
+DESCRIPTION = 'The Word Embedding Fairness Evaluation Framework'
 with codecs.open('README.rst', encoding='utf-8-sig') as f:
     LONG_DESCRIPTION = f.read()
 MAINTAINER = 'Pablo Badilla'
@@ -53,4 +53,6 @@ setup(
     classifiers=CLASSIFIERS,
     packages=find_packages(),
     install_requires=INSTALL_REQUIRES,
-    extras_require=EXTRAS_REQUIRE)
+    extras_require=EXTRAS_REQUIRE,
+    python_requires='>=3.6',
+)

@@ -29,7 +29,7 @@ In addition, it has multiple tools that allow you to run several queries on seve
 
 Although it is only in its early stages of development, it is expected that with time it will become more robust, that more metrics will be implemented and that it will extend to other types of bias measurement in NLP.
 
-The official documentation can be found at: LINK TODO
+The official documentation can be found at this `link <wefe.readthedocs.io>`_.
 
 
 Requirements
@@ -86,7 +86,7 @@ Contributing
 
 You can download the code executing ::
 
-    git clone https://github.com/pabloBad/wefe.git
+    git clone https://github.com/dccuchile/wefe
 
 
 To contribute, simply create a pull request.

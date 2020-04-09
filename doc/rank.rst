@@ -13,6 +13,4 @@ From the results grouped by query criteria, rankings of the bias that was detect
 Finally, the matrix of correlations between these rankings is calculated and plotted.
 
 The code of this experiment is relatively long, as is the time of its execution.
-You can see it in his Jupyter Notebook using the following link:
-
-LINK
+You can see it in his Jupyter Notebook using the following `link <https://github.com/dccuchile/wefe/blob/master/examples/WEFE_rankings.ipynb>`_.

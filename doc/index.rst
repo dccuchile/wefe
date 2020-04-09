@@ -45,7 +45,7 @@ Although it is only in its early stages of development, it is expected that with
 Documentation
 =============
 
-The following links contain information about how to install the package, how to use it and how to contribute, as well as detailed API documentation and extensive examples. 
+The following pages contain information about how to install the package, how to use it and how to contribute, as well as detailed API documentation and extensive examples. 
 
 `Quick start with WEFE <quick_start.html>`_
 -------------------------------------------

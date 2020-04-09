@@ -17,9 +17,9 @@ with codecs.open('README.rst', encoding='utf-8-sig') as f:
     LONG_DESCRIPTION = f.read()
 MAINTAINER = 'Pablo Badilla'
 MAINTAINER_EMAIL = 'pablo.badilla@ug.uchile.cl'
-URL = 'https://github.com/pabloBad/wefe'
+URL = 'https://github.com/dccuchile/wefe'
 LICENSE = 'new BSD'
-DOWNLOAD_URL = 'https://github.com/pabloBad/wefe'
+DOWNLOAD_URL = 'https://github.com/dccuchile/wefe'
 VERSION = __version__
 INSTALL_REQUIRES = [
     'numpy', 'scipy', 'scikit-learn', 'pandas', 'plotly', 'gensim', 'patool'

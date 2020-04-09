@@ -18,7 +18,7 @@ Get the repository
 
 You can download the code executing ::
 
-    git clone https://github.com/pabloBad/wefe.git
+    git clone https://github.com/dccuchile/wefe
 
 
 To contribute, simply create a pull request.

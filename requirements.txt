@@ -4,4 +4,4 @@ scikit-learn
 pandas
 gensim
 plotly
-patoolib
+patool

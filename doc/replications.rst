@@ -155,7 +155,7 @@ The above results in bar chart:
 
 Note: This code is not executed when compiling the documentation due to the long processing time taken. 
 Instead, the tables and graphs of results were embedded. 
-The code is available for execution in TODO
+The code is available for execution in this `file <https://github.com/dccuchile/wefe/blob/master/examples/WEAT_experiments.ipynb>`_.
 
 
 RNSB Replication
@@ -250,4 +250,4 @@ However, those obtained by the code are very similar to those obtained by the pa
 
 Note: This code is not executed when compiling the documentation due to the long processing time taken. 
 Instead, the tables and graphs of results were embedded. 
-The code is available for execution in TODO
+The code is available for execution in `file <https://github.com/dccuchile/wefe/blob/master/examples/RNSB_experiments.ipynb>`_.

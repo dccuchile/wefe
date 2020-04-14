@@ -34,10 +34,47 @@ Welcome to WEFE documentation!
 About
 =====
 
-Word Embedding Fairness Evaluation Framework (WEFE) is a package focused on providing an easy and well-designed framework for measuring word embedding bias. 
+Word Embedding Fairness Evaluation (WEFE) is a package focused on providing an easy and well-designed framework for measuring bias on word embedding models. 
+Specifically it provides
 
-It provides metrics, a framework for creating queries, and a standard interface for executing these queries using a metric and a pre-trained Word Embedding model.
-In addition, it has multiple tools that allow you to run several queries on several different embedding models, graph them, calculate their associated rankings per test, among others.
+- A set of implemented metrics from previous word embedding bias measure works.
+- A wrapper to creating queries (sets of words to be tested),
+- And a standard interface for executing these queries using a metric and a pre-trained Word Embedding model.
+
+In addition, it provides multiple utils that allow you to:
+
+- Run several queries on several different embedding models and return a DataFrame with the results.
+- Plot those results.
+- Based on the above results, calculate bias rankings per embedding. This allows you to evaluate the embedding models according to the bias criteria evaluated and the metric used.
+- Plot the rankings.
+- Correlate the rankings. This allows us to see how correlated the rankings of the different metrics or evaluation criteria are with respect to the bias presented by the models.
+
+Motivation
+----------
+
+The main motivations to create this package are:
+
+- To provide a ready-to-use tool that allows to execute bias tests in a very expeditious way. 
+- To deliver an easy interface to develop new metrics and at the same time.
+- To solve the main problems when perform a clear comparison between experiments with different metrics:
+
+   - Some metrics operate with different inputs (different cardinality of word sets). 
+   - The outputs of different metrics are incompatible with each other (their scales are different, some metrics deliver real numbers and others only positive ones, among others...)
+
+Background on Fairness 
+----------------------
+
+...WIP...
+
+Metrics
+-------
+
+The metrics implemented so far are:
+
+- Word Embedding Association Test (WEAT), presented in the paper Semantics derived automatically from language corpora contain human-like biases.
+- Relative Norm Distance (RND), presented in the paper Word embeddings quantify 100 years of gender and ethnic stereotypes.
+- Relative Negative Sentiment Bias (RNSB), presented in the paper A transparent framework for evaluating unintended demographic bias in word embeddings.
+-  Mean Average Cosine Similarity (MAC), presented in the paper Black is to criminalas caucasian is to police: Detecting and removing multiclass bias in word embeddings.  
 
 Although it is only in its early stages of development, it is expected that with time it will become more robust, that more metrics will be implemented and that it will extend to other types of bias measurement in NLP.
 

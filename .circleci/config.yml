@@ -12,10 +12,17 @@ jobs:
       - python/install-deps
       - python/save-cache
       - run:
+          name: run tests
           command: |
-            # pytest would be a dep in requirements.txt
-            pytest
-          name: Test
+            . venv/bin/activate
+            mkdir test-results
+            pytest --junitxml=test-results/junit.xml
+
+      - store_test_results:
+          path: test-results
+
+      - store_artifacts:
+          path: test-results
 
 workflows:
   main:

@@ -1,7 +1,6 @@
 version: 2.1
 
 orbs:
-  tester: thekevjames/tester@1.2.20
   python: circleci/python@0.2.1
 
 jobs:

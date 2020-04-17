@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   python: circleci/python@0.2.1
-  tester: thekevjames/tester@1.2.20
 
 jobs:
   build:
@@ -12,7 +11,18 @@ jobs:
       - python/load-cache
       - python/install-deps
       - python/save-cache
-      - tester/pytest
+      - run:
+          name: run tests
+          command: |
+            pip install pytest
+            mkdir test-results
+            pytest --junitxml=test-results/junit.xml
+
+      - store_test_results:
+          path: test-results
+
+      - store_artifacts:
+          path: test-results
 
 workflows:
   main:

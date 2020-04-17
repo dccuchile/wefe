@@ -1,3 +1,4 @@
+import pkg_resources
 import pandas as pd
 import logging
 import numpy as np
@@ -372,6 +373,11 @@ def plot_ranking_correlations(correlation_matrix, title=''):
 def load_weat_w2v():
     from gensim.models import KeyedVectors
     # load dummy weat word vectors:
-    weat_we = KeyedVectors.load_word2vec_format('./wefe/datasets/weat_w2v.txt',
-                                                binary=False)
+
+    resource_package = __name__
+    resource_path = '/'.join(('datasets', 'data', 'weat_w2v.txt'))
+    weat_w2v_path = pkg_resources.resource_filename(resource_package,
+                                                    resource_path)
+
+    weat_we = KeyedVectors.load_word2vec_format(weat_w2v_path, binary=False)
     return weat_we

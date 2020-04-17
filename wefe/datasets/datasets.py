@@ -1,10 +1,11 @@
 import pandas as pd
 import urllib.request
-import patoolib
 import shutil
 import os
 import json
 import numpy as np
+import pkg_resources
+import zipfile
 
 
 def fetch_eds(occupations_year: int = 2015,
@@ -161,8 +162,8 @@ def fetch_debiaswe() -> dict:
     return word_sets_dict
 
 
-def fetch_bingliu():
-    """Fetch the bing-liu sentiment lexicon form the source. 
+def load_bingliu():
+    """Load the bing-liu sentiment lexicon. 
 
     References:
     Minqing Hu and Bing Liu. "Mining and Summarizing Customer Reviews." 
@@ -175,27 +176,20 @@ def fetch_bingliu():
     dict
         A dictionary with the positive and negative words.
         """
-
-    # download the file
-    if not os.path.exists('./lexicon.rar'):
-        print('Fetching file...')
-        url = 'http://www.cs.uic.edu/~liub/FBS/opinion-lexicon-English.rar'
-        local_fname = './lexicon.rar'
-        urllib.request.urlretrieve(url, local_fname)
-    else:
-        print('Lexicon file already downloaded')
-
     # extract the file
-    patoolib.extract_archive("./lexicon.rar", outdir="./")
+    resource_package = __name__
+    resource_neg_path = '/'.join(('data', 'negative-words.txt'))
+    bingliu_neg_bytes = pkg_resources.resource_stream(resource_package,
+                                                      resource_neg_path)
 
-    # load and clean the word sets
-    negative_word_set_path = './opinion-lexicon-English/negative-words.txt'
-    positive_word_set_path = './opinion-lexicon-English/positive-words.txt'
+    resource_pos_path = '/'.join(('data', 'positive-words.txt'))
+    bingliu_pos_bytes = pkg_resources.resource_stream(resource_package,
+                                                      resource_pos_path)
 
-    negative = pd.read_csv(negative_word_set_path, sep='\n', header=None,
+    negative = pd.read_csv(bingliu_neg_bytes, sep='\n', header=None,
                            names=['word'], encoding='latin-1')
     negative_cleaned = negative.loc[30:, ].values.flatten().tolist()
-    positive = pd.read_csv(positive_word_set_path, sep='\n', header=None,
+    positive = pd.read_csv(bingliu_pos_bytes, sep='\n', header=None,
                            names=['word'], encoding='latin-1')
     positive_cleaned = positive.loc[29:, ].values.flatten().tolist()
 
@@ -203,14 +197,6 @@ def fetch_bingliu():
         'positive_words': positive_cleaned,
         'negative_words': negative_cleaned
     }
-
-    # cleanup
-    try:
-        shutil.rmtree('./opinion-lexicon-English')
-        os.remove("./lexicon.rar")
-    except Exception as error:
-        print(
-            'Unable to perform the cleanup of lexicon files: {}'.format(error))
 
     return bingliu_lexicon
 
@@ -298,7 +284,7 @@ def fetch_debias_multiclass() -> dict:
 
 
 def load_weat():
-    """Loads the datasets used in the Semantics derived automatically from language corpora contain human-like biases paper tests. 
+    """Load the word sets used in the Semantics derived automatically from language corpora contain human-like biases paper tests. 
     It includes gender (male, female), ethnicity(black, white) and pleasant, unpleasant word sets, among others.
 
     Reference:
@@ -312,8 +298,10 @@ def load_weat():
 
 
     """
-    with open('./wefe/datasets/WEAT.json') as WEAT_json:
-        word_sets_dict = json.load(WEAT_json)
-        WEAT_json.close()
+    resource_package = __name__
+    resource_path = '/'.join(('data', 'WEAT.json'))
+    weat_data = pkg_resources.resource_string(resource_package, resource_path)
 
-    return word_sets_dict
+    data = json.loads(weat_data.decode())
+
+    return data

@@ -1,6 +1,5 @@
-################################
 Replication of paper experiments
-################################
+================================
 
 WEAT Replication
 ----------------
@@ -170,7 +169,7 @@ The following code represents a replica of the experiments performed on the pape
 Note: Due the formulation of the metric (it trains a logistic regression in each execution) we can never get the same results. 
 However, those obtained by the code are very similar to those obtained by the paper's makers.
 
->>> from wefe.datasets import fetch_bingliu
+>>> from wefe.datasets import load_bingliu
 >>> from wefe.metrics import RNSB
 >>> from wefe.query import Query
 >>> from wefe.word_embedding_model import WordEmbeddingModel
@@ -185,7 +184,7 @@ However, those obtained by the code are very similar to those obtained by the pa
 >>>     'french', 'norwegian', 'american', 'indian', 'dutch', 'russian',
 >>>     'scottish', 'italian'
 >>> ]
->>> bing_liu = fetch_bingliu()
+>>> bing_liu = load_bingliu()
 >>> 
 >>> # Create the query
 >>> query = Query([RNSB_words],

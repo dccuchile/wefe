@@ -68,14 +68,14 @@ Dataloaders
 
 The following functions allow us to load word sets used in previous works. 
 
-Fetch BingLiu
+Load BingLiu
 -------------
 
 .. autosummary::
    :toctree: generated/dataloaders/
    :template: function.rst
 
-   fetch_bingliu
+   load_bingliu
 
 
 Fetch Debias Multiclass Word sets

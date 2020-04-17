@@ -1,10 +1,10 @@
 import pytest
 
-from ..datasets.datasets import fetch_bingliu, fetch_debiaswe, fetch_eds, fetch_debias_multiclass, load_weat
+from ..datasets.datasets import load_bingliu, fetch_debiaswe, fetch_eds, fetch_debias_multiclass, load_weat
 
 
-def test_fetch_bingliu():
-    bingliu = fetch_bingliu()
+def test_load_bingliu():
+    bingliu = load_bingliu()
     assert isinstance(bingliu, dict)
     assert list(bingliu.keys()) == ['positive_words', 'negative_words']
     assert len(list(bingliu.keys())) == 2

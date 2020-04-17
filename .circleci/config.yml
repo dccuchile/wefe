@@ -16,7 +16,7 @@ jobs:
           command: |
             pip install pytest
             mkdir test-results
-            pytest --junitxml=test-results/junit.xml
+            pytest wefe --junitxml=test-results/junit.xml
 
       - store_test_results:
           path: test-results

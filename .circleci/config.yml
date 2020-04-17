@@ -4,7 +4,7 @@ orbs:
   python: circleci/python@0.2.1
 
 jobs:
-  build:
+  test:
     executor: python/default
     steps:
       - checkout
@@ -16,7 +16,7 @@ jobs:
           command: |
             pip install pytest
             mkdir test-results
-            pytest wefe --junitxml=test-results/junit.xml
+            pytest --junitxml=test-results/junit.xml
 
       - store_test_results:
           path: test-results
@@ -27,4 +27,4 @@ jobs:
 workflows:
   main:
     jobs:
-      - build
+      - test

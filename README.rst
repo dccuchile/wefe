@@ -5,6 +5,13 @@
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/wefe/badge/?version=latest
 .. _ReadTheDocs: https://wefe.readthedocs.io/en/latest/?badge=latest
 
+|CircleCI|_
+
+.. |CircleCI| image:: https://circleci.com/gh/dccuchile/wefe.svg?style=svg
+.. _CircleCI: https://circleci.com/gh/dccuchile/wefe.svg?style=svg
+
+
+https://circleci.com/gh/dccuchile/wefe.svg?style=svg
 
 
 WEFE: The Word Embedding Fairness Evaluation Framework

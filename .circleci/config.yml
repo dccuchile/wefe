@@ -17,7 +17,7 @@ jobs:
             # pytest would be a dep in requirements.txt
             pytest
           name: Test
-version: 2.1
+
 workflows:
   main:
     jobs:

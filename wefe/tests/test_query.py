@@ -106,8 +106,8 @@ def test_eq():
     assert query_5 == query_5
 
     # type assertion
+    assert query is not None
     assert query != []
-    assert query != None
     assert query != '123'
     assert query != 123
     assert query != {}
@@ -227,7 +227,8 @@ def test_generate_query_name():
                   [weat_word_set['pleasant_5'], weat_word_set['unpleasant_5']],
                   ['Flowers', 'Instruments'], ['Pleasant', 'Unpleasant'])
 
-    assert query.query_name_ == 'Flowers and Instruments wrt Pleasant and Unpleasant'
+    assert query.query_name_ == 'Flowers and Instruments wrt Pleasant and '\
+                                'Unpleasant'
 
     query = Query([
         weat_word_set['flowers'], weat_word_set['instruments'],
@@ -236,11 +237,14 @@ def test_generate_query_name():
                   ['Flowers', 'Instruments', 'Weapons', 'Insects'],
                   ['Pleasant', 'Unpleasant'])
 
-    assert query.query_name_ == 'Flowers, Instruments, Weapons and Insects wrt Pleasant and Unpleasant'
+    assert query.query_name_ == 'Flowers, Instruments, Weapons and Insects '\
+                                'wrt Pleasant and Unpleasant'
 
     query = Query([
         weat_word_set['flowers'], weat_word_set['instruments'],
         weat_word_set['weapons'], weat_word_set['insects']
     ], [weat_word_set['pleasant_5'], weat_word_set['unpleasant_5']])
 
-    assert query.query_name_ == 'Target set 0, Target set 1, Target set 2 and Target set 3 wrt Attribute set 0 and Attribute set 1'
+    assert query.query_name_ == 'Target set 0, Target set 1, Target set 2 '\
+                                'and Target set 3 wrt Attribute set 0 and '\
+                                'Attribute set 1'

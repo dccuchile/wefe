@@ -76,3 +76,4 @@ target/
 .results/*
 .results
 
+.mypy_cache

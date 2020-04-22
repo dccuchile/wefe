@@ -199,7 +199,7 @@ class BaseMetric(object):
     def _get_embeddings_from_query(self, query: Query,
                                    word_embedding: WordEmbeddingModel,
                                    warn_filtered_words: bool = False,
-                                   lost_words_threshold: float = 0.2
+                                   lost_vocabulary_threshold: float = 0.2
                                    ) -> Union[Tuple[list, list], None]:
         """Obtains the word vectors associated with the provided Query. 
         The words that does not appears in the word embedding pretrained model vocabulary are filtered. 
@@ -239,6 +239,10 @@ class BaseMetric(object):
                 return True
             return False
 
+        # check the inputs
+        self._check_input(query, word_embedding, lost_vocabulary_threshold,
+                          warn_filtered_words)
+
         some_set_has_fewer_words_than_the_threshold = False
 
         target_embeddings = []
@@ -253,7 +257,7 @@ class BaseMetric(object):
             # if the filtered words are greater than the threshold, log and change the flag.
             if is_percentage_of_filtered_words_under_threshold(
                     embeddings, target_set, target_set_name,
-                    lost_words_threshold):
+                    lost_vocabulary_threshold):
                 some_set_has_fewer_words_than_the_threshold = True
             else:
                 target_embeddings.append(embeddings)
@@ -267,7 +271,7 @@ class BaseMetric(object):
             # if the filtered words are greater than the threshold, log and change the flag.
             if is_percentage_of_filtered_words_under_threshold(
                     embeddings, attribute_set, attribute_set_name,
-                    lost_words_threshold):
+                    lost_vocabulary_threshold):
                 some_set_has_fewer_words_than_the_threshold = True
             else:
                 attribute_embeddings.append(embeddings)

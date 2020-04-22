@@ -6,29 +6,32 @@ from ..utils import load_weat_w2v
 def test_create_word_embedding_model():
 
     # target sets None
-    with pytest.raises(
-            TypeError, match=
-            'word_embedding must be an instance of a gensim\'s KeyedVectors'):
+    with pytest.raises(TypeError,
+                       match='word_embedding must be an instance of a '
+                       'gensim\'s KeyedVectors'):
         WordEmbeddingModel(None)
 
     # target sets int
-    with pytest.raises(
-            TypeError, match=
-            'word_embedding must be an instance of a gensim\'s KeyedVectors'):
+    with pytest.raises(TypeError,
+                       match='word_embedding must be an instance of a '
+                       'gensim\'s KeyedVectors'):
         WordEmbeddingModel('abc')
 
     with pytest.raises(
-            TypeError, match=
+            TypeError,
+            match=
             'word_embedding must be an instance of a gensim\'s KeyedVectors'):
         WordEmbeddingModel(1)
 
     with pytest.raises(
-            TypeError, match=
+            TypeError,
+            match=
             'word_embedding must be an instance of a gensim\'s KeyedVectors'):
         WordEmbeddingModel({})
 
     with pytest.raises(
-            TypeError, match=
+            TypeError,
+            match=
             'word_embedding must be an instance of a gensim\'s KeyedVectors'):
         WordEmbeddingModel({})
 

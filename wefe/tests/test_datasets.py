@@ -1,6 +1,5 @@
-import pytest
-
-from ..datasets.datasets import load_bingliu, fetch_debiaswe, fetch_eds, fetch_debias_multiclass, load_weat
+from ..datasets.datasets import load_bingliu, fetch_debiaswe, fetch_eds,\
+                                fetch_debias_multiclass, load_weat
 
 
 def test_load_bingliu():

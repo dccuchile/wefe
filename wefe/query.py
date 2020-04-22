@@ -1,17 +1,19 @@
 import logging
 import numpy as np
 from itertools import combinations
-from typing import Union
+from typing import Iterable
 
 
 class Query:
     """A container for attribute and target word sets."""
-    def __init__(self, target_sets: Union[np.ndarray, list],
-                 attribute_sets: Union[np.ndarray, list],
-                 target_sets_names: Union[np.ndarray, list] = None,
-                 attribute_sets_names: Union[np.ndarray, list] = None):
-        """Initializes the container. It could include a name for each word set.
-        
+    def __init__(self,
+                 target_sets: Iterable[Iterable[str]],
+                 attribute_sets: Iterable[Iterable[str]],
+                 target_sets_names: Iterable[str] = None,
+                 attribute_sets_names: Iterable[str] = None):
+        """Initializes the container. It could include a name for each
+        word set.
+
         Parameters
         ----------
         target_sets : Union[np.ndarray, list]
@@ -21,7 +23,8 @@ class Query:
         target_sets_names : Union[np.ndarray, Iterable], optional
             Array or list that contain the word sets names, by default None
         attribute_sets_names : Union[np.ndarray, Iterable], optional
-            Array or list that contain the attribute sets names, by default None
+            Array or list that contain the attribute sets names
+            , by default None
 
         Attributes
         ----------
@@ -30,7 +33,8 @@ class Query:
         attribute_sets_ : list
             Array or list with the lists of target words.
         template_ : tuple
-            A tuple that contains the template: the number of the target and attribute sets respectively.
+            A tuple that contains the template: the number of the target
+            and attribute sets respectively.
         target_sets_names_ : list
             Array or list with the names of target sets.
         attribute_sets_names_ : list
@@ -57,12 +61,14 @@ class Query:
 
         Examples
         --------
-        Construct a Query with 2 sets of target words and one set of attribute words.
+        Construct a Query with 2 sets of target words and one set of
+        attribute words.
 
         >>> male_terms = ['male', 'man', 'boy']
         >>> female_terms = ['female', 'woman', 'girl']
         >>> science_terms = ['science','technology','physics']
-        >>> query = Query([male_terms, female_terms], [science_terms], ['Male terms', 'Female terms'], ['Science terms'])
+        >>> query = Query([male_terms, female_terms], [science_terms],
+        ...               ['Male terms', 'Female terms'], ['Science terms'])
         >>> query.target_sets_
         [['male', 'man', 'boy'], ['female', 'woman', 'girl']]
         >>> query.attribute_sets_
@@ -85,32 +91,34 @@ class Query:
         # check input array sizes
         if len(target_sets) == 0:
             raise Exception(
-                'target_sets must have at least one array or list of words. given: {}'
-                .format(target_sets))
+                'target_sets must have at least one array or list of words. '
+                'given: {}'.format(target_sets))
 
         # check all words that target sets contains.
         for idx, target_set in enumerate(target_sets):
             if not isinstance(target_set, (np.ndarray, list)):
                 raise TypeError(
-                    "Each target set must be a list or an array of strings. Given: {} at postion {}"
-                    .format(type(target_set), idx))
+                    'Each target set must be a list or an array of strings. '
+                    'Given: {} at postion {}'.format(type(target_set), idx))
             for word_idx, word in enumerate(target_set):
                 if (not isinstance(word, str)):
                     raise TypeError(
-                        'All elements in target set {} must be strings. Given: {} at position {}'
-                        .format(idx, type(word), word_idx))
+                        'All elements in target set {} must be strings. '
+                        'Given: {} at position {}'.format(
+                            idx, type(word), word_idx))
 
         # check all words that attribute sets contains.
         for idx, attribute_set in enumerate(attribute_sets):
             if not isinstance(attribute_set, (np.ndarray, list)):
                 raise TypeError(
-                    "Each attribute set must be a list or an array of strings. Given: {} at postion {}"
-                    .format(type(target_set), idx))
+                    'Each attribute set must be a list or an array of strings.'
+                    ' Given: {} at postion {}'.format(type(target_set), idx))
             for word_idx, word in enumerate(attribute_set):
                 if (not isinstance(word, str)):
                     raise TypeError(
-                        'All elements in attribute set {} must be strings. Given: {} at position {}'
-                        .format(idx, type(word), word_idx))
+                        'All elements in attribute set {} must be strings. '
+                        'Given: {} at position {}'.format(
+                            idx, type(word), word_idx))
 
         # set target and attributes sets to this instance.
         self.target_sets_ = target_sets
@@ -127,8 +135,9 @@ class Query:
         else:
             if (len(target_sets_names) != self.template_[0]):
                 logging.warning(
-                    'target_sets_names does not have the same elements ({}) as target_sets ({}). Setting default names'
-                    .format(len(target_sets_names), self.template_[0]))
+                    'target_sets_names does not have the same elements ({}) as'
+                    ' target_sets ({}). Setting default names'.format(
+                        len(target_sets_names), self.template_[0]))
                 self.target_sets_names_ = [
                     "Target set {}".format(i) for i in range(self.template_[0])
                 ]
@@ -143,8 +152,9 @@ class Query:
         else:
             if (len(attribute_sets_names) != self.template_[1]):
                 logging.warning(
-                    'attribute_sets_names does not have the same elements ({}) as attribute_sets ({}). Setting default names'
-                    .format(len(attribute_sets_names), self.template_[1]))
+                    'attribute_sets_names does not have the same elements '
+                    ' ({}) as attribute_sets ({}). Setting default names'.
+                    format(len(attribute_sets_names), self.template_[1]))
                 self.attribute_sets_names_ = [
                     "Attribute set {}".format(i)
                     for i in range(self.template_[1])
@@ -186,27 +196,29 @@ class Query:
                 return False
         return True
 
-    def get_subqueries(self, new_template: tuple):
+    def get_subqueries(self, new_template: tuple) -> list:
         """Generate the subqueries from this query using the given template
         """
 
         if not isinstance(new_template[0], int):
             raise TypeError(
-                'The new target cardinality (new_template[0]) must be int. Given: {}'
-                .format(new_template[0]))
+                'The new target cardinality (new_template[0]) must be int. '
+                'Given: {}'.format(new_template[0]))
         if not isinstance(new_template[1], int):
             raise TypeError(
-                'The new attribute cardinality (new_template[1]) must be int. Given: {}'
-                .format(new_template[1]))
+                'The new attribute cardinality (new_template[1]) must be int. '
+                'Given: {}'.format(new_template[1]))
 
         if new_template[0] > self.template_[0]:
             raise Exception(
-                'The new target cardinality (new_template[0]) must be equal or less than the original target set cardinality. Given: {}'
-                .format(new_template[0]))
+                'The new target cardinality (new_template[0]) must be equal or'
+                ' less than the original target set cardinality. Given: {}'.
+                format(new_template[0]))
         if new_template[1] > self.template_[1]:
             raise Exception(
-                'The new attribute cardinality (new_template[1]) must be equal or less than the original attribute set cardinality. Given: {}'
-                .format(new_template[1]))
+                'The new attribute cardinality (new_template[1]) must be equal'
+                ' or less than the original attribute set cardinality. '
+                'Given: {}'.format(new_template[1]))
 
         target_combinations = list(
             combinations(range(self.template_[0]), new_template[0]))
@@ -237,8 +249,9 @@ class Query:
         return np.array(subqueries).flatten().tolist()
 
     def _generate_query_name(self) -> str:
-        """Generates the query name from the name of its target and attribute sets.
-        
+        """Generates the query name from the name of its target and
+        attribute sets.
+
         Returns
         -------
         str

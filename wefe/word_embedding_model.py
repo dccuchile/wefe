@@ -3,23 +3,27 @@ from gensim.models import KeyedVectors
 
 class WordEmbeddingModel:
     """A container for Word Embedding pre-trained models.
-    
-    It can hold gensim's KeyedVectors or gensim's api loaded models. 
+
+    It can hold gensim's KeyedVectors or gensim's api loaded models.
     It includes the name of the model and some vocab prefix if needed.
     """
-    def __init__(self, word_embedding: KeyedVectors, model_name: str = None,
+    def __init__(self,
+                 word_embedding: KeyedVectors,
+                 model_name: str = None,
                  vocab_prefix: str = None):
-        """Initializes the WordEmbeddingModel container. 
-        
+        """Initializes the WordEmbeddingModel container.
+
         Parameters
         ----------
         word_embedding : KeyedVectors.
-            An instance of word embedding loaded through gensim KeyedVector interface or gensim's api.
+            An instance of word embedding loaded through gensim KeyedVector
+            interface or gensim's api.
         model_name : str, optional
             The name of the model, by default ''.
         vocab_prefix : str, optional.
-            A prefix that will be concatenated with all word in the model vocab, by default None.
-        
+            A prefix that will be concatenated with all word in the model
+            vocab, by default None.
+
         Raises
         ------
         TypeError
@@ -35,9 +39,11 @@ class WordEmbeddingModel:
         >>> from gensim.models import Word2Vec
         >>> from wefe.word_embedding_model import WordEmbeddingModel
 
-        >>> dummy_model = Word2Vec(common_texts, size=10, window=5, min_count=1, workers=1).wv
+        >>> dummy_model = Word2Vec(common_texts, size=10, window=5,
+        ...                        min_count=1, workers=1).wv
 
-        >>> model = WordEmbeddingModel(dummy_model, 'Dummy model dim=10', vocab_prefix='/en/')
+        >>> model = WordEmbeddingModel(dummy_model, 'Dummy model dim=10',
+        ...                            vocab_prefix='/en/')
         >>> print(model.model_name_)
         Dummy model dim=10
         >>> print(model.vocab_prefix_)
@@ -51,14 +57,14 @@ class WordEmbeddingModel:
         model_name_ : str
             The name of the model.
         vocab_prefix_ : str
-            A prefix that will be concatenated with each word of the vocab of the model.
+            A prefix that will be concatenated with each word of the vocab
+            of the model.
 
         """
 
         if not isinstance(word_embedding, KeyedVectors):
-            raise TypeError(
-                "word_embedding must be an instance of a gensim's KeyedVectors. Given: {}"
-                .format(word_embedding))
+            raise TypeError('word_embedding must be an instance of a gensim\'s'
+                            ' KeyedVectors. Given: {}'.format(word_embedding))
         else:
             self.model_ = word_embedding
 

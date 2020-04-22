@@ -59,7 +59,9 @@ def test_rnsb(capsys):
         'query_name', 'result', 'negative_sentiment_probabilities',
         'negative_sentiment_distribution'
     ]
-    assert isinstance(results['result'], (np.float32, np.float64, float))
+    assert isinstance(results['result'], (np.float32, np.float64, float, np.float_))
+    assert isinstance(results['negative_sentiment_probabilities'], dict)
+    assert isinstance(results['negative_sentiment_distribution'], dict)
 
     query = Query([
         weat_word_set['flowers'], weat_word_set['instruments'],

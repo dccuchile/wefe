@@ -1,6 +1,4 @@
 import numpy as np
-import logging
-import pandas as pd
 
 from .base_metric import BaseMetric
 from ..word_embedding_model import WordEmbeddingModel
@@ -43,7 +41,9 @@ class WEAT(BaseMetric):
         second_term = np.array([self.__calc_s(y, A, B) for y in Y])
         return np.sum(first_term) - np.sum(second_term)
 
-    def run_query(self, query: Query, word_embedding: WordEmbeddingModel,
+    def run_query(self,
+                  query: Query,
+                  word_embedding: WordEmbeddingModel,
                   return_effect_size: bool = False,
                   lost_vocabulary_threshold: bool = 0.2,
                   warn_filtered_words: bool = False) -> dict:
@@ -68,10 +68,7 @@ class WEAT(BaseMetric):
             A dictionary with the query name and the result of the query.
         """
 
-        self._check_input(query, word_embedding, lost_vocabulary_threshold,
-                          warn_filtered_words)
-
-        # get the embeddings
+        # Standard input procedure: check the entries and obtain the embeddings.
         embeddings = self._get_embeddings_from_query(
             query, word_embedding, warn_filtered_words,
             lost_vocabulary_threshold)
@@ -96,4 +93,3 @@ class WEAT(BaseMetric):
 
         result = self.__calc_weat(target_0, target_1, attribute_0, attribute_1)
         return {'query_name': query.query_name_, 'result': result}
-

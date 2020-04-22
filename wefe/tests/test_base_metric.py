@@ -4,7 +4,6 @@ from ..metrics.base_metric import BaseMetric
 from ..word_embedding_model import WordEmbeddingModel
 from ..datasets.datasets import load_weat
 from ..query import Query
-import numpy as np
 
 
 def test_create_base_metric():
@@ -43,7 +42,7 @@ def test_create_base_metric():
 
 def test_get_embeddings_from_word_set():
 
-    base_metric = BaseMetric((2, 3), 'Example Metric', 'EM')
+    base_metric = BaseMetric((2, 2), 'Example Metric', 'EM')
     weat = load_weat()
     w2v = load_weat_w2v()
     model = WordEmbeddingModel(w2v, 'weat_w2v', '')
@@ -55,8 +54,8 @@ def test_get_embeddings_from_word_set():
     query = Query([flowers, weapons], [pleasant, unpleasant],
                   ['Flowers', 'Weapons'], ['Pleasant', 'Unpleasant'])
 
-    target_embeddings, attribute_embeddings = base_metric._get_embeddings_from_query(
-        query, model)
+    embeddings = base_metric._get_embeddings_from_query(query, model)
+    target_embeddings, attribute_embeddings = embeddings
 
     assert len(target_embeddings) == 2
     assert len(attribute_embeddings) == 2
@@ -104,22 +103,21 @@ def test_validate_metric_input():
                   ['Flowers', 'Weapons', 'Instruments'],
                   ['Pleasant', 'Unpleasant'])
     with pytest.raises(
-            Exception, match=
-            'The cardinality of the set of target words of the provided query*'
-    ):
+            Exception,
+            match='The cardinality of the set of target words of the'
+            ' provided query*'):
         base_metric._check_input(query, model, 0.2, False)
 
     query = Query([flowers, weapons], [pleasant, unpleasant],
                   ['Flowers', 'Weapons'], ['Pleasant', 'Unpleasant'])
-    with pytest.raises(
-            Exception, match=
-            'The cardinality of the set of attributes words of the provided query*'
-    ):
+    with pytest.raises(Exception,
+                       match='The cardinality of the set of attributes'
+                       ' words of the provided query*'):
         base_metric._check_input(query, model, 0.2, False)
 
 
 def test_some_set_has_fewer_words_than_the_threshold():
-    base_metric = BaseMetric((2, 3), 'Example Metric', 'EM')
+    base_metric = BaseMetric((2, 2), 'Example Metric', 'EM')
     weat = load_weat()
     w2v = load_weat_w2v()
     model = WordEmbeddingModel(w2v, 'weat_w2v', '')
@@ -131,13 +129,13 @@ def test_some_set_has_fewer_words_than_the_threshold():
 
     query = Query([flowers, ['bla', 'asd']], [pleasant, unpleasant],
                   ['Flowers', 'bla'], ['Pleasant', 'Unpleasant'])
-    assert None == base_metric._get_embeddings_from_query(query, model)
+    assert base_metric._get_embeddings_from_query(query, model) is None
     query = Query([['bla', 'asd'], weapons], [pleasant, unpleasant],
                   ['Flowers', 'bla'], ['Pleasant', 'Unpleasant'])
-    assert None == base_metric._get_embeddings_from_query(query, model)
+    assert base_metric._get_embeddings_from_query(query, model) is None
     query = Query([flowers, weapons], [['bla', 'asd'], unpleasant],
                   ['Flowers', 'Weapons'], ['bla', 'Unpleasant'])
-    assert None == base_metric._get_embeddings_from_query(query, model)
+    assert base_metric._get_embeddings_from_query(query, model) is None
     query = Query([flowers, weapons], [pleasant, ['bla', 'asd']],
                   ['Flowers', 'Weapons'], ['Pleasant', 'bla'])
-    assert None == base_metric._get_embeddings_from_query(query, model)
+    assert base_metric._get_embeddings_from_query(query, model) is None

@@ -77,3 +77,7 @@ target/
 .results
 
 .mypy_cache
+
+./doc/results/
+
+develop.ipynb

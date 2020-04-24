@@ -217,20 +217,24 @@ def run_queries(
     results = []
 
     query_names = []
+    try:
+        for query in queries:
+            for model in word_embeddings_models:
+                result = metric_instance.run_query(
+                    query,
+                    model,
+                    lost_vocabulary_threshold=lost_vocabulary_threshold,
+                    warn_filtered_words=warn_filtered_words,
+                    **metric_params)
+                result['model_name'] = model.model_name_
+                results.append(result)
 
-    for query in queries:
-        for model in word_embeddings_models:
-            result = metric_instance.run_query(
-                query,
-                model,
-                lost_vocabulary_threshold=lost_vocabulary_threshold,
-                warn_filtered_words=warn_filtered_words,
-                **metric_params)
-            result['model_name'] = model.model_name_
-            results.append(result)
-
-            if result['query_name'] not in query_names:
-                query_names.append(result['query_name'])
+                if result['query_name'] not in query_names:
+                    query_names.append(result['query_name'])
+    except Exception as e:
+        raise Exception(
+            'Error during executing the query: {} on the model: {}'.format(
+                query.query_name_, model.model_name_))
 
     # get original column order
     # reorder the results in a legible table
@@ -332,8 +336,6 @@ def plot_queries_results(results: pd.DataFrame, by: str = 'query'):
         xaxis_title=xaxis_title,
         yaxis_title='Bias measure',
     )
-    fig.for_each_trace(lambda t: t.update(name=" ".join(t.name.split('=')[1:]))
-                       )  # delete Word Embedding Model = ...
     fig.for_each_trace(lambda t: t.update(
         x=['wrt<br>'.join(label.split('wrt')) for label in t.x]))
     # fig.show()

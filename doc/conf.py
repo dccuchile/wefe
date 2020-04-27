@@ -34,7 +34,7 @@ sys.path.insert(0, os.path.abspath('..'))
 extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.autosummary', 'sphinx.ext.doctest',
     'sphinx.ext.intersphinx', 'sphinx.ext.viewcode', 'numpydoc',
-    'sphinx_gallery.gen_gallery'
+    'sphinx_gallery.gen_gallery', 'sphinx.ext.imgmath'
 ]
 
 # this is needed for some reason...

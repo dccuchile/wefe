@@ -34,32 +34,127 @@ Welcome to WEFE documentation!
 About
 =====
 
-Word Embedding Fairness Evaluation (WEFE) is a package focused on providing an easy and well-designed framework for measuring bias on word embedding models. 
-Specifically it provides
+Word Embedding Fairness Evaluation (WEFE) is a package focused on providing an 
+easy and complete framework for measuring bias on word embedding models. 
+Specifically it provides:
+
 
 - A set of implemented metrics from previous word embedding bias measure works.
-- A wrapper to creating queries (sets of words to be tested),
+- Queries: the mechanism that allows you to create evidence from set of words.
 - And a standard interface for executing these queries using a metric and a pre-trained Word Embedding model.
+
 
 In addition, it provides multiple utils that allow you to:
 
-- Run several queries on several different embedding models and return a DataFrame with the results.
+- Run several queries on several different embedding models and return a 
+DataFrame with the results.
 - Plot those results.
-- Based on the above results, calculate bias rankings per embedding. This allows you to evaluate the embedding models according to the bias criteria evaluated and the metric used.
+- Based on the above results, calculate bias rankings per embedding. 
+This allows you to evaluate the embedding models according to the bias 
+criteria evaluated and the metric used.
 - Plot the rankings.
-- Correlate the rankings. This allows us to see how correlated the rankings of the different metrics or evaluation criteria are with respect to the bias presented by the models.
+- Correlate the rankings. This allows us to see how correlated the 
+rankings of the different metrics or evaluation criteria are with respect to 
+the bias presented by the models.
 
 Motivation
 ----------
 
-The main motivations to create this package are:
+Bias tests on word embeddings have existed for some time. However, they are 
+only focused on solving the particular problems that their authors proposed. 
+Therefore, they lack formality and their results are not easily comparable. 
+Therefore, we set the following objectives when creating the framework:
 
-- To provide a ready-to-use tool that allows to execute bias tests in a very expeditious way. 
+- To provide a ready-to-use tool that allows to execute bias tests in a very 
+expeditious way. 
+
 - To deliver an easy interface to develop new metrics and at the same time.
+
 - To solve the main problems when perform a clear comparison between experiments with different metrics:
 
    - Some metrics operate with different inputs (different cardinality of word sets). 
    - The outputs of different metrics are incompatible with each other (their scales are different, some metrics deliver real numbers and others only positive ones, among others...)
+
+
+The framework
+-------------
+The functioning of the framework is based on the following main concepts:
+
+- **Target set** 
+
+A target word set (denoted by :math:`T`) corresponds to a 
+set of words intended to denote a particular social group,which is defined by a 
+certain criterion. This criterion can be any character, trait or origin that 
+distinguishes groups of people from each other e.g., gender, social class, age, 
+and ethnicity. For example, if the criterion is gender we can use it to 
+distinguish two groups, `women and men`. Then,  a set of target words 
+representing the women social group could con-tain  words  like  “she”, 
+“woman”, “girl”, etc. Analogously,the target words for the men social group 
+could include “he”, “man”, “boy”, etc. I
+
+
+- **Attribute set** 
+
+An attribute word set (denoted by :math:`A`) is a set of words 
+representing some attitude, characteristic, trait, occupational field, etc.  
+that  can  be  associated  with individuals from any social group. For example,
+the set of science attribute  words  could  contain  words  such as  
+“technology”, “physics”, “chemistry”, while the art attribute words could have
+words like “poetry”,  “dance”,  “literature”.
+
+- **Query**
+
+Queries are the main building blocks used by fairness metrics to measure bias 
+of word embedding models. 
+Formally, a query is a pair :math:`Q=(\mathcal{T},\mathcal{A})`in which :math:`T` is a set
+of target word sets, and :math:`A` is a set of attribute word sets.
+For example, consider the target word sets:
+.. math::
+
+   \begin{eqnarray*}
+   T_{\text{women}} & = & \{\w{she},\w{woman},\w{girl}, \ldots\}, \\
+   T_{\text{men}} & = & \{\w{he},\w{man},\w{boy}, \ldots\},
+   \end{eqnarray*}
+
+and the attribute word sets
+
+.. math::
+
+   \begin{eqnarray*}
+   A_{\text{science}} & = & \{\w{math},\w{physics},\w{chemistry}, \ldots\}, \\
+   A_{\text{art}} & = & \{\w{poetry},\w{dance},\w{literature}, \ldots\}.
+   \end{eqnarray*}
+
+Then the following is a query in our framework
+
+- **Query Template**: 
+
+A query template is simply a pair :math:`(t,a)\in\mathbb{N}\times\mathbb{N}`.
+We say that query :math:`Q=(\mathcal{T},\mathcal{A})` satisfies a template :math:`(t,a)` if 
+:math:`|\mathcal{T}|=t` and :math:`|\mathcal{A}|=a`.
+
+- **Fairness Measure**:
+
+A fairness metric is a function that quantifies the degree of association 
+between target and attribute words in a word embedding model. 
+In our framework, every fairness metric is defined as a function that has a 
+query and a model as input, and produces a real number as output.
+
+Several fairness metrics have been proposed in the literature.
+But not all of them share a common input template for queries.
+Thus, we assume that every fairness metric comes with a template that 
+essentially defines the shape of the input queries supported by the metric. 
+
+Formally, let $F$ be a fairness metric with template :math:`s_F=(t_F,a_F)`. 
+Given an embedding model :math:`\mathbf{M}` and a query :math:`Q` that satisfies :math:`s_F`, 
+the metric produces the value :math:`F(\mathbf{M},Q)\in \mathbb{R}` that
+quantifies the degree of bias of :math:`\mathbf{M}` with respect to query :math:`Q`.
+
+
+
+- **Flow of a fairness test**:
+
+WIP... DIAGRAMA.
 
 Background on Fairness 
 ----------------------
@@ -158,8 +253,7 @@ A Survey on Bias and Fairness in Machine Learning
 Citations
 =========
 
-We do not have any paper published yet 😭😭😭😭😭
-
+We're inside the IJCAI 😃😃😃😃😃!
 
 Team
 ====

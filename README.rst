@@ -11,19 +11,24 @@
 .. _CircleCI: https://circleci.com/gh/dccuchile/wefe.svg?style=svg
 
 
-https://circleci.com/gh/dccuchile/wefe.svg?style=svg
-
 
 WEFE: The Word Embedding Fairness Evaluation Framework
 ======================================================
 
 
-WEFE is a package focused on providing an easy and well-designed framework for measuring word embedding bias. 
+WEFE is a package focused on providing an easy and well-designed framework for 
+measuring word embedding bias. 
 
-It provides metrics, a framework for creating queries, and a standard interface for executing these queries using a metric and a pre-trained Word Embedding model.
-In addition, it has multiple tools that allow you to run several queries on several different embedding models, graph them, calculate their associated rankings per test, among others.
+It provides metrics, a framework for creating queries, and a standard interface 
+for executing these queries using a metric and a pre-trained Word Embedding 
+model.
+In addition, it has multiple tools that allow you to run several queries on
+several different embedding models, graph them, calculate their associated 
+rankings per test, among others.
 
-Although it is only in its early stages of development, it is expected that with time it will become more robust, that more metrics will be implemented and that it will extend to other types of bias measurement in NLP.
+Although it is only in its early stages of development, it is expected that 
+with time it will become more robust, that more metrics will be implemented 
+and that it will extend to other types of bias measurement in NLP.
 
 The official documentation can be found at this `link <https://wefe.readthedocs.io/>`_.
 
@@ -59,10 +64,6 @@ These package will be installed along with the package, in case these have not a
 7. patool
 
 
-Development
-===========
-
-
 Contributing
 ------------
 
@@ -71,9 +72,9 @@ You can download the code executing ::
     git clone https://github.com/dccuchile/wefe
 
 
-To contribute, simply create a pull request.
-Verify that your code has documentation, test and format (PEP8)
+To contribute, visit the corresponding section in the documentation:
 
+`Contributing <https://wefe.readthedocs.io/en/latest/contribute.html/>`
 
 Testing
 -------

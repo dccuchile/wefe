@@ -76,12 +76,8 @@ from ..word_embedding_model import WordEmbeddingModel
 >>>                   lost_vocabulary_threshold: float = 0.2,
 >>>                   warn_filtered_words: bool = True):
 >>> 
->>>         # check the inputs. 
->>>         # This function will raise a exception if it finds a problem with the params. 
->>>         self._check_input(query, word_embedding, lost_vocabulary_threshold,
->>>                           warn_filtered_words)
 >>> 
->>>         # get the embeddings.
+>>>         # check the inputs and get the embeddings.
 >>>         embeddings = self._get_embeddings_from_query(
 >>>             query, word_embedding, warn_filtered_words,
 >>>             lost_vocabulary_threshold)
@@ -208,11 +204,7 @@ To do this, we will create a new method :code:`__calc_metric` in which, using th
 >>>                   lost_vocabulary_threshold: float = 0.2,
 >>>                   warn_filtered_words: bool = True):
 >>> 
->>>         # check the inputs
->>>         self._check_input(query, word_embedding, lost_vocabulary_threshold,
->>>                           warn_filtered_words)
->>> 
->>>         # get the embeddings
+>>>         # check the inputs and get the embeddings
 >>>         embeddings = self._get_embeddings_from_query(
 >>>             query, word_embedding, warn_filtered_words,
 >>>             lost_vocabulary_threshold)

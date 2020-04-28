@@ -34,8 +34,11 @@ sys.path.insert(0, os.path.abspath('..'))
 extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.autosummary', 'sphinx.ext.doctest',
     'sphinx.ext.intersphinx', 'sphinx.ext.viewcode', 'numpydoc',
-    'sphinx_gallery.gen_gallery', 'sphinx.ext.imgmath'
+    'sphinx_gallery.gen_gallery', 'sphinx.ext.todo', 'sphinx.ext.mathjax',
+    'sphinx.ext.ifconfig'
 ]
+
+mathjax_path = ""
 
 # this is needed for some reason...
 # see https://github.com/numpy/numpydoc/issues/69
@@ -43,11 +46,13 @@ numpydoc_show_class_members = False
 
 # pngmath / imgmath compatibility layer for different sphinx versions
 import sphinx
-from distutils.version import LooseVersion
-if LooseVersion(sphinx.__version__) < LooseVersion('1.4'):
-    extensions.append('sphinx.ext.pngmath')
-else:
-    extensions.append('sphinx.ext.imgmath')
+
+mathjax_path = ('https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js')
+# from distutils.version import LooseVersion
+# if LooseVersion(sphinx.__version__) < LooseVersion('1.4'):
+#     extensions.append('sphinx.ext.pngmath')
+# else:
+#     extensions.append('sphinx.ext.imgmath')
 
 autodoc_default_flags = ['members', 'inherited-members']
 

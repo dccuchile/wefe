@@ -12,7 +12,7 @@ to use the package. Below:
 - First, we will present how to run a simple query using some embedding model. 
 - Then how to run multiple queries on multiple embeddings.
 - After that, how to compare the results of running multiple sets of queries 
-on multiple embeddings using different metrics through ranking calculation.
+  on multiple embeddings using different metrics through ranking calculation.
 - Finally, how to calculate the correlations between the rankings obtained.
 
 

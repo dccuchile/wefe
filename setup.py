@@ -22,7 +22,7 @@ LICENSE = 'new BSD'
 DOWNLOAD_URL = 'https://github.com/dccuchile/wefe'
 VERSION = __version__
 INSTALL_REQUIRES = [
-    'numpy', 'scipy', 'scikit-learn', 'pandas', 'plotly', 'gensim', 'patool'
+    'numpy', 'scipy', 'scikit-learn', 'pandas', 'plotly', 'gensim'
 ]
 CLASSIFIERS = [
     'Intended Audience :: Science/Research', 'Intended Audience :: Developers',
@@ -56,4 +56,4 @@ setup(
     install_requires=INSTALL_REQUIRES,
     extras_require=EXTRAS_REQUIRE,
     python_requires='>=3.6',
-)
+    include_package_data=True)

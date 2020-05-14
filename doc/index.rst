@@ -321,22 +321,32 @@ A Survey on Bias and Fairness in Machine Learning
 - `Camacho-Collados, J., & Pilehvar, M. T. (2018). From word to sense embeddings: A survey on vector representations of meaning. Journal of Artificial Intelligence Research, 63, 743-788. <https://www.jair.org/index.php/jair/article/view/11259/26454>`_.
 
 
-Citations
+Citation
 =========
 
-We're inside the IJCAI 😃😃😃😃😃!
 
-(Provisory)
+Please cite the following paper if using this package in an academic publication:
 
-P. Badilla, F. Bravo-Marquez, and J. Pérez 
-WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the
-29th International Joint Conference on Artificial Intelligence and the 17th 
-Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. 
+ P. Badilla, F. Bravo-Marquez, and J. Pérez [WEFE: The Word Embeddings Fairness Evaluation Framework](https://www.ijcai20.org/) In *Proceedings of the  29th International Joint Conference on Artificial Intelligence and the 17th Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020)*, Yokohama, Japan. 
+
+BibTex:
+
+```
+@InProceedings{wefe2020,
+  author    = {Pablo Badilla, Felipe Bravo-Marquez, and Jorge Pérez},
+  title     = {WEFE: The Word Embeddings Fairness Evaluation Framework},
+  booktitle = {Proceedings of the 29th International Joint Conference on Artificial Intelligence and the 17th Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020)},
+  year      = {2020},
+}
+
+```
+
+
 
 
 Team
 ====
 
 - Pablo Badilla
-- `Felipe Bravo Marquez <https://felipebravom.com/>`_.
+- `Felipe Bravo-Marquez <https://felipebravom.com/>`_.
 - `Jorge Perez <https://users.dcc.uchile.cl/~jperez/>`_.

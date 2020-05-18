@@ -132,6 +132,13 @@ and the attribute word sets
 
 Then the following is a query in our framework
 
+.. math::
+
+   \begin{equation}
+   Q=(\{T_{\text{women}}, T_{\text{men}}\},\{A_{\text{science}},A_{\text{art}}\}).
+   \end{equation}
+
+
 Query Template
 --------------
 

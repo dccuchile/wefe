@@ -8,11 +8,9 @@ WEFE is a package focused on providing an easy and well-designed framework for m
 It provides metrics, a framework for creating queries, and a standard interface for executing these queries using a metric and a pre-trained Word Embedding model.
 In addition, it has multiple tools that allow you to run several queries on several different embedding models.
 
-Although it is only in its early stages of development, it is expected that with time it will become more robust, that more metrics will be implemented and that it will extend to other types of bias measurement in NLP.
 
-
-The following lines will show the quick start documentation for WEFE.
-In this page, we will show how to install the package and how to run a basic query.
+Below you can find a quick start guide for using WEFE.
+We will show you how to install the package and how to run a basic query.
 
 1. Download and setup
 =====================
@@ -33,8 +31,8 @@ To install the package with conda, run in a console::
 =======================
 
 
-The following code will show how to run aquery using one Word Embedding and a particular metric (WEAT).
-The common flow to perform a query in WEFE consist in three steps, which will be displayed next to the code:
+The following code shows how to execute a query using a word embedding model and a particular metric (WEAT).
+The common flow for performing a query in WEFE consists of three steps showed below:
 
 >>> from wefe.query import Query
 >>> from wefe.word_embedding_model import WordEmbeddingModel

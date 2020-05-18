@@ -123,7 +123,7 @@ P. Badilla, F. Bravo-Marquez, and J. Pérez
 WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the
 29th International Joint Conference on Artificial Intelligence and the 17th 
 Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. 
-(The author version can be provided upon request)
+(The author version can be provided upon request).
 
 Bibtex:
 ::

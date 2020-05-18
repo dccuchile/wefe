@@ -16,19 +16,23 @@ WEFE: The Word Embedding Fairness Evaluation Framework
 ======================================================
 
 
-WEFE is a package focused on providing an easy and well-designed framework for 
-measuring word embedding bias. 
+Word Embedding Fairness Evaluation (WEFE) is an open source library for measuring bias in word embedding models. It generalizes many existing fairness metrics into a unified framework and provides a standard interface for:
 
-It provides metrics, a framework for creating queries, and a standard interface 
-for executing these queries using a metric and a pre-trained Word Embedding 
-model.
-In addition, it has multiple tools that allow you to run several queries on
-several different embedding models, graph them, calculate their associated 
-rankings per test, among others.
+* Encapsulating existing fairness metrics from previous work and design new ones.
+* Encapsulating the test words used by fairness metrics into standard objects called queries.
+* Computing a fairness metric on a given pre-trained word embedding model using user-given queries.
 
-Although it is only in its early stages of development, it is expected that 
-with time it will become more robust, that more metrics will be implemented 
-and that it will extend to other types of bias measurement in NLP.
+It also provides more advanced features for:
+
+* Running several queries on multiple embedding models and return a DataFrame with the results.
+* Plotting those results on a barplot.
+* Based on the above results, calculating a bias ranking for all embedding models. This allows the user to evaluate the fairness of the embedding models according to the bias criterion (defined by the query) and the metric used.
+* Plotting the ranking on a barplot.
+* Correlating the rankings. This allows the user to see how the rankings of the different metrics or evaluation criteria are correlated with respect to the bias presented by the models.
+
+
+WEFE is in its early stages of development. We expect in the future to implement more metrics and to extend 
+the framework to other types of bias measurement in NLP.
 
 The official documentation can be found at this `link <https://wefe.readthedocs.io/>`_.
 
@@ -107,4 +111,35 @@ To compile the documentation, run it::
 
     cd doc
     make html 
+
+
+Citation
+=========
+
+
+Please cite the following paper if using this package in an academic publication:
+
+P. Badilla, F. Bravo-Marquez, and J. Pérez 
+WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the
+29th International Joint Conference on Artificial Intelligence and the 17th 
+Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. 
+
+Bibtex:
+::
+   @InProceedings{wefe2020,
+     author    = {Pablo Badilla, Felipe Bravo-Marquez, and Jorge Pérez},
+     title     = {WEFE: The Word Embeddings Fairness Evaluation Framework},
+     booktitle = {Proceedings of the 29th International Joint Conference on Artificial Intelligence and the 17th Pacific Rim  International Conference on Artificial Intelligence (IJCAI-PRICAI 2020)},
+     year      = {2020},
+   }
+
+
+
+Team
+====
+
+- Pablo Badilla
+- `Felipe Bravo-Marquez <https://felipebravom.com/>`_.
+- `Jorge Pérez <https://users.dcc.uchile.cl/~jperez/>`_.
+
 

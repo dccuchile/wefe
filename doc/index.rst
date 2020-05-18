@@ -47,12 +47,14 @@ It also provides more advanced features for:
   DataFrame with the results.
 - Plotting those results on a barplot.
 - Based on the above results, calculate a bias ranking for all embedding models. 
-  This allows you to evaluate the fairness of the embedding models according to
-  the bias criteria and the metric used.
+  This allows the user to evaluate the fairness of the embedding models according to
+  the bias criterion (defined by the query) and the metric used.
 - Plot the ranking on a barplot.
-- Correlate the rankings. This allows you to see how correlated the rankings of
-  the different metrics or evaluation criteria are with respect to the bias 
-  presented by the models.
+- Correlate the rankings. This allows the user to see how the rankings of the different metrics
+or evaluation criteria are correlated with respect to the bias presented by the models.
+ 
+  
+  
 
 Motivation and objectives
 =========================

@@ -46,11 +46,11 @@ It also provides more advanced features for:
 - Running several queries on multiple embedding models and return a 
   DataFrame with the results.
 - Plotting those results on a barplot.
-- Based on the above results, calculate a bias ranking for all embedding models. 
+- Based on the above results, calculating a bias ranking for all embedding models. 
   This allows the user to evaluate the fairness of the embedding models according to
   the bias criterion (defined by the query) and the metric used.
-- Plot the ranking on a barplot.
-- Correlate the rankings. This allows the user to see how the rankings of the different metrics
+- Plotting the ranking on a barplot.
+- Correlating the rankings. This allows the user to see how the rankings of the different metrics
 or evaluation criteria are correlated with respect to the bias presented by the models.
  
   
@@ -59,16 +59,13 @@ or evaluation criteria are correlated with respect to the bias presented by the 
 Motivation and objectives
 =========================
 
-Bias measurement on word embeddings have existed for some time. 
-They commonly study the relationships between embeddings of different word sets,
-where these represent some social group as well as attributes of these.
+The measurement of bias in word embedding models have existed for some time. 
+The common approach is to compute a metric based on the relationship between the embeddings of different word sets,
+where the words from these sets represent social groups and general attributes of people.
 
-Each of these tests and measurements is designed to serve your own studies.
-This leads to a lack of formalization among the methods, thus causing several 
-problems in comparing and validating their results.
+Each of these metrics was designed specifically for the study in which they were proposed. This leads to a lack of consistency between them, which causes several problems when trying to compare and validate their results.
 
-In the attempt to resolve the above, we set the following objectives when 
-creating the framework:
+In order to address the above, our framework is based on the following objectives:
 
 - To provide a ready-to-use tool that allows to execute bias tests in a very 
   expeditious way. 

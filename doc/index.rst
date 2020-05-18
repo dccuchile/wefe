@@ -69,6 +69,7 @@ In order to address the above, our framework is based on the following objective
 - To provide a ready-to-use tool that allows the user to run bias tests in a straightforward manner. 
 - To provide simple interface to develop new metrics.
 - To solve the two main problems that arise when comparing experiments based on different metrics:
+
    - Some metrics operate with different number of word sets as input. 
    - The outputs of different metrics are incompatible with each other(their scales are different, some metrics return real numbers and others only positive ones, etc..)
 

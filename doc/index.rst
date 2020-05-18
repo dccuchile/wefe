@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to WEFE documentation!
-==============================
+Welcome the documentation WEFE !
+================================
 
 .. toctree::
    :maxdepth: 2
@@ -78,7 +78,7 @@ The Framework
 =============
 
 Here we present the main building blocks of the framework. 
-Then, we will present a common usage pattern of WEFE. 
+Then, we will present the common usage pattern of WEFE. 
 
 Target set 
 ----------
@@ -242,10 +242,10 @@ Documentation
 =============
 
 The following pages contain information about how to install the package, 
-how to use it and how to contribute, as well as detailed API documentation 
+how to use it and how to contribute, as well as  the detailed API documentation 
 and extensive examples. 
 
-`Quick start with WEFE <quick_start.html>`_
+`WEFE Quick start <quick_start.html>`_
 -------------------------------------------
 
 Information regarding how to install and use WEFE.
@@ -254,20 +254,19 @@ Information regarding how to install and use WEFE.
 -------------------------------
 
 A guide from the most basic to the most complex about how to use the package. 
-It is guided through code and contains several examples that can then be used 
-to create your own experiments.
+It is guided through code and contains several examples that can be used 
+in your own experiments.
 
 `Replication of paper experiments <replications.html>`_
 -------------------------------------------------------
 
-Replication of several results of experiments performed on bias measurement 
-papers in Word Embeddings 
+Replication of previous studies on bias measurement of Word Embeddings.
    
 
 `API Documentation <api.html>`_
 -------------------------------
 
-It contains the list and specification of the functions and classes available 
+It contains the specifications of all the functions and classes available 
 in the package.
 
 
@@ -287,9 +286,9 @@ A little guide on how to contribute to the project.
 Relevant Papers
 ===============
 
-A collection of papers related to WEFE. 
-These include those that implement metrics and experiments as well as those 
-related to the study of bias and bias reduction in Word Embeddings.
+A collection of publications related to WEFE. 
+These include the original publications of the metrics implemented in WEFE and other works
+related to the assessment and mitigation  of bias in Word Embeddings.
 
 Measures and Experiments 
 ------------------------
@@ -350,3 +349,10 @@ Team
 - Pablo Badilla
 - `Felipe Bravo-Marquez <https://felipebravom.com/>`_.
 - `Jorge Pérez <https://users.dcc.uchile.cl/~jperez/>`_.
+
+Contact
+=======
+
+Please write to .. for inquiries about the software. You are also welcome to do a pull request on Github.
+
+

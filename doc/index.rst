@@ -77,8 +77,8 @@ In order to address the above, our framework is based on the following objective
 The Framework
 =============
 
-We will now present the basic concepts for the operation of the framework. 
-Then, we will present the different possible flows. 
+Here we present the main building blocks of the framework. 
+Then, we will present a common usage pattern of WEFE. 
 
 Target set 
 ----------
@@ -164,11 +164,11 @@ Given an embedding model :math:`\mathbf{M}` and a query :math:`Q` that satisfies
 the metric produces the value :math:`F(\mathbf{M},Q)\in \mathbb{R}` that
 quantifies the degree of bias of :math:`\mathbf{M}` with respect to query :math:`Q`.
 
-Flow of a Bias measure on a Embedding model
--------------------------------------------
+Standard usage pattern of WEFE
+-------------------------------
 
 The following flow chart shows how to perform a bias measurement using a gender
-query, word2vec and WEAT metric.
+query, word2vec embeddings and the WEAT metric.
 
 .. image:: images/diagram_1.png
   :alt: Fair RNSB sentiment distribution
@@ -177,11 +177,11 @@ query, word2vec and WEAT metric.
 Metrics
 =======
 
-Although it is only in its early stages of development, it is expected that 
-with time it will become more robust, that more metrics will be implemented 
-and that it will extend to other types of bias measurement in NLP.
+WEFE is in its early stages of development. We expect in the future to implement more metrics and to extend 
+the framework to other types of bias measurement in NLP.
 
 The metrics implemented in the package so far are:
+
 
 WEAT
 ----

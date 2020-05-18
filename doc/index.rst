@@ -50,9 +50,7 @@ It also provides more advanced features for:
   This allows the user to evaluate the fairness of the embedding models according to
   the bias criterion (defined by the query) and the metric used.
 - Plotting the ranking on a barplot.
-- Correlating the rankings. This allows the user to see how 
-   the rankings of the different metrics or evaluation criteria are correlated with respect 
-   to the bias presented by the models.
+- Correlating the rankings. This allows the user to see how the rankings of the different metrics or evaluation criteria are correlated with respect to the bias presented by the models.
  
   
   

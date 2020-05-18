@@ -62,23 +62,20 @@ The measurement of bias in word embedding models have existed for some time.
 The common approach is to compute a metric based on the relationship between the embeddings of different word sets,
 where the words from these sets represent social groups and general attributes of people.
 
-Each of these metrics was designed specifically for the study in which they were proposed. This leads to a lack of consistency between them, which causes several problems when trying to compare and validate their results.
+Each of these metrics was specifically designed for the study in which they were proposed. This leads to a lack of consistency between them, which causes several problems when trying to compare and validate their results.
 
 In order to address the above, our framework is based on the following objectives:
 
-- To provide a ready-to-use tool that allows to execute bias tests in a very 
-  expeditious way. 
-- To deliver an easy interface to develop new metrics and at the same time.
-- To solve the main problems when perform a clear comparison between 
-  experiments with different metrics:
-
-   - Some metrics operate with different number of inputs word sets. 
+- To provide a ready-to-use tool that allows the user to run bias tests in a straightforward manner. 
+- To provide simple interface to develop new metrics.
+- To solve the two main problems that arise when comparing experiments based on different metrics:
+   - Some metrics operate with different number of word sets as input. 
    - The outputs of different metrics are incompatible with each other 
-     (their scales are different, some metrics deliver real numbers and 
-     others only positive ones, among others...)
+     (their scales are different, some metrics return real numbers and 
+     others only positive ones, etc..)
 
 
-The framework
+The Framework
 =============
 
 We will now present the basic concepts for the operation of the framework. 

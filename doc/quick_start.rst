@@ -1,5 +1,5 @@
 #####################
-Quick Start with WEFE
+WEFE Quick Start
 #####################
 
 
@@ -40,13 +40,13 @@ The common flow for performing a query in WEFE consists of three steps showed be
 >>> import gensim.downloader as api
 
 1. Load the Word Embedding pretrained model from gensim and then, create a WordEmbeddingModel instance with it.
-For this example, we will use a twitter_25 .
+For this example, we will use twitter_25 .
 
 >>> twitter_25 = api.load('glove-twitter-25')
 >>> model = WordEmbeddingModel(twitter_25, 'glove twitter dim=25')
 
 2. Create the Query with a loaded, fetched or custom target and attribute word sets.
-For this example, we will create a query with gender terms with respect to arts and science.
+For this example, we will create a query with gender terms with respect to arts and science attributes.
 
 >>> target_sets = [['male', 'man', 'boy'], ['female', 'woman', 'girl']]
 >>> target_sets_names = ['Male Terms', 'Female Terms']
@@ -65,4 +65,4 @@ For this example, we will create a query with gender terms with respect to arts 
 {'query_name': 'Male Terms and Female Terms wrt Arts and Science',
  'result': -0.010003209}
 
-For more advanced examples, visit user `User Guide <user_guide.html>`_ section.
+For more advanced examples, visit user the `User Guide <user_guide.html>`_ section.

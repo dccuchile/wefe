@@ -36,17 +36,17 @@ About
 
 Word Embedding Fairness Evaluation (WEFE) is an open source library for measuring bias in word embedding models. It generalizes many existing fairness metrics into a unified framework and provides a standard interface for:
 
-- encapsulate existing fairness metrics from previous work and design new ones.
-- encapsulate the test words used by fairness metrics into a standard objects called queries.
-- compute a fairness metric on a given pre-trained word embeddings model using user-given queries.
+- Encapsulating existing fairness metrics from previous work and design new ones.
+- Encapsulating the test words used by fairness metrics into standard objects called queries.
+- Computing a fairness metric on a given pre-trained word embedding model using user-given queries.
 
 
 It also provides more advanced features for:
 
-- Run several queries on several different embedding models and return a 
+- Running several queries on multiple embedding models and return a 
   DataFrame with the results.
-- Plot those results on a barplot.
-- Based on the above results, calculate bias rankings per embedding. 
+- Plotting those results on a barplot.
+- Based on the above results, calculate a bias ranking for all embedding models. 
   This allows you to evaluate the fairness of the embedding models according to
   the bias criteria and the metric used.
 - Plot the ranking on a barplot.

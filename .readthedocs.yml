@@ -1,5 +1,6 @@
 formats:
-  - none
+  - epub
+  - pdf
 requirements_file: requirements.txt
 python:
   pip_install: true

@@ -10,20 +10,19 @@ The following guide is designed to present the more general details about how
 to use the package. Below:
 
 - First, we will present how to run a simple query using some embedding model. 
-- Then how to run multiple queries on multiple embeddings.
-- After that, how to compare the results of running multiple sets of queries 
+- Then, we will show how to run multiple queries on multiple embeddings.
+- After that, we will show how to compare the results obtained from running multiple sets of queries 
   on multiple embeddings using different metrics through ranking calculation.
-- Finally, how to calculate the correlations between the rankings obtained.
+- Finally, we will show how to calculate the correlations between the rankings obtained.
 
 
 Run a Query
 ===================================================================
 
-The following code will show how to run a gender query using a word embedding
-model as glove and the Word Embedding Association Test (WEAT) metric.
+The following code will show how to run a gender query using Glove embeddings
+and the Word Embedding Association Test (WEAT) as fairness metric.
 
-The common flow to perform a query in WEFE consist in three steps, 
-which will be displayed next to the code:
+Below we show the three usual steps for performing a query in WEFE:
 
 >>> # Load the package
 >>> from wefe.query import Query
@@ -32,11 +31,11 @@ which will be displayed next to the code:
 >>> from wefe.datasets.datasets import load_weat
 >>> import gensim.downloader as api
 
-1. Load the embedding models in a :code:`WordEmbeddingModel` object.
+1. Load a word embeddings model as a :code:`WordEmbeddingModel` object.
 
 Load the Word Embedding pretrained model from gensim and then, create a 
 :code:`WordEmbeddingModel` instance with it.
-For this example, we will use a glove model of 25 dimensions trainer with a 
+For this example, we will use a glove model of 25 dimensions trained with a 
 twitter dataset.
 
 >>> twitter_25 = api.load('glove-twitter-25')

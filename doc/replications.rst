@@ -1,8 +1,8 @@
-Replication of paper experiments
-================================
+Replication of Previous Studies
+###############################
 
 WEAT Replication
-----------------
+================
 
 The following code represents a replica of the experiments performed on the paper:
 
@@ -158,7 +158,7 @@ The code is available for execution in this `file <https://github.com/dccuchile/
 
 
 RNSB Replication
-----------------
+================
 
 The following code represents a replica of the experiments performed on the paper:
 

@@ -91,7 +91,7 @@ and ethnicity. For example, if the criterion is gender we can use it to
 distinguish two groups, `women and men`. Then,  a set of target words 
 representing the women social group could con-tain  words  like  “she”, 
 “woman”, “girl”, etc. Analogously,the target words for the men social group 
-could include “he”, “man”, “boy”, etc. I
+could include “he”, “man”, “boy”, etc.
 
 
 Attribute set
@@ -171,7 +171,11 @@ The following flow chart shows how to perform a bias measurement using a gender
 query, word2vec embeddings and the WEAT metric.
 
 .. image:: images/diagram_1.png
-  :alt: Fair RNSB sentiment distribution
+  :alt: Gender query with WEAT Flow
+
+To see the implementation of this query using WEFE, refer to 
+the `Quick start <quick_start.html>`_ section.
+
 
 
 Metrics
@@ -222,7 +226,7 @@ one first constructs a binary classifier :math:`C_{(A_1,A_2)}(\cdot)` using set
 training examples for the positive class. 
 After the training process, this classifier gives for every word :math:`w` a 
 probability :math:`C_{(A_1,A_2)}(w)` that can be interpreted as the degree of 
-association of $w$ with respect to  :math:`A_2 (value $1-C_{(A_1,A_2)}(w)` is 
+association of :math:`w` with respect to  :math:`A_2 (value $1-C_{(A_1,A_2)}(w)` is 
 the degree of association with :math:`A_1`).
 Now, we construct a probability distribution :math:`P(\cdot)` over all the words 
 :math:`w` in :math:`T_1\cup \cdots \cup T_n`, by computing :math:`C_{(A_1,A_2)}(w)` 
@@ -245,7 +249,7 @@ The following pages contain information about how to install the package,
 how to use it and how to contribute, as well as  the detailed API documentation 
 and extensive examples. 
 
-`WEFE Quick start <quick_start.html>`_
+`Quick start <quick_start.html>`_
 -------------------------------------------
 
 Information regarding how to install and use WEFE.
@@ -257,7 +261,7 @@ A guide from the most basic to the most complex about how to use the package.
 It is guided through code and contains several examples that can be used 
 in your own experiments.
 
-`Replication of paper experiments <replications.html>`_
+`Replication of Previous Studies <replications.html>`_
 -------------------------------------------------------
 
 Replication of previous studies on bias measurement of Word Embeddings.
@@ -353,6 +357,8 @@ Team
 Contact
 =======
 
-Please write to .. for inquiries about the software. You are also welcome to do a pull request on Github.
+Please write to pablo.badilla at ug.chile.cl for inquiries about the software. 
+You are also welcome to do a pull request or publish an issue in the 
+`WEFE repository on Github <https://github.com/dccuchile/wefe/>`_.
 
 

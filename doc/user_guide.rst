@@ -174,20 +174,22 @@ When using run_queries, it is also possible to aggregate the results by embeddin
 To do this, you must set the :code:`add_results` parameter as :code:`True`. 
 This default value will activate the option to aggregate the results by averaging their absolute values.
 
-This aggregation function can be changed through the `aggregation_function`
-parameter. Here you can specify a string that defines some of the aggregation 
-types that are already implemented, as well as provide a function which 
-operates on the dataframe of the results.
 
-The default options available are:
+This aggregation function can be modified through the `aggregation_function` parameter. 
+Here you can specify a string that defines some of the aggregation types 
+that are already implemented, as well as provide a function that operates in the dataframe of the results.
+
+
+The aggregation functions available are:
 
 - Average :code:`avg`
 - Average of the absolute values :code:`abs_avg`
 - Sum :code:`sum` 
 - Sum of the absolute values, :code:`abs_sum`
 
-For example, for the previous case, let's aggregate the results by the average of 
-the absolute values obtained:
+Notice that some functions are more appropriate for certain metrics. 
+For example, for the previous case, let's aggregate the results 
+by the average of the absolute values obtained:
 
 >>> WEAT_gender_results_agg = run_queries(WEAT,
 >>>                                   gender_queries,

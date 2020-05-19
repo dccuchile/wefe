@@ -229,20 +229,17 @@ Finally, we can ask the function to return only the aggregated values
 Calculate Rankings
 ==================
 
-When we want to measure various types of bias on different embedding models 
-and different metrics, 2 big problems arise.
+When we want to measure various types of bias in different embedding models using more than one metric, 
+two major problems arise:
 
-1. We do not want to lose or flatten the difference between the results of the 
-various measured bias criteria. One type of bias can buffer or intensify another.
+1. We do not want to lose the differences observed for different bias criteria. However, one type of bias can interfere with another either by intensifying or decreasing it.
 
-2. Metrics deliver their results on different scales, making them difficult 
-to compare.
+2. Different Metrics can operate on different scales, which makes them difficult to compare.
 
 To show that, suppose we have two sets of queries: one that explores gender 
-biases and one that explores ethnicity biases. Furthermore, we want to test 
-these sets of queries on 3 glove models of 25, 50 and 100 dimensions trained 
-using the same twitter corpus. In addition, we will use both WEAT and Relative 
-Negative Sentiment Bias (RNSB) as metrics for the measurement.
+biases and another that explores ethnicity biases. Additionally, we want to test 
+these sets of queries on 3 Twitter Glove models of 25, 50 and 100 dimensions each,
+using both WEAT and Relative Negative Sentiment Bias (RNSB) as bias metrics.
 
 
 1. Let's show the first problem: Lose or flatten the difference between the 

@@ -33,18 +33,21 @@ Below we show the three usual steps for performing a query in WEFE:
 
 1. Load a word embeddings model as a :code:`WordEmbeddingModel` object.
 
-Load the Word Embedding pretrained model from gensim and then, create a 
-:code:`WordEmbeddingModel` instance with it.
-For this example, we will use a glove model of 25 dimensions trained with a 
-twitter dataset.
+Here, we will load the word embedding pretrained model using the gensim library and then we will create a 
+:code:`WordEmbeddingModel` instance.
+For this example, we will use a 25-dimensional Glove embedding model trained from a Twitter dataset.
 
 >>> twitter_25 = api.load('glove-twitter-25')
 >>> model = WordEmbeddingModel(twitter_25, 'glove twitter dim=25')
 
-2. Create the query usning a :code:`Query` object
+2. Create the query using a :code:`Query` object
 
-Define the target and attribute sets from a  loaded, fetched or custom word 
-sets and then, create a :code:`Query` that contains its. 
+Define the target and attribute sets and create a :code:`Query` object that contains them.
+The word sets can be loaded or fetched from already provided word sets or set by the user.
+
+Define the target and attribute words sets and create a :code:`Query` object that contains them.
+Some well-known word sets are already provided by the package and can be easily loaded. 
+Users can also set their own custom-made sets.
 
 For this example, we will create a query with gender terms with respect to 
 family and career.  The words we will use will be taken from the set of words
@@ -57,7 +60,7 @@ used in the WEAT paper (included in the package).
 >>>                        [word_sets['career'], word_sets['family']],
 >>>                        ['Male terms', 'Female terms'], ['Career', 'Family'])
 
-3. Instance the Metric
+3. Instantiate the Metric
 
 Instance the metric that you will use and then, execute :code:`run_query` with the 
 parameters created in the past steps. In this case we will use the 

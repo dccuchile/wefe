@@ -155,7 +155,7 @@ glove twitter dim=100                                             0.681933      
 =====================  ===================================================  ==================================================  ===============================================
 
 Important: if more than 20% (by default) of the words from a query are not included in the word embedding model, the metric will return :code:`Nan`.
-This behavior can be changed using the float number parameter :code:`lost_vocabulary_threshold`. 
+This behavior can be changed using a float number parameter called :code:`lost_vocabulary_threshold`. 
 
 4. Plot the results in a barplot:
 
@@ -169,10 +169,10 @@ This behavior can be changed using the float number parameter :code:`lost_vocabu
 
 5. Aggregating Results:
 
-When using run_queries, there is also the possibility of aggregate the 
-results by embedding. To do this, you must first give the function the 
-:code:`aggregate_results` parameter as :code:`True`. This default will activate
-the option to aggregate the results by the average of their absolute values.
+
+When using run_queries, it is also possible to aggregate the results by embedding. 
+To do this, you must set the :code:`add_results` parameter as :code:`True`. 
+This default value will activate the option to aggregate the results by averaging their absolute values.
 
 This aggregation function can be changed through the `aggregation_function`
 parameter. Here you can specify a string that defines some of the aggregation 

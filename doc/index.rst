@@ -6,31 +6,6 @@
 Welcome to the WEFE documentation!
 ==================================
 
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Getting Started
-   
-   quick_start
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Documentation
-
-   user_guide
-   create_metric
-   contribute
-   api
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Examples
-
-   replications
-   rank
-
 About
 =====
 
@@ -362,3 +337,27 @@ You are also welcome to do a pull request or publish an issue in the
 `WEFE repository on Github <https://github.com/dccuchile/wefe/>`_.
 
 
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Getting Started
+   
+   quick_start
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Documentation
+
+   user_guide
+   create_metric
+   contribute
+   api
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Examples
+
+   replications
+   rank

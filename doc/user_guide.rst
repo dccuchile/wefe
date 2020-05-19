@@ -42,11 +42,8 @@ For this example, we will use a 25-dimensional Glove embedding model trained fro
 
 2. Create the query using a :code:`Query` object
 
-Define the target and attribute sets and create a :code:`Query` object that contains them.
-The word sets can be loaded or fetched from already provided word sets or set by the user.
-
 Define the target and attribute words sets and create a :code:`Query` object that contains them.
-Some well-known word sets are already provided by the package and can be easily loaded. 
+Some well-known word sets are already provided by the package and can be easily loaded by the user. 
 Users can also set their own custom-made sets.
 
 For this example, we will create a query with gender terms with respect to 
@@ -62,9 +59,10 @@ used in the WEAT paper (included in the package).
 
 3. Instantiate the Metric
 
-Instance the metric that you will use and then, execute :code:`run_query` with the 
-parameters created in the past steps. In this case we will use the 
+Instantiate the metric that you will use and then execute :code:`run_query` with the 
+parameters created in the previous steps. In this case we will use the 
 :code:`WEAT` metric. 
+
 
 >>> weat = WEAT()
 >>> result = weat.run_query(query, model)
@@ -72,15 +70,15 @@ parameters created in the past steps. In this case we will use the
 {'query_name': 'Male Terms and Female Terms wrt Arts and Science',
  'result': -0.010003209}
 
-Run several Queries
-===================
+Running multiple Queries
+=======================
 
-This package also implements a function that allows you to test several queries 
-and word embedding models in one script.
+The library also implements a function to test multiple queries 
+on various word embedding models in a single call.
 
-The following code will show how to run various gender queries
-over a different glove models trained using the twitter dataset. 
-The queries will be executed using the WEAT variant, Effect size.
+The following code shows how to run various gender queries
+on different Glove embedding models trained from the Twitter dataset. 
+The queries will be executed using the Effect size variant of WEAT.
 
 >>> from wefe.query import Query
 >>> from wefe.datasets import load_weat
@@ -92,8 +90,8 @@ The queries will be executed using the WEAT variant, Effect size.
 
 1. Load the models:
 
-Load the glove twitter models. This models were trained using the same 
-dataset, but varying only in the dimensions of the embeddings. 
+Load three different Glove Twitter embedding models. These models were trained using the same 
+dataset varying the number of embedding dimensions. 
 
 >>> model_1 = WordEmbeddingModel(api.load('glove-twitter-25'),
 >>>                              'glove twitter dim=25')
@@ -106,9 +104,10 @@ dataset, but varying only in the dimensions of the embeddings.
 
 2. Load the word sets:
 
-Now, we will load the WEAT word set. From this, we will create three 
-queries that will intended to measure gender bias and two queries to measure 
+Now, we will load the WEAT word set and create three 
+queries. The first query is intended to measure gender bias and the other two are intended to measure 
 ethnicity bias.
+
 
 >>> # Load the WEAT word sets
 >>> word_sets = load_weat()
@@ -127,15 +126,16 @@ ethnicity bias.
 >>> gender_queries = [gender_query_1, gender_query_2, gender_query_3]
 
 
-3. Run the queries over all Word Embeddings using WEAT Effect Size. 
+3. Run the queries on all Word Embeddings using WEAT Effect Size. 
 
-Now, to run our list of queries and models, we will use :code:`run_queries` function.
-Its fundamental parameters are 3: it requires a metric, a list of queries 
-and a list of embedding models. The name is optional.  
+Now, to run our list of queries and models, we will call the function :code:`run_queries`.
+The mandadory parameters of the function are 3: 1) a metric, 2) a list of queries, 
+and 3) a list of embedding models. It is also possible to provide a name for the queries.
 
-Note you can pass parameters to the metric using a dict in the 
+
+Notice that you can pass metric's parameters using a dict object in the 
 :code:`metric_params` parameter. In this case, we specify that WEAT returns 
-its Effect size variant as results.
+its Effect size variant as result.
 
 >>> # Run the queries
 >>> WEAT_gender_results = run_queries(WEAT,
@@ -154,9 +154,8 @@ glove twitter dim=50                                              0.799666      
 glove twitter dim=100                                             0.681933                                            0.641153                                        -0.399822
 =====================  ===================================================  ==================================================  ===============================================
 
-Important: In the event that a query loses more than 20% (by default) of words 
-when converting one of its sets to embedding, the metric will return :code:`Nan`.
-It behavior is also configurable by giving a float number to the parameter :code:`lost_vocabulary_threshold`. 
+Important: if more than 20% (by default) of the words from a query are not included in the word embedding model, the metric will return :code:`Nan`.
+This behavior can be changed using the float number parameter :code:`lost_vocabulary_threshold`. 
 
 4. Plot the results in a barplot:
 

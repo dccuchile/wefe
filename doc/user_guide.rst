@@ -154,7 +154,7 @@ glove twitter dim=50                                              0.799666      
 glove twitter dim=100                                             0.681933                                            0.641153                                        -0.399822
 =====================  ===================================================  ==================================================  ===============================================
 
-Important: if more than 20% (by default) of the words from a query are not included in the word embedding model, the metric will return :code:`Nan`.
+Important: if more than 20% (by default) of the words from any of the word sets of the query are not included in the word embedding model, the metric will return :code:`Nan`.
 This behavior can be changed using a float number parameter called :code:`lost_vocabulary_threshold`. 
 
 4. Plot the results in a barplot:
@@ -171,13 +171,13 @@ This behavior can be changed using a float number parameter called :code:`lost_v
 
 
 When using run_queries, it is also possible to aggregate the results by embedding. 
-To do this, you must set the :code:`add_results` parameter as :code:`True`. 
+To do this, you must set the :code:`aggregate_results` parameter as :code:`True`. 
 This default value will activate the option to aggregate the results by averaging their absolute values.
 
 
 This aggregation function can be modified through the `aggregation_function` parameter. 
 Here you can specify a string that defines some of the aggregation types 
-that are already implemented, as well as provide a function that operates in the dataframe of the results.
+that are already implemented, as well as provide a function that operates in the results dataframe.
 
 
 The aggregation functions available are:
@@ -187,9 +187,11 @@ The aggregation functions available are:
 - Sum :code:`sum` 
 - Sum of the absolute values, :code:`abs_sum`
 
-Notice that some functions are more appropriate for certain metrics. 
-For example, for the previous case, let's aggregate the results 
-by the average of the absolute values obtained:
+Notice that some functions are more appropriate for certain metrics. For metrics returning only
+positive numbers, all the previuos aggregation functions would be OK. In constrast, for metrics returning real values (e.g., WEAT,RND), aggregation functions such as  :code:`sum` would make
+different outputs to cancel each other.
+
+Let's aggregate the results from previous example by the average of the absolute values:
 
 >>> WEAT_gender_results_agg = run_queries(WEAT,
 >>>                                   gender_queries,
@@ -209,7 +211,7 @@ glove twitter dim=100                                             0.681933      
 =====================  ===================================================  ==================================================  ===============================================  ==================================================
 
 Finally, we can ask the function to return only the aggregated values 
-(through :code:`return_only_aggregation` parameter) and then to plot them.
+(through :code:`return_only_aggregation` parameter) and then plot them.
 
 >>> WEAT_gender_results_agg = run_queries(WEAT,
 >>>                                   gender_queries,

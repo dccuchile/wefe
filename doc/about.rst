@@ -174,12 +174,7 @@ the `Quick start <quick_start.html>`_ section.
 Metrics
 =======
 
-WEFE is in its early stages of development. We expect in the future to 
-implement more metrics and to extend the framework to other types of bias 
-measurement in NLP.
-
 The metrics implemented in the package so far are:
-
 
 WEAT
 ----
@@ -294,6 +289,18 @@ Bibtex:
         year      = {2020},
     }
 
+
+Roadmap
+=======
+
+We expect in the future to:
+
+- Implement the metrics that have come out in the last works about bias in embeddings.
+- Implement new queries on different criteria.
+- Extend the framework to other types of bias measurement in Embeddings.
+- Create a unified mechanism to store different queries.
+- Create a single script that evaluates different embedding models under different bias criteria. 
+- From the previous script, rank as many embeddings available on the web as possible.
 
 
 Team

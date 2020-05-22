@@ -31,9 +31,6 @@ It also provides more advanced features for:
 * Correlating the rankings. This allows the user to see how the rankings of the different metrics or evaluation criteria are correlated with respect to the bias presented by the models.
 
 
-WEFE is in its early stages of development. We expect in the future to implement more metrics and to extend 
-the framework to other types of bias measurement in NLP.
-
 The official documentation can be found at this `link <https://wefe.readthedocs.io/>`_.
 
 

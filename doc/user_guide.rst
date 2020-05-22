@@ -10,20 +10,19 @@ The following guide is designed to present the more general details about how
 to use the package. Below:
 
 - First, we will present how to run a simple query using some embedding model. 
-- Then how to run multiple queries on multiple embeddings.
-- After that, how to compare the results of running multiple sets of queries 
+- Then, we will show how to run multiple queries on multiple embeddings.
+- After that, we will show how to compare the results obtained from running multiple sets of queries 
   on multiple embeddings using different metrics through ranking calculation.
-- Finally, how to calculate the correlations between the rankings obtained.
+- Finally, we will show how to calculate the correlations between the rankings obtained.
 
 
 Run a Query
 ===================================================================
 
-The following code will show how to run a gender query using a word embedding
-model as glove and the Word Embedding Association Test (WEAT) metric.
+The following code will show how to run a gender query using Glove embeddings
+and the Word Embedding Association Test (WEAT) as fairness metric.
 
-The common flow to perform a query in WEFE consist in three steps, 
-which will be displayed next to the code:
+Below we show the three usual steps for performing a query in WEFE:
 
 >>> # Load the package
 >>> from wefe.query import Query
@@ -32,20 +31,20 @@ which will be displayed next to the code:
 >>> from wefe.datasets.datasets import load_weat
 >>> import gensim.downloader as api
 
-1. Load the embedding models in a :code:`WordEmbeddingModel` object.
+1. Load a word embeddings model as a :code:`WordEmbeddingModel` object.
 
-Load the Word Embedding pretrained model from gensim and then, create a 
-:code:`WordEmbeddingModel` instance with it.
-For this example, we will use a glove model of 25 dimensions trainer with a 
-twitter dataset.
+Here, we will load the word embedding pretrained model using the gensim library and then we will create a 
+:code:`WordEmbeddingModel` instance.
+For this example, we will use a 25-dimensional Glove embedding model trained from a Twitter dataset.
 
 >>> twitter_25 = api.load('glove-twitter-25')
 >>> model = WordEmbeddingModel(twitter_25, 'glove twitter dim=25')
 
-2. Create the query usning a :code:`Query` object
+2. Create the query using a :code:`Query` object
 
-Define the target and attribute sets from a  loaded, fetched or custom word 
-sets and then, create a :code:`Query` that contains its. 
+Define the target and attribute words sets and create a :code:`Query` object that contains them.
+Some well-known word sets are already provided by the package and can be easily loaded by the user. 
+Users can also set their own custom-made sets.
 
 For this example, we will create a query with gender terms with respect to 
 family and career.  The words we will use will be taken from the set of words
@@ -58,11 +57,12 @@ used in the WEAT paper (included in the package).
 >>>                        [word_sets['career'], word_sets['family']],
 >>>                        ['Male terms', 'Female terms'], ['Career', 'Family'])
 
-3. Instance the Metric
+3. Instantiate the Metric
 
-Instance the metric that you will use and then, execute :code:`run_query` with the 
-parameters created in the past steps. In this case we will use the 
+Instantiate the metric that you will use and then execute :code:`run_query` with the 
+parameters created in the previous steps. In this case we will use the 
 :code:`WEAT` metric. 
+
 
 >>> weat = WEAT()
 >>> result = weat.run_query(query, model)
@@ -70,15 +70,15 @@ parameters created in the past steps. In this case we will use the
 {'query_name': 'Male Terms and Female Terms wrt Arts and Science',
  'result': -0.010003209}
 
-Run several Queries
-===================
+Running multiple Queries
+=======================
 
-This package also implements a function that allows you to test several queries 
-and word embedding models in one script.
+The library also implements a function to test multiple queries 
+on various word embedding models in a single call.
 
-The following code will show how to run various gender queries
-over a different glove models trained using the twitter dataset. 
-The queries will be executed using the WEAT variant, Effect size.
+The following code shows how to run various gender queries
+on different Glove embedding models trained from the Twitter dataset. 
+The queries will be executed using the Effect size variant of WEAT.
 
 >>> from wefe.query import Query
 >>> from wefe.datasets import load_weat
@@ -90,8 +90,8 @@ The queries will be executed using the WEAT variant, Effect size.
 
 1. Load the models:
 
-Load the glove twitter models. This models were trained using the same 
-dataset, but varying only in the dimensions of the embeddings. 
+Load three different Glove Twitter embedding models. These models were trained using the same 
+dataset varying the number of embedding dimensions. 
 
 >>> model_1 = WordEmbeddingModel(api.load('glove-twitter-25'),
 >>>                              'glove twitter dim=25')
@@ -104,9 +104,10 @@ dataset, but varying only in the dimensions of the embeddings.
 
 2. Load the word sets:
 
-Now, we will load the WEAT word set. From this, we will create three 
-queries that will intended to measure gender bias and two queries to measure 
+Now, we will load the WEAT word set and create three 
+queries. The first query is intended to measure gender bias and the other two are intended to measure 
 ethnicity bias.
+
 
 >>> # Load the WEAT word sets
 >>> word_sets = load_weat()
@@ -125,15 +126,16 @@ ethnicity bias.
 >>> gender_queries = [gender_query_1, gender_query_2, gender_query_3]
 
 
-3. Run the queries over all Word Embeddings using WEAT Effect Size. 
+3. Run the queries on all Word Embeddings using WEAT Effect Size. 
 
-Now, to run our list of queries and models, we will use :code:`run_queries` function.
-Its fundamental parameters are 3: it requires a metric, a list of queries 
-and a list of embedding models. The name is optional.  
+Now, to run our list of queries and models, we will call the function :code:`run_queries`.
+The mandadory parameters of the function are 3: 1) a metric, 2) a list of queries, 
+and 3) a list of embedding models. It is also possible to provide a name for the queries.
 
-Note you can pass parameters to the metric using a dict in the 
+
+Notice that you can pass metric's parameters using a dict object in the 
 :code:`metric_params` parameter. In this case, we specify that WEAT returns 
-its Effect size variant as results.
+its Effect size variant as result.
 
 >>> # Run the queries
 >>> WEAT_gender_results = run_queries(WEAT,
@@ -152,9 +154,8 @@ glove twitter dim=50                                              0.799666      
 glove twitter dim=100                                             0.681933                                            0.641153                                        -0.399822
 =====================  ===================================================  ==================================================  ===============================================
 
-Important: In the event that a query loses more than 20% (by default) of words 
-when converting one of its sets to embedding, the metric will return :code:`Nan`.
-It behavior is also configurable by giving a float number to the parameter :code:`lost_vocabulary_threshold`. 
+Important: if more than 20% (by default) of the words from any of the word sets of the query are not included in the word embedding model, the metric will return :code:`Nan`.
+This behavior can be changed using a float number parameter called :code:`lost_vocabulary_threshold`. 
 
 4. Plot the results in a barplot:
 
@@ -168,25 +169,29 @@ It behavior is also configurable by giving a float number to the parameter :code
 
 5. Aggregating Results:
 
-When using run_queries, there is also the possibility of aggregate the 
-results by embedding. To do this, you must first give the function the 
-:code:`aggregate_results` parameter as :code:`True`. This default will activate
-the option to aggregate the results by the average of their absolute values.
 
-This aggregation function can be changed through the `aggregation_function`
-parameter. Here you can specify a string that defines some of the aggregation 
-types that are already implemented, as well as provide a function which 
-operates on the dataframe of the results.
+When using run_queries, it is also possible to aggregate the results by embedding. 
+To do this, you must set the :code:`aggregate_results` parameter as :code:`True`. 
+This default value will activate the option to aggregate the results by averaging their absolute values.
 
-The default options available are:
+
+This aggregation function can be modified through the `aggregation_function` parameter. 
+Here you can specify a string that defines some of the aggregation types 
+that are already implemented, as well as provide a function that operates in the results dataframe.
+
+
+The aggregation functions available are:
 
 - Average :code:`avg`
 - Average of the absolute values :code:`abs_avg`
 - Sum :code:`sum` 
 - Sum of the absolute values, :code:`abs_sum`
 
-For example, for the previous case, let's aggregate the results by the average of 
-the absolute values obtained:
+Notice that some functions are more appropriate for certain metrics. For metrics returning only
+positive numbers, all the previuos aggregation functions would be OK. In constrast, for metrics returning real values (e.g., WEAT,RND), aggregation functions such as  :code:`sum` would make
+different outputs to cancel each other.
+
+Let's aggregate the results from previous example by the average of the absolute values:
 
 >>> WEAT_gender_results_agg = run_queries(WEAT,
 >>>                                   gender_queries,
@@ -206,7 +211,7 @@ glove twitter dim=100                                             0.681933      
 =====================  ===================================================  ==================================================  ===============================================  ==================================================
 
 Finally, we can ask the function to return only the aggregated values 
-(through :code:`return_only_aggregation` parameter) and then to plot them.
+(through :code:`return_only_aggregation` parameter) and then plot them.
 
 >>> WEAT_gender_results_agg = run_queries(WEAT,
 >>>                                   gender_queries,
@@ -226,20 +231,17 @@ Finally, we can ask the function to return only the aggregated values
 Calculate Rankings
 ==================
 
-When we want to measure various types of bias on different embedding models 
-and different metrics, 2 big problems arise.
+When we want to measure various types of bias in different embedding models using more than one metric, 
+two major problems arise:
 
-1. We do not want to lose or flatten the difference between the results of the 
-various measured bias criteria. One type of bias can buffer or intensify another.
+1. We do not want to lose the differences observed for different bias criteria. However, one type of bias can interfere with another either by intensifying or decreasing it.
 
-2. Metrics deliver their results on different scales, making them difficult 
-to compare.
+2. Different Metrics can operate on different scales, which makes them difficult to compare.
 
 To show that, suppose we have two sets of queries: one that explores gender 
-biases and one that explores ethnicity biases. Furthermore, we want to test 
-these sets of queries on 3 glove models of 25, 50 and 100 dimensions trained 
-using the same twitter corpus. In addition, we will use both WEAT and Relative 
-Negative Sentiment Bias (RNSB) as metrics for the measurement.
+biases and another that explores ethnicity biases. Additionally, we want to test 
+these sets of queries on 3 Twitter Glove models of 25, 50 and 100 dimensions each,
+using both WEAT and Relative Negative Sentiment Bias (RNSB) as bias metrics.
 
 
 1. Let's show the first problem: Lose or flatten the difference between the 

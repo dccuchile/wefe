@@ -73,8 +73,8 @@ set of words intended to denote a particular social group,which is defined by a
 certain criterion. This criterion can be any character, trait or origin that 
 distinguishes groups of people from each other e.g., gender, social class, age, 
 and ethnicity. For example, if the criterion is gender we can use it to 
-distinguish two groups, `women and men`. Then,  a set of target words 
-representing the women social group could con-tain  words  like  “she”, 
+distinguish two groups, `women and men`. Then, a set of target words 
+representing the women social group could contain words like “she”, 
 “woman”, “girl”, etc. Analogously,the target words for the men social group 
 could include “he”, “man”, “boy”, etc.
 
@@ -235,8 +235,9 @@ Relevant Papers
 ===============
 
 A collection of publications related to WEFE. 
-These include the original publications of the metrics implemented in WEFE and other works
-related to the assessment and mitigation  of bias in Word Embeddings.
+These include the original publications of the metrics implemented in WEFE 
+and other works related to the measurement and mitigation of bias in 
+Word Embeddings.
 
 Measures and Experiments 
 ------------------------
@@ -278,7 +279,9 @@ P. Badilla, F. Bravo-Marquez, and J. Pérez
 WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the
 29th International Joint Conference on Artificial Intelligence and the 17th 
 Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan.
-(The author version can be provided upon request).
+
+The author version can be found at the following `link <https://felipebravom.com/publications/ijcai2020.pdf>`_.
+
 
 Bibtex:
 ::
@@ -302,6 +305,12 @@ We expect in the future to:
 - Create a single script that evaluates different embedding models under different bias criteria. 
 - From the previous script, rank as many embeddings available on the web as possible.
 
+Licence
+=======
+
+WEFE is licensed under the BSD 3-Clause License.
+
+Details of the license on this `link <https://github.com/dccuchile/wefe/blob/master/LICENSE>`_.
 
 Team
 ====

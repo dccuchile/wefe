@@ -201,8 +201,8 @@ one first constructs a binary classifier :math:`C_{(A_1,A_2)}(\cdot)` using set
 training examples for the positive class. 
 After the training process, this classifier gives for every word :math:`w` a 
 probability :math:`C_{(A_1,A_2)}(w)` that can be interpreted as the degree of 
-association of :math:`w` with respect to  :math:`A_2 (value $1-C_{(A_1,A_2)}(w)` is 
-the degree of association with :math:`A_1`).
+association of :math:`w` with respect to  :math:`A_2` (value 
+:code:`$1-C_{(A_1,A_2)}(w)` is the degree of association with :math:`A_1`).
 Now, we construct a probability distribution :math:`P(\cdot)` over all the words 
 :math:`w` in :math:`T_1\cup \cdots \cup T_n`, by computing :math:`C_{(A_1,A_2)}(w)` 
 and normalizing it to ensure that :math:`\sum_w P(w)=1`.

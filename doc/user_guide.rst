@@ -17,8 +17,12 @@ to use the package. Below:
 
   If you are not familiar with the concepts of  query, target and attribute 
   set, please visit the `the framework section <index.html#the-framework>`_ 
-  on the library's index page. 
+  on the library's about page. 
   These concepts will be widely used in the following sections.
+
+
+You can find this guide ready to run in the following 
+`Jupyter Notebook <https://github.com/dccuchile/wefe/blob/master/examples/User_Guide.ipynb>`_. 
 
 
 Run a Query
@@ -29,7 +33,7 @@ and the Word Embedding Association Test (WEAT) as fairness metric.
 
 Below we show the three usual steps for performing a query in WEFE:
 
->>> # Load the package
+>>> # Load the modules
 >>> from wefe.query import Query
 >>> from wefe.word_embedding_model import WordEmbeddingModel
 >>> from wefe.metrics.WEAT import WEAT
@@ -61,9 +65,9 @@ used in the WEAT paper (included in the package).
 >>> # load the weat word sets
 >>> word_sets = load_weat()
 >>> 
->>> gender_query_1 = Query([word_sets['male_terms'], word_sets['female_terms']],
->>>                        [word_sets['career'], word_sets['family']],
->>>                        ['Male terms', 'Female terms'], ['Career', 'Family'])
+>>> query = Query([word_sets['male_terms'], word_sets['female_terms']],
+>>>               [word_sets['career'], word_sets['family']],
+>>>               ['Male terms', 'Female terms'], ['Career', 'Family'])
 
 3. Instantiate the Metric
 
@@ -427,6 +431,8 @@ already aggregated.
 >>>     WEAT_gender_results, WEAT_ethnicity_results, RNSB_gender_results,
 >>>     RNSB_ethnicity_results
 >>> ])
+>>>
+>>> ranking
 
 =====================  ==================================================  =====================================================  ==================================================  =====================================================
 model_name               WEAT: Gender Queries average of abs values score    WEAT: Ethnicity Queries average of abs values score    RNSB: Gender Queries average of abs values score    RNSB: Ethnicity Queries average of abs values score
@@ -445,14 +451,15 @@ This image shows the rankings separated by each bias criteria and metric
 (i.e, by each column).
 Each bar represents the position of the embedding in the corresponding
 criterion-metric ranking.
->> plot_ranking(ranking, use_metric_as_facet=True)
+
+>>> plot_ranking(ranking, use_metric_as_facet=True)
 
 .. image:: images/ranking_with_facet.png
   :alt: Ranking with facet
 
 2. Without facet:
 
->> plot_ranking(ranking)
+>>> plot_ranking(ranking)
 
 This image shows the accumulated rankings for each embedding model.
 Each bar represents the sum of the rankings obtained by each embedding.

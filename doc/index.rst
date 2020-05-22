@@ -2,8 +2,8 @@
 Welcome to the WEFE documentation!
 ==================================
 
-*Word Embedding Fairness Evaluation* (WEFE) is an open source library for 
-measuring bias in word embedding models. 
+**WEFE: The Word Embeddings Fairness Evaluation Framework** is an open source 
+library for measuring bias in word embedding models. 
 
 The following pages contain information about the formulation of WEFE,
 how to install the package, how to use it and how to contribute, as well as 
@@ -32,6 +32,12 @@ the detailed API documentation and extensive examples.
 
    replications
    rank
+
+Repository
+==========
+
+You can find the project repository at the following link:
+`WEFE repository on Github <https://github.com/dccuchile/wefe/>`_.
 
 
 .. Getting Started

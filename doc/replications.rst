@@ -1,19 +1,22 @@
+===============================
 Replication of Previous Studies
-###############################
+===============================
 
 WEAT Replication
 ================
 
-The following code represents a replica of the experiments performed on the paper:
+The following code reproduces the experiments performed in the following paper:
 
     Semantics derived automatically from language corpora contain human-like biases.
     Aylin Caliskan, Joanna J. Bryson, Arvind Narayanan
 
-At the end of the code are the results obtained by the execution of the code
-Note:
-The results do not coincide perfectly because the vocabularies, models and implementation of WEAT used during the development of the paper and now may be different. 
-In most cases, however, it can be seen that there is an concordance between the results. 
+The results are displayed after the code.
 
+.. note::
+
+  Our results are not exactly the same as those reported in the original paper. 
+  This could be due to small implementation differences (e.g. data pre-processing). 
+  However, in most cases there is concordance between the results. 
 
 >>> from wefe.metrics import WEAT
 >>> from wefe.datasets import load_weat
@@ -112,8 +115,7 @@ In most cases, however, it can be seen that there is an concordance between the 
 >>> results.T.round(2)
 
 
-
-This table shows the output of the execution of the previous code:
+The table below shows the output of the previous code:
 
 +------------------------------------------------------------------------------------------+------------------------+-----------------------+
 |                                      Query / Model                                       |word2vec-google-news-300|glove-wiki-gigaword-300|
@@ -139,7 +141,7 @@ This table shows the output of the execution of the previous code:
 |Young peoples names and Old peoples names wrt Pleasant(9) and Unpleasant(9)               |                   -0.20|                   0.85|
 +------------------------------------------------------------------------------------------+------------------------+-----------------------+
 
-The above results in bar chart:
+These results can also be presented in a bar chart:
 
 >>> from wefe.utils import plot_queries_results
 >>> 
@@ -151,23 +153,27 @@ The above results in bar chart:
   :alt: WEAT experiments replication
 
 
+.. note::
 
-Note: This code is not executed when compiling the documentation due to the long processing time taken. 
-Instead, the tables and graphs of results were embedded. 
-The code is available for execution in this `file <https://github.com/dccuchile/wefe/blob/master/examples/WEAT_experiments.ipynb>`_.
-
+  This code is not executed when compiling the documentation due to the long processing time. 
+  Instead, the tables and plots of these results were embedded.
+  The code is available for execution in this `file <https://github.com/dccuchile/wefe/blob/master/examples/WEAT_experiments.ipynb>`_.
 
 RNSB Replication
 ================
 
-The following code represents a replica of the experiments performed on the paper:
+The following code replicates the experiments carried out in the following paper:
 
     Chris Sweeney and Maryam Najafian.
     A transparent framework for evaluating unintended demographic bias in word embeddings.
     In Proceedings of the 57th Annual Meeting of the Associationfor Computational Linguistics, pages 1662–1667, 2019.
 
-Note: Due the formulation of the metric (it trains a logistic regression in each execution) we can never get the same results. 
-However, those obtained by the code are very similar to those obtained by the paper's makers.
+.. note:: 
+
+  Due to the formulation of the metric (it trains a logistic regression in 
+  each execution) our results are not exactly the same as those reported in 
+  the original paper. However, our results are still very similar to those 
+  in the original paper.
 
 >>> from wefe.datasets import load_bingliu
 >>> from wefe.metrics import RNSB
@@ -247,6 +253,9 @@ However, those obtained by the code are very similar to those obtained by the pa
 .. image:: images/fair_rnsb.png
   :alt: Fair RNSB sentiment distribution
 
-Note: This code is not executed when compiling the documentation due to the long processing time taken. 
-Instead, the tables and graphs of results were embedded. 
-The code is available for execution in `file <https://github.com/dccuchile/wefe/blob/master/examples/RNSB_experiments.ipynb>`_.
+.. note::  
+
+  This code is not executed when compiling the documentation due to the long 
+  processing time. 
+  Instead, the tables and plots of these results were embedded.
+  The code is available for execution in `file <https://github.com/dccuchile/wefe/blob/master/examples/RNSB_experiments.ipynb>`_.

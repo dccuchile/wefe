@@ -2,39 +2,41 @@
 Contributing
 ============
 
-There are several tasks and features you can contribute to: 
-- Implementing new metrics. A relatively extensive guide can be in `Create your own Metric <create_metric.html>`_ section.
-- Create more examples and use cases
-- Improve documentation
-- Create more tests
-- Refactoring the code
+There are many ways to contribute to the library: 
 
-Among many others. All contributions are welcome. 
-We'll be very happy for you to make them!!
+- Implementing new metrics. A relatively extensive guide can be found in the 
+  section `Creating your own metrics <create_metric.html>`_.
+- Create more examples and use cases.
+- Help to improve the documentation.
+- Create more tests.
+
+All contributions are welcome!
 
 Get the repository
 ==================
 
 
-You can download the code executing ::
+You can download the library by running the following command ::
 
     git clone https://github.com/dccuchile/wefe
 
 
 To contribute, simply create a pull request.
-Verify that your code has documentation, test and format (PEP8)
-
+Verify that your code is well documented, to implement unit tests and 
+follows the PEP8 coding style.
 
 Testing
 =======
 
-All unit tests are in the wefe/test folder. It uses pytest as a framework to run them. 
-You can run all tests, first install pytest and pytest-cov::
+All unit tests are located in the wefe/test folder and are based on the 
+``pytest`` framework. 
+In order to run tests, you will first need to install 
+``pytest`` and ``pytest-cov``::
 
     pip install -U pytest
     pip install pytest-cov
 
-To run the test, execute::
+To run the tests, execute::
 
     pytest wefe
 
@@ -50,9 +52,10 @@ And then::
 Build the documentation
 =======================
 
-The documentation is created using sphinx. It can be found in the doc folder at the root of the project.
-Here, the API is described as well as quick start and use cases.
-To compile the documentation, run it::
+The documentation is created using sphinx. It can be found in the doc folder 
+at the project's root folder.
+The documentation includes the API description and some tutorials.
+To compile the documentation, run the following commands::
 
     cd doc
     make html 

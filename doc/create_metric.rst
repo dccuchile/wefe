@@ -2,17 +2,27 @@
 How to implement your own metric
 ================================
 
-The following guide will show you how you can implement your own metrics using this package.
+The following guide will show you how you can implement your own metrics 
+using this toolkit.
 
 Create the class 
 ================
 
-The first step is to create the class that will contain the new metric and extend BaseMetric. 
-Then, to create the class constructor, you must specify the template (explained below), the name of the metric and an abbreviated name or acronym of it.
+The first step is to create the class that will contain the new metric and 
+extend the ``BaseMetric`` class. 
+Then, to create the class constructor, you must specify the template 
+(explained below), the name of the metric and an abbreviated name or acronym 
+for it.
 
-A template is a tuple that indicates the number (cardinality) of target and attribute word sets that the metric can process. 
-It can take integer values as well as the string 'n', which would indicate that it can accept any amount from that set.
-Note that this will indicate that all queries that do not comply with the template will be rejected when trying to run it using this metric.
+A **template** is a tuple that indicates the number (cardinality) of target 
+and attribute word sets that the metric can process. 
+It can take integer values as well as the string 'n', which would indicate 
+that the metric can accept any amount of that type of set 
+(target or attribute words).
+
+.. note::
+    Note that this will indicate that all queries that do not comply with the 
+    template will be rejected when executed using this metric.
 
 >>> from .base_metric import BaseMetric
 >>> 
@@ -43,27 +53,42 @@ Implement :code:`run_query` method
 ==================================
 
 Next, you must implement the :code:`run_query` method. 
-This method will evaluate the metrics on the embedding model.
-It must perform 3 basic operations before executing anything. 
+This method will evaluate the metric on a given embedding model.
+It must perform 2 basic operations before executing anything. 
 
-1. Validate the inputs: validate that the parameters :code:`query`, :code:`word_embedding_model`, :code:`lost_vocabulary_threshold` and :code:`warn_filtered_words` are of type :code:`Query`, :code:`WordEmbeddingModel`, bool and bool respectively. 
-This is done using the :code:`_check_input`. It will raise an exception if it finds a problem with the parameters.
+1. Validate the inputs and Transforming :code:`query` to embeddings: 
 
-2. Transforming :code:`query` to embeddings. 
+    To do this, execute the function :code:`self._get_embeddings_from_query` 
+    using the provided parameters.  
 
-    To do this, execute the function :code:`self._get_embeddings_from_query` using the query and the model. 
-    This could return either: 
+    First, it validate that the parameters 
+    :code:`query`, :code:`word_embedding_model`, 
+    :code:`lost_vocabulary_threshold` and 
+    :code:`warn_filtered_words` are of type :code:`Query`, 
+    :code:`WordEmbeddingModel`, ``bool`` and ``bool`` respectively.
+    It will raise an exception if it finds a problem with the parameters.
+
+    Second, if no error triggered an exception, it converts all word sets 
+    into Word Embeddings.
+    This process could return either: 
     
-        - :code:`None` in case some set loses a higher percentage of words than those specified by the :code:`lost_vocabulary_threshold` parameter. 
-        - Otherwise, a tuple. This tuple will contain in the first place, an array of dictionaries with the embeddings of each target. In the second place and an array of dictionaries of the embeddings of each attribute set. Each dictionary will be a mapping between word and associated embedding.
-        
-3. Check if the array of embeddings is None in case there is a set that has lost more words than the threshold percentage.
+        - :code:`None` in case for any set of words there are more missing 
+          words in the embedding model than the value of parameter 
+          :code:`lost_vocabulary_threshold` (specified as a percentage). 
+        - Otherwise, a tuple is returned. This tuple will contain in the first 
+          element an array of dictionaries with the embeddings of each target 
+          set, and in the second element, an array of dictionaries with the 
+          embeddings of each attribute set. Each dictionary will be a mapping 
+          between words and their corresponding embedding vectors.        
 
-from .base_metric import BaseMetric
-from ..query import Query
-from ..word_embedding_model import WordEmbeddingModel
+2. Check if the array of embeddings is None when there is a word set in which 
+more than the threshold percentage of words doesn't have an embedding.
 
-
+>>> from .base_metric import BaseMetric
+>>> from ..query import Query
+>>> from ..word_embedding_model import WordEmbeddingModel
+>>>
+>>>
 >>> class ExampleMetric(BaseMetric):
 >>>     def __init__(self):
 >>> 
@@ -89,7 +114,6 @@ from ..word_embedding_model import WordEmbeddingModel
 
 
 We can illustrate what the outputs of the previous transformation would look like using the following query:
-
 
 >>> from wefe.word_embedding_model import WordEmbeddingModel
 >>> from wefe.query import Query
@@ -132,20 +156,29 @@ This is what the transformed :code:`attribute_embeddings_dict` would look like:
 >>>   'love': array([ 0.10302734, -0.15234375,  0.02587891, ...], dtype=float32),
 >>>   'peace': array([0.15722656, 0.26171875, 0.27734375, ...], dtype=float32)}]
 
-Observation: The idea of keeping the words and not just returning the embeddings is based on the fact that there are some metrics that can calculate per-word measurements and deliver useful information from these.
 
-Then, from these arrangements, you can implement your new metric.
+.. note::
+    The idea of keeping the words and not just returning the 
+    embeddings is based on the fact that there are some metrics that can 
+    calculate per-word measurements and deliver useful information from these.
+
+
+Then, based on the above, you can implement your new metric.
+
 
 Implement the logic of the metric
 =================================
 
 
-Suppose we want to implement an extremely simple metric of three steps, where:
+Suppose we want to implement an extremely simple three-step metric, where:
+
 1. We calculate the average of all the sets,
-2. Then, calculate the cosine distance between the target set averages and the attribute average.
+2. Then, calculate the cosine distance between the target set averages and the 
+   attribute average.
 3. Subtract these distances.
 
-To do this, we will create a new method :code:`__calc_metric` in which, using the array of embedding dicts as input, we will implement the above.
+To do this, we will create a new method :code:`__calc_metric` in which, using
+the array of embedding dict objects as input, we will implement the above.
 
 >>> from .base_metric import BaseMetric
 >>> from ..query import Query
@@ -226,20 +259,32 @@ To do this, we will create a new method :code:`__calc_metric` in which, using th
 >>>             "result": metric_result,
 >>>         }
 
-And with the above, we have completely defined our metrics.
+We have completely defined a new metric.
 Congratulations!
 
-Comments: 
+.. note::
+    Some comments regarding the implementation of new metrics:
 
-- Note that the returns must necessarily be a dict containing result and query_name values. Otherwise, you cannot run query batches using the utilities, such as :code:`run_queries`.
-- :code:`run_query` can receive more parameters. Simply add them to the function signature. These can even be considered when running the metrics from the :code:`run_queries` utility.
-- Ideally it implements the logic of the metric separated from the run_query function. This leaves only the processing of the information flow. 
-- The file where ExampleMetric is located can be found inside the distances folder. 
+    - Note that the returned object must necessarily be a ``dict`` instance 
+      containing the ``result`` and ``query_name`` key-values. Otherwise you 
+      won't be able to run query batches using utility functions like 
+      ``run_queries``.
+    - ``run_query`` can receive additional parameters. Simply add them to the 
+      function signature. These parameters can also be used when running the 
+      metric from the ``run_queries`` utility function.
+    - We recommend to implement the logic of the metric separated from the 
+      ``run_query`` function. In other words, implement the logic in a 
+      ``calc_your_metric`` function that receives the dictionaries with the 
+      necessary embeddings and parameters.
+    - The file where ``ExampleMetric`` is located can be found inside the 
+      distances folder of the `repository <https://github.com/dccuchile/wefe/blob/master/wefe/metrics/example_metric.py/>`_. 
 
 Contribute
 ==========
 
-If you would like to contribute your metric, please follow the conventions, document everything, create specific tests for the metric and make a pull request to the project github. 
+If you want to contribute your own metric, please follow the conventions, 
+document everything, create specific tests for the metric, and make a pull 
+request to the project's Github repository. 
 We would really appreciate it! 
 
-You can visit the Contribute section for more information.
+You can visit the `Contributing <contribute.html>`_ section for more information.

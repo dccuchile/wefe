@@ -1,6 +1,6 @@
-####################
+========
 WEFE API
-####################
+========
 
 This is the documentation of the api of WEFE. Next, the main classes:
 

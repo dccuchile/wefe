@@ -1,16 +1,13 @@
-###########
+===========
 Quick Start
-###########
+===========
 
 In this tutorial we will show you how to install WEFE and then how to run a 
 basic query.
 
-Important: If you are not familiar with the concepts of  query, target and attribute 
-set, please visit the `the framework section <index.html#the-framework>`_ 
-on the library's index page. 
 
-1. Download and setup
-=====================
+Download and setup
+==================
 
 There are two different ways to install WEFE: 
 
@@ -23,8 +20,16 @@ There are two different ways to install WEFE:
     conda install wefe
 
 
-2. Run your first Query
-=======================
+Run your first Query
+====================
+
+.. warning::
+
+  If you are not familiar with the concepts of  query, target and attribute 
+  set, please visit the `the framework section <index.html#the-framework>`_ 
+  on the library's index page. 
+  These concepts will be widely used in the following sections.
+
 
 In the following code we will show how to implement the example query presented 
 in WEFE's home page: A gender Query using WEAT metrics on the google's 

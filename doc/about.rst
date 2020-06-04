@@ -325,3 +325,8 @@ Contact
 Please write to pablo.badilla at ug.chile.cl for inquiries about the software. 
 You are also welcome to do a pull request or publish an issue in the 
 `WEFE repository on Github <https://github.com/dccuchile/wefe/>`_.
+
+Acknowledgments
+===============
+
+This work was funded by the `Millennium Institute for Foundational Research on Data (IMFD) <https://imfd.cl/en/>`_.

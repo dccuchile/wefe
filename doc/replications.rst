@@ -41,31 +41,31 @@ The results are displayed after the code.
 >>>           [weat_wordset['pleasant_5'], weat_wordset['unpleasant_5']],
 >>>           ['Instruments', 'Weapons'], ['Pleasant(5)', 'Unpleasant(5)']),
 >>> 
->>>     # European american names(5) vs African american names(5)
+>>>     # European american names(5) vs African American names(5)
 >>>     # wrt Pleasant (5) and Unpleasant (5)
 >>>     Query([
 >>>         weat_wordset['european_american_names_5'],
 >>>         weat_wordset['african_american_names_5']
 >>>     ], [weat_wordset['pleasant_5'], weat_wordset['unpleasant_5']],
->>>           ['European american names(5)', 'African american names(5)'],
+>>>           ['European american names(5)', 'African American names(5)'],
 >>>           ['Pleasant(5)', 'Unpleasant(5)']),
 >>> 
->>>     # European american names(7) vs African american names(7)
+>>>     # European american names(7) vs African American names(7)
 >>>     # wrt Pleasant (5) and Unpleasant (5)
 >>>     Query([
 >>>         weat_wordset['european_american_names_7'],
 >>>         weat_wordset['african_american_names_7']
 >>>     ], [weat_wordset['pleasant_5'], weat_wordset['unpleasant_5']],
->>>           ['European american names(7)', 'African american names(7)'],
+>>>           ['European american names(7)', 'African American names(7)'],
 >>>           ['Pleasant(5)', 'Unpleasant(5)']),
 >>> 
->>>     # European american names(7) vs African american names(7)
+>>>     # European american names(7) vs African American names(7)
 >>>     # wrt Pleasant (9) and Unpleasant (9)
 >>>     Query([
 >>>         weat_wordset['european_american_names_7'],
 >>>         weat_wordset['african_american_names_7']
 >>>     ], [weat_wordset['pleasant_9'], weat_wordset['unpleasant_9']],
->>>           ['European american names(7)', 'African american names(7)'],
+>>>           ['European american names(7)', 'African American names(7)'],
 >>>           ['Pleasant(9)', 'Unpleasant(9)']),
 >>> 
 >>>     # Male and female names wrt Career and family
@@ -124,11 +124,11 @@ The table below shows the output of the previous code:
 +------------------------------------------------------------------------------------------+------------------------+-----------------------+
 |Instruments and Weapons wrt Pleasant(5) and Unpleasant(5)                                 |                    1.64|                   1.45|
 +------------------------------------------------------------------------------------------+------------------------+-----------------------+
-|European american names(5) and African american names(5) wrt Pleasant(5) and Unpleasant(5)|                    0.67|                   1.19|
+|European american names(5) and African American names(5) wrt Pleasant(5) and Unpleasant(5)|                    0.67|                   1.19|
 +------------------------------------------------------------------------------------------+------------------------+-----------------------+
-|European american names(7) and African american names(7) wrt Pleasant(5) and Unpleasant(5)|                    1.40|                   1.38|
+|European american names(7) and African American names(7) wrt Pleasant(5) and Unpleasant(5)|                    1.40|                   1.38|
 +------------------------------------------------------------------------------------------+------------------------+-----------------------+
-|European american names(7) and African american names(7) wrt Pleasant(9) and Unpleasant(9)|                    0.73|                   1.40|
+|European american names(7) and African American names(7) wrt Pleasant(9) and Unpleasant(9)|                    0.73|                   1.40|
 +------------------------------------------------------------------------------------------+------------------------+-----------------------+
 |Male names and Female names wrt Career and Family                                         |                    1.95|                   1.75|
 +------------------------------------------------------------------------------------------+------------------------+-----------------------+

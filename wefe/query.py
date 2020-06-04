@@ -17,14 +17,14 @@ class Query:
         Parameters
         ----------
         target_sets : Union[np.ndarray, list]
-            Array or list that contain the target word sets.
+            Array or list that contains the target word sets.
         attribute_sets : Union[np.ndarray, Iterable]
-            Array or list that contain the attribute word sets.
+            Array or list that contains the attribute word sets.
         target_sets_names : Union[np.ndarray, Iterable], optional
-            Array or list that contain the word sets names, by default None
+            Array or list that contains the word sets names, by default None
         attribute_sets_names : Union[np.ndarray, Iterable], optional
-            Array or list that contain the attribute sets names
-            , by default None
+            Array or list that contains the attribute sets names,
+            by default None
 
         Attributes
         ----------
@@ -45,9 +45,9 @@ class Query:
         Raises
         ------
         TypeError
-            if target_sets are not a iterable or np.ndarray instance.
+            if target_sets are not an iterable or np.ndarray instance.
         TypeError
-            if attribute_sets are not a iterable or np.ndarray instance.
+            if attribute_sets are not an iterable or np.ndarray instance.
         Exception
             if the length of target_sets is 0.
         TypeError

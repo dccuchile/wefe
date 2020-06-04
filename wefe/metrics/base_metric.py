@@ -8,8 +8,8 @@ from typing import Union, NoReturn, Tuple, List
 class BaseMetric(object):
     """ A base class fot implement any metric.
 
-    It contains several utils for common Metric operations such as check the
-    inputs before execute a query and transform a queries words into word
+    It contains several utils for common Metric operations such as checking the
+    inputs before executing a query and transforming a queries words into word
     embeddings, among others.
 
     """

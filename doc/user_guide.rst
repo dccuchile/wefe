@@ -2,15 +2,14 @@
 User guide
 ==========
 
-The following guide is designed to present the more general details about how 
-to use the package. Below:
+The following guide is designed to present the more general details on using the package. Below:
 
-- First, we will present how to run a simple query using some embedding model. 
-- Then, we will show how to run multiple queries on multiple embeddings.
-- After that, we will show how to compare the results obtained from running 
+- We first present how to run a simple query using some embedding model. 
+- We then show how to run multiple queries on multiple embeddings.
+- After that, we show how to compare the results obtained from running 
   multiple sets of queries on multiple embeddings using different metrics 
   through ranking calculation.
-- Finally, we will show how to calculate the correlations between the 
+- Finally, we show how to calculate the correlations between the 
   rankings obtained.
 
 .. warning::
@@ -28,7 +27,7 @@ You can find this guide ready to run in the following
 Run a Query
 ===========
 
-The following code will show how to run a gender query using Glove embeddings
+The following code explains how to run a gender query using Glove embeddings
 and the Word Embedding Association Test (WEAT) as fairness metric.
 
 Below we show the three usual steps for performing a query in WEFE:
@@ -42,8 +41,8 @@ Below we show the three usual steps for performing a query in WEFE:
 
 1. Load a word embeddings model as a :code:`WordEmbeddingModel` object.
 
-Here, we will load the word embedding pretrained model using the gensim library
-and then we will create a :code:`WordEmbeddingModel` instance.
+Here, we load the word embedding pretrained model using the gensim library
+and then we create a :code:`WordEmbeddingModel` instance.
 For this example, we will use a 25-dimensional Glove embedding model trained
 from a Twitter dataset.
 
@@ -87,7 +86,7 @@ Running multiple Queries
 
 We usually want to test several queries that study some **criterion**
 of bias: *gender, ethnicity, religion, politics, socioeconomic, among others*.
-Let's suppose you've created 20 queries that study gender bias on different
+Let us suppose you have created 20 queries that study gender bias on different
 models of embeddings.
 Trying to ``run_query`` on each pair embedding-query can be a bit complex and 
 will require extra work to implement.
@@ -147,14 +146,14 @@ are intended to measure ethnicity bias.
 
 3. Run the queries on all Word Embeddings using ``WEAT Effect Size``. 
 
-Now, to run our list of queries and models, we will call the function 
+Now, to run our list of queries and models, we call the function 
 ``run_queries``. The mandatory parameters of the function are 3: 
 
 1. a metric,
 2. a list of queries, and,
 3. a list of embedding models. 
 
-It is also possible to provide a name for the for the criterion studied in 
+It is also possible to provide a name for the criterion studied in 
 this set of queries through the parameter ``queries_set_name``.
 
 .. note::
@@ -203,7 +202,7 @@ glove twitter dim=100                                             0.681933      
 
 The execution of ``run_queries`` in the previous step gave us many results 
 evaluating the gender bias in the tested embeddings.
-However, these don't tell us much about the overall fairness of 
+However, these do not tell us much about the overall fairness of 
 the embedding models with respect to the criteria evaluated.
 Therefore, we would like to have some mechanism that allows us to aggregate 
 the results directly obtained in ``run_query`` so that we can evaluate the 
@@ -236,7 +235,7 @@ The aggregation functions available are:
   (e.g., ``WEAT``, ``RND``), aggregation functions such as 
   ``sum`` would make different outputs to cancel each other.
 
-Let's aggregate the results from previous example by the average of the absolute values:
+Let us aggregate the results from previous example by the average of the absolute values:
 
 >>> WEAT_gender_results_agg = run_queries(WEAT,
 >>>                                   gender_queries,
@@ -332,7 +331,7 @@ To address these two problems, we propose to create *rankings*.
 Rankings allow us to focus on the relative differences reported by the
 metrics (for different models) instead of focusing on the absolute values.
 
-Now, let's create rankings using the data used above.
+Now, let us create rankings using the data used above.
 The following code will load the models and create the queries:
 
 >>> from wefe.query import Query
@@ -385,7 +384,7 @@ The following code will load the models and create the queries:
 >>> ethnicity_queries = [ethnicity_query_1, ethnicity_query_2]
 
 
-Now, we will run the queries with :code:`WEAT` and :code:`RNSB`:
+We now run the queries with :code:`WEAT` and :code:`RNSB`:
 
 >>> # Run the queries WEAT
 >>> WEAT_gender_results = run_queries(WEAT,
@@ -421,7 +420,7 @@ Now, we will run the queries with :code:`WEAT` and :code:`RNSB`:
 >>>                                      queries_set_name='Ethnicity Queries')
 
    
-To create the ranking we'll use the :code:`create_ranking` function.
+To create the ranking we use the :code:`create_ranking` function.
 This function takes all the DataFrames containing the calculated scores and 
 uses the last column to create the ranking. It assumes that the scores are 
 already aggregated.
@@ -442,7 +441,7 @@ glove twitter dim=50                                                    3       
 glove twitter dim=100                                                   2                                                      1                                                   1                                                      2
 =====================  ==================================================  =====================================================  ==================================================  =====================================================
 
-Finally, we can plot the rankings using the :code:`plot_ranking` function.
+Finally, we plot the rankings using the :code:`plot_ranking` function.
 The function can be used in two ways:
 
 1. With facet by Metric and Criteria:

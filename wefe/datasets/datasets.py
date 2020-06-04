@@ -7,14 +7,14 @@ import pkg_resources
 
 def fetch_eds(occupations_year: int = 2015,
               top_n_race_occupations: int = 15) -> dict:
-    """Fetch the word sets used in the experiments of Word embeddings quantify
-    100 years of gender and ethnic stereotypes paper.
-    It includes gender (male, female), ethnicity(asian, black, white) and
+    """Fetch the word sets used in the experiments of the work *Word Embeddings
+    *Quantify 100 Years Of Gender And Ethnic Stereotypes*.
+    It includes gender (male, female), ethnicity (asian, black, white) and
     religion(christianity and islam) and adjetives (appearence, intelligence,
     otherization, sensitive) word sets.
 
     Reference:
-    Word embeddings quantify 100 years of gender and ethnic stereotypes.
+    Word Embeddings quantify 100 years of gender and ethnic stereotypes.
     Garg, N., Schiebinger, L., Jurafsky, D., & Zou, J. (2018). Proceedings of
     the National Academy of Sciences, 115(16), E3635-E3644.
 
@@ -217,14 +217,14 @@ def load_bingliu():
 
 
 def fetch_debias_multiclass() -> dict:
-    """Fetch the word sets used in the paper Black is to criminalas caucasian
-    is to police: Detecting and removing multiclass bias in word embeddings.
+    """Fetch the word sets used in the paper *Black Is To Criminals Caucasian*
+    *Is To Police: Detecting And Removing Multiclass Bias In Word Embeddings*.
     It includes gender (male, female), ethnicity(asian, black, white) and
     religion(christianity, judaism and islam) target and attribute word sets.
 
     References:
     Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
-    Black is to criminalas caucasian is to police: Detecting and removing
+    Black is to criminals caucasian is to police: Detecting and removing
     multiclass bias in word embeddings. In Proceedings of the 2019 Conference
     of the North American Chapter of the Association for Computational
     Linguistics:
@@ -306,8 +306,8 @@ def fetch_debias_multiclass() -> dict:
 
 
 def load_weat():
-    """Load the word sets used in the Semantics derived automatically from
-    language corpora contain human-like biases paper tests.
+    """Load the word sets used in the paper *Semantics Derived Automatically*
+    *From Language Corpora Contain Human-Like Biases*.
     It includes gender (male, female), ethnicity(black, white)
     and pleasant, unpleasant word sets, among others.
 

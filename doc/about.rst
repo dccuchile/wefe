@@ -53,7 +53,7 @@ objectives:
 - To solve the two main problems that arise when comparing experiments based 
   on different metrics:
 
-   - Some metrics operate with different number of word sets as input. 
+   - Some metrics operate with different numbers of word sets as input. 
    - The outputs of different metrics are incompatible with each other 
      (their scales are different, some metrics return real numbers and others 
      only positive ones, etc..)
@@ -62,8 +62,8 @@ objectives:
 The Framework
 =============
 
-Here we present the main building blocks of the framework. 
-Then, we will present the common usage pattern of WEFE. 
+Here we present the main building blocks of the framework and then, we will
+present the common usage pattern of WEFE. 
 
 Target set 
 ----------
@@ -74,8 +74,8 @@ certain criterion. This criterion can be any character, trait or origin that
 distinguishes groups of people from each other e.g., gender, social class, age, 
 and ethnicity. For example, if the criterion is gender we can use it to 
 distinguish two groups, `women and men`. Then, a set of target words 
-representing the women social group could contain words like “she”, 
-“woman”, “girl”, etc. Analogously,the target words for the men social group 
+representing the women's social group could contain words like “she”, 
+“woman”, “girl”, etc. Analogously the target words for the men's social group 
 could include “he”, “man”, “boy”, etc.
 
 
@@ -125,7 +125,7 @@ Then the following is a query in our framework
 
 A set of queries :math:`\mathcal{Q}` is defined 
 :math:`\mathcal{Q} = {Q_1, Q_2, \dots, Q_n}`.
-These sets may be focused on studying a common bias. When this is the case, 
+These sets study a common bias. When this is the case, 
 we define that this set has a **Bias Criterion**. 
 These criteria can explore various types of bias such as gender, 
 ethnicity, religion, politics, social class, among others.
@@ -183,7 +183,7 @@ Word Embedding Association Test (WEAT), presented in the paper Semantics
 derived automatically from language corpora contain human-like biases.
 This metric receives two sets :math:`T_1` and :math:`T_2` of target words, 
 and two sets :math:`A_1` and :math:`A_2` of attribute words. Its objective is 
-to quantify the strength of association of both pair of sets through a 
+to quantify the strength of association of both pairs of sets through a 
 permutation test. 
 It also contains a variant, WEAT Effect Size. This variant represents a 
 normalized measure that quantifies how far apart the two distributions of 
@@ -226,9 +226,9 @@ uniform distribution, the less biased the word embedding model is.
 MAC
 ---
 
-Mean Average Cosine Similarity (MAC), presented in the paper Black is to 
-criminals caucasian is to police: Detecting and removing multiclass bias 
-in word embeddings.  
+Mean Average Cosine Similarity (MAC), presented in the paper *Black is to* 
+*criminals caucasian is to police: Detecting and removing multiclass bias*
+*in word embeddings*.
 
 
 Relevant Papers

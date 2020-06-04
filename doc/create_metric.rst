@@ -2,7 +2,7 @@
 How to implement your own metric
 ================================
 
-The following guide will show you how you can implement your own metrics 
+The following guide will show you how to implement your own metrics 
 using this toolkit.
 
 Create the class 
@@ -61,7 +61,7 @@ It must perform 2 basic operations before executing anything.
     To do this, execute the function :code:`self._get_embeddings_from_query` 
     using the provided parameters.  
 
-    First, it validate that the parameters 
+    First, it validates that the parameters 
     :code:`query`, :code:`word_embedding_model`, 
     :code:`lost_vocabulary_threshold` and 
     :code:`warn_filtered_words` are of type :code:`Query`, 
@@ -72,17 +72,17 @@ It must perform 2 basic operations before executing anything.
     into Word Embeddings.
     This process could return either: 
     
-        - :code:`None` in case for any set of words there are more missing 
-          words in the embedding model than the value of parameter 
-          :code:`lost_vocabulary_threshold` (specified as a percentage). 
-        - Otherwise, a tuple is returned. This tuple will contain in the first 
+        - :code:`None` in the case that some set retains less percentage 
+          embeddings than specified in the :code:`lost_vocabulary_threshold` 
+          (specified as a float percentage). 
+        - A tuple is otherwise returned. This tuple will contain in the first 
           element an array of dictionaries with the embeddings of each target 
           set, and in the second element, an array of dictionaries with the 
           embeddings of each attribute set. Each dictionary will be a mapping 
           between words and their corresponding embedding vectors.        
 
 2. Check if the array of embeddings is None when there is a word set in which 
-more than the threshold percentage of words doesn't have an embedding.
+more than the threshold percentage of words does not have an embedding.
 
 >>> from .base_metric import BaseMetric
 >>> from ..query import Query
@@ -113,7 +113,8 @@ more than the threshold percentage of words doesn't have an embedding.
 >>>             return {'query_name': query.query_name_, 'result': np.nan}
 
 
-We can illustrate what the outputs of the previous transformation would look like using the following query:
+We can illustrate what the outputs of the previous transformation look like 
+using the following query:
 
 >>> from wefe.word_embedding_model import WordEmbeddingModel
 >>> from wefe.query import Query
@@ -159,7 +160,7 @@ This is what the transformed :code:`attribute_embeddings_dict` would look like:
 
 .. note::
     The idea of keeping the words and not just returning the 
-    embeddings is based on the fact that there are some metrics that can 
+    embeddings is because that there are some metrics that can 
     calculate per-word measurements and deliver useful information from these.
 
 
@@ -177,7 +178,7 @@ Suppose we want to implement an extremely simple three-step metric, where:
    attribute average.
 3. Subtract these distances.
 
-To do this, we will create a new method :code:`__calc_metric` in which, using
+To do this, we create a new method :code:`__calc_metric` in which, using
 the array of embedding dict objects as input, we will implement the above.
 
 >>> from .base_metric import BaseMetric
@@ -201,9 +202,9 @@ the array of embedding dict objects as input, we will implement the above.
 >>>         Parameters
 >>>         ----------
 >>>         target_embeddings : np.array
->>>             An array with dicts. Each dict represent an target set. A dict is composed with a word and its embedding as key, value respectively.
+>>>             An array with dicts. Each dict represents an target set. A dict is composed with a word and its embedding as key, value respectively.
 >>>         attribute_embeddings : np.array
->>>             An array with dicts. Each dict represent an attribute set. A dict is composed with a word and its embedding as key, value respectively.
+>>>             An array with dicts. Each dict represents an attribute set. A dict is composed with a word and its embedding as key, value respectively.
 >>>         
 >>>         Returns
 >>>         -------
@@ -267,12 +268,12 @@ Congratulations!
 
     - Note that the returned object must necessarily be a ``dict`` instance 
       containing the ``result`` and ``query_name`` key-values. Otherwise you 
-      won't be able to run query batches using utility functions like 
+      will not be able to run query batches using utility functions like 
       ``run_queries``.
     - ``run_query`` can receive additional parameters. Simply add them to the 
       function signature. These parameters can also be used when running the 
       metric from the ``run_queries`` utility function.
-    - We recommend to implement the logic of the metric separated from the 
+    - We recommend implementing the logic of the metric separated from the 
       ``run_query`` function. In other words, implement the logic in a 
       ``calc_your_metric`` function that receives the dictionaries with the 
       necessary embeddings and parameters.

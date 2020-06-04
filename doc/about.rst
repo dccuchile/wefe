@@ -74,9 +74,9 @@ certain criterion. This criterion can be any character, trait or origin that
 distinguishes groups of people from each other e.g., gender, social class, age, 
 and ethnicity. For example, if the criterion is gender we can use it to 
 distinguish two groups, `women and men`. Then, a set of target words 
-representing the women's social group could contain words like “she”, 
-“woman”, “girl”, etc. Analogously the target words for the men's social group 
-could include “he”, “man”, “boy”, etc.
+representing the social group "women" could contain words like “she”, 
+“woman”, “girl”, etc. Analogously  a set of target words the representing the 
+social group "men" could include “he”, “man”, “boy”, etc.
 
 
 Attribute set

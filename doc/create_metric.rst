@@ -72,9 +72,10 @@ It must perform 2 basic operations before executing anything.
     into Word Embeddings.
     This process could return either: 
     
-        - :code:`None` in the case that some set retains less percentage 
-          embeddings than specified in the :code:`lost_vocabulary_threshold` 
-          (specified as a float percentage). 
+        - ``None`` None if for at least one of the word sets in the query there
+          are more words without embedding vector than those specified in the 
+          ``lost_vocabulary_threshold`` parameter (specified as percentage 
+          float).  
         - A tuple is otherwise returned. This tuple will contain in the first 
           element an array of dictionaries with the embeddings of each target 
           set, and in the second element, an array of dictionaries with the 

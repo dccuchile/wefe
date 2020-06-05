@@ -8,7 +8,8 @@ from ..query import Query
 class WEAT(BaseMetric):
     """A implementation of Word Embedding Association Test (WEAT). 
     
-    It measures the degree of association between two sets of target words and two sets of attribute words through a permutation test.  
+    It measures the degree of association between two sets of target words and 
+    two sets of attribute words through a permutation test.  
     
     References
     ----------

@@ -179,8 +179,8 @@ The metrics implemented in the package so far are:
 WEAT
 ----
 
-Word Embedding Association Test (WEAT), presented in the paper Semantics 
-derived automatically from language corpora contain human-like biases.
+Word Embedding Association Test (WEAT), presented in the paper "*Semantics*
+*derived automatically from language corpora contain human-like biases*".
 This metric receives two sets :math:`T_1` and :math:`T_2` of target words, 
 and two sets :math:`A_1` and :math:`A_2` of attribute words. Its objective is 
 to quantify the strength of association of both pairs of sets through a 
@@ -192,8 +192,9 @@ association between targets and attributes are.
 RND
 ---
 
-Relative Norm Distance (RND), presented in the paper Word embeddings quantify 
-100 years of gender and ethnic stereotypes. RND averages the embeddings of 
+Relative Norm Distance (RND), presented in the paper "*Word embeddings quantify* 
+*100 years of gender and ethnic stereotypes*".
+RND averages the embeddings of 
 each target set, then for each of the attribute words, calculates the norm 
 of the difference between the word and the average target, and then subtracts 
 the norms. The more positive (negative) the relative distance from the norm, 
@@ -202,8 +203,8 @@ the more associated are the sets of attributes towards group two (one).
 RNSB
 ----
 
-Relative Negative Sentiment Bias (RNSB), presented in the paper A transparent 
-framework for evaluating unintended demographic bias in word embeddings.
+Relative Negative Sentiment Bias (RNSB), presented in the paper "*A transparent* 
+*framework for evaluating unintended demographic bias in word embeddings*".
 
 RNSB receives as input queries with two attribute sets :math:`A_1` and 
 :math:`A_2` and two or more target sets, and thus has a template of the 
@@ -226,9 +227,9 @@ uniform distribution, the less biased the word embedding model is.
 MAC
 ---
 
-Mean Average Cosine Similarity (MAC), presented in the paper *Black is to* 
+Mean Average Cosine Similarity (MAC), presented in the paper "*Black is to* 
 *criminals caucasian is to police: Detecting and removing multiclass bias*
-*in word embeddings*.
+*in word embeddings*".
 
 
 Relevant Papers

@@ -74,9 +74,9 @@ certain criterion. This criterion can be any character, trait or origin that
 distinguishes groups of people from each other e.g., gender, social class, age, 
 and ethnicity. For example, if the criterion is gender we can use it to 
 distinguish two groups, `women and men`. Then, a set of target words 
-representing the social group "women" could contain words like “she”, 
-“woman”, “girl”, etc. Analogously  a set of target words the representing the 
-social group "men" could include “he”, “man”, “boy”, etc.
+representing the social group "*women*" could contain words like “*she*”, 
+“*woman*”, “*girl*”, etc. Analogously  a set of target words the representing the 
+social group "*men*" could include “*he*”, “*man*”, “*boy*”, etc.
 
 
 Attribute set
@@ -85,9 +85,9 @@ Attribute set
 An attribute word set (denoted by :math:`A`) is a set of words 
 representing some attitude, characteristic, trait, occupational field, etc.  
 that  can  be  associated  with individuals from any social group. For example,
-the set of science attribute  words  could  contain  words  such as  
-“technology”, “physics”, “chemistry”, while the art attribute words could have
-words like “poetry”,  “dance”,  “literature”.
+the set of *science* attribute  words  could  contain  words  such as  
+*“technology”*, *“physics”*, *“chemistry”*, while the *art* attribute words could have
+words like *“poetry”*,  *“dance”*,  *“literature”*.
 
 Query
 -----
@@ -123,12 +123,12 @@ Then the following is a query in our framework
    Q=(\{T_{\text{women}}, T_{\text{men}}\},\{A_{\text{science}},A_{\text{art}}\}).
    \end{equation}
 
-A set of queries :math:`\mathcal{Q}` is defined 
-:math:`\mathcal{Q} = {Q_1, Q_2, \dots, Q_n}`.
-These sets study a common bias. When this is the case, 
-we define that this set has a **Bias Criterion**. 
-These criteria can explore various types of bias such as gender, 
-ethnicity, religion, politics, social class, among others.
+When a set of queries :math:`\mathcal{Q} = {Q_1, Q_2, \dots, Q_n}` is intended
+to measure a single type of bias, we say that the set has a 
+**Bias Criterion**.  
+Examples of bias criteria are gender, ethnicity, religion, politics, 
+social class, among others.
+
 
 Query Template
 --------------

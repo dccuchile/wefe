@@ -82,7 +82,7 @@ words.
 >>> query = Query(target_sets, attribute_sets, target_sets_names,
 >>>               attribute_sets_names)
 
-3. Instance the metric that you will use and then, execute :code:`run_query` 
+3. Instantiate the metric to be used and then, execute :code:`run_query` 
 with the parameters created in the past steps. In this case we will use 
 :code:`WEAT`. 
 

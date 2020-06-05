@@ -7,7 +7,7 @@ measuring bias in word embedding models.
 It generalizes many existing fairness metrics into a unified framework and 
 provides a standard interface for:
 
-- Encapsulating existing fairness metrics from previous work and design
+- Encapsulating existing fairness metrics from previous work and designing
   new ones.
 - Encapsulating the test words used by fairness metrics into standard
   objects called queries.

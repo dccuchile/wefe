@@ -26,7 +26,7 @@ Run your first Query
 .. warning::
 
   If you are not familiar with the concepts of query, target and attribute 
-  set, please visit the `the framework section <index.html#the-framework>`_ 
+  set, please visit the `the framework section <about.html#the-framework>`_ 
   on the library's about page. 
   These concepts will be widely used in the following sections.
 

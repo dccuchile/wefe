@@ -17,7 +17,7 @@ provides a standard interface for:
 
 It also provides more advanced features for:
 
-- Running several queries on multiple embedding models and return a 
+- Running several queries on multiple embedding models and returning a 
   DataFrame with the results.
 - Plotting those results on a barplot.
 - Based on the above results, calculating a bias ranking for all embedding 

@@ -75,7 +75,9 @@ You can download the code executing ::
 
 To contribute, visit the corresponding section in the documentation:
 
-`Contributing <https://wefe.readthedocs.io/en/latest/contribute.html/>`
+`Contributing <https://wefe.readthedocs.io/en/latest/contribute.html>`_.
+
+
 
 Testing
 -------

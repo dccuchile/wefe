@@ -73,9 +73,11 @@ You can download the code executing ::
     git clone https://github.com/dccuchile/wefe
 
 
-To contribute, visit the corresponding section in the documentation:
+To contribute, visit the `Contributing <https://wefe.readthedocs.io/en/latest/contribute.html>`_ section in the documentation.
 
-`Contributing <https://wefe.readthedocs.io/en/latest/contribute.html/>`
+
+
+
 
 Testing
 -------

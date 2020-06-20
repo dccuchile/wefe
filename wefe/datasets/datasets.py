@@ -280,9 +280,9 @@ def fetch_debias_multiclass() -> dict:
         islam = np.unique(religion_terms[:, 2]).tolist()
 
         religion_related_words = religion['analogy_templates']['attribute']
-        judaism_related_words = religion_related_words['jew']
-        christianity_related_words = religion_related_words['christian']
-        islam_related_words = religion_related_words['muslim']
+        greed = religion_related_words['jew']
+        conservative = religion_related_words['christian']
+        terrorism = religion_related_words['muslim']
 
     word_sets_dict = {
         'male_terms': male_terms,
@@ -298,9 +298,9 @@ def fetch_debias_multiclass() -> dict:
         'judaism_terms': judaism,
         'christianity_terms': christianity,
         'islam_terms': islam,
-        'jew_related_words': judaism_related_words,
-        'christian_related_words': christianity_related_words,
-        'muslim_related_words': islam_related_words,
+        'greed': greed,
+        'conservative': conservative,
+        'terrorism': terrorism,
     }
     return word_sets_dict
 

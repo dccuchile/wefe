@@ -50,8 +50,8 @@ def test_fetch_debias_multiclass():
         'male_terms', 'female_terms', 'male_roles', 'female_roles',
         'black_terms', 'white_terms', 'asian_terms', 'black_related_words',
         'white_related_words', 'asian_related_words', 'judaism_terms',
-        'christianity_terms', 'islam_terms', 'jew_related_words',
-        'christian_related_words', 'muslim_related_words'
+        'christianity_terms', 'islam_terms', 'greed', 'conservative',
+        'terrorism'
     ]
     assert len(list(debias_multiclass.keys())) == 16
 

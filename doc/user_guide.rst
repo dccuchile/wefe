@@ -15,11 +15,11 @@ The following guide is designed to present the more general details on using the
 
 .. warning::
 
-  To accurately study the biases contained in embeddings, queries may contain 
-  words that are offensive to certain groups or individuals. 
-  These words do NOT represent the thoughts of the authors of this library. 
-  This applies to this tutorial and to all the contents in the other pages of 
-  the documentation. 
+  To accurately study the biases contained in word embeddings, queries may 
+  contain words that could be offensive to certain groups or individuals. 
+  The relationships studied between these words DO NOT represent the ideas, 
+  thoughts or beliefs of the authors of this library.  
+  This applies to this and all pages of the documentation. 
 
 
 .. warning::

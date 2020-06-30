@@ -28,7 +28,6 @@ It also provides more advanced features for:
 - Correlating the rankings. This allows the user to see how the rankings of 
   the different metrics or evaluation criteria are correlated with respect 
   to the bias presented by the models.
-  
 
 Motivation and objectives
 =========================
@@ -142,6 +141,15 @@ to measure a single type of bias, we say that the set has a
 **Bias Criterion**.  
 Examples of bias criteria are gender, ethnicity, religion, politics, 
 social class, among others.
+
+.. warning::
+
+  To accurately study the biases contained in word embeddings, queries may 
+  contain words that could be offensive to certain groups or individuals. 
+  The relationships studied between these words DO NOT represent the ideas, 
+  thoughts or beliefs of the authors of this library.  
+  This applies to this and all pages of the documentation. 
+
 
 
 Query Template

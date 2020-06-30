@@ -184,18 +184,19 @@ The following code replicates the experiments carried out in the following paper
 >>> import plotly.express as px
 >>> import gensim.downloader as api
 >>> 
->>> # Create and fetch the word sets
+>>> # load the target word sets.
+>>> # In this case each word is an objective set because each of them represents a different social group.
 >>> RNSB_words = [
->>>     'swedish', 'irish', 'mexican', 'chinese', 'filipino', 'german', 'english',
->>>     'french', 'norwegian', 'american', 'indian', 'dutch', 'russian',
->>>     'scottish', 'italian'
+>>>     ['swedish'], ['irish'], ['mexican'], ['chinese'], ['filipino'], ['german'], ['english'],
+>>>     ['french'], ['norwegian'], ['american'], ['indian'], ['dutch'], ['russian'],
+>>>     ['scottish'], ['italian']
 >>> ]
+>>> 
 >>> bing_liu = load_bingliu()
 >>> 
 >>> # Create the query
->>> query = Query([RNSB_words],
->>>               [bing_liu['positive_words'], bing_liu['negative_words']],
->>>               ['Ethnicity words'], ['Positive Words', 'Negative Words'])
+>>> query = Query(RNSB_words,
+>>>               [bing_liu['positive_words'], bing_liu['negative_words']])
 >>> 
 >>> # Fetch the models
 >>> glove = WordEmbeddingModel(api.load('glove-wiki-gigaword-300'),
@@ -208,6 +209,7 @@ The following code replicates the experiments carried out in the following paper
 >>> # Run the queries
 >>> glove_results = RNSB().run_query(query, glove)
 >>> conceptnet_results = RNSB().run_query(query, conceptnet)
+>>> 
 >>> 
 >>> # Show the results obtained with glove
 >>> glove_fig = px.bar(

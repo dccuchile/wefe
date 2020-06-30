@@ -28,24 +28,38 @@ It also provides more advanced features for:
 - Correlating the rankings. This allows the user to see how the rankings of 
   the different metrics or evaluation criteria are correlated with respect 
   to the bias presented by the models.
- 
-  
   
 
 Motivation and objectives
 =========================
 
-The measurement of bias in word embedding models have existed for some time. 
-The common approach is to compute a metric based on the relationship between 
-the embeddings of different word sets, where the words from these sets 
-represent social groups and general attributes of people.
+Word Embeddings models are a core component in almost all NLP systems.
+Several studies has shown that they are prone to inherit stereotypical social 
+biases from the corpus they were built on.
+The common method for quantifying bias is to use a metric that calculates the 
+relationship between sets of word embeddings representing different social 
+groups and attributes.
 
-Each of these metrics was specifically designed for the study in which they 
-were proposed. This leads to a lack of consistency between them, which causes 
-several problems when trying to compare and validate their results.
+Although previous studies have begun to measure bias in embeddings, they are 
+limited both in the types of bias measured (gender, ethnic) and in the models 
+tested. 
+Moreover, each study proposes its own metric, which makes the relationship 
+between the results obtained unclear.
 
-In order to address the above, our framework is based on the following 
-objectives:
+This fact led us to consider that we could use these metrics and studies to 
+make a case study in which we compare and rank the embedding models according 
+to their bias.
+
+In order to address the above, we first proposed WEFE as a theoretical framework 
+that aims to formalize the main building blocks for measuring bias in word 
+embedding models.
+Then, the need to conduct our case study led to the implementation of WEFE in 
+code.
+Seeing the possibility that other research teams are facing the same problem, 
+we decided to improve this code and publish it as a library, hoping that it 
+can be useful for their studies.
+
+The main objectives we want to achieve with this library are:
 
 - To provide a ready-to-use tool that allows the user to run bias tests in a 
   straightforward manner. 
@@ -62,8 +76,8 @@ objectives:
 The Framework
 =============
 
-Here we present the main building blocks of the framework and then, we will
-present the common usage pattern of WEFE. 
+Here we present the main building blocks of the framework and then, we present 
+the common usage pattern of WEFE. 
 
 Target set 
 ----------
@@ -235,10 +249,9 @@ Mean Average Cosine Similarity (MAC), presented in the paper "*Black is to*
 Relevant Papers
 ===============
 
-A collection of publications related to WEFE. 
-These include the original publications of the metrics implemented in WEFE 
-and other works related to the measurement and mitigation of bias in 
-Word Embeddings.
+The intention of this section is to provide a list of the works on which WEFE 
+relies as well as a rough reference of works on measuring and mitigating bias 
+in word embeddings. 
 
 Measurements and Case Studies 
 -----------------------------

@@ -17,7 +17,7 @@ There are two different ways to install WEFE:
 
 - To install the package with conda, run in a console::
 
-    conda install wefe
+    conda install -c pbadilla wefe 
 
 
 Run your first Query

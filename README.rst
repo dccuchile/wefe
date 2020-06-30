@@ -1,14 +1,25 @@
 .. -*- mode: rst -*-
 
 |ReadTheDocs|_
-
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/wefe/badge/?version=latest
 .. _ReadTheDocs: https://wefe.readthedocs.io/en/latest/?badge=latest
 
 |CircleCI|_
+.. |CircleCI| image:: https://circleci.com/gh/dccuchile/wefe.svg?style=shield 
+.. _CircleCI: https://circleci.com/gh/dccuchile/wefe.svg?style=shield 
 
-.. |CircleCI| image:: https://circleci.com/gh/dccuchile/wefe.svg?style=svg
-.. _CircleCI: https://circleci.com/gh/dccuchile/wefe.svg?style=svg
+|Conda|_
+.. |Conda| image:: https://anaconda.org/pbadilla/wefe/badges/installer/conda.svg
+.. _Conda: https://anaconda.org/pbadilla/wefe/badges/installer/conda.svg
+
+|CondaLatestRelease|_
+.. |CondaLatestRelease| image:: https://anaconda.org/pbadilla/wefe/badges/latest_release_date.svg
+.. _CondaLatestRelease: https://anaconda.org/pbadilla/wefe/badges/latest_release_date.svg
+
+|CondaVersion|_
+.. |CondaVersion| image:: https://anaconda.org/pbadilla/wefe/badges/version.svg
+.. _CondaVersion: https://anaconda.org/pbadilla/wefe/badges/version.svg
+
 
 
 
@@ -48,7 +59,7 @@ To install the package with ``pip``   ::
 
 To install the package with ``conda``::
 
-    conda install wefe
+    conda install -c pbadilla wefe 
 
 
 Requirements
@@ -62,7 +73,6 @@ These package will be installed along with the package, in case these have not a
 4. pandas
 5. gensim
 6. plotly
-7. patool
 
 
 Contributing
@@ -74,9 +84,6 @@ You can download the code executing ::
 
 
 To contribute, visit the `Contributing <https://wefe.readthedocs.io/en/latest/contribute.html>`_ section in the documentation.
-
-
-
 
 
 Testing
@@ -125,14 +132,15 @@ Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 20
 (The author version can be provided upon request).
 
 Bibtex:
-::
-   @InProceedings{wefe2020,
-     author    = {Pablo Badilla, Felipe Bravo-Marquez, and Jorge Pérez},
-     title     = {WEFE: The Word Embeddings Fairness Evaluation Framework},
-     booktitle = {Proceedings of the 29th International Joint Conference on Artificial Intelligence and the 17th Pacific Rim  International Conference on Artificial Intelligence (IJCAI-PRICAI 2020)},
-     year      = {2020},
-   }
 
+::
+
+    @InProceedings{wefe2020,
+        author    = {Pablo Badilla, Felipe Bravo-Marquez, and Jorge Pérez},
+        title     = {WEFE: The Word Embeddings Fairness Evaluation Framework},
+        booktitle = {Proceedings of the 29th International Joint Conference on Artificial Intelligence and the 17th Pacific Rim  International Conference on Artificial Intelligence (IJCAI-PRICAI 2020)},
+        year      = {2020},
+    }
 
 
 Team

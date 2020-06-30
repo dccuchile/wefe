@@ -12,12 +12,23 @@ The following guide is designed to present the more general details on using the
 - Finally, we show how to calculate the correlations between the 
   rankings obtained.
 
+
+.. warning::
+
+  To accurately study the biases contained in embeddings, queries may contain 
+  words that are offensive to certain groups or individuals. 
+  These words do NOT represent the thoughts of the authors of this library. 
+  This applies to this tutorial and to all the contents in the other pages of 
+  the documentation. 
+
+
 .. warning::
 
   If you are not familiar with the concepts of  query, target and attribute 
-  set, please visit the `the framework section <index.html#the-framework>`_ 
+  set, please visit the `the framework section <about.html#the-framework>`_ 
   on the library's about page. 
   These concepts will be widely used in the following sections.
+
 
 
 You can find this guide ready to run in the following 

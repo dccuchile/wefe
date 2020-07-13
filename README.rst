@@ -135,7 +135,6 @@ Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 20
 Bibtex:
 
 ::
-
 @inproceedings{ijcai2020-60,
   title     = {WEFE: The Word Embeddings Fairness Evaluation Framework},
   author    = {Badilla, Pablo and Bravo-Marquez, Felipe and Pérez, Jorge},

@@ -302,25 +302,31 @@ Bias in Contextualized Word Embeddings
 Citation
 =========
 
-
 Please cite the following paper if using this package in an academic publication:
 
 P. Badilla, F. Bravo-Marquez, and J. Pérez 
-WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the
+`WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the
 29th International Joint Conference on Artificial Intelligence and the 17th 
-Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan.
+Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. <https://www.ijcai.org/Proceedings/2020/60>`_
 
 The author version can be found at the following `link <https://felipebravom.com/publications/ijcai2020.pdf>`_.
-
 
 Bibtex:
 ::
     @InProceedings{wefe2020,
-        author    = {Pablo Badilla, Felipe Bravo-Marquez, and Jorge Pérez},
         title     = {WEFE: The Word Embeddings Fairness Evaluation Framework},
-        booktitle = {Proceedings of the 29th International Joint Conference on Artificial Intelligence and the 17th Pacific Rim  International Conference on Artificial Intelligence (IJCAI-PRICAI 2020)},
+        author    = {Badilla, Pablo and Bravo-Marquez, Felipe and Pérez, Jorge},
+        booktitle = {Proceedings of the Twenty-Ninth International Joint Conference on
+                   Artificial Intelligence, {IJCAI-20}},
+        publisher = {International Joint Conferences on Artificial Intelligence Organization},             
+        pages     = {430--436},
         year      = {2020},
-    }
+        month     = {7},
+        doi       = {10.24963/ijcai.2020/60},
+        url       = {https://doi.org/10.24963/ijcai.2020/60},
+        }
+
+
 
 
 Roadmap

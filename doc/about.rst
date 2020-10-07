@@ -253,6 +253,14 @@ Mean Average Cosine Similarity (MAC), presented in the paper "*Black is to*
 *criminals caucasian is to police: Detecting and removing multiclass bias*
 *in word embeddings*".
 
+ECT
+---
+
+The Embedding Coherence Test, presented in "Attenuating Bias in Word vectors"
+calculates the average target group vectors, measures the cosine similarity of each
+to a list of attribute words and calculates the correlation of the resulting
+similarity lists.
+
 
 Relevant Papers
 ===============
@@ -268,6 +276,7 @@ Measurements and Case Studies
 - `Caliskan, A., Bryson, J. J., & Narayanan, A. (2017). Semantics derived automatically from language corpora contain human-like biases. Science, 356(6334), 183-186. <http://www.cs.bath.ac.uk/~jjb/ftp/CaliskanSemantics-Arxiv.pdf>`_.
 - `Garg, N., Schiebinger, L., Jurafsky, D., & Zou, J. (2018). Word embeddings quantify 100 years of gender and ethnic stereotypes. Proceedings of the National Academy of Sciences, 115(16), E3635-E3644. <https://www.pnas.org/content/pnas/115/16/E3635.full.pdf>`_.
 - `Sweeney, C., & Najafian, M. (2019, July). A Transparent Framework for Evaluating Unintended Demographic Bias in Word Embeddings. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (pp. 1662-1667). <https://www.aclweb.org/anthology/P19-1162.pdf>`_.
+- `Dev, S., & Phillips, J. (2019, April). Attenuating Bias in Word vectors. In Proceedings of the 22nd International Conference on Artificial Intelligence and Statistics (pp. 879-887). <http://proceedings.mlr.press/v89/dev19a.html>`_.
 
 
 Bias Mitigation

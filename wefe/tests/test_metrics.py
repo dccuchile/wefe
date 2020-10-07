@@ -4,7 +4,7 @@ from ..utils import load_weat_w2v
 from ..word_embedding_model import WordEmbeddingModel
 from ..datasets.datasets import load_weat
 from ..query import Query
-from ..metrics import WEAT, RND, RNSB, MAC
+from ..metrics import WEAT, RND, RNSB, MAC, ECT
 from sklearn.linear_model import LogisticRegression
 
 
@@ -110,4 +110,18 @@ def test_mac():
 
     assert results[
         'query_name'] == 'Flowers wrt Pleasant 5 , Pleasant 9, Unpleasant 5 and Unpleasant 9'
+    assert isinstance(results['result'], (np.float32, np.float64, float))
+
+
+def test_ect():
+    weat_word_set = load_weat()
+    model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
+
+    ect = ECT()
+    query = Query([weat_word_set['flowers'], weat_word_set['insects']],
+                  [weat_word_set['pleasant_5']], ['Flowers', 'Insects'],
+                  ['Pleasant'])
+    results = ect.run_query(query, model)
+
+    assert results['query_name'] == 'Flowers and Insects wrt Pleasant'
     assert isinstance(results['result'], (np.float32, np.float64, float))

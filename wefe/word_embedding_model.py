@@ -1,4 +1,4 @@
-from gensim.models import KeyedVectors
+from gensim.models.keyedvectors import BaseKeyedVectors
 
 
 class WordEmbeddingModel:
@@ -8,14 +8,14 @@ class WordEmbeddingModel:
     It includes the name of the model and some vocab prefix if needed.
     """
     def __init__(self,
-                 word_embedding: KeyedVectors,
+                 word_embedding: BaseKeyedVectors,
                  model_name: str = None,
                  vocab_prefix: str = None):
         """Initializes the WordEmbeddingModel container.
 
         Parameters
         ----------
-        word_embedding : KeyedVectors.
+        keyed_vectors : BaseKeyedVectors.
             An instance of word embedding loaded through gensim KeyedVector
             interface or gensim's api.
         model_name : str, optional
@@ -62,7 +62,7 @@ class WordEmbeddingModel:
 
         """
 
-        if not isinstance(word_embedding, KeyedVectors):
+        if not isinstance(word_embedding, BaseKeyedVectors):
             raise TypeError('word_embedding must be an instance of a gensim\'s'
                             ' KeyedVectors. Given: {}'.format(word_embedding))
         else:

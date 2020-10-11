@@ -1,9 +1,13 @@
 import pytest
 from ..word_embedding_model import WordEmbeddingModel
 from ..utils import load_weat_w2v
+from gensim.test.utils import common_texts
+from gensim.models import Word2Vec, FastText
 
 
-def test_create_word_embedding_model():
+def test_word_embedding_model_init_types():
+
+    # Test types verifications
 
     # target sets None
     with pytest.raises(TypeError,
@@ -35,6 +39,12 @@ def test_create_word_embedding_model():
             'word_embedding must be an instance of a gensim\'s KeyedVectors'):
         WordEmbeddingModel({})
 
+
+def test_word_embedding_model_init():
+
+    # Test
+
+    # Load dummy w2v
     weat_we = load_weat_w2v()
 
     with pytest.raises(TypeError, match='model_name must be a string'):
@@ -68,3 +78,24 @@ def test_word_embedding_model_eq():
     model_1.model_ = None
 
     assert model_1 != model_2
+
+
+def test_w2v():
+
+    w2v = Word2Vec(common_texts, size=100, window=5, min_count=1, workers=-1)
+    w2v_keyed_vectors = w2v.wv
+    wem = WordEmbeddingModel(w2v_keyed_vectors, "w2v")
+
+    assert w2v.wv == wem.model_
+
+
+def test_fast():
+    fast = FastText(size=4,
+                    window=3,
+                    min_count=1,
+                    sentences=common_texts,
+                    iter=10)
+    fast_keyed_vectors = fast.wv
+    wem = WordEmbeddingModel(fast_keyed_vectors, "w2v")
+
+    assert fast.wv == wem.model_

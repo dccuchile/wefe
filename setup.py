@@ -15,6 +15,7 @@ DISTNAME = 'wefe'
 DESCRIPTION = 'The Word Embedding Fairness Evaluation Framework'
 with codecs.open('README.rst', encoding='utf-8-sig') as f:
     LONG_DESCRIPTION = f.read()
+AUTHOR = 'Pablo Badilla'
 MAINTAINER = 'Pablo Badilla'
 MAINTAINER_EMAIL = 'pablo.badilla@ug.uchile.cl'
 URL = 'https://github.com/dccuchile/wefe'
@@ -41,6 +42,7 @@ EXTRAS_REQUIRE = {
 
 setup(
     name=DISTNAME,
+    author=AUTHOR,
     maintainer=MAINTAINER,
     maintainer_email=MAINTAINER_EMAIL,
     description=DESCRIPTION,

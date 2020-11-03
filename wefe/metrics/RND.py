@@ -118,11 +118,11 @@ class RND(BaseMetric):
             with respect to the target sets means.
         """
 
-        # Standard input procedure: check the entries and
-        # obtain the embeddings.
-        embeddings = self._get_embeddings_from_query(
-            query, word_embedding, warn_filtered_words,
-            lost_vocabulary_threshold)
+        # Standard input procedure: check the inputs and obtain the
+        # embeddings.
+        embeddings = super().run_query(query, word_embedding,
+                                       lost_vocabulary_threshold)
+
         # if there is any/some set has less words than the allowed limit,
         # return the default value (nan)
         if embeddings is None:

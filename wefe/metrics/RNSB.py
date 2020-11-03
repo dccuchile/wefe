@@ -27,10 +27,11 @@ class RNSB(BaseMetric):
     def __init__(self):
         super().__init__(('n', 2), 'Relative Negative Sentiment Bias', 'RNSB')
 
-    def __train_classifier(
-            self, attribute_embeddings_dict: List[Dict[str, np.ndarray]],
-            classifier: BaseEstimator, classifier_params: dict,
-            print_model_evaluation: bool):
+    def __train_classifier(self,
+                           attribute_embeddings_dict: List[Dict[str,
+                                                                np.ndarray]],
+                           classifier: BaseEstimator, classifier_params: dict,
+                           print_model_evaluation: bool):
         """Train the sentiment classifier from the provided attribute embeddings.
 
         Parameters
@@ -222,12 +223,11 @@ class RNSB(BaseMetric):
             of probabilities.
         """
 
-        # standard entry procedure.
+        # Standard input procedure: check the inputs and obtain the
+        # embeddings.
+        embeddings = super().run_query(query, word_embedding,
+                                       lost_vocabulary_threshold)
 
-        # get the embeddings
-        embeddings = self._get_embeddings_from_query(
-            query, word_embedding, warn_filtered_words,
-            lost_vocabulary_threshold)
         # if there is lost_vocabulary_threshold the allowed limit, return the
         #  default value (nan)
         if embeddings is None:

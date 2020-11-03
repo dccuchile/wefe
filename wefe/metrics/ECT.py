@@ -36,12 +36,11 @@ class ECT(BaseMetric):
 
         super().__init__(metric_template, metric_name, metric_short_name)
 
-    def run_query(
-            self,
-            query: Query,
-            word_embedding: WordEmbeddingModel,
-            lost_vocabulary_threshold: float = 0.2,
-            warn_filtered_words: bool = True):
+    def run_query(self,
+                  query: Query,
+                  word_embedding: WordEmbeddingModel,
+                  lost_vocabulary_threshold: float = 0.2,
+                  warn_filtered_words: bool = True):
         """Runs the given query with the given parameters.
 
         Parameters
@@ -63,29 +62,28 @@ class ECT(BaseMetric):
             A dictionary with the query name and the result of the query.
         """
 
-        # Get word vectors from the specified query
-        embeddings = self._get_embeddings_from_query(
-            query,
-            word_embedding,
-            warn_filtered_words=warn_filtered_words,
-            lost_vocabulary_threshold=lost_vocabulary_threshold)
+        # Standard input procedure: check the inputs and obtain the
+        # embeddings.
+        embeddings = super().run_query(query, word_embedding,
+                                       lost_vocabulary_threshold)
 
         # If the lost vocabulary threshold is exceeded, return the default value
         if embeddings is None:
             return {"query_name": query.query_name_, "result": np.nan}
 
         return {
-            "query_name": query.query_name_,
-            "result": self.__calculate_embedding_coherence(
+            "query_name":
+            query.query_name_,
+            "result":
+            self.__calculate_embedding_coherence(
                 list(embeddings[0][0].values()),
                 list(embeddings[0][1].values()),
-                list(embeddings[1][0].values()))}
+                list(embeddings[1][0].values()))
+        }
 
-    def __calculate_embedding_coherence(
-            self,
-            target_set_1: list,
-            target_set_2: list,
-            attribute_set: list) -> float:
+    def __calculate_embedding_coherence(self, target_set_1: list,
+                                        target_set_2: list,
+                                        attribute_set: list) -> float:
         """Calculate the ECT metric over the given parameters. Return the result.
 
         Parameters
@@ -104,12 +102,15 @@ class ECT(BaseMetric):
         """
 
         # Calculate mean vectors for both target vector sets
-        target_means = [np.mean(s, axis=0) for s in (target_set_1, target_set_2)]
+        target_means = [
+            np.mean(s, axis=0) for s in (target_set_1, target_set_2)
+        ]
 
         # Measure similarities between mean vecotrs and all attribute words
         similarities = []
         for mean_vector in target_means:
-            similarities.append([1 - cosine(mean_vector, a) for a in attribute_set])
+            similarities.append(
+                [1 - cosine(mean_vector, a) for a in attribute_set])
 
         # Calculate similarity correlations
         return spearmanr(similarities[0], similarities[1]).correlation

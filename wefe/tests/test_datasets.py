@@ -3,6 +3,11 @@ from ..datasets.datasets import load_bingliu, fetch_debiaswe, fetch_eds,\
 
 
 def test_load_bingliu():
+    """
+    Convert load_bingliuuuuuu
+
+    Args:
+    """
     bingliu = load_bingliu()
     assert isinstance(bingliu, dict)
     assert list(bingliu.keys()) == ['positive_words', 'negative_words']
@@ -13,6 +18,11 @@ def test_load_bingliu():
 
 
 def test_fetch_eds():
+    """
+    Fetch data
+
+    Args:
+    """
     eds = fetch_eds()
     assert isinstance(eds, dict)
     assert list(eds.keys()) == [
@@ -31,6 +41,11 @@ def test_fetch_eds():
 
 
 def test_fetch_debiaswe():
+    """
+    Fetch the fetchweweweias
+
+    Args:
+    """
     debiaswe = fetch_debiaswe()
     assert isinstance(debiaswe, dict)
     assert list(debiaswe.keys()) == [
@@ -44,6 +59,11 @@ def test_fetch_debiaswe():
 
 
 def test_fetch_debias_multiclass():
+    """
+    Fetch multiclass class
+
+    Args:
+    """
     debias_multiclass = fetch_debias_multiclass()
     assert isinstance(debias_multiclass, dict)
     assert list(debias_multiclass.keys()) == [
@@ -60,6 +80,11 @@ def test_fetch_debias_multiclass():
 
 
 def test_load_weat():
+    """
+    Loads for load_load
+
+    Args:
+    """
     weat = load_weat()
     assert isinstance(weat, dict)
     assert list(weat.keys()) == [

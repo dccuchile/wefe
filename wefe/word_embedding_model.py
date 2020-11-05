@@ -86,6 +86,13 @@ class WordEmbeddingModel:
             self.vocab_prefix_ = vocab_prefix
 
     def __eq__(self, other):
+        """
+        Return true if other_name
+
+        Args:
+            self: (todo): write your description
+            other: (todo): write your description
+        """
         if self.model_ != other.model_:
             return False
         if self.model_name_ != other.model_name_:

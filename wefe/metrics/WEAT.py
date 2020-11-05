@@ -18,10 +18,32 @@ class WEAT(BaseMetric):
     Science,356(6334):183–186, 2017.
     """
     def __init__(self):
+        """
+        Initialize the init
+
+        Args:
+            self: (todo): write your description
+        """
         super().__init__((2, 2), 'Word Embedding Association Test', 'WEAT')
 
     def __calc_s(self, w, A, B):
+        """
+        Calculate the distance between two vectors.
+
+        Args:
+            self: (todo): write your description
+            w: (array): write your description
+            A: (array): write your description
+            B: (array): write your description
+        """
         def calc_cos_sim(a, b):
+            """
+            Calculate the cosine angle between two vectors.
+
+            Args:
+                a: (array): write your description
+                b: (array): write your description
+            """
             return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
         A_cosine_distance = np.array([calc_cos_sim(w, a) for a in A])
@@ -29,6 +51,16 @@ class WEAT(BaseMetric):
         return np.mean(A_cosine_distance) - np.mean(B_cosine_distance)
 
     def __calc_effect_size(self, X, Y, A, B):
+        """
+        Calculate the effect effect of the effect
+
+        Args:
+            self: (todo): write your description
+            X: (array): write your description
+            Y: (array): write your description
+            A: (array): write your description
+            B: (array): write your description
+        """
         first_term = np.mean(np.array([self.__calc_s(x, A, B) for x in X]))
         second_term = np.mean(np.array([self.__calc_s(y, A, B) for y in Y]))
 
@@ -38,6 +70,16 @@ class WEAT(BaseMetric):
         return (first_term - second_term) / std_dev
 
     def __calc_weat(self, X, Y, A, B):
+        """
+        Calculate the overall term
+
+        Args:
+            self: (todo): write your description
+            X: (array): write your description
+            Y: (array): write your description
+            A: (array): write your description
+            B: (array): write your description
+        """
         first_term = np.array([self.__calc_s(x, A, B) for x in X])
         second_term = np.array([self.__calc_s(y, A, B) for y in Y])
         return np.sum(first_term) - np.sum(second_term)

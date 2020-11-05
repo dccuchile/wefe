@@ -9,6 +9,11 @@ from sklearn.linear_model import LogisticRegression
 
 
 def test_weat():
+    """
+    Parameters ---------- word_word :.
+
+    Args:
+    """
 
     weat_word_set = load_weat()
     model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
@@ -28,6 +33,11 @@ def test_weat():
 
 
 def test_rnd():
+    """
+    Parameters ---------- rnd_word_set : str
+
+    Args:
+    """
 
     weat_word_set = load_weat()
     model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
@@ -43,6 +53,12 @@ def test_rnd():
 
 
 def test_rnsb(capsys):
+    """
+    Parameters ---------- rnsbbat_word_set : rns rns rns : class : rns : list : rns :
+
+    Args:
+        capsys: (todo): write your description
+    """
 
     weat_word_set = load_weat()
     model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
@@ -96,6 +112,11 @@ def test_rnsb(capsys):
 
 
 def test_mac():
+    """
+    Test the pid of the query.
+
+    Args:
+    """
     weat_word_set = load_weat()
     model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
 
@@ -114,6 +135,11 @@ def test_mac():
 
 
 def test_ect():
+    """
+    Parameters ---------- word_word :
+
+    Args:
+    """
     weat_word_set = load_weat()
     model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
 

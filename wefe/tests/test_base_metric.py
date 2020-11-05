@@ -7,6 +7,11 @@ from ..query import Query
 
 
 def test_create_base_metric():
+    """
+    Create a base metric.
+
+    Args:
+    """
 
     with pytest.raises(
             TypeError,
@@ -41,6 +46,11 @@ def test_create_base_metric():
 
 
 def test_get_embeddings_from_word_set():
+    """
+    Parameters ---------- word_set : string.
+
+    Args:
+    """
 
     base_metric = BaseMetric((2, 2), 'Example Metric', 'EM')
     weat = load_weat()
@@ -68,6 +78,11 @@ def test_get_embeddings_from_word_set():
 
 
 def test_validate_metric_input():
+    """
+    Perform the validation of the given model.
+
+    Args:
+    """
     base_metric = BaseMetric((2, 3), 'Example Metric', 'EM')
     weat = load_weat()
     w2v = load_weat_w2v()
@@ -117,6 +132,11 @@ def test_validate_metric_input():
 
 
 def test_some_set_has_fewer_words_than_the_threshold():
+    """
+    Parameters ---------- query_metric_w2vdings for a given query.
+
+    Args:
+    """
     base_metric = BaseMetric((2, 2), 'Example Metric', 'EM')
     weat = load_weat()
     w2v = load_weat_w2v()

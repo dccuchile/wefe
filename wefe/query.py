@@ -166,6 +166,13 @@ class Query:
         self.query_name_ = self._generate_query_name()
 
     def __eq__(self, other):
+        """
+        Compares two sets of the same values.
+
+        Args:
+            self: (todo): write your description
+            other: (todo): write your description
+        """
 
         if not isinstance(other, Query):
             return False

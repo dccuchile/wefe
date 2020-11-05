@@ -7,6 +7,12 @@ import numpy as np
 
 class ExampleMetric(BaseMetric):
     def __init__(self):
+        """
+        Initialize a template.
+
+        Args:
+            self: (todo): write your description
+        """
 
         template_needed = (2, 1)
         metric_name = 'Example Metric'
@@ -54,6 +60,16 @@ class ExampleMetric(BaseMetric):
     def run_query(self, query: Query, word_embedding: WordEmbeddingModel,
                   lost_vocabulary_threshold: float = 0.2,
                   warn_filtered_words: bool = True):
+        """
+        Parameters ---------- query_embed.
+
+        Args:
+            self: (todo): write your description
+            query: (str): write your description
+            word_embedding: (str): write your description
+            lost_vocabulary_threshold: (str): write your description
+            warn_filtered_words: (str): write your description
+        """
 
         # check the inputs
         self._check_input(query, word_embedding, lost_vocabulary_threshold,

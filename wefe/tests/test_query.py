@@ -4,6 +4,11 @@ from ..query import Query
 
 
 def test_create_query_input_verifications():
+    """
+    * create query query query query results.
+
+    Args:
+    """
 
     # target sets None
     with pytest.raises(TypeError, match='target_sets must be a*'):
@@ -57,6 +62,11 @@ def test_create_query_input_verifications():
 
 
 def test_create_query():
+    """
+    Creates a query. query
+
+    Args:
+    """
 
     # create a real query:
     weat = load_weat()
@@ -82,6 +92,11 @@ def test_create_query():
 
 
 def test_eq():
+    """
+    Test if we have_eq query.
+
+    Args:
+    """
 
     weat = load_weat()
 
@@ -151,6 +166,11 @@ def test_eq():
 
 
 def test_templates():
+    """
+    List all available templates.
+
+    Args:
+    """
 
     weat = load_weat()
 
@@ -210,6 +230,11 @@ def test_templates():
 
 
 def test_generate_query_name():
+    """
+    Generates a query name.
+
+    Args:
+    """
 
     weat_word_set = load_weat()
     query = Query([weat_word_set['flowers'], weat_word_set['insects']],

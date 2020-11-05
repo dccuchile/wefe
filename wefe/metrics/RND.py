@@ -19,12 +19,31 @@ class RND(BaseMetric):
     Proceedings of the National Academy of Sciences, 115(16):E3635–E3644,2018.
     """
     def __init__(self):
+        """
+        Initialize the next init
+
+        Args:
+            self: (todo): write your description
+        """
         super().__init__((2, 1), 'Relative Norm Distance', 'RND')
 
     def __calc_distance(self,
                         vec1: np.ndarray,
                         vec2: np.ndarray,
                         distance_type='norm'):
+        """
+        Calculate the distance between two vectors.
+
+        Args:
+            self: (todo): write your description
+            vec1: (array): write your description
+            np: (todo): write your description
+            ndarray: (array): write your description
+            vec2: (array): write your description
+            np: (todo): write your description
+            ndarray: (array): write your description
+            distance_type: (str): write your description
+        """
         if distance_type == 'norm':
             return np.linalg.norm(np.subtract(vec1, vec2))
         elif distance_type == 'cos':
@@ -40,6 +59,25 @@ class RND(BaseMetric):
                    attribute: np.ndarray, attribute_words: list,
                    distance_type: str, average_distances: bool,
                    disable_vocab_warnings: bool) -> Union[np.float64, list]:
+        """
+        Calculate the rnd distance between target_0 and target_type.
+
+        Args:
+            self: (todo): write your description
+            target_0: (todo): write your description
+            np: (todo): write your description
+            ndarray: (array): write your description
+            target_1: (todo): write your description
+            np: (todo): write your description
+            ndarray: (array): write your description
+            attribute: (str): write your description
+            np: (todo): write your description
+            ndarray: (array): write your description
+            attribute_words: (bool): write your description
+            distance_type: (str): write your description
+            average_distances: (todo): write your description
+            disable_vocab_warnings: (bool): write your description
+        """
 
         # calculates the average wv for the group words.
         target_1_avg_vector = np.average(target_0, axis=0)

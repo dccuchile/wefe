@@ -20,15 +20,44 @@ class MAC(BaseMetric):
         Computational Linguistics.
     """
     def __init__(self):
+        """
+        Initialize the internal method
+
+        Args:
+            self: (todo): write your description
+        """
         super().__init__((1, 'n'), 'Mean Average Cosine Similarity', 'MAC')
 
     def calc_s(self, t, A_j):
+        """
+        Calculate the t - th derivative ) between t.
+
+        Args:
+            self: (todo): write your description
+            t: (array): write your description
+            A_j: (array): write your description
+        """
         def calc_cos_dist(a, b):
+            """
+            Calculate the cosine distance between two vectors.
+
+            Args:
+                a: (todo): write your description
+                b: (todo): write your description
+            """
             return 1 - np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
         return 1 / len(A_j) * np.sum([calc_cos_dist(t, a) for a in A_j])
 
     def calc_mac(self, T, A):
+        """
+        Calculate the mac mac of a.
+
+        Args:
+            self: (todo): write your description
+            T: (array): write your description
+            A: (array): write your description
+        """
         first_term = 1 / (len(T))
         mac = first_term * np.sum(
             [np.sum([self.calc_s(t_i, A_j) for A_j in A]) for t_i in T])

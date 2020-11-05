@@ -25,6 +25,12 @@ class RNSB(BaseMetric):
     Computational Linguistics, pages 1662–1667, 2019.
     """
     def __init__(self):
+        """
+        Initialize the properties object.
+
+        Args:
+            self: (todo): write your description
+        """
         super().__init__(('n', 2), 'Relative Negative Sentiment Bias', 'RNSB')
 
     def __train_classifier(

@@ -243,6 +243,15 @@ class BaseMetric(object):
         """
         def is_percentage_of_filtered_words_under_threshold(
                 embeddings, word_set, word_set_name, lost_words_threshold):
+            """
+            Determine whether the embeddings have the same.
+
+            Args:
+                embeddings: (dict): write your description
+                word_set: (todo): write your description
+                word_set_name: (str): write your description
+                lost_words_threshold: (float): write your description
+            """
             remaining_words = list(embeddings.keys())
             number_of_filtered_words = len(word_set) - len(remaining_words)
             percentage_of_filtered_words = number_of_filtered_words / len(

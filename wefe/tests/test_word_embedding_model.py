@@ -6,6 +6,11 @@ from gensim.models import Word2Vec, FastText
 
 
 def test_word_embedding_model_init_types():
+    """
+    Init embedding embedding embedding.
+
+    Args:
+    """
 
     # Test types verifications
 
@@ -41,6 +46,11 @@ def test_word_embedding_model_init_types():
 
 
 def test_word_embedding_model_init():
+    """
+    Parameters ---------- word_embed_w2v2 model.
+
+    Args:
+    """
 
     # Test
 
@@ -69,6 +79,11 @@ def test_word_embedding_model_init():
 
 
 def test_word_embedding_model_eq():
+    """
+    Parameters ---------- model_1vding.
+
+    Args:
+    """
     model_1 = WordEmbeddingModel(load_weat_w2v(), 'weat_1')
     model_2 = WordEmbeddingModel(load_weat_w2v(), 'weat_2')
 
@@ -81,6 +96,11 @@ def test_word_embedding_model_eq():
 
 
 def test_w2v():
+    """
+    Test whether a single model.
+
+    Args:
+    """
 
     w2v = Word2Vec(common_texts, size=100, window=5, min_count=1, workers=-1)
     w2v_keyed_vectors = w2v.wv
@@ -90,6 +110,11 @@ def test_w2v():
 
 
 def test_fast():
+    """
+    Test whether a text file.
+
+    Args:
+    """
     fast = FastText(size=4,
                     window=3,
                     min_count=1,

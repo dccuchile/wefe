@@ -398,7 +398,23 @@ def create_ranking(results_dataframes: Iterable[pd.DataFrame]):
 def plot_ranking(ranking: pd.DataFrame,
                  title: str = '',
                  use_metric_as_facet: bool = False):
+    """
+    Plots results as a pandas dataframe.
+
+    Args:
+        ranking: (array): write your description
+        pd: (array): write your description
+        DataFrame: (todo): write your description
+        title: (str): write your description
+        use_metric_as_facet: (bool): write your description
+    """
     def melt_df(results):
+        """
+        Melt_dfars
+
+        Args:
+            results: (array): write your description
+        """
         results = results.copy()
         results['exp_name'] = results.index
         id_vars = ['exp_name']
@@ -487,6 +503,13 @@ def calculate_ranking_correlations(
 
 
 def plot_ranking_correlations(correlation_matrix, title=''):
+    """
+    Plot correlation coefficient.
+
+    Args:
+        correlation_matrix: (todo): write your description
+        title: (str): write your description
+    """
     fig = go.Figure(data=go.Heatmap(z=correlation_matrix,
                                     x=correlation_matrix.columns,
                                     y=correlation_matrix.index,
@@ -499,6 +522,11 @@ def plot_ranking_correlations(correlation_matrix, title=''):
 
 
 def load_weat_w2v():
+    """
+    Load a w2vectors file.
+
+    Args:
+    """
     from gensim.models import KeyedVectors
     # load dummy weat word vectors:
 

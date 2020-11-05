@@ -13,6 +13,11 @@ import pandas as pd
 
 
 def test_load_weat_w2v():
+    """
+    Test if the w2vect isat_w2vectors.
+
+    Args:
+    """
     weat_w2v = load_weat_w2v()
     assert isinstance(weat_w2v, KeyedVectors)
     assert len(weat_w2v.vocab.keys()) == 347
@@ -23,6 +28,11 @@ def test_load_weat_w2v():
 
 @pytest.fixture
 def queries_and_models():
+    """
+    Return a list of all possible models that word models.
+
+    Args:
+    """
     word_sets = load_weat()
 
     # Create gender queries
@@ -66,6 +76,12 @@ def queries_and_models():
 
 
 def test_run_query_input_validation(queries_and_models):
+    """
+    * query all input query inputs *
+
+    Args:
+        queries_and_models: (todo): write your description
+    """
 
     # -----------------------------------------------------------------
     # Input checks
@@ -154,7 +170,20 @@ def test_run_query_input_validation(queries_and_models):
 
 
 def test_run_query(queries_and_models):
+    """
+    Test if the results query.
+
+    Args:
+        queries_and_models: (todo): write your description
+    """
     def check_results_types(results, only_negative=False):
+        """
+        Check if the results as a list
+
+        Args:
+            results: (dict): write your description
+            only_negative: (bool): write your description
+        """
         for row in results.values:
             for value in row:
                 assert isinstance(value, np.float_)
@@ -363,6 +392,12 @@ def test_run_query(queries_and_models):
 
 
 def test_ranking_results(queries_and_models):
+    """
+    Runs a list of queries in - independent.
+
+    Args:
+        queries_and_models: (todo): write your description
+    """
 
     gender_queries, negative_test_queries, models = queries_and_models
     results_gender = run_queries(
@@ -410,6 +445,12 @@ def test_ranking_results(queries_and_models):
 
 
 def test_correlations(queries_and_models):
+    """
+    Returns a list of queries.
+
+    Args:
+        queries_and_models: (str): write your description
+    """
 
     gender_queries, negative_test_queries, models = queries_and_models
     results_gender = run_queries(

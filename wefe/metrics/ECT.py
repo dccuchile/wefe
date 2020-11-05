@@ -29,6 +29,12 @@ class ECT(BaseMetric):
     | [2]: https://github.com/sunipa/Attenuating-Bias-in-Word-Vec
     """
     def __init__(self):
+        """
+        Initialize the metric.
+
+        Args:
+            self: (todo): write your description
+        """
         # The metrics accepts two target sets and a single attribute set
         metric_template = (2, 1)
         metric_name = "Embedding Coherence Test"

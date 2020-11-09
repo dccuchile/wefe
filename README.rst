@@ -120,6 +120,17 @@ To compile the documentation, run it::
     cd doc
     make html 
 
+Changelog
+=========
+
+Version 0.0.16
+--------------
+- Renamed optional ``run_query`` parameter  ``warn_filtered_words`` to ``warn_not_found_words``
+- also_search_for
+- word_preprocessor_options
+- Added _get_embedding function in WordEmbeddingModel (explicar que hace)
+- Added _preprocess_word function in WordEmbeddingModel (explicar que hace)
+- Remover underscore from class attributes variable names.
 
 Citation
 =========

@@ -55,7 +55,7 @@ class WEAT(BaseMetric):
                 'lowercase_words': False,
                 'custom_preprocesor': None
             },
-            also_search_for_lowecase: bool = False,
+            also_search_for_lowecase: bool = {},
             warn_filtered_words: bool = False,
             *args: Any,
             **kwargs: Any) -> Dict:
@@ -114,10 +114,10 @@ class WEAT(BaseMetric):
         super().run_query(**locals())
 
         # Get the embeddings
-        embeddings = word_embedding._get_embeddings_from_query(
+        embeddings = word_embedding.get_embeddings_from_query(
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
-            word_preprocessor_options=word_preprocessor_options,
+            preprocessor_options=word_preprocessor_options,
             also_search_for_lowecase=also_search_for_lowecase,
             warn_filtered_words=warn_filtered_words)
 

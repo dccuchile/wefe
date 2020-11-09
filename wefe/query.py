@@ -120,6 +120,7 @@ class Query:
                         'Given: {} at position {}'.format(
                             idx, type(word), word_idx))
 
+        # TODO: Agregar Unnamed target set 1, 2, 3, para cada target set sin nombre.
         # set target and attributes sets to this instance.
         self.target_sets_ = target_sets
         self.attribute_sets_ = attribute_sets

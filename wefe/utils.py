@@ -56,11 +56,10 @@ def generate_subqueries_from_queries_list(metric: Type[BaseMetric],
         try:
             subqueries += query.get_subqueries(metric.metric_template_)
         except Exception as e:
-            logging.warning(
-                'Query in index {} ({}) can not be splitted in subqueries '
-                'with the {} metric template = {}. Exception: \n{}'.format(
-                    query_idx, query.query_name_, metric.metric_name_,
-                    metric.metric_template_, e))
+            logging.warning('Query in index {} ({}) can not be splitted in subqueries '
+                            'with the {} metric template = {}. Exception: \n{}'.format(
+                                query_idx, query.query_name_, metric.metric_name_,
+                                metric.metric_template_, e))
 
     # remove duplicates (o(n^2)...)
     filtered_subqueries: List[Query] = []
@@ -76,19 +75,18 @@ def generate_subqueries_from_queries_list(metric: Type[BaseMetric],
     return filtered_subqueries
 
 
-def run_queries(
-        metric: Type[BaseMetric],
-        queries: List[Query],
-        word_embeddings_models: List[WordEmbeddingModel],
-        queries_set_name: str = 'Unnamed queries set',
-        lost_vocabulary_threshold: float = 0.2,
-        metric_params: dict = {},
-        generate_subqueries: bool = False,
-        aggregate_results: bool = False,
-        aggregation_function: Union[str, Callable[[pd.DataFrame], pd.
-                                                  DataFrame]] = 'abs_avg',
-        return_only_aggregation: bool = False,
-        warn_filtered_words: bool = False) -> pd.DataFrame:
+def run_queries(metric: Type[BaseMetric],
+                queries: List[Query],
+                word_embeddings_models: List[WordEmbeddingModel],
+                queries_set_name: str = 'Unnamed queries set',
+                lost_vocabulary_threshold: float = 0.2,
+                metric_params: dict = {},
+                generate_subqueries: bool = False,
+                aggregate_results: bool = False,
+                aggregation_function: Union[str, Callable[[pd.DataFrame],
+                                                          pd.DataFrame]] = 'abs_avg',
+                return_only_aggregation: bool = False,
+                warn_filtered_words: bool = False) -> pd.DataFrame:
     """Run several queries over a several word embedding models using a
     specific metic.
 
@@ -146,12 +144,12 @@ def run_queries(
     # queries handling
     if not isinstance(queries, (list, np.ndarray)):
         raise TypeError(
-            'queries parameter must be a list or a numpy array. given: {}'.
-            format(queries))
+            'queries parameter must be a list or a numpy array. given: {}'.format(
+                queries))
     if len(queries) == 0:
         raise Exception(
-            'queries list must have at least one query instance. given: {}'.
-            format(queries))
+            'queries list must have at least one query instance. given: {}'.format(
+                queries))
 
     for idx, query in enumerate(queries):
         if query is None or not isinstance(query, Query):
@@ -166,38 +164,32 @@ def run_queries(
             ' given: {}'.format(word_embeddings_models))
 
     if len(word_embeddings_models) == 0:
-        raise Exception(
-            'word_embeddings_models parameter must be a non empty list or '
-            'numpy array. given: {}'.format(word_embeddings_models))
+        raise Exception('word_embeddings_models parameter must be a non empty list or '
+                        'numpy array. given: {}'.format(word_embeddings_models))
 
     for idx, model in enumerate(word_embeddings_models):
         if model is None or not isinstance(model, WordEmbeddingModel):
-            raise TypeError(
-                'item on index {} must be a WordEmbeddingModel instance. '
-                'given: {}'.format(idx, model))
+            raise TypeError('item on index {} must be a WordEmbeddingModel instance. '
+                            'given: {}'.format(idx, model))
 
     # experiment name handling
     if not isinstance(queries_set_name, str) or queries_set_name == '':
-        raise TypeError(
-            'When queries_set_name parameter is provided, it must be a '
-            'non-empty string. given: {}'.format(queries_set_name))
+        raise TypeError('When queries_set_name parameter is provided, it must be a '
+                        'non-empty string. given: {}'.format(queries_set_name))
 
     # metric_params handling
     if not isinstance(metric_params, dict):
         raise TypeError(
-            'run_experiment_params must be a dict with a params for the metric'
-        )
+            'run_experiment_params must be a dict with a params for the metric')
 
     # aggregate results bool
     if not isinstance(aggregate_results, bool):
-        raise TypeError(
-            'aggregate_results parameter must be a bool value. Given:'
-            '{}'.format(aggregate_results))
+        raise TypeError('aggregate_results parameter must be a bool value. Given:'
+                        '{}'.format(aggregate_results))
 
     # aggregation function:
-    AGG_FUNCTION_MSG = (
-        'aggregation_function must be one of \'sum\','
-        'abs_sum\', \'avg\', \'abs_avg\' or a callable. given: {}')
+    AGG_FUNCTION_MSG = ('aggregation_function must be one of \'sum\','
+                        'abs_sum\', \'avg\', \'abs_avg\' or a callable. given: {}')
     if isinstance(aggregation_function, str):
         if aggregation_function not in ['sum', 'abs_sum', 'avg', 'abs_avg']:
             raise Exception(AGG_FUNCTION_MSG.format(aggregation_function))
@@ -226,15 +218,14 @@ def run_queries(
                     lost_vocabulary_threshold=lost_vocabulary_threshold,
                     warn_filtered_words=warn_filtered_words,
                     **metric_params)
-                result['model_name'] = model.model_name_
+                result['model_name'] = model.model_name
                 results.append(result)
 
                 if result['query_name'] not in query_names:
                     query_names.append(result['query_name'])
     except Exception as e:
-        raise Exception(
-            'Error during executing the query: {} on the model: {}'.format(
-                query.query_name_, model.model_name_))
+        raise Exception('Error during executing the query: {} on the model: {}'.format(
+            query.query_name_, model.model_name))
 
     # get original column order
     # reorder the results in a legible table
@@ -242,7 +233,7 @@ def run_queries(
                                                   columns='query_name',
                                                   values='result')
     pivoted_results = pivoted_results.reindex(
-        index=[model.model_name_ for model in word_embeddings_models],
+        index=[model.model_name for model in word_embeddings_models],
         columns=query_names)
 
     if aggregate_results:
@@ -251,8 +242,7 @@ def run_queries(
         if aggregation_function in AGGREGATION_FUNCTIONS:
             aggregated_results = AGGREGATION_FUNCTIONS[aggregation_function](
                 pivoted_results)
-            aggregated_results_name = AGGREGATION_FUNCTION_NAMES[
-                aggregation_function]
+            aggregated_results_name = AGGREGATION_FUNCTION_NAMES[aggregation_function]
 
         # run the custom aggregation function over the pivoted results
         else:
@@ -301,9 +291,8 @@ def plot_queries_results(results: pd.DataFrame, by: str = 'query'):
     """
 
     if not isinstance(results, pd.DataFrame):
-        raise TypeError(
-            'results must be a pandas DataFrame, result of having executed '
-            'running_queries. Given: {}'.format(results))
+        raise TypeError('results must be a pandas DataFrame, result of having executed '
+                        'running_queries. Given: {}'.format(results))
 
     results_copy = results.copy(deep=True)
 
@@ -336,8 +325,8 @@ def plot_queries_results(results: pd.DataFrame, by: str = 'query'):
         xaxis_title=xaxis_title,
         yaxis_title='Bias measure',
     )
-    fig.for_each_trace(lambda t: t.update(
-        x=['wrt<br>'.join(label.split('wrt')) for label in t.x]))
+    fig.for_each_trace(
+        lambda t: t.update(x=['wrt<br>'.join(label.split('wrt')) for label in t.x]))
     # fig.show()
     return fig
 
@@ -373,10 +362,9 @@ def create_ranking(results_dataframes: Iterable[pd.DataFrame]):
     # check the input.
     for idx, results_df in enumerate(results_dataframes):
         if not isinstance(results_df, pd.DataFrame):
-            raise TypeError(
-                'All elements of results_dataframes must be a pandas '
-                'Dataframe instance. Given at position {}: {}'.format(
-                    idx, results_df))
+            raise TypeError('All elements of results_dataframes must be a pandas '
+                            'Dataframe instance. Given at position {}: {}'.format(
+                                idx, results_df))
     # get the avg_scores columns and merge into one dataframe
     remaining_columns: List[pd.DataFrame] = []
 
@@ -388,11 +376,8 @@ def create_ranking(results_dataframes: Iterable[pd.DataFrame]):
     rankings: List[np.ndarray] = []
     for col in avg_scores:
         # for each avg_score column, calculate the ranking
-        rankings.append(avg_scores[col].values.argsort(axis=0).argsort(
-            axis=0) + 1)
-    return pd.DataFrame(rankings,
-                        columns=avg_scores.index,
-                        index=avg_scores.columns).T
+        rankings.append(avg_scores[col].values.argsort(axis=0).argsort(axis=0) + 1)
+    return pd.DataFrame(rankings, columns=avg_scores.index, index=avg_scores.columns).T
 
 
 def plot_ranking(ranking: pd.DataFrame,
@@ -403,9 +388,7 @@ def plot_ranking(ranking: pd.DataFrame,
         results['exp_name'] = results.index
         id_vars = ['exp_name']
         cols = results.columns
-        values_vars = [
-            col_name for col_name in cols if col_name not in id_vars
-        ]
+        values_vars = [col_name for col_name in cols if col_name not in id_vars]
         melted_results = pd.melt(results,
                                  id_vars=id_vars,
                                  value_vars=values_vars,
@@ -504,8 +487,7 @@ def load_weat_w2v():
 
     resource_package = __name__
     resource_path = '/'.join(('datasets', 'data', 'weat_w2v.txt'))
-    weat_w2v_path = pkg_resources.resource_filename(resource_package,
-                                                    resource_path)
+    weat_w2v_path = pkg_resources.resource_filename(resource_package, resource_path)
 
     weat_we = KeyedVectors.load_word2vec_format(weat_w2v_path, binary=False)
     return weat_we

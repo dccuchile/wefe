@@ -4,4 +4,3 @@ scikit-learn
 pandas
 gensim
 plotly
-Unidecode

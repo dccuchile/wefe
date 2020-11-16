@@ -1,3 +1,4 @@
+from typing import Any, Dict, Union
 import numpy as np
 
 from scipy.spatial.distance import cosine
@@ -38,51 +39,119 @@ class ECT(BaseMetric):
 
     def run_query(self,
                   query: Query,
-                  word_embedding: WordEmbeddingModel,
+                  word_embedding_model: WordEmbeddingModel,
                   lost_vocabulary_threshold: float = 0.2,
-                  warn_filtered_words: bool = True):
+                  preprocessor_options: Dict = {
+                      'strip_accents': False,
+                      'lowercase': False,
+                      'preprocessor': None,
+                  },
+                  secondary_preprocessor_options: Union[Dict, None] = None,
+                  warn_not_found_words: bool = False,
+                  *args: Any,
+                  **kwargs: Any) -> Dict[str, Any]:
         """Runs the given query with the given parameters.
 
         Parameters
         ----------
         query : Query
-            A Query object that contains the target and attribute words for be tested.
-        word_embedding : WordEmbeddingModel
-            A WordEmbeddingModel object that contain certain word embedding pretrained model.
-        lost_vocabulary_threshold : bool, optional
-            Indicates when a test is invalid due the loss of certain amount of words in any word
-            set, by default 0.2
-        warn_filtered_words : bool, optional
-            A flag that indicates if the function will warn about the filtered words, by default
-            False.
+            [description]
+        word_embedding_model : WordEmbeddingModel
+            [description]
+        lost_vocabulary_threshold : float, optional
+            [description], by default 0.2
+        preprocessor_options : Dict, optional
+            [description], by default { 'strip_accents': False, 'lowercase': False, 'preprocessor': None, }
+        secondary_preprocessor_options : Union[Dict, None], optional
+            [description], by default None
+        warn_not_found_words : bool, optional
+            [description], by default False
 
         Returns
         -------
-        dict
+        Dict[str, Any]
+            [description]
+        """
+        """
+
+        Parameters
+        ----------
+        query : Query
+            A Query object that contains the target and attribute word sets to 
+            be tested.
+
+        word_embedding_model : WordEmbeddingModel
+            A WordEmbeddingModel object that contains certain word embedding 
+            pretrained model.
+
+        lost_vocabulary_threshold : float, optional
+            Specifies the proportional limit of words that any set of the query is 
+            allowed to lose when transforming its words into embeddings. 
+            In the case that any set of the query loses proportionally more words 
+            than this limit, the result values will be np.nan, by default 0.2
+        
+        preprocessor_options : Dict, optional
+            Dictionary with options for pre-processing words, by default {}
+            The options for the dict are: 
+            - lowercase: bool. Indicates if the words are transformed to lowercase.
+            - strip_accents: bool, {'ascii', 'unicode'}: Specifies if the accents of 
+                             the words are eliminated. The stripping type can be 
+                             specified. True uses 'unicode' by default.
+            - preprocessor: Callable. It receives a function that operates on each 
+                            word. In the case of specifying a function, it overrides 
+                            the default preprocessor (i.e., the previous options 
+                            stop working).
+            , by default { 'strip_accents': False, 'lowercase': False, 'preprocessor': None, }
+        
+        secondary_preprocessor_options : Union[Dict, None], optional
+            Dictionary with options for pre-processing words (same as the previous 
+            parameter), by default None.
+            Indicates that in case a word is not found in the model's vocabulary 
+            (using the default preprocessor or specified in preprocessor_options), 
+            the function performs a second search for that word using the preprocessor 
+            specified in this parameter, by default None
+
+        warn_not_found_words : bool, optional
+            Specifies if the function will warn (in the logger)
+            the words that were not found in the model's vocabulary
+            , by default False.
+
+        Returns
+        -------
+        Dict[str, Any]
             A dictionary with the query name and the result of the query.
         """
 
         # Standard input procedure: check the inputs and obtain the
         # embeddings.
-        embeddings = super().run_query(query, word_embedding,
-                                       lost_vocabulary_threshold)
+        # checks the types of the provided arguments (only the defaults).
+        super().run_query(query, word_embedding_model, lost_vocabulary_threshold,
+                          preprocessor_options, secondary_preprocessor_options,
+                          warn_not_found_words, *args, **kwargs)
+
+        # transforming query words into embeddings
+        embeddings = word_embedding_model.get_embeddings_from_query(
+            query=query,
+            lost_vocabulary_threshold=lost_vocabulary_threshold,
+            preprocessor_options=preprocessor_options,
+            secondary_preprocessor_options=secondary_preprocessor_options,
+            warn_not_found_words=warn_not_found_words)
 
         # If the lost vocabulary threshold is exceeded, return the default value
         if embeddings is None:
             return {"query_name": query.query_name_, "result": np.nan}
 
-        return {
-            "query_name":
-            query.query_name_,
-            "result":
-            self.__calculate_embedding_coherence(
-                list(embeddings[0][0].values()),
-                list(embeddings[0][1].values()),
-                list(embeddings[1][0].values()))
-        }
+        # get the target and attribute embeddings
+        target_embeddings = embeddings['target_embeddings']
+        attribute_embeddings = embeddings['attribute_embeddings']
 
-    def __calculate_embedding_coherence(self, target_set_1: list,
-                                        target_set_2: list,
+        ect = self.__calculate_embedding_coherence(
+            list(target_embeddings[0].values()), list(target_embeddings[1].values()),
+            list(attribute_embeddings[0].values()))
+
+        return {"query_name": query.query_name_, "result": ect, 'ect': ect}
+
+    def __calculate_embedding_coherence(self, target_set_1: list, target_set_2: list,
                                         attribute_set: list) -> float:
         """Calculate the ECT metric over the given parameters. Return the result.
 
@@ -102,15 +171,12 @@ class ECT(BaseMetric):
         """
 
         # Calculate mean vectors for both target vector sets
-        target_means = [
-            np.mean(s, axis=0) for s in (target_set_1, target_set_2)
-        ]
+        target_means = [np.mean(s, axis=0) for s in (target_set_1, target_set_2)]
 
         # Measure similarities between mean vecotrs and all attribute words
         similarities = []
         for mean_vector in target_means:
-            similarities.append(
-                [1 - cosine(mean_vector, a) for a in attribute_set])
+            similarities.append([1 - cosine(mean_vector, a) for a in attribute_set])
 
         # Calculate similarity correlations
         return spearmanr(similarities[0], similarities[1]).correlation

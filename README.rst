@@ -131,6 +131,7 @@ Version 0.0.16
 - Added _get_embedding function in WordEmbeddingModel (explicar que hace)
 - Added _preprocess_word function in WordEmbeddingModel (explicar que hace)
 - Remover underscore from class attributes variable names.
+- Improved type and verification exception messages when creating objects and executing methods.
 
 Citation
 =========

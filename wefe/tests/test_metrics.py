@@ -1,11 +1,15 @@
+import logging
 import pytest
+
 import numpy as np
+
 from ..utils import load_weat_w2v
 from ..word_embedding_model import WordEmbeddingModel
 from ..datasets.datasets import load_weat
 from ..query import Query
 from ..metrics import WEAT, RND, RNSB, MAC, ECT
-from sklearn.linear_model import LogisticRegression
+
+LOGGER = logging.getLogger(__name__)
 
 
 def test_weat():
@@ -19,8 +23,7 @@ def test_weat():
                   ['Flowers', 'Insects'], ['Pleasant', 'Unpleasant'])
     results = weat.run_query(query, model)
 
-    assert results[
-        'query_name'] == 'Flowers and Insects wrt Pleasant and Unpleasant'
+    assert results['query_name'] == 'Flowers and Insects wrt Pleasant and Unpleasant'
     assert isinstance(results['result'], (np.float32, np.float64, float))
 
     results = weat.run_query(query, model, return_effect_size=True)
@@ -34,8 +37,7 @@ def test_rnd():
 
     rnd = RND()
     query = Query([weat_word_set['flowers'], weat_word_set['insects']],
-                  [weat_word_set['pleasant_5']], ['Flowers', 'Insects'],
-                  ['Pleasant'])
+                  [weat_word_set['pleasant_5']], ['Flowers', 'Insects'], ['Pleasant'])
     results = rnd.run_query(query, model)
 
     assert results['query_name'] == 'Flowers and Insects wrt Pleasant'
@@ -53,11 +55,10 @@ def test_rnsb(capsys):
                   ['Flowers', 'Insects'], ['Pleasant', 'Unpleasant'])
     results = rnsb.run_query(query, model)
 
-    assert results[
-        'query_name'] == 'Flowers and Insects wrt Pleasant and Unpleasant'
+    assert results['query_name'] == 'Flowers and Insects wrt Pleasant and Unpleasant'
     assert list(results.keys()) == [
-        'query_name', 'result', 'negative_sentiment_probabilities',
-        'negative_sentiment_distribution'
+        'query_name', 'result', 'kl-divergence', 'clf_accuracy',
+        'negative_sentiment_probabilities', 'negative_sentiment_distribution'
     ]
     assert isinstance(results['result'], (np.float32, np.float64, float, np.float_))
     assert isinstance(results['negative_sentiment_probabilities'], dict)
@@ -75,11 +76,10 @@ def test_rnsb(capsys):
         'query_name'] == 'Flowers, Insects, Male terms and Female terms wrt Pleasant and Unpleasant'
     assert isinstance(results['result'], (np.float32, np.float64, float))
 
-    # custom classifier, print model eval and no params
-    results = rnsb.run_query(query, model, classifier=LogisticRegression,
-                             print_model_evaluation=True,
-                             classifier_params=None)
+    # custom classifier, print model eval
+    results = rnsb.run_query(query, model, print_model_evaluation=True)
 
+    print(capsys.readouterr())
     captured = capsys.readouterr()
     assert 'Classification Report' in captured.out
 
@@ -100,12 +100,10 @@ def test_mac():
     model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
 
     mac = MAC()
-    query = Query(
-        [weat_word_set['flowers']], [
-            weat_word_set['pleasant_5'], weat_word_set['pleasant_9'],
-            weat_word_set['unpleasant_5'], weat_word_set['unpleasant_9']
-        ], ['Flowers'],
-        ['Pleasant 5 ', 'Pleasant 9', 'Unpleasant 5', 'Unpleasant 9'])
+    query = Query([weat_word_set['flowers']], [
+        weat_word_set['pleasant_5'], weat_word_set['pleasant_9'],
+        weat_word_set['unpleasant_5'], weat_word_set['unpleasant_9']
+    ], ['Flowers'], ['Pleasant 5 ', 'Pleasant 9', 'Unpleasant 5', 'Unpleasant 9'])
     results = mac.run_query(query, model)
 
     assert results[
@@ -119,8 +117,7 @@ def test_ect():
 
     ect = ECT()
     query = Query([weat_word_set['flowers'], weat_word_set['insects']],
-                  [weat_word_set['pleasant_5']], ['Flowers', 'Insects'],
-                  ['Pleasant'])
+                  [weat_word_set['pleasant_5']], ['Flowers', 'Insects'], ['Pleasant'])
     results = ect.run_query(query, model)
 
     assert results['query_name'] == 'Flowers and Insects wrt Pleasant'

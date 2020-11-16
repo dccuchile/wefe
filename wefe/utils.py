@@ -54,12 +54,12 @@ def generate_subqueries_from_queries_list(metric: Type[BaseMetric],
     subqueries = []
     for query_idx, query in enumerate(queries):
         try:
-            subqueries += query.get_subqueries(metric.metric_template_)
+            subqueries += query.get_subqueries(metric.metric_template)
         except Exception as e:
             logging.warning('Query in index {} ({}) can not be splitted in subqueries '
                             'with the {} metric template = {}. Exception: \n{}'.format(
-                                query_idx, query.query_name_, metric.metric_name_,
-                                metric.metric_template_, e))
+                                query_idx, query.query_name_, metric.metric_name,
+                                metric.metric_template, e))
 
     # remove duplicates (o(n^2)...)
     filtered_subqueries: List[Query] = []
@@ -251,8 +251,7 @@ def run_queries(metric: Type[BaseMetric],
 
         # generate the new aggregation column name.
         aggregation_column_name = '{}: {} {} score'.format(
-            metric_instance.metric_short_name_, queries_set_name,
-            aggregated_results_name)
+            metric_instance.metric_short_name, queries_set_name, aggregated_results_name)
 
         # set the aggregation column name.
         aggregated_results = pd.DataFrame(aggregated_results,

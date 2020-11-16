@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Union
 import numpy as np
 
 from .base_metric import BaseMetric
@@ -7,7 +7,7 @@ from ..query import Query
 
 
 class WEAT(BaseMetric):
-    """A implementation of Word Embedding Association Test (WEAT). 
+    """A implementation of Word Embedding Association Test (WEAT).
     
     It measures the degree of association between two sets of target words and 
     two sets of attribute words through a permutation test.  
@@ -43,91 +43,100 @@ class WEAT(BaseMetric):
         second_term = np.array([self.__calc_s(y, A, B) for y in Y])
         return np.sum(first_term) - np.sum(second_term)
 
-    def run_query(
-            self,
-            query: Query,
-            word_embedding: WordEmbeddingModel,
-            return_effect_size: bool = False,
-            lost_vocabulary_threshold: float = 0.2,
-            word_preprocessor_options: Dict = {
-                'remove_word_punctuations': False,
-                'translate_words_to_ascii': False,
-                'lowercase_words': False,
-                'custom_preprocesor': None
-            },
-            also_search_for_lowecase: bool = {},
-            warn_filtered_words: bool = False,
-            *args: Any,
-            **kwargs: Any) -> Dict:
-        """Calculates the WEAT metric over the provided parameters. 
+    def run_query(self,
+                  query: Query,
+                  word_embedding_model: WordEmbeddingModel,
+                  return_effect_size: bool = False,
+                  lost_vocabulary_threshold: float = 0.2,
+                  preprocessor_options: Dict = {
+                      'strip_accents': False,
+                      'lowercase': False,
+                      'preprocessor': None,
+                  },
+                  secondary_preprocessor_options: Union[Dict, None] = None,
+                  warn_not_found_words: bool = False,
+                  *args: Any,
+                  **kwargs: Any) -> Dict[str, Any]:
+        """Calculate the WEAT metric over the provided parameters.
 
         Parameters
         ----------
-        query : Query.
-            A Query object that contains the target and attribute words for 
+        query : Query
+            A Query object that contains the target and attribute word sets to 
             be tested.
 
-        word_embedding : WordEmbeddingModel
+        word_embedding_model : WordEmbeddingModel
             A WordEmbeddingModel object that contains certain word embedding 
             pretrained model.
 
         return_effect_size : bool, optional
-            Specifies if the returned result is the effect size
-
+            Specifies if the returned score in 'result' field of results dict 
+            is by default WEAT effect size metric, by default False
+        
         lost_vocabulary_threshold : float, optional
-            Indicates when a test is invalid due the loss of certain amount 
-            of words in any word set, by default 0.2.
+            Specifies the proportional limit of words that any set of the query is 
+            allowed to lose when transforming its words into embeddings. 
+            In the case that any set of the query loses proportionally more words 
+            than this limit, the result values will be np.nan, by default 0.2
+        
+        preprocessor_options : Dict, optional
+            Dictionary with options for pre-processing words, by default {}
+            The options for the dict are: 
+            - lowercase: bool. Indicates if the words are transformed to lowercase.
+            - strip_accents: bool, {'ascii', 'unicode'}: Specifies if the accents of 
+                             the words are eliminated. The stripping type can be 
+                             specified. True uses 'unicode' by default.
+            - preprocessor: Callable. It receives a function that operates on each 
+                            word. In the case of specifying a function, it overrides 
+                            the default preprocessor (i.e., the previous options 
+                            stop working).
+            , by default { 'strip_accents': False, 'lowercase': False, 'preprocessor': None, }
+        
+        secondary_preprocessor_options : Union[Dict, None], optional
+            Dictionary with options for pre-processing words (same as the previous 
+            parameter), by default None.
+            Indicates that in case a word is not found in the model's vocabulary 
+            (using the default preprocessor or specified in preprocessor_options), 
+            the function performs a second search for that word using the preprocessor 
+            specified in this parameter, by default None
 
-        lowercase_words : bool, optional
-            Specifies if the words of the query will be transformed to 
-            lowercase before they are searched in the embeddings model,
-            by default False.
-
-        remove_word_punctuations : bool, optional
-            Specifies whether the words in the query will have their 
-            punctuation marks removed before they are searched in the 
-            embeddings model (according to the symbols string.punctuation), 
-            by default False.
-
-        translate_words_to_ascii : bool, optional
-            Specify if the query words will be translated to their closest 
-            ASCII representation before they are searched in the embedding 
-            model (using unidecode) , 
-            by default False.
-
-        also_search_for_lowecase : bool, optional
-            Specifies whether when a word is not within the embedding 
-            vocabulary, its lower case version is searched. Only applies when 
-            ``lowercase_words = False``, by default False
-
-        warn_filtered_words : bool, optional
-            A flag that indicates if the function will warn about words that 
-            were not located in the word embedding model, by default False.
+        warn_not_found_words : bool, optional
+            Specifies if the function will warn (in the logger)
+            the words that were not found in the model's vocabulary
+            , by default False.
 
         Returns
         -------
-        Dict
-            A dictionary with the query name and the result of the query.
+        Dict[str, Any]
+            A dictionary with the query name, the resulting score of the metric, 
+            and the scores of WEAT and the effect size of the metric.
         """
+        # checks the types of the provided arguments (only the defaults).
+        super().run_query(query, word_embedding_model, lost_vocabulary_threshold,
+                          preprocessor_options, secondary_preprocessor_options,
+                          warn_not_found_words, *args, **kwargs)
 
-        # Checks the types of the provided arguments (only the defaults).
-        super().run_query(**locals())
-
-        # Get the embeddings
-        embeddings = word_embedding.get_embeddings_from_query(
+        # transforming query words into embeddings
+        embeddings = word_embedding_model.get_embeddings_from_query(
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
-            preprocessor_options=word_preprocessor_options,
-            also_search_for_lowecase=also_search_for_lowecase,
-            warn_filtered_words=warn_filtered_words)
+            preprocessor_options=preprocessor_options,
+            secondary_preprocessor_options=secondary_preprocessor_options,
+            warn_not_found_words=warn_not_found_words)
 
         # if there is any/some set has less words than the allowed limit,
         # return the default value (nan)
         if embeddings is None:
-            return {'query_name': query.query_name_, 'result': np.nan}
+            return {
+                'query_name': query.query_name_,
+                'result': np.nan,
+                'weat': np.nan,
+                'effect_size': np.nan
+            }
 
         # get the target and attribute embeddings
-        target_embeddings, attribute_embeddings = embeddings
+        target_embeddings = embeddings['target_embeddings']
+        attribute_embeddings = embeddings['attribute_embeddings']
 
         target_0 = list(target_embeddings[0].values())
         target_1 = list(target_embeddings[1].values())
@@ -135,10 +144,24 @@ class WEAT(BaseMetric):
         attribute_1 = list(attribute_embeddings[1].values())
 
         # if the requested value is the effect size:
-        if return_effect_size:
-            result = self.__calc_effect_size(target_0, target_1, attribute_0,
-                                             attribute_1)
-            return {'query_name': query.query_name_, 'result': result}
 
-        result = self.__calc_weat(target_0, target_1, attribute_0, attribute_1)
-        return {'query_name': query.query_name_, 'result': result}
+        weat_effect_size = self.__calc_effect_size(target_0, target_1, attribute_0,
+                                                   attribute_1)
+        weat = self.__calc_weat(target_0, target_1, attribute_0, attribute_1)
+
+        # return in result field effect_size
+        if return_effect_size:
+            return {
+                'query_name': query.query_name_,
+                'result': weat_effect_size,
+                'weat': weat,
+                'effect_size': weat_effect_size
+            }
+
+        # return in result field weat
+        return {
+            'query_name': query.query_name_,
+            'result': weat,
+            'weat': weat,
+            'effect_size': weat_effect_size
+        }

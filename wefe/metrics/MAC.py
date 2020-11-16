@@ -9,7 +9,7 @@ class MAC(BaseMetric):
 
     References
     -------
-        Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
+        [1] Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
         Black is to criminalas caucasian is to police: Detecting and removing
         multiclass bias in word embeddings.
         In Proceedings of the 2019 Conference of the North American Chapter
@@ -60,8 +60,7 @@ class MAC(BaseMetric):
 
         # Standard input procedure: check the inputs and obtain the
         # embeddings.
-        embeddings = super().run_query(query, word_embedding,
-                                       lost_vocabulary_threshold)
+        embeddings = super().run_query(query, word_embedding, lost_vocabulary_threshold)
 
         # if there is any/some set has less words than the allowed limit,
         # return the default value (nan)
@@ -72,11 +71,9 @@ class MAC(BaseMetric):
         target_embeddings_dict, attribute_embeddings_dict = embeddings
         target_0_embeddings = list(target_embeddings_dict[0].values())
         attribute_embeddings_all_sets = [
-            list(target_dict.values())
-            for target_dict in attribute_embeddings_dict
+            list(target_dict.values()) for target_dict in attribute_embeddings_dict
         ]
 
-        result = self.calc_mac(target_0_embeddings,
-                               attribute_embeddings_all_sets)
+        result = self.calc_mac(target_0_embeddings, attribute_embeddings_all_sets)
 
         return {'query_name': query.query_name_, 'result': result}

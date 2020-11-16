@@ -1,14 +1,15 @@
-from ..datasets import load_weat
-from ..query import Query
-import string
-import pytest
 from gensim.test.utils import common_texts
 from gensim.models import Word2Vec, FastText
-import numpy as np
 
+import string
+import pytest
+import numpy as np
+import logging
+
+from ..query import Query
+from ..datasets import load_weat
 from ..word_embedding_model import WordEmbeddingModel
 from ..utils import load_weat_w2v
-import logging
 
 LOGGER = logging.getLogger(__name__)
 
@@ -130,9 +131,6 @@ def test_preprocess_word():
     word = model._preprocess_word('Woman', {'lowercase': True})
     assert word == 'woman'
 
-    word = model._preprocess_word('woman!!!!!!#$%&#', {'strip_punctuation': True})
-    assert word == 'woman'
-
     word = model._preprocess_word('wömàn', {'strip_accents': True})
     assert word == 'woman'
 
@@ -143,9 +141,8 @@ def test_preprocess_word():
     assert word == 'woman'
 
     # all together
-    word = model._preprocess_word('$$%+WöM!àn-', {
+    word = model._preprocess_word('WöMàn', {
         'lowercase': True,
-        'strip_punctuation': True,
         'strip_accents': True,
     })
     assert word == 'woman'
@@ -171,6 +168,23 @@ def test_get_embeddings_from_word_set():
 
     w2v = load_weat_w2v()
     model = WordEmbeddingModel(w2v, 'weat_w2v', '')
+    WORDS = ['man', 'woman']
+
+    with pytest.raises(TypeError, match="word_set should be a list of strings, got"):
+        model.get_embeddings_from_word_set(None, preprocessor_options=1)
+
+    with pytest.raises(
+            TypeError,
+            match=
+            "word_preprocessor_options should be a dict of preprocessor options, got"):
+        model.get_embeddings_from_word_set(WORDS, preprocessor_options=1)
+
+    with pytest.raises(
+            TypeError,
+            match=
+            "secondary_preprocessor_options should be a dict of preprocessor options or None, got"
+    ):
+        model.get_embeddings_from_word_set(WORDS, secondary_preprocessor_options=-1)
 
     # ----------------------------------------------------------------------------------
     # test basic opretaion of _get_embeddings_from_word_set
@@ -219,24 +233,6 @@ def test_get_embeddings_from_word_set():
     assert np.array_equal(w2v['woman'], embeddings['woman'])
 
     # ----------------------------------------------------------------------------------
-    # test word preprocessor strip_punctuation:
-    WORDS = [
-        '??man!!',
-        'woma+n' + string.punctuation,
-    ]
-    not_found_words, embeddings = model.get_embeddings_from_word_set(
-        WORDS, {'strip_punctuation': True})
-
-    assert len(embeddings) == 2
-    assert len(not_found_words) == 0
-
-    assert list(embeddings.keys()) == ['man', 'woman']
-    assert not_found_words == []
-
-    assert np.array_equal(w2v['man'], embeddings['man'])
-    assert np.array_equal(w2v['woman'], embeddings['woman'])
-
-    # ----------------------------------------------------------------------------------
     # test word preprocessor strip_accents:
     WORDS = [
         'mán',
@@ -255,10 +251,10 @@ def test_get_embeddings_from_word_set():
     assert np.array_equal(w2v['woman'], embeddings['woman'])
 
     # ----------------------------------------------------------------------------------
-    # also_search_for:
+    # secondary_preprocessor_options:
     WORDS = ['mán', 'wömàn', 'qwerty', 'ásdf']
     not_found_words, embeddings = model.get_embeddings_from_word_set(
-        WORDS, also_search_for={'strip_accents': True})
+        WORDS, secondary_preprocessor_options={'strip_accents': True})
 
     assert len(embeddings) == 2
     assert len(not_found_words) == 2
@@ -317,14 +313,18 @@ def test_get_embeddings_from_query(caplog, simple_model_and_query):
 
     with pytest.raises(
             TypeError,
-            match="also_search_for should be a dict of preprocessor options, got"):
-        model.get_embeddings_from_query(query, also_search_for=1)
+            match=
+            "secondary_preprocessor_options should be a dict of preprocessor options or None, got"
+    ):
+        model.get_embeddings_from_query(query, secondary_preprocessor_options=1)
 
     with pytest.raises(TypeError, match="warn_not_found_words should be a boolean, got"):
         model.get_embeddings_from_query(query, warn_not_found_words=None)
 
     embeddings = model.get_embeddings_from_query(query)
-    target_embeddings, attribute_embeddings = embeddings
+
+    target_embeddings = embeddings['target_embeddings']
+    attribute_embeddings = embeddings['attribute_embeddings']
 
     assert len(target_embeddings) == 2
     assert len(attribute_embeddings) == 2
@@ -359,7 +359,8 @@ def test_preprocessor_param_on_get_embeddings_from_query(caplog, simple_model_an
     embeddings = model.get_embeddings_from_query(
         query_3, preprocessor_options={'lowercase': True})
 
-    target_embeddings, attribute_embeddings = embeddings
+    target_embeddings = embeddings['target_embeddings']
+    attribute_embeddings = embeddings['attribute_embeddings']
 
     assert len(target_embeddings) == 2
     assert len(attribute_embeddings) == 2
@@ -375,11 +376,12 @@ def test_preprocessor_param_on_get_embeddings_from_query(caplog, simple_model_an
     assert list(attribute_embeddings[0]['caress'] == w2v['caress'])
     assert list(attribute_embeddings[1]['abuse'] == w2v['abuse'])
 
-    # with also_search_for options
-    embeddings = model.get_embeddings_from_query(query_3,
-                                                 also_search_for={'lowercase': True})
+    # with secondary_preprocessor_options options
+    embeddings = model.get_embeddings_from_query(
+        query_3, secondary_preprocessor_options={'lowercase': True})
 
-    target_embeddings, attribute_embeddings = embeddings
+    target_embeddings = embeddings['target_embeddings']
+    attribute_embeddings = embeddings['attribute_embeddings']
 
     assert len(target_embeddings) == 2
     assert len(attribute_embeddings) == 2
@@ -428,7 +430,7 @@ def test_threshold_param_on_get_embeddings_from_query(caplog, simple_model_and_q
     assert embeddings is None
     assert "The transformation of 'Pleasant' into" in caplog.text
 
-    # with lost vocabulary theshold.
+    # test attribute 2 with lost vocabulary theshold.
     unpleasant_ = insects + [
         'aaa', 'aab', 'aac', 'aad', 'aaf', 'aag', 'aah', 'aai', 'aaj'
     ]
@@ -438,3 +440,13 @@ def test_threshold_param_on_get_embeddings_from_query(caplog, simple_model_and_q
 
     assert embeddings is None
     assert "The transformation of 'Unpleasant' into" in caplog.text
+
+    # with lost vocabulary theshold.
+    unpleasant_ = insects + [
+        'aaa', 'aab', 'aac', 'aad', 'aaf', 'aag', 'aah', 'aai', 'aaj'
+    ]
+    query = Query([flowers, insects], [pleasant, unpleasant_], ['Flowers', 'Insects'],
+                  ['Pleasant', 'Unpleasant'])
+    embeddings = model.get_embeddings_from_query(query, lost_vocabulary_threshold=0.5)
+
+    assert embeddings is not None

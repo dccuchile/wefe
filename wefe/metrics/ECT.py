@@ -6,7 +6,7 @@ from scipy.stats import spearmanr
 
 from .base_metric import BaseMetric
 from ..query import Query
-from ..word_embedding_model import WordEmbeddingModel
+from ..word_embedding import WordEmbedding
 
 
 class ECT(BaseMetric):
@@ -39,7 +39,7 @@ class ECT(BaseMetric):
 
     def run_query(self,
                   query: Query,
-                  word_embedding_model: WordEmbeddingModel,
+                  word_embedding: WordEmbedding,
                   lost_vocabulary_threshold: float = 0.2,
                   preprocessor_options: Dict = {
                       'strip_accents': False,
@@ -56,7 +56,7 @@ class ECT(BaseMetric):
         ----------
         query : Query
             [description]
-        word_embedding_model : WordEmbeddingModel
+        word_embedding : WordEmbedding
             [description]
         lost_vocabulary_threshold : float, optional
             [description], by default 0.2
@@ -80,8 +80,8 @@ class ECT(BaseMetric):
             A Query object that contains the target and attribute word sets to 
             be tested.
 
-        word_embedding_model : WordEmbeddingModel
-            A WordEmbeddingModel object that contains certain word embedding 
+        word_embedding : 
+            A  object that contains certain word embedding 
             pretrained model.
 
         lost_vocabulary_threshold : float, optional
@@ -125,12 +125,12 @@ class ECT(BaseMetric):
         # Standard input procedure: check the inputs and obtain the
         # embeddings.
         # checks the types of the provided arguments (only the defaults).
-        super().run_query(query, word_embedding_model, lost_vocabulary_threshold,
+        super().run_query(query, word_embedding, lost_vocabulary_threshold,
                           preprocessor_options, secondary_preprocessor_options,
                           warn_not_found_words, *args, **kwargs)
 
         # transforming query words into embeddings
-        embeddings = word_embedding_model.get_embeddings_from_query(
+        embeddings = word_embedding.get_embeddings_from_query(
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessor_options=preprocessor_options,
@@ -139,7 +139,7 @@ class ECT(BaseMetric):
 
         # If the lost vocabulary threshold is exceeded, return the default value
         if embeddings is None:
-            return {"query_name": query.query_name_, "result": np.nan}
+            return {"query_name": query.query_name, "result": np.nan}
 
         # get the target and attribute embeddings
         target_embeddings = embeddings['target_embeddings']
@@ -149,7 +149,7 @@ class ECT(BaseMetric):
             list(target_embeddings[0].values()), list(target_embeddings[1].values()),
             list(attribute_embeddings[0].values()))
 
-        return {"query_name": query.query_name_, "result": ect, 'ect': ect}
+        return {"query_name": query.query_name, "result": ect, 'ect': ect}
 
     def __calculate_embedding_coherence(self, target_set_1: list, target_set_2: list,
                                         attribute_set: list) -> float:

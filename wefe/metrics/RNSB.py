@@ -10,7 +10,7 @@ from scipy.stats import entropy
 import logging
 
 from ..query import Query
-from ..word_embedding_model import WordEmbeddingModel
+from ..word_embedding import WordEmbedding
 from .base_metric import BaseMetric
 
 logging.basicConfig(level=logging.DEBUG)
@@ -186,7 +186,7 @@ class RNSB(BaseMetric):
 
     def run_query(self,
                   query: Query,
-                  word_embedding_model: WordEmbeddingModel,
+                  word_embedding: WordEmbedding,
                   estimator: BaseEstimator = LogisticRegression,
                   estimator_params: Dict[str, Any] = {
                       'solver': 'liblinear',
@@ -222,8 +222,8 @@ class RNSB(BaseMetric):
             A Query object that contains the target and attribute word sets to 
             be tested.
 
-        word_embedding_model : WordEmbeddingModel
-            A WordEmbeddingModel object that contains certain word embedding 
+        word_embedding : WordEmbedding
+            A WordEmbedding object that contains certain word embedding 
             pretrained model.
 
         estimator : BaseEstimator, optional
@@ -291,12 +291,12 @@ class RNSB(BaseMetric):
             the normalized distribution of probabilities.
         """
         # checks the types of the provided arguments (only the defaults).
-        super().run_query(query, word_embedding_model, lost_vocabulary_threshold,
+        super().run_query(query, word_embedding, lost_vocabulary_threshold,
                           preprocessor_options, secondary_preprocessor_options,
                           warn_not_found_words, *args, **kwargs)
 
         # transforming query words into embeddings
-        embeddings = word_embedding_model.get_embeddings_from_query(
+        embeddings = word_embedding.get_embeddings_from_query(
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessor_options=preprocessor_options,
@@ -307,7 +307,7 @@ class RNSB(BaseMetric):
         # return the default value (nan)
         if embeddings is None:
             return {
-                'query_name': query.query_name_,
+                'query_name': query.query_name,
                 'result': np.nan,
                 'kl-divergence': np.nan,
                 'score': np.nan,
@@ -355,7 +355,7 @@ class RNSB(BaseMetric):
             for word, prob in negative_sentiment_probabilities.items()
         }
         return {
-            'query_name': query.query_name_,
+            'query_name': query.query_name,
             'result': divergence,
             'kl-divergence': divergence,
             'clf_accuracy': np.mean(scores),

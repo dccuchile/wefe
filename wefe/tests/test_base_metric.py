@@ -1,7 +1,7 @@
 import pytest
 from ..utils import load_weat_w2v
 from ..metrics.base_metric import BaseMetric
-from ..word_embedding_model import WordEmbeddingModel
+from ..word_embedding import WordEmbedding
 from ..datasets.datasets import load_weat
 from ..query import Query
 
@@ -9,7 +9,7 @@ from ..query import Query
 @pytest.fixture
 def simple_model_and_query():
     w2v = load_weat_w2v()
-    model = WordEmbeddingModel(w2v, 'weat_w2v', '')
+    model = WordEmbedding(w2v, 'weat_w2v', '')
     weat_wordsets = load_weat()
 
     flowers = weat_wordsets['flowers']
@@ -72,9 +72,8 @@ def test_validate_metric_input(simple_model_and_query):
     with pytest.raises(TypeError, match='query should be a Query instance, got*'):
         base_metric._check_input(None, model)
 
-    with pytest.raises(
-            TypeError,
-            match='word_embedding_model should be a WordEmbeddingModel instance, got*'):
+    with pytest.raises(TypeError,
+                       match='word_embedding should be a WordEmbedding instance, got*'):
         base_metric._check_input(query, None)
 
     query = Query([flowers, insects, insects], [pleasant, unpleasant],

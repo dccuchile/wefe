@@ -206,18 +206,18 @@ def test_generate_query_name():
     query = Query([weat_word_set['flowers'], weat_word_set['insects']],
                   [weat_word_set['pleasant_5']], ['Flowers', 'Insects'], ['Pleasant'])
 
-    assert query.query_name_ == 'Flowers and Insects wrt Pleasant'
+    assert query.query_name == 'Flowers and Insects wrt Pleasant'
 
     query = Query([weat_word_set['flowers']], [weat_word_set['pleasant_5']], ['Flowers'],
                   ['Pleasant'])
 
-    assert query.query_name_ == 'Flowers wrt Pleasant'
+    assert query.query_name == 'Flowers wrt Pleasant'
 
     query = Query([weat_word_set['flowers'], weat_word_set['instruments']],
                   [weat_word_set['pleasant_5'], weat_word_set['unpleasant_5']],
                   ['Flowers', 'Instruments'], ['Pleasant', 'Unpleasant'])
 
-    assert query.query_name_ == 'Flowers and Instruments wrt Pleasant and '\
+    assert query.query_name == 'Flowers and Instruments wrt Pleasant and '\
                                 'Unpleasant'
 
     query = Query([
@@ -227,7 +227,7 @@ def test_generate_query_name():
                   ['Flowers', 'Instruments', 'Weapons', 'Insects'],
                   ['Pleasant', 'Unpleasant'])
 
-    assert query.query_name_ == 'Flowers, Instruments, Weapons and Insects '\
+    assert query.query_name == 'Flowers, Instruments, Weapons and Insects '\
                                 'wrt Pleasant and Unpleasant'
 
     query = Query([
@@ -235,6 +235,6 @@ def test_generate_query_name():
         weat_word_set['insects']
     ], [weat_word_set['pleasant_5'], weat_word_set['unpleasant_5']])
 
-    assert query.query_name_ == 'Target set 0, Target set 1, Target set 2 '\
+    assert query.query_name == 'Target set 0, Target set 1, Target set 2 '\
                                 'and Target set 3 wrt Attribute set 0 and '\
                                 'Attribute set 1'

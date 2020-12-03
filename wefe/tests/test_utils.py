@@ -4,7 +4,7 @@ from wefe.utils import load_weat_w2v, run_queries, create_ranking, \
                        calculate_ranking_correlations
 from wefe.datasets import load_weat
 from wefe.query import Query
-from wefe.word_embedding_model import WordEmbeddingModel
+from wefe.word_embedding import WordEmbedding
 from wefe.metrics import WEAT, RND
 
 from gensim.models import KeyedVectors
@@ -26,18 +26,15 @@ def queries_and_models():
     word_sets = load_weat()
 
     # Create gender queries
-    gender_query_1 = Query(
-        [word_sets['male_terms'], word_sets['female_terms']],
-        [word_sets['career'], word_sets['family']],
-        ['Male terms', 'Female terms'], ['Career', 'Family'])
-    gender_query_2 = Query(
-        [word_sets['male_terms'], word_sets['female_terms']],
-        [word_sets['science'], word_sets['arts']],
-        ['Male terms', 'Female terms'], ['Science', 'Arts'])
-    gender_query_3 = Query(
-        [word_sets['male_terms'], word_sets['female_terms']],
-        [word_sets['math'], word_sets['arts_2']],
-        ['Male terms', 'Female terms'], ['Math', 'Arts'])
+    gender_query_1 = Query([word_sets['male_terms'], word_sets['female_terms']],
+                           [word_sets['career'], word_sets['family']],
+                           ['Male terms', 'Female terms'], ['Career', 'Family'])
+    gender_query_2 = Query([word_sets['male_terms'], word_sets['female_terms']],
+                           [word_sets['science'], word_sets['arts']],
+                           ['Male terms', 'Female terms'], ['Science', 'Arts'])
+    gender_query_3 = Query([word_sets['male_terms'], word_sets['female_terms']],
+                           [word_sets['math'], word_sets['arts_2']],
+                           ['Male terms', 'Female terms'], ['Math', 'Arts'])
 
     # Create ethnicity queries
     test_query_1 = Query([word_sets['insects'], word_sets['flowers']],
@@ -46,8 +43,7 @@ def queries_and_models():
 
     test_query_2 = Query([word_sets['weapons'], word_sets['instruments']],
                          [word_sets['pleasant_5'], word_sets['unpleasant_5']],
-                         ['Instruments', 'Weapons'],
-                         ['Pleasant', 'Unpleasant'])
+                         ['Instruments', 'Weapons'], ['Pleasant', 'Unpleasant'])
 
     gender_queries = [gender_query_1, gender_query_2, gender_query_3]
     negative_test_queries = [test_query_1, test_query_2]
@@ -58,9 +54,9 @@ def queries_and_models():
     dummy_model_3 = weat_w2v
 
     models = [
-        WordEmbeddingModel(dummy_model_1, 'dummy_model_1'),
-        WordEmbeddingModel(dummy_model_2, 'dummy_model_2'),
-        WordEmbeddingModel(dummy_model_3, 'dummy_model_3')
+        WordEmbedding(dummy_model_1, 'dummy_model_1'),
+        WordEmbedding(dummy_model_2, 'dummy_model_2'),
+        WordEmbedding(dummy_model_3, 'dummy_model_3')
     ]
     return gender_queries, negative_test_queries, models
 
@@ -74,67 +70,55 @@ def test_run_query_input_validation(queries_and_models):
     # Load the inputs of the fixture
     gender_queries, _, models = queries_and_models
 
-    with pytest.raises(
-            TypeError,
-            match='queries parameter must be a list or a numpy array*'):
+    with pytest.raises(TypeError,
+                       match='queries parameter must be a list or a numpy array*'):
         run_queries(WEAT, None, None)
 
-    with pytest.raises(
-            Exception,
-            match='queries list must have at least one query instance*'):
+    with pytest.raises(Exception,
+                       match='queries list must have at least one query instance*'):
         run_queries(WEAT, [], None)
 
-    with pytest.raises(TypeError,
-                       match='item on index 0 must be a Query instance*'):
+    with pytest.raises(TypeError, match='item on index 0 must be a Query instance*'):
         run_queries(WEAT, [None, None], None)
 
-    with pytest.raises(TypeError,
-                       match='item on index 3 must be a Query instance*'):
+    with pytest.raises(TypeError, match='item on index 3 must be a Query instance*'):
         run_queries(WEAT, gender_queries + [None], None)
 
-    with pytest.raises(
-            TypeError,
-            match='word_embeddings_models parameter must be a list or a '
-            'numpy array*'):
+    with pytest.raises(TypeError,
+                       match='word_embeddings_models parameter must be a list or a '
+                       'numpy array*'):
         run_queries(WEAT, gender_queries, None)
 
-    with pytest.raises(
-            Exception,
-            match='word_embeddings_models parameter must be a non empty list '
-            'or numpy array*'):
+    with pytest.raises(Exception,
+                       match='word_embeddings_models parameter must be a non empty list '
+                       'or numpy array*'):
         run_queries(WEAT, gender_queries, [])
 
-    with pytest.raises(
-            TypeError,
-            match='item on index 0 must be a WordEmbeddingModel instance*'):
+    with pytest.raises(TypeError,
+                       match='item on index 0 must be a WordEmbedding instance*'):
         run_queries(WEAT, gender_queries, [None])
 
-    with pytest.raises(
-            TypeError,
-            match='item on index 3 must be a WordEmbeddingModel instance*'):
+    with pytest.raises(TypeError,
+                       match='item on index 3 must be a WordEmbedding instance*'):
         run_queries(WEAT, gender_queries, models + [None])
 
-    with pytest.raises(
-            TypeError,
-            match='When queries_set_name parameter is provided, it must be a '
-            'non-empty string*'):
+    with pytest.raises(TypeError,
+                       match='When queries_set_name parameter is provided, it must be a '
+                       'non-empty string*'):
         run_queries(WEAT, gender_queries, models, queries_set_name=None)
 
-    with pytest.raises(
-            TypeError,
-            match='When queries_set_name parameter is provided, it must be a '
-            'non-empty string*'):
+    with pytest.raises(TypeError,
+                       match='When queries_set_name parameter is provided, it must be a '
+                       'non-empty string*'):
         run_queries(WEAT, gender_queries, models, queries_set_name="")
 
-    with pytest.raises(
-            TypeError,
-            match='run_experiment_params must be a dict with a params'
-            ' for the metric*'):
+    with pytest.raises(TypeError,
+                       match='run_experiment_params must be a dict with a params'
+                       ' for the metric*'):
         run_queries(WEAT, gender_queries, models, metric_params=None)
 
-    with pytest.raises(
-            Exception,
-            match='aggregate_results parameter must be a bool value*'):
+    with pytest.raises(Exception,
+                       match='aggregate_results parameter must be a bool value*'):
         run_queries(WEAT, gender_queries, models, aggregate_results=None)
 
     with pytest.raises(Exception,
@@ -147,9 +131,8 @@ def test_run_query_input_validation(queries_and_models):
                        'abs_sum\', \'avg\', \'abs_avg\' or a callable.*'):
         run_queries(WEAT, gender_queries, models, aggregation_function='hello')
 
-    with pytest.raises(
-            Exception,
-            match='return_only_aggregation param must be boolean.*'):
+    with pytest.raises(Exception,
+                       match='return_only_aggregation param must be boolean.*'):
         run_queries(WEAT, gender_queries, models, return_only_aggregation=None)
 
 
@@ -303,8 +286,7 @@ def test_run_query(queries_and_models):
                           return_only_aggregation=True)
     assert results.shape == (3, 1)
     check_results_types(results)
-    assert results.columns[
-        -1] == 'WEAT: Unnamed queries set average of abs values score'
+    assert results.columns[-1] == 'WEAT: Unnamed queries set average of abs values score'
 
     # return only aggregation without query name
     results = run_queries(WEAT,
@@ -316,8 +298,7 @@ def test_run_query(queries_and_models):
                           return_only_aggregation=True)
     assert results.shape == (3, 1)
     check_results_types(results)
-    assert results.columns[
-        -1] == 'WEAT: Gender queries average of abs values score'
+    assert results.columns[-1] == 'WEAT: Gender queries average of abs values score'
 
     # return aggregation with query name
     results = run_queries(WEAT,
@@ -329,18 +310,14 @@ def test_run_query(queries_and_models):
                           return_only_aggregation=False)
     assert results.shape == (3, 4)
     check_results_types(results)
-    assert results.columns[
-        -1] == 'WEAT: Gender queries average of abs values score'
+    assert results.columns[-1] == 'WEAT: Gender queries average of abs values score'
     # -----------------------------------------------------------------
     # run_queries with generate subqueries params execution
     # -----------------------------------------------------------------
 
     # with this option, the gender queries must be divided in RND template
     # (2,1). with one query replicated (arts), the remaining are only 5.
-    results = run_queries(RND,
-                          gender_queries,
-                          models,
-                          generate_subqueries=True)
+    results = run_queries(RND, gender_queries, models, generate_subqueries=True)
     assert results.shape == (3, 5)
     check_results_types(results)
 
@@ -358,8 +335,7 @@ def test_run_query(queries_and_models):
                           metric_params={'distance_type': 'cos'})
     assert results.shape == (3, 6)
     check_results_types(results)
-    assert results.columns[
-        -1] == 'RND: Gender queries average of abs values score'
+    assert results.columns[-1] == 'RND: Gender queries average of abs values score'
 
 
 def test_ranking_results(queries_and_models):
@@ -388,20 +364,17 @@ def test_ranking_results(queries_and_models):
         aggregate_results=True,
     )
 
-    with pytest.raises(
-            TypeError,
-            match='All elements of results_dataframes must be a pandas '
-            'Dataframe instance*'):
+    with pytest.raises(TypeError,
+                       match='All elements of results_dataframes must be a pandas '
+                       'Dataframe instance*'):
         create_ranking([None, results_gender, results_negative])
 
-    with pytest.raises(
-            TypeError,
-            match='All elements of results_dataframes must be a pandas '
-            'Dataframe instance*'):
+    with pytest.raises(TypeError,
+                       match='All elements of results_dataframes must be a pandas '
+                       'Dataframe instance*'):
         create_ranking([results_gender, results_negative, 2])
 
-    ranking = create_ranking(
-        [results_gender, results_negative, results_gender_rnd])
+    ranking = create_ranking([results_gender, results_negative, results_gender_rnd])
     assert ranking.shape == (3, 3)
 
     for row in ranking.values:
@@ -435,8 +408,7 @@ def test_correlations(queries_and_models):
         aggregate_results=True,
     )
 
-    ranking = create_ranking(
-        [results_gender, results_negative, results_gender_rnd])
+    ranking = create_ranking([results_gender, results_negative, results_gender_rnd])
     assert ranking.shape == (3, 3)
 
     correlations = calculate_ranking_correlations(ranking)

@@ -8,13 +8,13 @@ import logging
 
 from ..query import Query
 from ..datasets import load_weat
-from ..word_embedding_model import WordEmbeddingModel
+from ..word_embedding import WordEmbedding
 from ..utils import load_weat_w2v
 
 LOGGER = logging.getLogger(__name__)
 
 
-def test_word_embedding_model_init_types():
+def test_word_embedding_init_types():
 
     # Test types verifications
 
@@ -22,26 +22,26 @@ def test_word_embedding_model_init_types():
     with pytest.raises(
             TypeError,
             match="word_embedding should be an instance of gensim's BaseKeyedVectors"):
-        WordEmbeddingModel(None)
+        WordEmbedding(None)
 
     # target sets int
     with pytest.raises(
             TypeError,
             match="word_embedding should be an instance of gensim's BaseKeyedVectors"):
-        WordEmbeddingModel('abc')
+        WordEmbedding('abc')
 
     with pytest.raises(
             TypeError,
             match="word_embedding should be an instance of gensim's BaseKeyedVectors"):
-        WordEmbeddingModel(1)
+        WordEmbedding(1)
 
     with pytest.raises(
             TypeError,
             match="word_embedding should be an instance of gensim's BaseKeyedVectors"):
-        WordEmbeddingModel({})
+        WordEmbedding({})
 
 
-def test_word_embedding_model_init():
+def test_word_embedding_init():
 
     # Load dummy w2v
     weat_we = load_weat_w2v()
@@ -51,35 +51,35 @@ def test_word_embedding_model_init():
             TypeError,
             match=
             'word_embedding should be an instance of gensim\'s BaseKeyedVectors, got'):
-        WordEmbeddingModel(None)
+        WordEmbedding(None)
 
     with pytest.raises(TypeError, match='model_name should be a string or None, got'):
-        WordEmbeddingModel(weat_we, 12)
+        WordEmbedding(weat_we, 12)
 
     with pytest.raises(TypeError, match='vocab_prefix should be a string or None, got '):
-        WordEmbeddingModel(weat_we, 'A', 12)
+        WordEmbedding(weat_we, 'A', 12)
 
     # test models
-    model = WordEmbeddingModel(weat_we)
+    model = WordEmbedding(weat_we)
     assert model.model == weat_we
     assert model.model_name == 'Unnamed word embedding model'
     assert model.vocab_prefix == None
 
-    model = WordEmbeddingModel(weat_we, 'weat_we')
+    model = WordEmbedding(weat_we, 'weat_we')
     assert model.model == weat_we
     assert model.model_name == 'weat_we'
     assert model.vocab_prefix == None
 
-    model = WordEmbeddingModel(weat_we, 'weat_we', '\\c\\en')
+    model = WordEmbedding(weat_we, 'weat_we', '\\c\\en')
     assert model.model == weat_we
     assert model.model_name == 'weat_we'
     assert model.vocab_prefix == '\\c\\en'
 
 
-def test_word_embedding_model_eq():
-    model_1 = WordEmbeddingModel(load_weat_w2v(), 'weat_1')
-    model_2 = WordEmbeddingModel(load_weat_w2v(), 'weat_2')
-    model_3 = WordEmbeddingModel(load_weat_w2v(), 'weat_2', vocab_prefix='a')
+def test_word_embedding_eq():
+    model_1 = WordEmbedding(load_weat_w2v(), 'weat_1')
+    model_2 = WordEmbedding(load_weat_w2v(), 'weat_2')
+    model_3 = WordEmbedding(load_weat_w2v(), 'weat_2', vocab_prefix='a')
 
     assert model_1 == model_1
     assert model_1 != model_2
@@ -96,7 +96,7 @@ def test_w2v():
 
     w2v = Word2Vec(common_texts, size=100, window=5, min_count=1, workers=-1)
     w2v_keyed_vectors = w2v.wv
-    wem = WordEmbeddingModel(w2v_keyed_vectors, "w2v")
+    wem = WordEmbedding(w2v_keyed_vectors, "w2v")
 
     assert w2v.wv == wem.model
 
@@ -104,14 +104,14 @@ def test_w2v():
 def test_fast():
     fast = FastText(size=4, window=3, min_count=1, sentences=common_texts, iter=10)
     fast_keyed_vectors = fast.wv
-    wem = WordEmbeddingModel(fast_keyed_vectors, "w2v")
+    wem = WordEmbedding(fast_keyed_vectors, "w2v")
 
     assert fast.wv == wem.model
 
 
 def test__getitem__():
     w2v = load_weat_w2v()
-    model = WordEmbeddingModel(w2v, 'weat_w2v')
+    model = WordEmbedding(w2v, 'weat_w2v')
 
     embedding = model['ASDF']
     assert embedding == None
@@ -123,7 +123,7 @@ def test__getitem__():
 def test_preprocess_word():
 
     w2v = load_weat_w2v()
-    model = WordEmbeddingModel(w2v, 'weat_w2v', '')
+    model = WordEmbedding(w2v, 'weat_w2v', '')
 
     word = model._preprocess_word('Woman')
     assert word == 'Woman'
@@ -159,7 +159,7 @@ def test_preprocess_word():
     assert word == 'WOMAN'
 
     # now with prefix
-    model = WordEmbeddingModel(w2v, 'weat_w2v', 'asd-')
+    model = WordEmbedding(w2v, 'weat_w2v', 'asd-')
     word = model._preprocess_word('woman')
     assert word == 'asd-woman'
 
@@ -167,7 +167,7 @@ def test_preprocess_word():
 def test_get_embeddings_from_word_set():
 
     w2v = load_weat_w2v()
-    model = WordEmbeddingModel(w2v, 'weat_w2v', '')
+    model = WordEmbedding(w2v, 'weat_w2v', '')
     WORDS = ['man', 'woman']
 
     with pytest.raises(TypeError, match="word_set should be a list of strings, got"):
@@ -268,7 +268,7 @@ def test_get_embeddings_from_word_set():
 
 def test_warn_not_found_words(caplog):
     w2v = load_weat_w2v()
-    model = WordEmbeddingModel(w2v, 'weat_w2v', '')
+    model = WordEmbedding(w2v, 'weat_w2v', '')
 
     model._warn_not_found_words('Set1', ['aaa', 'bbb'])
     assert "The following words from set 'Set1' do not exist within the vocabulary" in caplog.text
@@ -278,7 +278,7 @@ def test_warn_not_found_words(caplog):
 @pytest.fixture
 def simple_model_and_query():
     w2v = load_weat_w2v()
-    model = WordEmbeddingModel(w2v, 'weat_w2v', '')
+    model = WordEmbedding(w2v, 'weat_w2v', '')
     weat_wordsets = load_weat()
 
     flowers = weat_wordsets['flowers']

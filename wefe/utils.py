@@ -1,14 +1,22 @@
-import pkg_resources
-import pandas as pd
+"""
+A collection of WEFE utility functions.
+
+This file contains functions for to process to massively execute queries, relate them 
+through rankins and graph these results.
+"""
+
 import logging
+import pkg_resources
+import copy
+from typing import Union, Callable, List, Type
+
+import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from scipy import stats
 
-from .word_embedding_model import WordEmbeddingModel
+from .word_embedding import WordEmbedding
 from .query import Query
-from typing import Union, Iterable, Callable, List, Type
 from wefe.metrics import BaseMetric
 
 # -----------------------------------------------------------------------------
@@ -58,7 +66,7 @@ def generate_subqueries_from_queries_list(metric: Type[BaseMetric],
         except Exception as e:
             logging.warning('Query in index {} ({}) can not be splitted in subqueries '
                             'with the {} metric template = {}. Exception: \n{}'.format(
-                                query_idx, query.query_name_, metric.metric_name,
+                                query_idx, query.query_name, metric.metric_name,
                                 metric.metric_template, e))
 
     # remove duplicates (o(n^2)...)
@@ -66,7 +74,7 @@ def generate_subqueries_from_queries_list(metric: Type[BaseMetric],
     for subquery in subqueries:
         duplicated = False
         for filtered_subquery in filtered_subqueries:
-            if filtered_subquery.query_name_ == subquery.query_name_:
+            if filtered_subquery.query_name == subquery.query_name:
                 duplicated = True
                 break
         if not duplicated:
@@ -77,7 +85,7 @@ def generate_subqueries_from_queries_list(metric: Type[BaseMetric],
 
 def run_queries(metric: Type[BaseMetric],
                 queries: List[Query],
-                word_embeddings_models: List[WordEmbeddingModel],
+                word_embeddings_models: List[WordEmbedding],
                 queries_set_name: str = 'Unnamed queries set',
                 lost_vocabulary_threshold: float = 0.2,
                 metric_params: dict = {},
@@ -168,8 +176,8 @@ def run_queries(metric: Type[BaseMetric],
                         'numpy array. given: {}'.format(word_embeddings_models))
 
     for idx, model in enumerate(word_embeddings_models):
-        if model is None or not isinstance(model, WordEmbeddingModel):
-            raise TypeError('item on index {} must be a WordEmbeddingModel instance. '
+        if model is None or not isinstance(model, WordEmbedding):
+            raise TypeError('item on index {} must be a WordEmbedding instance. '
                             'given: {}'.format(idx, model))
 
     # experiment name handling
@@ -225,7 +233,7 @@ def run_queries(metric: Type[BaseMetric],
                     query_names.append(result['query_name'])
     except Exception as e:
         raise Exception('Error during executing the query: {} on the model: {}'.format(
-            query.query_name_, model.model_name))
+            query.query_name, model.model_name))
 
     # get original column order
     # reorder the results in a legible table
@@ -335,14 +343,14 @@ def plot_queries_results(results: pd.DataFrame, by: str = 'query'):
 # -----------------------------------------------------------------------------
 
 
-def create_ranking(results_dataframes: Iterable[pd.DataFrame]):
+def create_ranking(results_dataframes: List[pd.DataFrame]):
     """Creates a ranking form the aggregated scores of the provided dataframes.
     The function will assume that the aggregated scores are in the last column
     of each result dataframe.
 
     Parameters
     ----------
-    results_dataframes : Iterable[pd.DataFrame]
+    results_dataframes : List[pd.DataFrame]
         A list or array of dataframes returned by the run_queries function.
 
     Returns
@@ -362,15 +370,29 @@ def create_ranking(results_dataframes: Iterable[pd.DataFrame]):
     for idx, results_df in enumerate(results_dataframes):
         if not isinstance(results_df, pd.DataFrame):
             raise TypeError('All elements of results_dataframes must be a pandas '
-                            'Dataframe instance. Given at position {}: {}'.format(
-                                idx, results_df))
+                            'Dataframe instance. Got {} at position {}'.format(
+                                type(results_df), idx))
+
     # get the avg_scores columns and merge into one dataframe
-    remaining_columns: List[pd.DataFrame] = []
+    aggregation_columns: List[pd.DataFrame] = []
 
     for result in results_dataframes:
-        remaining_columns.append(result[result.columns[-1]])
+        aggregation_columns.append(result[result.columns[-1]])
 
-    avg_scores = pd.concat(remaining_columns, axis=1)
+    # check for duplicated column names
+    column_names = pd.Series([series.name for series in aggregation_columns])
+    duplicated_names = column_names[column_names.duplicated(keep='first')]
+
+    no_duplicated_column_names = copy.copy(column_names)
+    for duplicated_name in duplicated_names:
+        count = 0
+        for idx, name in enumerate(no_duplicated_column_names):
+            if name == duplicated_name:
+                no_duplicated_column_names[idx] = "{} ({})".format(name, idx + 1)
+                count += 1
+
+    avg_scores = pd.concat(aggregation_columns, axis=1)
+    avg_scores.columns = no_duplicated_column_names
 
     rankings: List[np.ndarray] = []
     for col in avg_scores:
@@ -427,20 +449,31 @@ def plot_ranking(ranking: pd.DataFrame,
 # -----------------------------------------------------------------------------
 
 
-def calculate_ranking_correlations(
-        rankings: pd.DataFrame,
-        correlation_function: Callable = stats.spearmanr) -> pd.DataFrame:
+def calculate_ranking_correlations(rankings: pd.DataFrame,
+                                   method='pearson') -> pd.DataFrame:
     """Calculates the correlation between the calculated rankings.
-    It could be calculated using the spearman or kendaltau metrics.
+    It uses pandas corr() method to calculate the correlations.
+    The method parameter documentarion was copied from the documentation of the pandas 
+    DataFrame.corr() method. 
+    To see the updated documentation, visit: 
+    https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html
+
 
     Parameters
     ----------
     rankings : pd.DataFrame
         DataFrame that contains the calculated rankings.
-    correlation_function : Callable, optional
-        Correlation function that will be called to calculate the correlation
-        over rankings. It could be stats.spearmanr and stats.kendaltau,
-        by default stats.spearmanr
+
+    method : {'pearson', 'kendall', 'spearman'} or callable
+        Method of correlation:
+        * pearson : standard correlation coefficient
+        * kendall : Kendall Tau correlation coefficient
+        * spearman : Spearman rank correlation
+        * callable: callable with input two 1d ndarrays
+            and returning a float. Note that the returned matrix from corr
+            will have 1 along the diagonals and will be symmetric
+            regardless of the callable's behavior.
+            .. version
 
     Returns
     -------
@@ -455,16 +488,7 @@ def calculate_ranking_correlations(
 
     matrix: List[np.ndarray] = []
 
-    for idx_1, _ in enumerate(rankings.columns):
-        matrix.append([])
-        for idx_2, _ in enumerate(rankings.columns):
-            matrix[idx_1].append(
-                correlation_function(rankings.iloc[:, [idx_1]],
-                                     rankings.iloc[:, [idx_2]]).correlation)
-
-    correlation_matrix = pd.DataFrame(matrix)
-    correlation_matrix.columns = rankings.columns
-    correlation_matrix.index = rankings.columns
+    correlation_matrix = rankings.corr(method=method)
     return correlation_matrix
 
 

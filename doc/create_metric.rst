@@ -62,10 +62,10 @@ It must perform 2 basic operations before executing anything.
     using the provided parameters.  
 
     First, it validates that the parameters 
-    :code:`query`, :code:`word_embedding_model`, 
+    :code:`query`, :code:`word_embedding`, 
     :code:`lost_vocabulary_threshold` and 
     :code:`warn_filtered_words` are of type :code:`Query`, 
-    :code:`WordEmbeddingModel`, ``bool`` and ``bool`` respectively.
+    :code:``, ``bool`` and ``bool`` respectively.
     It will raise an exception if it finds a problem with the parameters.
 
     Second, if no error triggered an exception, it converts all word sets 
@@ -87,7 +87,7 @@ more than the threshold percentage of words does not have an embedding.
 
 >>> from .base_metric import BaseMetric
 >>> from ..query import Query
->>> from ..word_embedding_model import WordEmbeddingModel
+>>> from ..word_embedding import 
 >>>
 >>>
 >>> class ExampleMetric(BaseMetric):
@@ -98,7 +98,7 @@ more than the threshold percentage of words does not have an embedding.
 >>>         metric_short_name = 'EM'
 >>>         super().__init__(template_needed, metric_name, metric_short_name)
 >>> 
->>>     def run_query(self, query: Query, word_embedding: WordEmbeddingModel,
+>>>     def run_query(self, query: Query, word_embedding: ,
 >>>                   lost_vocabulary_threshold: float = 0.2,
 >>>                   warn_filtered_words: bool = True):
 >>> 
@@ -111,20 +111,20 @@ more than the threshold percentage of words does not have an embedding.
 >>>         # if there's any set that has a percentage fewer words than the threshold,
 >>>         # return the default value (nan)
 >>>         if embeddings is None:
->>>             return {'query_name': query.query_name_, 'result': np.nan}
+>>>             return {'query_name': query.query_name, 'result': np.nan}
 
 
 We can illustrate what the outputs of the previous transformation look like 
 using the following query:
 
->>> from wefe.word_embedding_model import WordEmbeddingModel
+>>> from wefe.word_embedding import 
 >>> from wefe.query import Query
 >>> from wefe.utils import load_weat_w2v # a few embeddings of WEAT experiments
 >>> from wefe.datasets.datasets import load_weat # the word sets of WEAT experiments
 >>>  
 >>>     
 >>> weat = load_weat()
->>> model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
+>>> model = (load_weat_w2v(), 'weat_w2v', '')
 >>> 
 >>> flowers = weat['flowers'][0:4]
 >>> weapons = weat['weapons'][0:4]
@@ -184,7 +184,7 @@ the array of embedding dict objects as input, we will implement the above.
 
 >>> from .base_metric import BaseMetric
 >>> from ..query import Query
->>> from ..word_embedding_model import WordEmbeddingModel
+>>> from ..word_embedding import 
 >>> from scipy.spatial import distance
 >>> import numpy as np
 >>> 
@@ -235,7 +235,7 @@ the array of embedding dict objects as input, we will implement the above.
 >>>         metric_result = dist_target_0_attr - dist_target_1_attr
 >>>         return metric_result
 >>> 
->>>     def run_query(self, query: Query, word_embedding: WordEmbeddingModel,
+>>>     def run_query(self, query: Query, word_embedding: ,
 >>>                   lost_vocabulary_threshold: float = 0.2,
 >>>                   warn_filtered_words: bool = True):
 >>> 
@@ -246,7 +246,7 @@ the array of embedding dict objects as input, we will implement the above.
 >>> 
 >>>         # if there is any/some set has less words than the allowed limit, return the default value (nan)
 >>>         if embeddings is None:
->>>             return {'query_name': query.query_name_, 'result': np.nan}
+>>>             return {'query_name': query.query_name, 'result': np.nan}
 >>> 
 >>>         # separate the embedding tuple
 >>>         target_embeddings, attribute_embeddings = embeddings
@@ -257,7 +257,7 @@ the array of embedding dict objects as input, we will implement the above.
 >>> 
 >>>         # return the results.
 >>>         return {
->>>             "query_name": query.query_name_,
+>>>             "query_name": query.query_name,
 >>>             "result": metric_result,
 >>>         }
 

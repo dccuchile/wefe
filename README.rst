@@ -123,16 +123,20 @@ To compile the documentation, run it::
 Changelog
 =========
 
-Version 0.0.16
+Version 0.2.0
 --------------
 - Renamed optional ``run_query`` parameter  ``warn_filtered_words`` to ``warn_not_found_words``
 - also_search_for
 - word_preprocessor_options
-- Added _get_embedding function in WordEmbeddingModel (explicar que hace)
-- Added _preprocess_word function in WordEmbeddingModel (explicar que hace)
+- Added _get_embedding function in  (explicar que hace)
+- Added _preprocess_word function in  (explicar que hace)
 - Remover underscore from class attributes variable names.
 - Improved type and verification exception messages when creating objects and executing methods.
-
+- Removed _ from the end of all attribute variables (really strange convension).
+- Changed WordEmbeddingModel class name to WordEmbedding.
+- Fix the error that appeared when calculating rankings with two columns of 
+  aggregations with the same name.
+- Ranking correlations are now calculated using pandas corr method. 
 Citation
 =========
 

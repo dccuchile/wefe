@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from typing import Any, Callable, Dict, List, Union, Tuple
 from ..query import Query
-from ..word_embedding_model import WordEmbeddingModel
+from ..word_embedding import WordEmbedding
 
 
 class BaseMetric(ABC):
@@ -65,7 +65,7 @@ class BaseMetric(ABC):
     def _check_input(
         self,
         query: Query,
-        word_embedding_model: WordEmbeddingModel,
+        word_embedding: WordEmbedding,
     ) -> None:
         """Checks if the input of a metric is valid.
 
@@ -73,7 +73,7 @@ class BaseMetric(ABC):
         ----------
         query : Query
             The query that the method will execute.
-        word_embedding : WordEmbeddingModel
+        word_embedding : 
             A word embedding model.
 
         Raises
@@ -81,7 +81,7 @@ class BaseMetric(ABC):
         TypeError
             if query is not instance of Query.
         TypeError
-            if word_embedding is not instance of WordEmbeddingModel.
+            if word_embedding is not instance of .
         TypeError
             if lost_vocabulary_threshold is not a float number.
         TypeError
@@ -98,11 +98,10 @@ class BaseMetric(ABC):
         if not isinstance(query, Query):
             raise TypeError('query should be a Query instance, got {}'.format(query))
 
-        # check if the word_embedding is a instance of WordEmbeddingModel
-        if not isinstance(word_embedding_model, WordEmbeddingModel):
-            raise TypeError(
-                'word_embedding_model should be a WordEmbeddingModel instance, '
-                'got: {}'.format(word_embedding_model))
+        # check if the word_embedding is a instance of
+        if not isinstance(word_embedding, WordEmbedding):
+            raise TypeError('word_embedding should be a WordEmbedding instance, '
+                            'got: {}'.format(word_embedding))
 
         # templates:
 
@@ -112,7 +111,7 @@ class BaseMetric(ABC):
             raise Exception('The cardinality of the set of target words of the \'{}\' '
                             'query does not match with the cardinality required by {}. '
                             'Provided query: {}, metric: {}.'.format(
-                                query.query_name_, self.metric_name, query.template[0],
+                                query.query_name, self.metric_name, query.template[0],
                                 self.metric_template[0]))
 
         # check the cardinality of the attribute sets of the provided query
@@ -121,13 +120,13 @@ class BaseMetric(ABC):
             raise Exception('The cardinality of the set of attribute words of the '
                             '\'{}\' query does not match with the cardinality '
                             'required by {}. Provided query: {}, metric: {}.'.format(
-                                query.query_name_, self.metric_name, query.template[1],
+                                query.query_name, self.metric_name, query.template[1],
                                 self.metric_template[1]))
 
     @abstractmethod
     def run_query(self,
                   query: Query,
-                  word_embedding_model: WordEmbeddingModel,
+                  word_embedding: WordEmbedding,
                   lost_vocabulary_threshold: float = 0.2,
                   preprocessor_options: Dict[str, Union[bool, str, Callable, None]] = {
                       'strip_accents': False,
@@ -141,6 +140,6 @@ class BaseMetric(ABC):
                   *args: Any,
                   **kwargs: Any) -> Dict[str, Any]:
 
-        self._check_input(query=query, word_embedding_model=word_embedding_model)
+        self._check_input(query=query, word_embedding=word_embedding)
 
         return {}

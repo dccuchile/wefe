@@ -295,7 +295,7 @@
 						<line number="493" hits="1"/>
 					</lines>
 				</class>
-				<class name="word_embedding_model.py" filename="word_embedding_model.py" complexity="0" line-rate="0.9565" branch-rate="0.9167">
+				<class name="word_embedding.py" filename="word_embedding.py" complexity="0" line-rate="0.9565" branch-rate="0.9167">
 					<methods/>
 					<lines>
 						<line number="1" hits="1"/>
@@ -1355,7 +1355,7 @@
 						<line number="451" hits="0"/>
 					</lines>
 				</class>
-				<class name="test_word_embedding_model.py" filename="tests/test_word_embedding_model.py" complexity="0" line-rate="1" branch-rate="1">
+				<class name="test_word_embedding.py" filename="tests/test_word_embedding.py" complexity="0" line-rate="1" branch-rate="1">
 					<methods/>
 					<lines>
 						<line number="1" hits="1"/>

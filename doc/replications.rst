@@ -21,7 +21,7 @@ The results are displayed after the code.
 >>> from wefe.metrics import WEAT
 >>> from wefe.datasets import load_weat
 >>> from wefe.query import Query
->>> from wefe.word_embedding_model import WordEmbeddingModel
+>>> from wefe.word_embedding import 
 >>> from wefe.utils import run_queries
 >>> 
 >>> import gensim.downloader as api
@@ -97,9 +97,9 @@ The results are displayed after the code.
 >>> ]
 >>> 
 >>> # Load the embedding models
->>> w2v = WordEmbeddingModel(api.load('word2vec-google-news-300'),
+>>> w2v = (api.load('word2vec-google-news-300'),
 >>>                          'word2vec-google-news-300')
->>> glove = WordEmbeddingModel(api.load('glove-wiki-gigaword-300'),
+>>> glove = (api.load('glove-wiki-gigaword-300'),
 >>>                            'glove-wiki-gigaword-300')
 >>> 
 >>> # Execute the queries with the models and WEAT
@@ -178,7 +178,7 @@ The following code replicates the experiments carried out in the following paper
 >>> from wefe.datasets import load_bingliu
 >>> from wefe.metrics import RNSB
 >>> from wefe.query import Query
->>> from wefe.word_embedding_model import WordEmbeddingModel
+>>> from wefe.word_embedding import 
 >>> 
 >>> import pandas as pd
 >>> import plotly.express as px
@@ -199,10 +199,10 @@ The following code replicates the experiments carried out in the following paper
 >>>               [bing_liu['positive_words'], bing_liu['negative_words']])
 >>> 
 >>> # Fetch the models
->>> glove = WordEmbeddingModel(api.load('glove-wiki-gigaword-300'),
+>>> glove = (api.load('glove-wiki-gigaword-300'),
 >>>                            'glove-wiki-gigaword-300')
 >>> # note that conceptnet uses a /c/en/ prefix before each word.
->>> conceptnet = WordEmbeddingModel(api.load('conceptnet-numberbatch-17-06-300'),
+>>> conceptnet = (api.load('conceptnet-numberbatch-17-06-300'),
 >>>                                 'conceptnet-numberbatch-17',
 >>>                                 vocab_prefix='/c/en/')
 >>> 

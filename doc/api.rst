@@ -10,14 +10,14 @@ Next, the main classes:
 .. currentmodule:: wefe
 
 
-WordEmbeddingModel
+
 ==================
 
 .. autosummary::
    :toctree: generated/
    :template: class.rst
 
-   WordEmbeddingModel
+   
 
 Query
 ==================

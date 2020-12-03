@@ -49,7 +49,7 @@ The programming of the previous flow can be separated into three steps:
 These stages will be implemented next:
 
 1. Load the Word Embedding pretrained model from :code:`gensim` and then, 
-create a :code:`WordEmbeddingModel` instance with it.
+create a :code:`` instance with it.
 This object took a gensim's :code:`KeyedVectors` object and a model name as 
 parameters.
 As we said previously, for this example, we will use 
@@ -58,14 +58,14 @@ time, the embedding model could be changed to :code:`glove-twitter-25'`.
 
 >>> # import the modules
 >>> from wefe.query import Query
->>> from wefe.word_embedding_model import WordEmbeddingModel
+>>> from wefe.word_embedding import 
 >>> from wefe.metrics.WEAT import WEAT
 >>> import gensim.downloader as api
 >>>
 >>> # load word2vec 
 >>> # it can be changed to 'glove-twitter-25' to speed up the loading time.
 >>> twitter_25 = api.load('word2vec-google-news-300')
->>> model = WordEmbeddingModel(twitter_25, 'glove twitter dim=25')
+>>> model = (twitter_25, 'glove twitter dim=25')
 
 2. Create the Query with a loaded, fetched or custom target and attribute 
 word sets. In this case, we will manually set both target words and attribute

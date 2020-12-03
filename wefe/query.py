@@ -28,18 +28,18 @@ class Query:
 
         Attributes
         ----------
-        target_sets_ : list
+        target_sets : list
             Array or list with the lists of target words.
-        attribute_sets_ : list
+        attribute_sets : list
             Array or list with the lists of target words.
-        template_ : tuple
-            A tuple that contains the template: the number of the target
+        template : tuple
+            A tuple that contains the template: the cardinality of the target
             and attribute sets respectively.
-        target_sets_names_ : list
+        target_sets_names : list
             Array or list with the names of target sets.
-        attribute_sets_names_ : list
+        attribute_sets_names : list
             Array or list with the lists of target words.
-        query_name_ : str
+        query_name : str
             A string that contains the auto-generated name of the query.
 
         Raises
@@ -69,11 +69,11 @@ class Query:
         >>> science_terms = ['science','technology','physics']
         >>> query = Query([male_terms, female_terms], [science_terms],
         ...               ['Male terms', 'Female terms'], ['Science terms'])
-        >>> query.target_sets_
+        >>> query.target_sets
         [['male', 'man', 'boy'], ['female', 'woman', 'girl']]
-        >>> query.attribute_sets_
+        >>> query.attribute_sets
         [['science', 'technology', 'physics']]
-        >>> query.query_name_
+        >>> query.query_name
         'Male terms and Female terms wrt Science terms'
         """
 
@@ -158,7 +158,7 @@ class Query:
             else:
                 self.attribute_sets_names = attribute_sets_names
 
-        self.query_name_ = self._generate_query_name()
+        self.query_name = self._generate_query_name()
 
     def __eq__(self, other):
 

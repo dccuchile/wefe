@@ -45,20 +45,20 @@ Below we show the three usual steps for performing a query in WEFE:
 
 >>> # Load the modules
 >>> from wefe.query import Query
->>> from wefe.word_embedding_model import WordEmbeddingModel
+>>> from wefe.word_embedding import 
 >>> from wefe.metrics.WEAT import WEAT
 >>> from wefe.datasets.datasets import load_weat
 >>> import gensim.downloader as api
 
-1. Load a word embeddings model as a :code:`WordEmbeddingModel` object.
+1. Load a word embeddings model as a :code:`` object.
 
 Here, we load the word embedding pretrained model using the gensim library
-and then we create a :code:`WordEmbeddingModel` instance.
+and then we create a :code:`` instance.
 For this example, we will use a 25-dimensional Glove embedding model trained
 from a Twitter dataset.
 
 >>> twitter_25 = api.load('glove-twitter-25')
->>> model = WordEmbeddingModel(twitter_25, 'glove twitter dim=25')
+>>> model = (twitter_25, 'glove twitter dim=25')
 
 2. Create the query using a ``Query`` object
 
@@ -111,7 +111,7 @@ The queries will be executed using the Effect size variant of WEAT.
 
 >>> from wefe.query import Query
 >>> from wefe.datasets import load_weat
->>> from wefe.word_embedding_model import WordEmbeddingModel
+>>> from wefe.word_embedding import 
 >>> from wefe.metrics import WEAT, RNSB
 >>> from wefe.utils import run_queries, plot_queries_results
 >>> 
@@ -122,11 +122,11 @@ The queries will be executed using the Effect size variant of WEAT.
 Load three different Glove Twitter embedding models. These models were trained
 using the same dataset varying the number of embedding dimensions. 
 
->>> model_1 = WordEmbeddingModel(api.load('glove-twitter-25'),
+>>> model_1 = (api.load('glove-twitter-25'),
 >>>                              'glove twitter dim=25')
->>> model_2 = WordEmbeddingModel(api.load('glove-twitter-50'),
+>>> model_2 = (api.load('glove-twitter-50'),
 >>>                              'glove twitter dim=50')
->>> model_3 = WordEmbeddingModel(api.load('glove-twitter-100'),
+>>> model_3 = (api.load('glove-twitter-100'),
 >>>                              'glove twitter dim=100')
 >>> 
 >>> models = [model_1, model_2, model_3]
@@ -347,18 +347,18 @@ The following code will load the models and create the queries:
 
 >>> from wefe.query import Query
 >>> from wefe.datasets.datasets import load_weat
->>> from wefe.word_embedding_model import WordEmbeddingModel
+>>> from wefe.word_embedding import 
 >>> from wefe.metrics import WEAT, RNSB
 >>> from wefe.utils import run_queries, create_ranking, plot_ranking, plot_ranking_correlations
 >>> 
 >>> import gensim.downloader as api
 >>> 
 >>> # Load the models
->>> model_1 = WordEmbeddingModel(api.load('glove-twitter-25'),
+>>> model_1 = (api.load('glove-twitter-25'),
 >>>                              'glove twitter dim=25')
->>> model_2 = WordEmbeddingModel(api.load('glove-twitter-50'),
+>>> model_2 = (api.load('glove-twitter-50'),
 >>>                              'glove twitter dim=50')
->>> model_3 = WordEmbeddingModel(api.load('glove-twitter-100'),
+>>> model_3 = (api.load('glove-twitter-100'),
 >>>                              'glove twitter dim=100')
 >>> 
 >>> models = [model_1, model_2, model_3]

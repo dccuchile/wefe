@@ -1,6 +1,7 @@
+from typing import Any, Dict, Union
 import numpy as np
 from ..query import Query
-from ..word_embedding_model import WordEmbeddingModel
+from ..word_embedding import WordEmbedding
 from .base_metric import BaseMetric
 
 
@@ -37,43 +38,99 @@ class MAC(BaseMetric):
 
     def run_query(self,
                   query: Query,
-                  word_embedding: WordEmbeddingModel,
+                  word_embedding: WordEmbedding,
                   lost_vocabulary_threshold: float = 0.2,
-                  warn_filtered_words: bool = False):
-        """Calculates the MAC metric over the provided parameters.
+                  preprocessor_options: Dict = {
+                      'strip_accents': False,
+                      'lowercase': False,
+                      'preprocessor': None,
+                  },
+                  secondary_preprocessor_options: Union[Dict, None] = None,
+                  warn_not_found_words: bool = False,
+                  *args: Any,
+                  **kwargs: Any) -> Dict[str, Any]:
+        """Calculate the MAC metric over the provided parameters.
 
         Parameters
         ----------
         query : Query
-            A Query object that contains the target and attribute words for
-            be tested.
-        word_embedding : WordEmbeddingModel
-            A WordEmbeddingModel object that contain certain word embedding
-            pretrained model.
-        lost_vocabulary_threshold : bool, optional
-            Indicates when a test is invalid due the loss of certain amount
-            of words in any word set, by default 0.2
-        warn_filtered_words : bool, optional
-            A flag that indicates if the function will warn about the filtered
-            words, by default False.
-        """
+            A Query object that contains the target and attribute word sets
+            for be tested.
 
-        # Standard input procedure: check the inputs and obtain the
-        # embeddings.
-        embeddings = super().run_query(query, word_embedding, lost_vocabulary_threshold)
+        word_embedding : 
+            A  object that contain certain word embedding
+            pretrained model.
+
+        lost_vocabulary_threshold : float, optional
+            Specifies the proportional limit of words that any set of the query is 
+            allowed to lose when transforming its words into embeddings. 
+            In the case that any set of the query loses proportionally more words 
+            than this limit, the result values will be np.nan, by default 0.2
+
+        preprocessor_options : Dict, optional
+            Dictionary with options for pre-processing words, by default {}
+            The options for the dict are: 
+            - lowercase: bool. Indicates if the words are transformed to lowercase.
+            - strip_accents: bool, {'ascii', 'unicode'}: Specifies if the accents of 
+                             the words are eliminated. The stripping type can be 
+                             specified. True uses 'unicode' by default.
+            - preprocessor: Callable. It receives a function that operates on each 
+                            word. In the case of specifying a function, it overrides 
+                            the default preprocessor (i.e., the previous options 
+                            stop working).
+            , by default { 'strip_accents': False, 'lowercase': False, 'preprocessor': None, }
+        
+        secondary_preprocessor_options : Union[Dict, None], optional
+            Dictionary with options for pre-processing words (same as the previous 
+            parameter), by default None.
+            Indicates that in case a word is not found in the model's vocabulary 
+            (using the default preprocessor or specified in preprocessor_options), 
+            the function performs a second search for that word using the preprocessor 
+            specified in this parameter, by default None
+
+        warn_not_found_words : bool, optional
+            Specifies if the function will warn (in the logger)
+            the words that were not found in the model's vocabulary
+            , by default False.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary with the query name, the resulting score of the metric, 
+            and a dictionary with the distances of each attribute word
+            with respect to the target sets means.
+        """
+        # checks the types of the provided arguments (only the defaults).
+        super().run_query(query, word_embedding, lost_vocabulary_threshold,
+                          preprocessor_options, secondary_preprocessor_options,
+                          warn_not_found_words, *args, **kwargs)
+
+        # transforming query words into embeddings
+        embeddings = word_embedding.get_embeddings_from_query(
+            query=query,
+            lost_vocabulary_threshold=lost_vocabulary_threshold,
+            preprocessor_options=preprocessor_options,
+            secondary_preprocessor_options=secondary_preprocessor_options,
+            warn_not_found_words=warn_not_found_words)
 
         # if there is any/some set has less words than the allowed limit,
         # return the default value (nan)
         if embeddings is None:
-            return {'query_name': query.query_name_, 'result': np.nan}
+            return {
+                'query_name': query.query_name,
+                'result': np.nan,
+                "rnd": np.nan,
+                "distances_by_word": {}
+            }
 
+        target_embeddings = embeddings['target_embeddings']
+        attribute_embeddings = embeddings['attribute_embeddings']
         # get the target and attribute embeddings dicts
-        target_embeddings_dict, attribute_embeddings_dict = embeddings
-        target_0_embeddings = list(target_embeddings_dict[0].values())
+        target_0_embeddings = list(target_embeddings[0].values())
         attribute_embeddings_all_sets = [
-            list(target_dict.values()) for target_dict in attribute_embeddings_dict
+            list(attibute_dict.values()) for attibute_dict in attribute_embeddings
         ]
 
         result = self.calc_mac(target_0_embeddings, attribute_embeddings_all_sets)
 
-        return {'query_name': query.query_name_, 'result': result}
+        return {'query_name': query.query_name, 'result': result}

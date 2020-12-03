@@ -2,7 +2,7 @@ import numpy as np
 from typing import Any, Dict, Union
 
 from ..query import Query
-from ..word_embedding_model import WordEmbeddingModel
+from ..word_embedding import WordEmbedding
 from .base_metric import BaseMetric
 
 
@@ -71,7 +71,7 @@ class RND(BaseMetric):
 
     def run_query(self,
                   query: Query,
-                  word_embedding_model: WordEmbeddingModel,
+                  word_embedding: WordEmbedding,
                   distance_type: str = 'norm',
                   average_distances: bool = True,
                   lost_vocabulary_threshold: float = 0.2,
@@ -92,8 +92,8 @@ class RND(BaseMetric):
             A Query object that contains the target and attribute word sets
             for be tested.
 
-        word_embedding_model : WordEmbeddingModel
-            A WordEmbeddingModel object that contain certain word embedding
+        word_embedding : 
+            A  object that contain certain word embedding
             pretrained model.
 
         distance_type : str, optional
@@ -144,12 +144,12 @@ class RND(BaseMetric):
             with respect to the target sets means.
         """
         # checks the types of the provided arguments (only the defaults).
-        super().run_query(query, word_embedding_model, lost_vocabulary_threshold,
+        super().run_query(query, word_embedding, lost_vocabulary_threshold,
                           preprocessor_options, secondary_preprocessor_options,
                           warn_not_found_words, *args, **kwargs)
 
         # transforming query words into embeddings
-        embeddings = word_embedding_model.get_embeddings_from_query(
+        embeddings = word_embedding.get_embeddings_from_query(
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessor_options=preprocessor_options,
@@ -160,7 +160,7 @@ class RND(BaseMetric):
         # return the default value (nan)
         if embeddings is None:
             return {
-                'query_name': query.query_name_,
+                'query_name': query.query_name,
                 'result': np.nan,
                 "rnd": np.nan,
                 "distances_by_word": {}
@@ -181,7 +181,7 @@ class RND(BaseMetric):
                                                       average_distances)
 
         return {
-            "query_name": query.query_name_,
+            "query_name": query.query_name,
             "result": distance,
             "rnd": distance,
             "distances_by_word": distances_by_word

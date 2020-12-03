@@ -2,7 +2,7 @@ from typing import Any, Dict, Union
 import numpy as np
 
 from .base_metric import BaseMetric
-from ..word_embedding_model import WordEmbeddingModel
+from ..word_embedding import WordEmbedding
 from ..query import Query
 
 
@@ -45,7 +45,7 @@ class WEAT(BaseMetric):
 
     def run_query(self,
                   query: Query,
-                  word_embedding_model: WordEmbeddingModel,
+                  word_embedding: WordEmbedding,
                   return_effect_size: bool = False,
                   lost_vocabulary_threshold: float = 0.2,
                   preprocessor_options: Dict = {
@@ -65,8 +65,8 @@ class WEAT(BaseMetric):
             A Query object that contains the target and attribute word sets to 
             be tested.
 
-        word_embedding_model : WordEmbeddingModel
-            A WordEmbeddingModel object that contains certain word embedding 
+        word_embedding : WordEmbedding
+            A WordEmbedding object that contains certain word embedding 
             pretrained model.
 
         return_effect_size : bool, optional
@@ -112,12 +112,12 @@ class WEAT(BaseMetric):
             and the scores of WEAT and the effect size of the metric.
         """
         # checks the types of the provided arguments (only the defaults).
-        super().run_query(query, word_embedding_model, lost_vocabulary_threshold,
+        super().run_query(query, word_embedding, lost_vocabulary_threshold,
                           preprocessor_options, secondary_preprocessor_options,
                           warn_not_found_words, *args, **kwargs)
 
         # transforming query words into embeddings
-        embeddings = word_embedding_model.get_embeddings_from_query(
+        embeddings = word_embedding.get_embeddings_from_query(
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessor_options=preprocessor_options,
@@ -128,7 +128,7 @@ class WEAT(BaseMetric):
         # return the default value (nan)
         if embeddings is None:
             return {
-                'query_name': query.query_name_,
+                'query_name': query.query_name,
                 'result': np.nan,
                 'weat': np.nan,
                 'effect_size': np.nan
@@ -152,7 +152,7 @@ class WEAT(BaseMetric):
         # return in result field effect_size
         if return_effect_size:
             return {
-                'query_name': query.query_name_,
+                'query_name': query.query_name,
                 'result': weat_effect_size,
                 'weat': weat,
                 'effect_size': weat_effect_size
@@ -160,7 +160,7 @@ class WEAT(BaseMetric):
 
         # return in result field weat
         return {
-            'query_name': query.query_name_,
+            'query_name': query.query_name,
             'result': weat,
             'weat': weat,
             'effect_size': weat_effect_size

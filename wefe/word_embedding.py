@@ -9,7 +9,7 @@ from .query import Query
 
 
 # TODO: Incluir otras fuentes de embeddings. (como polyglot o leer w2v)
-class WordEmbeddingModel:
+class WordEmbedding:
     """A container for Word Embedding pre-trained models.
 
     It can hold gensim's KeyedVectors or gensim's api loaded models.
@@ -19,7 +19,7 @@ class WordEmbeddingModel:
                  word_embedding: BaseKeyedVectors,
                  model_name: str = None,
                  vocab_prefix: str = None):
-        """Initializes the WordEmbeddingModel container.
+        """Initializes the  container.
 
         Parameters
         ----------
@@ -45,26 +45,26 @@ class WordEmbeddingModel:
         --------
         >>> from gensim.test.utils import common_texts
         >>> from gensim.models import Word2Vec
-        >>> from wefe.word_embedding_model import WordEmbeddingModel
+        >>> from wefe.word_embedding import WordEmbedding
 
         >>> dummy_model = Word2Vec(common_texts, size=10, window=5,
         ...                        min_count=1, workers=1).wv
 
-        >>> model = WordEmbeddingModel(dummy_model, 'Dummy model dim=10',
+        >>> model = WordEmbedding(dummy_model, 'Dummy model dim=10',
         ...                            vocab_prefix='/en/')
-        >>> print(model.model_name_)
+        >>> print(model.model_name)
         Dummy model dim=10
-        >>> print(model.vocab_prefix_)
+        >>> print(model.vocab_prefix)
         /en/
 
 
         Attributes
         ----------
-        model_ : KeyedVectors
+        model : KeyedVectors
             The object that contains the model.
-        model_name_ : str
+        model_name : str
             The name of the model.
-        vocab_prefix_ : str
+        vocab_prefix : str
             A prefix that will be concatenated with each word of the vocab
             of the model.
 
@@ -260,9 +260,9 @@ class WordEmbeddingModel:
             logging.warning(
                 "The transformation of '{}' into {} embeddings lost proportionally more "
                 "words than specified in 'lost_words_threshold': {} lost with respect "
-                "to{} maximum loss allowed.".format(word_set_name, self.model_name,
-                                                    round(percentage_of_lost_words, 2),
-                                                    lost_words_threshold))
+                "to {} maximum loss allowed.".format(word_set_name, self.model_name,
+                                                     round(percentage_of_lost_words, 2),
+                                                     lost_words_threshold))
             return True
         return False
 
@@ -411,7 +411,7 @@ class WordEmbeddingModel:
 
             if warn_not_found_words:
                 # warn not found words if it is enabled.
-                self._warn_not_found_words(attribute_set, not_found_words)
+                self._warn_not_found_words(attribute_set_name, not_found_words)
 
             # if the filtered words are greater than the threshold,
             # log and change the flag.
@@ -428,8 +428,8 @@ class WordEmbeddingModel:
             logging.error(
                 "At least one set of '{}' query has proportionally fewer embeddings "
                 "than allowed by the lost_vocabulary_threshold parameter ({}). "
-                "This query will return None.".format(query.query_name_,
-                                                      lost_vocabulary_threshold))
+                "This query will return np.nan.".format(query.query_name,
+                                                        lost_vocabulary_threshold))
             return None
 
         return embeddings

@@ -82,7 +82,7 @@ def test_word_embedding_model_eq():
 
 def test_w2v():
 
-    w2v = Word2Vec(common_texts, size=100, window=5, min_count=1, workers=-1)
+    w2v = Word2Vec(common_texts, vector_size=100, window=5, min_count=1, workers=-1)
     w2v_keyed_vectors = w2v.wv
     wem = WordEmbeddingModel(w2v_keyed_vectors, "w2v")
 
@@ -90,11 +90,11 @@ def test_w2v():
 
 
 def test_fast():
-    fast = FastText(size=4,
+    fast = FastText(vector_size=4,
                     window=3,
                     min_count=1,
                     sentences=common_texts,
-                    iter=10)
+                    epochs=10)
     fast_keyed_vectors = fast.wv
     wem = WordEmbeddingModel(fast_keyed_vectors, "w2v")
 

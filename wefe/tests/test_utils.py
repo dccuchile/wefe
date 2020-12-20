@@ -15,9 +15,9 @@ import pandas as pd
 def test_load_weat_w2v():
     weat_w2v = load_weat_w2v()
     assert isinstance(weat_w2v, KeyedVectors)
-    assert len(weat_w2v.vocab.keys()) == 347
+    assert len(weat_w2v.key_to_index.keys()) == 347
 
-    for vocab in weat_w2v.vocab:
+    for vocab in weat_w2v.key_to_index:
         assert isinstance(weat_w2v[vocab], np.ndarray)
 
 

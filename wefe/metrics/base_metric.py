@@ -190,11 +190,11 @@ class BaseMetric(object):
             processed_word = vocab_prefix + word if vocab_prefix != '' else word
 
             # check if the word is in the word vector vocab
-            if (processed_word in embeddings.vocab):
+            if (processed_word in embeddings.key_to_index):
                 # if it is, add the word vector to the return array
                 selected_embeddings[processed_word] = embeddings[
                     processed_word]
-            elif (processed_word_lower in embeddings.vocab):
+            elif (processed_word_lower in embeddings.key_to_index):
                 selected_embeddings[processed_word_lower] = embeddings[
                     processed_word_lower]
 

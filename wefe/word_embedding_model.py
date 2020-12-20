@@ -1,5 +1,8 @@
-from gensim.models.keyedvectors import BaseKeyedVectors
+# GenSim 3
+#from gensim.models.keyedvectors import BaseKeyedVectors
 
+# GenSim 4
+from gensim.models import KeyedVectors as BaseKeyedVectors
 
 class WordEmbeddingModel:
     """A container for Word Embedding pre-trained models.
@@ -39,7 +42,7 @@ class WordEmbeddingModel:
         >>> from gensim.models import Word2Vec
         >>> from wefe.word_embedding_model import WordEmbeddingModel
 
-        >>> dummy_model = Word2Vec(common_texts, size=10, window=5,
+        >>> dummy_model = Word2Vec(common_texts, vector_size=10, window=5,
         ...                        min_count=1, workers=1).wv
 
         >>> model = WordEmbeddingModel(dummy_model, 'Dummy model dim=10',

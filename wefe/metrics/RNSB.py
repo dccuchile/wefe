@@ -10,7 +10,7 @@ from scipy.stats import entropy
 import logging
 
 from ..query import Query
-from ..word_embedding import WordEmbedding
+from ..word_embedding_model import PreprocessorArgs, WordEmbeddingModel
 from .base_metric import BaseMetric
 
 logging.basicConfig(level=logging.DEBUG)
@@ -27,11 +27,12 @@ class RNSB(BaseMetric):
         In Proceedings of the 57th Annual Meeting of the Association for
         Computational Linguistics, pages 1662–1667, 2019.
     """
-    def __init__(self):
-        super().__init__(('n', 2), 'Relative Negative Sentiment Bias', 'RNSB')
 
-    # TODO: Implementar RANDOM_STATE.
-    def __train_classifier(
+    metric_template = ('n', 2)
+    metric_name = 'Relative Negative Sentiment Bias'
+    metric_short_name = 'RNSB'
+
+    def _train_classifier(
             self,
             attribute_embeddings_dict: List[Dict[str, np.ndarray]],
             estimator: BaseEstimator = LogisticRegression,
@@ -92,6 +93,7 @@ class RNSB(BaseMetric):
         num_train_negative_examples = np.count_nonzero((y_train == -1))
         num_train_positive_examples = np.count_nonzero((y_train == 1))
 
+        # Check the number of train and test examples.
         if num_train_positive_examples == 1:
             raise Exception(
                 'After dividing the datset using stratified train_test_split, '
@@ -119,8 +121,8 @@ class RNSB(BaseMetric):
 
         return estimator, score
 
-    def __calc_rnsb(self, target_embeddings_dict: List[Dict[str, np.ndarray]],
-                    classifier: BaseEstimator) -> Tuple[np.float_, dict]:
+    def _calc_rnsb(self, target_embeddings_dict: List[Dict[str, np.ndarray]],
+                   classifier: BaseEstimator) -> Tuple[np.float_, dict]:
         """Calculate the RNSB metric.
 
         Parameters
@@ -186,7 +188,7 @@ class RNSB(BaseMetric):
 
     def run_query(self,
                   query: Query,
-                  word_embedding: WordEmbedding,
+                  word_embedding: WordEmbeddingModel,
                   estimator: BaseEstimator = LogisticRegression,
                   estimator_params: Dict[str, Any] = {
                       'solver': 'liblinear',
@@ -196,12 +198,12 @@ class RNSB(BaseMetric):
                   random_state: Union[int, None] = None,
                   print_model_evaluation: bool = False,
                   lost_vocabulary_threshold: float = 0.2,
-                  preprocessor_options: Dict = {
+                  preprocessor_args: PreprocessorArgs = {
                       'strip_accents': False,
                       'lowercase': False,
                       'preprocessor': None,
                   },
-                  secondary_preprocessor_options: Union[Dict, None] = None,
+                  secondary_preprocessor_args: PreprocessorArgs = None,
                   warn_not_found_words: bool = False,
                   *args: Any,
                   **kwargs: Any) -> Dict[str, Any]:
@@ -222,8 +224,8 @@ class RNSB(BaseMetric):
             A Query object that contains the target and attribute word sets to 
             be tested.
 
-        word_embedding : WordEmbedding
-            A WordEmbedding object that contains certain word embedding 
+        word_embedding : WordEmbeddingModel
+            A WordEmbeddingModel object that contains certain word embedding 
             pretrained model.
 
         estimator : BaseEstimator, optional
@@ -256,9 +258,10 @@ class RNSB(BaseMetric):
             In the case that any set of the query loses proportionally more words 
             than this limit, the result values will be np.nan, by default 0.2
         
-        preprocessor_options : Dict, optional
-            Dictionary with options for pre-processing words, by default {}
-            The options for the dict are: 
+        preprocessor_args : PreprocessorArgs, optional
+            Dictionary with the arguments that specify how the pre-processing of the 
+            words will be done, by default {}
+            The possible arguments for the function are: 
             - lowercase: bool. Indicates if the words are transformed to lowercase.
             - strip_accents: bool, {'ascii', 'unicode'}: Specifies if the accents of 
                              the words are eliminated. The stripping type can be 
@@ -269,13 +272,13 @@ class RNSB(BaseMetric):
                             stop working).
             , by default { 'strip_accents': False, 'lowercase': False, 'preprocessor': None, }
         
-        secondary_preprocessor_options : Union[Dict, None], optional
-            Dictionary with options for pre-processing words (same as the previous 
-            parameter), by default None.
+        secondary_preprocessor_args : PreprocessorArgs, optional
+            Dictionary with the arguments that specify how the secondary pre-processing 
+            of the words will be done, by default None.
             Indicates that in case a word is not found in the model's vocabulary 
-            (using the default preprocessor or specified in preprocessor_options), 
+            (using the default preprocessor or specified in preprocessor_args), 
             the function performs a second search for that word using the preprocessor 
-            specified in this parameter, by default None
+            specified in this parameter.
 
         warn_not_found_words : bool, optional
             Specifies if the function will warn (in the logger)
@@ -292,15 +295,15 @@ class RNSB(BaseMetric):
         """
         # checks the types of the provided arguments (only the defaults).
         super().run_query(query, word_embedding, lost_vocabulary_threshold,
-                          preprocessor_options, secondary_preprocessor_options,
+                          preprocessor_args, secondary_preprocessor_args,
                           warn_not_found_words, *args, **kwargs)
 
         # transforming query words into embeddings
         embeddings = word_embedding.get_embeddings_from_query(
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
-            preprocessor_options=preprocessor_options,
-            secondary_preprocessor_options=secondary_preprocessor_options,
+            preprocessor_args=preprocessor_args,
+            secondary_preprocessor_args=secondary_preprocessor_args,
             warn_not_found_words=warn_not_found_words)
 
         # if there is any/some set has less words than the allowed limit,
@@ -315,9 +318,13 @@ class RNSB(BaseMetric):
                 'negative_sentiment_distribution': {}
             }
 
-        # get the target and attribute embeddings
-        target_embeddings = embeddings['target_embeddings']
-        attribute_embeddings = embeddings['attribute_embeddings']
+        # get the targets and attribute sets transformed into embeddings.
+        target_sets, attribute_sets = embeddings
+
+        # get only the embeddings of the sets.
+        target_embeddings = list(target_sets.values())
+        attribute_embeddings = list(attribute_sets.values())
+
         # create the arrays that will contain the scores for each iteration
         calculated_divergences = []
         calculated_negative_sentiment_probabilities = []
@@ -327,7 +334,7 @@ class RNSB(BaseMetric):
         for _ in range(num_iterations):
 
             # train the logit with the train data.
-            trained_classifier, score = self.__train_classifier(
+            trained_classifier, score = self._train_classifier(
                 attribute_embeddings_dict=attribute_embeddings,
                 random_state=random_state,
                 estimator=estimator,
@@ -337,7 +344,7 @@ class RNSB(BaseMetric):
             scores.append(score)
 
             # get the scores
-            divergence, negative_sentiment_probabilities = self.__calc_rnsb(
+            divergence, negative_sentiment_probabilities = self._calc_rnsb(
                 target_embeddings, trained_classifier)
 
             calculated_divergences.append(divergence)

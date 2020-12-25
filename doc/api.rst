@@ -9,7 +9,7 @@ Next, the main classes:
 
 .. currentmodule:: wefe
 
-
+WordEmbeddingModel
 
 ==================
 
@@ -17,7 +17,7 @@ Next, the main classes:
    :toctree: generated/
    :template: class.rst
 
-   
+   WordEmbeddingModel
 
 Query
 ==================

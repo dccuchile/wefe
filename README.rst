@@ -125,18 +125,30 @@ Changelog
 
 Version 0.2.0
 --------------
-- Renamed optional ``run_query`` parameter  ``warn_filtered_words`` to ``warn_not_found_words``
-- also_search_for
-- word_preprocessor_options
-- Added _get_embedding function in  (explicar que hace)
-- Added _preprocess_word function in  (explicar que hace)
-- Remover underscore from class attributes variable names.
-- Improved type and verification exception messages when creating objects and executing methods.
-- Removed _ from the end of all attribute variables (really strange convension).
-- Changed WordEmbeddingModel class name to WordEmbedding.
-- Fix the error that appeared when calculating rankings with two columns of 
-  aggregations with the same name.
-- Ranking correlations are now calculated using pandas corr method. 
+- Renamed optional `run_query` parameter  `warn_filtered_words` to 
+`warn_not_found_words`.
+- Implemented alias for WordEmbeddingModel class: WordEmbedding.
+- Added `word_preprocessor_options` parameter to `run_query` that allows to 
+specify transformations prior to searching for words in word embeddings.
+- Added `secondary_preprocessor_options` parameter to `run_query` which allows 
+to specify a second pre-processor transformation to words before searching them 
+in word embeddings. It is not necessary to specify the first preprocessor to 
+use this one.
+- Implemented `__getitem__` function in WordEmbedding. This method allows to 
+obtain an embedding from a word from the model stored in the instance using 
+indexers. 
+- Removed underscore from class and instance variable names.
+- Improved type and verification exception messages when creating objects and 
+executing methods.
+- Fix an error that appeared when calculating rankings with two columns of 
+aggregations with the same name.
+- Ranking correlations are now calculated using pandas `corr` method. 
+- Changed metric template, name and short_names to class variables.
+- Implemented `random_state` in RNSB to allow replication of the experiments.
+- run_query now returns as a result the default metric requested in the 
+parameters and all calculated values that may be useful in the other variables 
+of the dictionary.
+
 Citation
 =========
 
@@ -163,9 +175,6 @@ Bibtex:
         doi       = {10.24963/ijcai.2020/60},
         url       = {https://doi.org/10.24963/ijcai.2020/60},
         }
-
-
-
 
 
 Team

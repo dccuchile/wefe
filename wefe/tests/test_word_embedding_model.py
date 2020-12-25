@@ -1,17 +1,20 @@
-from gensim.test.utils import common_texts
-from gensim.models import Word2Vec, FastText
-
-import string
+import gensim
 import pytest
 import numpy as np
 import logging
 
+import gensim
+from gensim.test.utils import common_texts
+from gensim.models import Word2Vec, FastText
+import semantic_version
+
 from ..query import Query
 from ..datasets import load_weat
-from ..word_embedding import WordEmbedding
+from ..word_embedding_model import WordEmbeddingModel
 from ..utils import load_weat_w2v
 
 LOGGER = logging.getLogger(__name__)
+gensim_version = semantic_version.Version.coerce(gensim.__version__)
 
 
 def test_word_embedding_init_types():
@@ -19,26 +22,22 @@ def test_word_embedding_init_types():
     # Test types verifications
 
     # target sets None
-    with pytest.raises(
-            TypeError,
-            match="word_embedding should be an instance of gensim's BaseKeyedVectors"):
-        WordEmbedding(None)
+    with pytest.raises(TypeError,
+                       match="model should be an instance of gensim's BaseKeyedVectors"):
+        WordEmbeddingModel(None)
 
     # target sets int
-    with pytest.raises(
-            TypeError,
-            match="word_embedding should be an instance of gensim's BaseKeyedVectors"):
-        WordEmbedding('abc')
+    with pytest.raises(TypeError,
+                       match="model should be an instance of gensim's BaseKeyedVectors"):
+        WordEmbeddingModel('abc')
 
-    with pytest.raises(
-            TypeError,
-            match="word_embedding should be an instance of gensim's BaseKeyedVectors"):
-        WordEmbedding(1)
+    with pytest.raises(TypeError,
+                       match="model should be an instance of gensim's BaseKeyedVectors"):
+        WordEmbeddingModel(1)
 
-    with pytest.raises(
-            TypeError,
-            match="word_embedding should be an instance of gensim's BaseKeyedVectors"):
-        WordEmbedding({})
+    with pytest.raises(TypeError,
+                       match="model should be an instance of gensim's BaseKeyedVectors"):
+        WordEmbeddingModel({})
 
 
 def test_word_embedding_init():
@@ -46,40 +45,27 @@ def test_word_embedding_init():
     # Load dummy w2v
     weat_we = load_weat_w2v()
 
-    # test types
-    with pytest.raises(
-            TypeError,
-            match=
-            'word_embedding should be an instance of gensim\'s BaseKeyedVectors, got'):
-        WordEmbedding(None)
-
-    with pytest.raises(TypeError, match='model_name should be a string or None, got'):
-        WordEmbedding(weat_we, 12)
-
-    with pytest.raises(TypeError, match='vocab_prefix should be a string or None, got '):
-        WordEmbedding(weat_we, 'A', 12)
-
     # test models
-    model = WordEmbedding(weat_we)
+    model = WordEmbeddingModel(weat_we)
     assert model.model == weat_we
     assert model.model_name == 'Unnamed word embedding model'
     assert model.vocab_prefix == None
 
-    model = WordEmbedding(weat_we, 'weat_we')
+    model = WordEmbeddingModel(weat_we, 'weat_we')
     assert model.model == weat_we
     assert model.model_name == 'weat_we'
     assert model.vocab_prefix == None
 
-    model = WordEmbedding(weat_we, 'weat_we', '\\c\\en')
+    model = WordEmbeddingModel(weat_we, 'weat_we', '\\c\\en')
     assert model.model == weat_we
     assert model.model_name == 'weat_we'
     assert model.vocab_prefix == '\\c\\en'
 
 
 def test_word_embedding_eq():
-    model_1 = WordEmbedding(load_weat_w2v(), 'weat_1')
-    model_2 = WordEmbedding(load_weat_w2v(), 'weat_2')
-    model_3 = WordEmbedding(load_weat_w2v(), 'weat_2', vocab_prefix='a')
+    model_1 = WordEmbeddingModel(load_weat_w2v(), 'weat_1')
+    model_2 = WordEmbeddingModel(load_weat_w2v(), 'weat_2')
+    model_3 = WordEmbeddingModel(load_weat_w2v(), 'weat_2', vocab_prefix='a')
 
     assert model_1 == model_1
     assert model_1 != model_2
@@ -94,24 +80,35 @@ def test_word_embedding_eq():
 
 def test_w2v():
 
-    w2v = Word2Vec(common_texts, size=100, window=5, min_count=1, workers=-1)
+    if gensim_version.major >= 4:
+        w2v = Word2Vec(common_texts, vector_size=100, window=5, min_count=1, workers=-1)
+    else:
+        w2v = Word2Vec(common_texts, size=100, window=5, min_count=1, workers=-1)
     w2v_keyed_vectors = w2v.wv
-    wem = WordEmbedding(w2v_keyed_vectors, "w2v")
+    wem = WordEmbeddingModel(w2v_keyed_vectors, "w2v")
 
     assert w2v.wv == wem.model
 
 
 def test_fast():
-    fast = FastText(size=4, window=3, min_count=1, sentences=common_texts, iter=10)
+
+    if gensim_version.major >= 4:
+        fast = FastText(vector_size=4,
+                        window=3,
+                        min_count=1,
+                        sentences=common_texts,
+                        epochs=10)
+    else:
+        fast = FastText(size=4, window=3, min_count=1, sentences=common_texts, iter=10)
     fast_keyed_vectors = fast.wv
-    wem = WordEmbedding(fast_keyed_vectors, "w2v")
+    wem = WordEmbeddingModel(fast_keyed_vectors, "w2v")
 
     assert fast.wv == wem.model
 
 
 def test__getitem__():
     w2v = load_weat_w2v()
-    model = WordEmbedding(w2v, 'weat_w2v')
+    model = WordEmbeddingModel(w2v, 'weat_w2v')
 
     embedding = model['ASDF']
     assert embedding == None
@@ -123,7 +120,7 @@ def test__getitem__():
 def test_preprocess_word():
 
     w2v = load_weat_w2v()
-    model = WordEmbedding(w2v, 'weat_w2v', '')
+    model = WordEmbeddingModel(w2v, 'weat_w2v', '')
 
     word = model._preprocess_word('Woman')
     assert word == 'Woman'
@@ -159,7 +156,7 @@ def test_preprocess_word():
     assert word == 'WOMAN'
 
     # now with prefix
-    model = WordEmbedding(w2v, 'weat_w2v', 'asd-')
+    model = WordEmbeddingModel(w2v, 'weat_w2v', 'asd-')
     word = model._preprocess_word('woman')
     assert word == 'asd-woman'
 
@@ -167,24 +164,23 @@ def test_preprocess_word():
 def test_get_embeddings_from_word_set():
 
     w2v = load_weat_w2v()
-    model = WordEmbedding(w2v, 'weat_w2v', '')
+    model = WordEmbeddingModel(w2v, 'weat_w2v', '')
     WORDS = ['man', 'woman']
 
     with pytest.raises(TypeError, match="word_set should be a list of strings, got"):
-        model.get_embeddings_from_word_set(None, preprocessor_options=1)
+        model.get_embeddings_from_word_set(None, preprocessor_args=1)
+
+    with pytest.raises(
+            TypeError,
+            match="preprocessor_args should be a dict of preprocessor arguments, got"):
+        model.get_embeddings_from_word_set(WORDS, preprocessor_args=1)
 
     with pytest.raises(
             TypeError,
             match=
-            "word_preprocessor_options should be a dict of preprocessor options, got"):
-        model.get_embeddings_from_word_set(WORDS, preprocessor_options=1)
-
-    with pytest.raises(
-            TypeError,
-            match=
-            "secondary_preprocessor_options should be a dict of preprocessor options or None, got"
-    ):
-        model.get_embeddings_from_word_set(WORDS, secondary_preprocessor_options=-1)
+            "secondary_preprocessor_args should be a dict of preprocessor arguments or "
+            "None, got"):
+        model.get_embeddings_from_word_set(WORDS, secondary_preprocessor_args=-1)
 
     # ----------------------------------------------------------------------------------
     # test basic opretaion of _get_embeddings_from_word_set
@@ -254,7 +250,7 @@ def test_get_embeddings_from_word_set():
     # secondary_preprocessor_options:
     WORDS = ['mán', 'wömàn', 'qwerty', 'ásdf']
     not_found_words, embeddings = model.get_embeddings_from_word_set(
-        WORDS, secondary_preprocessor_options={'strip_accents': True})
+        WORDS, secondary_preprocessor_args={'strip_accents': True})
 
     assert len(embeddings) == 2
     assert len(not_found_words) == 2
@@ -268,7 +264,7 @@ def test_get_embeddings_from_word_set():
 
 def test_warn_not_found_words(caplog):
     w2v = load_weat_w2v()
-    model = WordEmbedding(w2v, 'weat_w2v', '')
+    model = WordEmbeddingModel(w2v, 'weat_w2v', '')
 
     model._warn_not_found_words('Set1', ['aaa', 'bbb'])
     assert "The following words from set 'Set1' do not exist within the vocabulary" in caplog.text
@@ -278,7 +274,7 @@ def test_warn_not_found_words(caplog):
 @pytest.fixture
 def simple_model_and_query():
     w2v = load_weat_w2v()
-    model = WordEmbedding(w2v, 'weat_w2v', '')
+    model = WordEmbeddingModel(w2v, 'weat_w2v', '')
     weat_wordsets = load_weat()
 
     flowers = weat_wordsets['flowers']
@@ -307,38 +303,51 @@ def test_get_embeddings_from_query(caplog, simple_model_and_query):
 
     with pytest.raises(
             TypeError,
-            match=
-            "word_preprocessor_options should be a dict of preprocessor options, got"):
-        model.get_embeddings_from_query(query, preprocessor_options=1)
+            match="preprocessor_args should be a dict of preprocessor arguments, got"):
+        model.get_embeddings_from_query(query, preprocessor_args=1)
 
     with pytest.raises(
             TypeError,
             match=
-            "secondary_preprocessor_options should be a dict of preprocessor options or None, got"
+            "secondary_preprocessor_args should be a dict of preprocessor arguments or None, got"
     ):
-        model.get_embeddings_from_query(query, secondary_preprocessor_options=1)
+        model.get_embeddings_from_query(query, secondary_preprocessor_args=1)
 
     with pytest.raises(TypeError, match="warn_not_found_words should be a boolean, got"):
         model.get_embeddings_from_query(query, warn_not_found_words=None)
 
     embeddings = model.get_embeddings_from_query(query)
 
-    target_embeddings = embeddings['target_embeddings']
-    attribute_embeddings = embeddings['attribute_embeddings']
+    target_embeddings, attribute_embeddings = embeddings
 
-    assert len(target_embeddings) == 2
-    assert len(attribute_embeddings) == 2
+    target_embeddings_sets = list(target_embeddings.values())
+    attribute_embeddings_sets = list(attribute_embeddings.values())
 
-    assert list(target_embeddings[0].keys()) == flowers
-    assert list(target_embeddings[1].keys()) == list(
+    target_embeddings_names = list(target_embeddings.keys())
+    attribute_embeddings_names = list(attribute_embeddings.keys())
+
+    assert len(target_embeddings_sets) == 2
+    assert len(attribute_embeddings_sets) == 2
+    assert len(target_embeddings_names) == 2
+    assert len(attribute_embeddings_names) == 2
+
+    # test set names
+    assert target_embeddings_names[0] == 'Flowers'
+    assert target_embeddings_names[1] == 'Insects'
+    assert attribute_embeddings_names[0] == 'Pleasant'
+    assert attribute_embeddings_names[1] == 'Unpleasant'
+
+    # test set embeddings
+    assert list(target_embeddings_sets[0].keys()) == flowers
+    assert list(target_embeddings_sets[1].keys()) == list(
         filter(lambda x: x != 'axe', insects))
-    assert list(attribute_embeddings[0].keys()) == pleasant
-    assert list(attribute_embeddings[1].keys()) == unpleasant
+    assert list(attribute_embeddings_sets[0].keys()) == pleasant
+    assert list(attribute_embeddings_sets[1].keys()) == unpleasant
 
-    assert list(target_embeddings[0]['aster'] == w2v['aster'])
-    assert list(target_embeddings[1]['ant'] == w2v['ant'])
-    assert list(attribute_embeddings[0]['caress'] == w2v['caress'])
-    assert list(attribute_embeddings[1]['abuse'] == w2v['abuse'])
+    assert list(target_embeddings_sets[0]['aster'] == w2v['aster'])
+    assert list(target_embeddings_sets[1]['ant'] == w2v['ant'])
+    assert list(attribute_embeddings_sets[0]['caress'] == w2v['caress'])
+    assert list(attribute_embeddings_sets[1]['abuse'] == w2v['abuse'])
 
 
 def test_preprocessor_param_on_get_embeddings_from_query(caplog, simple_model_and_query):
@@ -356,46 +365,50 @@ def test_preprocessor_param_on_get_embeddings_from_query(caplog, simple_model_an
     flowers_3 = [s.upper() for s in flowers]
     query_3 = Query([flowers_3, insects], [pleasant, unpleasant], ['Flowers', 'Insects'],
                     ['Pleasant', 'Unpleasant'])
-    embeddings = model.get_embeddings_from_query(
-        query_3, preprocessor_options={'lowercase': True})
+    embeddings = model.get_embeddings_from_query(query_3,
+                                                 preprocessor_args={'lowercase': True})
 
-    target_embeddings = embeddings['target_embeddings']
-    attribute_embeddings = embeddings['attribute_embeddings']
+    target_embeddings, attribute_embeddings = embeddings
 
-    assert len(target_embeddings) == 2
-    assert len(attribute_embeddings) == 2
+    target_embeddings_sets = list(target_embeddings.values())
+    attribute_embeddings_sets = list(attribute_embeddings.values())
 
-    assert list(target_embeddings[0].keys()) == flowers
-    assert list(target_embeddings[1].keys()) == list(
+    assert len(target_embeddings_sets) == 2
+    assert len(attribute_embeddings_sets) == 2
+
+    assert list(target_embeddings_sets[0].keys()) == flowers
+    assert list(target_embeddings_sets[1].keys()) == list(
         filter(lambda x: x != 'axe', insects))
-    assert list(attribute_embeddings[0].keys()) == pleasant
-    assert list(attribute_embeddings[1].keys()) == unpleasant
+    assert list(attribute_embeddings_sets[0].keys()) == pleasant
+    assert list(attribute_embeddings_sets[1].keys()) == unpleasant
 
-    assert list(target_embeddings[0]['aster'] == w2v['aster'])
-    assert list(target_embeddings[1]['ant'] == w2v['ant'])
-    assert list(attribute_embeddings[0]['caress'] == w2v['caress'])
-    assert list(attribute_embeddings[1]['abuse'] == w2v['abuse'])
+    assert list(target_embeddings_sets[0]['aster'] == w2v['aster'])
+    assert list(target_embeddings_sets[1]['ant'] == w2v['ant'])
+    assert list(attribute_embeddings_sets[0]['caress'] == w2v['caress'])
+    assert list(attribute_embeddings_sets[1]['abuse'] == w2v['abuse'])
 
     # with secondary_preprocessor_options options
     embeddings = model.get_embeddings_from_query(
-        query_3, secondary_preprocessor_options={'lowercase': True})
+        query_3, secondary_preprocessor_args={'lowercase': True})
 
-    target_embeddings = embeddings['target_embeddings']
-    attribute_embeddings = embeddings['attribute_embeddings']
+    target_embeddings, attribute_embeddings = embeddings
 
-    assert len(target_embeddings) == 2
-    assert len(attribute_embeddings) == 2
+    target_embeddings_sets = list(target_embeddings.values())
+    attribute_embeddings_sets = list(attribute_embeddings.values())
 
-    assert list(target_embeddings[0].keys()) == flowers
-    assert list(target_embeddings[1].keys()) == list(
+    assert len(target_embeddings_sets) == 2
+    assert len(attribute_embeddings_sets) == 2
+
+    assert list(target_embeddings_sets[0].keys()) == flowers
+    assert list(target_embeddings_sets[1].keys()) == list(
         filter(lambda x: x != 'axe', insects))
-    assert list(attribute_embeddings[0].keys()) == pleasant
-    assert list(attribute_embeddings[1].keys()) == unpleasant
+    assert list(attribute_embeddings_sets[0].keys()) == pleasant
+    assert list(attribute_embeddings_sets[1].keys()) == unpleasant
 
-    assert list(target_embeddings[0]['aster'] == w2v['aster'])
-    assert list(target_embeddings[1]['ant'] == w2v['ant'])
-    assert list(attribute_embeddings[0]['caress'] == w2v['caress'])
-    assert list(attribute_embeddings[1]['abuse'] == w2v['abuse'])
+    assert list(target_embeddings_sets[0]['aster'] == w2v['aster'])
+    assert list(target_embeddings_sets[1]['ant'] == w2v['ant'])
+    assert list(attribute_embeddings_sets[0]['caress'] == w2v['caress'])
+    assert list(attribute_embeddings_sets[1]['abuse'] == w2v['abuse'])
 
 
 def test_threshold_param_on_get_embeddings_from_query(caplog, simple_model_and_query):

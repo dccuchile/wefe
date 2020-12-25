@@ -2,7 +2,7 @@ import numpy as np
 from typing import Any, Dict, Union
 
 from ..query import Query
-from ..word_embedding import WordEmbedding
+from ..word_embedding_model import PreprocessorArgs, WordEmbeddingModel
 from .base_metric import BaseMetric
 
 
@@ -18,8 +18,10 @@ class RND(BaseMetric):
     Word embeddings quantify 100 years of gender and ethnic stereotypes.
     Proceedings of the National Academy of Sciences, 115(16):E3635–E3644,2018.
     """
-    def __init__(self):
-        super().__init__((2, 1), 'Relative Norm Distance', 'RND')
+
+    metric_template = (2, 1)
+    metric_name = 'Relative Norm Distance'
+    metric_short_name = 'RND'
 
     def __calc_distance(self, vec1: np.ndarray, vec2: np.ndarray, distance_type='norm'):
         if distance_type == 'norm':
@@ -71,16 +73,16 @@ class RND(BaseMetric):
 
     def run_query(self,
                   query: Query,
-                  word_embedding: WordEmbedding,
+                  word_embedding: WordEmbeddingModel,
                   distance_type: str = 'norm',
                   average_distances: bool = True,
                   lost_vocabulary_threshold: float = 0.2,
-                  preprocessor_options: Dict = {
+                  preprocessor_args: PreprocessorArgs = {
                       'strip_accents': False,
                       'lowercase': False,
                       'preprocessor': None,
                   },
-                  secondary_preprocessor_options: Union[Dict, None] = None,
+                  secondary_preprocessor_args: PreprocessorArgs = None,
                   warn_not_found_words: bool = False,
                   *args: Any,
                   **kwargs: Any) -> Dict[str, Any]:
@@ -110,9 +112,10 @@ class RND(BaseMetric):
             In the case that any set of the query loses proportionally more words 
             than this limit, the result values will be np.nan, by default 0.2
 
-        preprocessor_options : Dict, optional
-            Dictionary with options for pre-processing words, by default {}
-            The options for the dict are: 
+        preprocessor_args : PreprocessorArgs, optional
+            Dictionary with the arguments that specify how the pre-processing of the 
+            words will be done, by default {}
+            The possible arguments for the function are: 
             - lowercase: bool. Indicates if the words are transformed to lowercase.
             - strip_accents: bool, {'ascii', 'unicode'}: Specifies if the accents of 
                              the words are eliminated. The stripping type can be 
@@ -123,13 +126,13 @@ class RND(BaseMetric):
                             stop working).
             , by default { 'strip_accents': False, 'lowercase': False, 'preprocessor': None, }
         
-        secondary_preprocessor_options : Union[Dict, None], optional
-            Dictionary with options for pre-processing words (same as the previous 
-            parameter), by default None.
+        secondary_preprocessor_args : PreprocessorArgs, optional
+            Dictionary with the arguments that specify how the secondary pre-processing 
+            of the words will be done, by default None.
             Indicates that in case a word is not found in the model's vocabulary 
-            (using the default preprocessor or specified in preprocessor_options), 
+            (using the default preprocessor or specified in preprocessor_args), 
             the function performs a second search for that word using the preprocessor 
-            specified in this parameter, by default None
+            specified in this parameter.
 
         warn_not_found_words : bool, optional
             Specifies if the function will warn (in the logger)
@@ -145,15 +148,15 @@ class RND(BaseMetric):
         """
         # checks the types of the provided arguments (only the defaults).
         super().run_query(query, word_embedding, lost_vocabulary_threshold,
-                          preprocessor_options, secondary_preprocessor_options,
+                          preprocessor_args, secondary_preprocessor_args,
                           warn_not_found_words, *args, **kwargs)
 
         # transforming query words into embeddings
         embeddings = word_embedding.get_embeddings_from_query(
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
-            preprocessor_options=preprocessor_options,
-            secondary_preprocessor_options=secondary_preprocessor_options,
+            preprocessor_args=preprocessor_args,
+            secondary_preprocessor_args=secondary_preprocessor_args,
             warn_not_found_words=warn_not_found_words)
 
         # if there is any/some set has less words than the allowed limit,
@@ -166,8 +169,12 @@ class RND(BaseMetric):
                 "distances_by_word": {}
             }
 
-        target_embeddings = embeddings['target_embeddings']
-        attribute_embeddings = embeddings['attribute_embeddings']
+        # get the targets and attribute sets transformed into embeddings.
+        target_sets, attribute_sets = embeddings
+
+        # get only the embeddings of the sets.
+        target_embeddings = list(target_sets.values())
+        attribute_embeddings = list(attribute_sets.values())
 
         target_0_embeddings = list(target_embeddings[0].values())
         target_1_embeddings = list(target_embeddings[1].values())

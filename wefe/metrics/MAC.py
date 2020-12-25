@@ -1,7 +1,7 @@
 from typing import Any, Dict, Union
 import numpy as np
 from ..query import Query
-from ..word_embedding import WordEmbedding
+from ..word_embedding_model import PreprocessorArgs, WordEmbeddingModel
 from .base_metric import BaseMetric
 
 
@@ -11,17 +11,17 @@ class MAC(BaseMetric):
     References
     -------
         [1] Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
-        Black is to criminalas caucasian is to police: Detecting and removing
-        multiclass bias in word embeddings.
-        In Proceedings of the 2019 Conference of the North American Chapter
-        of the Association for Computational Linguistics:
-        Human Lan-guage Technologies, Volume 1 (Long and Short Papers),
-        pages 615–621,
-        Minneapolis, Minnesota, June 2019. Association for
-        Computational Linguistics.
+        Black is to criminalas caucasian is to police: Detecting and removing multiclass 
+        bias in word embeddings.
+        In Proceedings of the 2019 Conference of the North American Chapter of the 
+        Association for Computational Linguistics:
+        Human Language Technologies, Volume 1 (Long and Short Papers), pages 615–621,
+        Minneapolis, Minnesota, June 2019. Association for Computational Linguistics.
     """
-    def __init__(self):
-        super().__init__((1, 'n'), 'Mean Average Cosine Similarity', 'MAC')
+
+    metric_template = (1, 'n')
+    metric_name = 'Mean Average Cosine Similarity'
+    metric_short_name = 'MAC'
 
     def calc_s(self, t, A_j):
         def calc_cos_dist(a, b):
@@ -38,14 +38,14 @@ class MAC(BaseMetric):
 
     def run_query(self,
                   query: Query,
-                  word_embedding: WordEmbedding,
+                  word_embedding: WordEmbeddingModel,
                   lost_vocabulary_threshold: float = 0.2,
-                  preprocessor_options: Dict = {
+                  preprocessor_args: PreprocessorArgs = {
                       'strip_accents': False,
                       'lowercase': False,
                       'preprocessor': None,
                   },
-                  secondary_preprocessor_options: Union[Dict, None] = None,
+                  secondary_preprocessor_args: PreprocessorArgs = None,
                   warn_not_found_words: bool = False,
                   *args: Any,
                   **kwargs: Any) -> Dict[str, Any]:
@@ -67,9 +67,10 @@ class MAC(BaseMetric):
             In the case that any set of the query loses proportionally more words 
             than this limit, the result values will be np.nan, by default 0.2
 
-        preprocessor_options : Dict, optional
-            Dictionary with options for pre-processing words, by default {}
-            The options for the dict are: 
+        preprocessor_args : PreprocessorArgs, optional
+            Dictionary with the arguments that specify how the pre-processing of the 
+            words will be done, by default {}
+            The possible arguments for the function are: 
             - lowercase: bool. Indicates if the words are transformed to lowercase.
             - strip_accents: bool, {'ascii', 'unicode'}: Specifies if the accents of 
                              the words are eliminated. The stripping type can be 
@@ -80,13 +81,13 @@ class MAC(BaseMetric):
                             stop working).
             , by default { 'strip_accents': False, 'lowercase': False, 'preprocessor': None, }
         
-        secondary_preprocessor_options : Union[Dict, None], optional
-            Dictionary with options for pre-processing words (same as the previous 
-            parameter), by default None.
+        secondary_preprocessor_args : PreprocessorArgs, optional
+            Dictionary with the arguments that specify how the secondary pre-processing 
+            of the words will be done, by default None.
             Indicates that in case a word is not found in the model's vocabulary 
-            (using the default preprocessor or specified in preprocessor_options), 
+            (using the default preprocessor or specified in preprocessor_args), 
             the function performs a second search for that word using the preprocessor 
-            specified in this parameter, by default None
+            specified in this parameter.
 
         warn_not_found_words : bool, optional
             Specifies if the function will warn (in the logger)
@@ -102,15 +103,15 @@ class MAC(BaseMetric):
         """
         # checks the types of the provided arguments (only the defaults).
         super().run_query(query, word_embedding, lost_vocabulary_threshold,
-                          preprocessor_options, secondary_preprocessor_options,
+                          preprocessor_args, secondary_preprocessor_args,
                           warn_not_found_words, *args, **kwargs)
 
         # transforming query words into embeddings
         embeddings = word_embedding.get_embeddings_from_query(
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
-            preprocessor_options=preprocessor_options,
-            secondary_preprocessor_options=secondary_preprocessor_options,
+            preprocessor_args=preprocessor_args,
+            secondary_preprocessor_args=secondary_preprocessor_args,
             warn_not_found_words=warn_not_found_words)
 
         # if there is any/some set has less words than the allowed limit,
@@ -123,8 +124,13 @@ class MAC(BaseMetric):
                 "distances_by_word": {}
             }
 
-        target_embeddings = embeddings['target_embeddings']
-        attribute_embeddings = embeddings['attribute_embeddings']
+        # get the targets and attribute sets transformed into embeddings.
+        target_sets, attribute_sets = embeddings
+
+        # get only the embeddings of the sets.
+        target_embeddings = list(target_sets.values())
+        attribute_embeddings = list(attribute_sets.values())
+
         # get the target and attribute embeddings dicts
         target_0_embeddings = list(target_embeddings[0].values())
         attribute_embeddings_all_sets = [

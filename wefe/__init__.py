@@ -1,4 +1,4 @@
-from .word_embedding import WordEmbedding
+from .word_embedding_model import WordEmbeddingModel
 from .query import Query
 from .metrics.base_metric import BaseMetric
 from .metrics.WEAT import WEAT

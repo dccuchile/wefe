@@ -1,6 +1,8 @@
 numpy
 scipy
-scikit-learn
+scikit-learn>=0.23.2
 pandas
-gensim
+gensim>=3.8.3
 plotly
+six
+semantic_version

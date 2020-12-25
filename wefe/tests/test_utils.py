@@ -1,24 +1,33 @@
+import gensim
 import pytest
+import semantic_version
 
 from wefe.utils import load_weat_w2v, run_queries, create_ranking, \
                        calculate_ranking_correlations
 from wefe.datasets import load_weat
 from wefe.query import Query
-from wefe.word_embedding import WordEmbedding
+from wefe.word_embedding_model import WordEmbeddingModel
 from wefe.metrics import WEAT, RND
 
 from gensim.models import KeyedVectors
 import numpy as np
 import pandas as pd
 
+gensim_version = semantic_version.Version.coerce(gensim.__version__)
+
 
 def test_load_weat_w2v():
     weat_w2v = load_weat_w2v()
     assert isinstance(weat_w2v, KeyedVectors)
-    assert len(weat_w2v.vocab.keys()) == 347
 
-    for vocab in weat_w2v.vocab:
-        assert isinstance(weat_w2v[vocab], np.ndarray)
+    if gensim_version.major >= 4:
+        assert len(weat_w2v.key_to_index.keys()) == 347
+        for word in weat_w2v.key_to_index:
+            assert isinstance(weat_w2v[word], np.ndarray)
+    else:
+        assert len(weat_w2v.vocab.keys()) == 347
+        for word in weat_w2v.vocab:
+            assert isinstance(weat_w2v[word], np.ndarray)
 
 
 @pytest.fixture
@@ -54,9 +63,9 @@ def queries_and_models():
     dummy_model_3 = weat_w2v
 
     models = [
-        WordEmbedding(dummy_model_1, 'dummy_model_1'),
-        WordEmbedding(dummy_model_2, 'dummy_model_2'),
-        WordEmbedding(dummy_model_3, 'dummy_model_3')
+        WordEmbeddingModel(dummy_model_1, 'dummy_model_1'),
+        WordEmbeddingModel(dummy_model_2, 'dummy_model_2'),
+        WordEmbeddingModel(dummy_model_3, 'dummy_model_3')
     ]
     return gender_queries, negative_test_queries, models
 
@@ -95,11 +104,11 @@ def test_run_query_input_validation(queries_and_models):
         run_queries(WEAT, gender_queries, [])
 
     with pytest.raises(TypeError,
-                       match='item on index 0 must be a WordEmbedding instance*'):
+                       match='item on index 0 must be a WordEmbeddingModel instance*'):
         run_queries(WEAT, gender_queries, [None])
 
     with pytest.raises(TypeError,
-                       match='item on index 3 must be a WordEmbedding instance*'):
+                       match='item on index 3 must be a WordEmbeddingModel instance*'):
         run_queries(WEAT, gender_queries, models + [None])
 
     with pytest.raises(TypeError,
@@ -341,6 +350,7 @@ def test_run_query(queries_and_models):
 def test_ranking_results(queries_and_models):
 
     gender_queries, negative_test_queries, models = queries_and_models
+
     results_gender = run_queries(
         WEAT,
         gender_queries,
@@ -352,8 +362,7 @@ def test_ranking_results(queries_and_models):
                                    negative_test_queries,
                                    models,
                                    queries_set_name='Negative Test Queries',
-                                   aggregate_results=True,
-                                   return_only_aggregation=True)
+                                   aggregate_results=True)
 
     results_gender_rnd = run_queries(
         RND,
@@ -375,7 +384,26 @@ def test_ranking_results(queries_and_models):
         create_ranking([results_gender, results_negative, 2])
 
     ranking = create_ranking([results_gender, results_negative, results_gender_rnd])
+
+    expected_ranking = pd.DataFrame({
+        'WEAT: Gender Queries average of abs values score': {
+            'dummy_model_1': 1.0,
+            'dummy_model_2': 2.0,
+            'dummy_model_3': 3.0
+        },
+        'WEAT: Negative Test Queries average of abs values score': {
+            'dummy_model_1': 1.0,
+            'dummy_model_2': 2.0,
+            'dummy_model_3': 3.0
+        },
+        'RND: Gender Queries average of abs values score': {
+            'dummy_model_1': 1.0,
+            'dummy_model_2': 2.0,
+            'dummy_model_3': 3.0
+        },
+    })
     assert ranking.shape == (3, 3)
+    assert expected_ranking.equals(ranking)
 
     for row in ranking.values:
         for val in row:

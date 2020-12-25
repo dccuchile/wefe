@@ -4,7 +4,7 @@ import pytest
 import numpy as np
 
 from ..utils import load_weat_w2v
-from ..word_embedding import WordEmbedding
+from ..word_embedding_model import WordEmbeddingModel
 from ..datasets.datasets import load_weat
 from ..query import Query
 from ..metrics import WEAT, RND, RNSB, MAC, ECT
@@ -12,10 +12,10 @@ from ..metrics import WEAT, RND, RNSB, MAC, ECT
 LOGGER = logging.getLogger(__name__)
 
 
-def test_weat():
+def test_WEAT():
 
     weat_word_set = load_weat()
-    model = WordEmbedding(load_weat_w2v(), 'weat_w2v', '')
+    model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
 
     weat = WEAT()
     query = Query([weat_word_set['flowers'], weat_word_set['insects']],
@@ -30,10 +30,10 @@ def test_weat():
     assert isinstance(results['result'], (np.float32, np.float64, float))
 
 
-def test_rnd():
+def test_RND():
 
     weat_word_set = load_weat()
-    model = WordEmbedding(load_weat_w2v(), 'weat_w2v', '')
+    model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
 
     rnd = RND()
     query = Query([weat_word_set['flowers'], weat_word_set['insects']],
@@ -44,10 +44,10 @@ def test_rnd():
     assert isinstance(results['result'], (np.float32, np.float64, float))
 
 
-def test_rnsb(capsys):
+def test_RNSB(capsys):
 
     weat_word_set = load_weat()
-    model = WordEmbedding(load_weat_w2v(), 'weat_w2v', '')
+    model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
 
     rnsb = RNSB()
     query = Query([weat_word_set['flowers'], weat_word_set['insects']],
@@ -95,9 +95,9 @@ def test_rnsb(capsys):
     assert np.isnan(np.nan)
 
 
-def test_mac():
+def test_MAC():
     weat_word_set = load_weat()
-    model = WordEmbedding(load_weat_w2v(), 'weat_w2v', '')
+    model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
 
     mac = MAC()
     query = Query([weat_word_set['flowers']], [
@@ -111,9 +111,9 @@ def test_mac():
     assert isinstance(results['result'], (np.float32, np.float64, float))
 
 
-def test_ect():
+def test_ECT():
     weat_word_set = load_weat()
-    model = WordEmbedding(load_weat_w2v(), 'weat_w2v', '')
+    model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
 
     ect = ECT()
     query = Query([weat_word_set['flowers'], weat_word_set['insects']],

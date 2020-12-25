@@ -2,72 +2,32 @@ from abc import ABC, abstractmethod
 import numpy as np
 from typing import Any, Callable, Dict, List, Union, Tuple
 from ..query import Query
-from ..word_embedding import WordEmbedding
+from ..word_embedding_model import WordEmbeddingModel
 
 
 class BaseMetric(ABC):
-    """ A base class fot implement any metric.
+    """ A base class to implement any metric following the framework described by WEFE.
 
-    It contains several utils for common Metric operations such as checking the
-    inputs before executing a query and transforming a queries words into word
-    embeddings, among others.
-
+    It contains the name of the metric, the templates (cardinalities) that it supports 
+    and the abstract function run_query, which must be implemented by any metric that 
+    extends this class.
     """
-    def __init__(self, metric_template: Tuple[Union[int, str], Union[int, str]],
-                 metric_name: str, metric_short_name: str):
-        """Initializes a BaseMetric.
 
-        Parameters
-        ----------
-        metric_template : Tuple[Union[int, str], Union[int, str]]
-            The template (the cardinality of target and attribute sets)
-            required for the operation of the metric.
-        metric_name : str
-            The name of the metric.
-        metric_short_name : str
-            The initials or short name of the metric.
+    # A tuple that indicates the cardinality of target and attribute sets
+    metric_template: Tuple[Union[int, str], Union[int, str]]
 
-        Raises
-        ------
-        TypeError
-            If some element of the template is not an integer or string.
-        TypeError
-            If metric_name is not a string
-        TypeError
-            If metric_short_name is not a string
+    # The name of the metric
+    metric_name: str
 
-        Attributes
-        ----------
-        metric_template_ : Tuple[Union[int, str], Union[int, str]]
-            A tuple that indicates the size of target and attribute sets
-            required for the operation of the metric.
-        metric_name : str
-            The name of the metric.
-        metric_short_name:
-            A short name of abbreviation of the metric.
-        """
-
-        # check types
-        if not isinstance(metric_template[0],
-                          (str, int)) or not isinstance(metric_template[1], (str, int)):
-            raise TypeError('Both components of metric_template should be a int or str,'
-                            ' got: {}'.format(metric_template))
-        if not isinstance(metric_name, str):
-            raise TypeError('metric_name should be a str, got: {}'.format(metric_name))
-        if not isinstance(metric_short_name, str):
-            raise TypeError(
-                'metric_short_name should be a str, got: {}'.format(metric_short_name))
-
-        self.metric_template = metric_template
-        self.metric_name = metric_name
-        self.metric_short_name = metric_short_name
+    # The initials or short name of the metric
+    metric_short_name: str
 
     def _check_input(
         self,
         query: Query,
-        word_embedding: WordEmbedding,
+        word_embedding: WordEmbeddingModel,
     ) -> None:
-        """Checks if the input of a metric is valid.
+        """Check if the Query and WordEmbeddingModel parameters are valid when executing run_query.
 
         Parameters
         ----------
@@ -93,14 +53,13 @@ class BaseMetric(ABC):
             if the metric require different number of attribute sets than
             the delivered query
         """
-
         # check if the query passed is a instance of Query
         if not isinstance(query, Query):
             raise TypeError('query should be a Query instance, got {}'.format(query))
 
         # check if the word_embedding is a instance of
-        if not isinstance(word_embedding, WordEmbedding):
-            raise TypeError('word_embedding should be a WordEmbedding instance, '
+        if not isinstance(word_embedding, WordEmbeddingModel):
+            raise TypeError('word_embedding should be a WordEmbeddingModel instance, '
                             'got: {}'.format(word_embedding))
 
         # templates:
@@ -126,7 +85,7 @@ class BaseMetric(ABC):
     @abstractmethod
     def run_query(self,
                   query: Query,
-                  word_embedding: WordEmbedding,
+                  word_embedding: WordEmbeddingModel,
                   lost_vocabulary_threshold: float = 0.2,
                   preprocessor_options: Dict[str, Union[bool, str, Callable, None]] = {
                       'strip_accents': False,

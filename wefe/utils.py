@@ -1,8 +1,8 @@
 """
 A collection of WEFE utility functions.
 
-This file contains functions for to process to massively execute queries, relate them 
-through rankins and graph these results.
+This file contains functions for to process to massively execute queries, aggregate them 
+through rankings and graph these results.
 """
 
 import logging
@@ -15,7 +15,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 
-from .word_embedding import WordEmbedding
+from .word_embedding_model import WordEmbeddingModel
 from .query import Query
 from wefe.metrics import BaseMetric
 
@@ -40,9 +40,8 @@ AGGREGATION_FUNCTION_NAMES = {
 
 def generate_subqueries_from_queries_list(metric: Type[BaseMetric],
                                           queries: List[Query]) -> List[Query]:
-    """generates a list of subqueries from queries with a larger template than
-    the delivered metric.
-    NOTE: This functionality is still under development.
+    """Generates a list of subqueries from queries.
+
 
     Parameters
     ----------
@@ -85,7 +84,7 @@ def generate_subqueries_from_queries_list(metric: Type[BaseMetric],
 
 def run_queries(metric: Type[BaseMetric],
                 queries: List[Query],
-                word_embeddings_models: List[WordEmbedding],
+                word_embeddings_models: List[WordEmbeddingModel],
                 queries_set_name: str = 'Unnamed queries set',
                 lost_vocabulary_threshold: float = 0.2,
                 metric_params: dict = {},
@@ -176,8 +175,8 @@ def run_queries(metric: Type[BaseMetric],
                         'numpy array. given: {}'.format(word_embeddings_models))
 
     for idx, model in enumerate(word_embeddings_models):
-        if model is None or not isinstance(model, WordEmbedding):
-            raise TypeError('item on index {} must be a WordEmbedding instance. '
+        if model is None or not isinstance(model, WordEmbeddingModel):
+            raise TypeError('item on index {} must be a WordEmbeddingModel instance. '
                             'given: {}'.format(idx, model))
 
     # experiment name handling
@@ -343,15 +342,37 @@ def plot_queries_results(results: pd.DataFrame, by: str = 'query'):
 # -----------------------------------------------------------------------------
 
 
-def create_ranking(results_dataframes: List[pd.DataFrame]):
+def create_ranking(
+    results_dataframes: List[pd.DataFrame],
+    method: str = 'first',
+    ascending: bool = True,
+):
     """Creates a ranking form the aggregated scores of the provided dataframes.
     The function will assume that the aggregated scores are in the last column
     of each result dataframe.
+    It uses pandas.DataFrame.rank to generate the ranks.
 
     Parameters
     ----------
     results_dataframes : List[pd.DataFrame]
         A list or array of dataframes returned by the run_queries function.
+
+    method : str, optional
+        How to rank the group of records that have the same value (i.e. ties)
+        , by default 'first'.
+        The options are:
+        - average: average rank of the group
+        - min: lowest rank in the group
+        - max: highest rank in the group
+        - first: ranks assigned in order they appear in the array
+        - dense: like ‘min’, but rank always increases by 1 between groups.
+
+
+    ascending : bool, optional
+        Whether or not the elements should be ranked in ascending order, by default True.
+
+
+
 
     Returns
     -------
@@ -394,11 +415,8 @@ def create_ranking(results_dataframes: List[pd.DataFrame]):
     avg_scores = pd.concat(aggregation_columns, axis=1)
     avg_scores.columns = no_duplicated_column_names
 
-    rankings: List[np.ndarray] = []
-    for col in avg_scores:
-        # for each avg_score column, calculate the ranking
-        rankings.append(avg_scores[col].values.argsort(axis=0).argsort(axis=0) + 1)
-    return pd.DataFrame(rankings, columns=avg_scores.index, index=avg_scores.columns).T
+    rankings = avg_scores.rank(method=method, ascending=ascending)
+    return rankings
 
 
 def plot_ranking(ranking: pd.DataFrame,

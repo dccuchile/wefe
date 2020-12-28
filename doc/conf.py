@@ -32,10 +32,16 @@ sys.path.insert(0, os.path.abspath('..'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc', 'sphinx.ext.autosummary', 'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx', 'sphinx.ext.viewcode', 'numpydoc',
-    'sphinx_gallery.gen_gallery', 'sphinx.ext.todo', 'sphinx.ext.mathjax',
-    'sphinx.ext.ifconfig'
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'numpydoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.viewcode',
+    'sphinx_gallery.gen_gallery',
+    'sphinx.ext.todo',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.ifconfig',
 ]
 
 mathjax_path = ""
@@ -47,7 +53,14 @@ numpydoc_show_class_members = False
 # pngmath / imgmath compatibility layer for different sphinx versions
 import sphinx
 
-mathjax_path = ('https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js')
+if os.environ.get('NO_MATHJAX'):
+    extensions.append('sphinx.ext.imgmath')
+    imgmath_image_format = 'svg'
+    mathjax_path = ''
+else:
+    extensions.append('sphinx.ext.mathjax')
+    mathjax_path = ('https://cdn.jsdelivr.net/npm/mathjax@3/es5/' 'tex-chtml.js')
+
 # from distutils.version import LooseVersion
 # if LooseVersion(sphinx.__version__) < LooseVersion('1.4'):
 #     extensions.append('sphinx.ext.pngmath')
@@ -75,8 +88,8 @@ plot_gallery = "False"
 master_doc = 'index'
 
 # General information about the project.
-project = u'WEFE'
-copyright = u'Pablo Badilla'
+project = 'WEFE'
+copyright = 'Pablo Badilla'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -277,8 +290,7 @@ man_pages = [('index', 'WEFE', u'WEFE Documentation', [u'Pablo Badilla'], 1)]
 texinfo_documents = [
     ('index', 'WEFE', u'WEFE Documentation', u'Pablo Badilla', 'WEFE',
      'Word Embedding Fairness Evaluation (WEFE) is an open source library for\
-          measuring bias in word embedding models.',
-     'Word Embeddings, Fairness'),
+          measuring bias in word embedding models.', 'Word Embeddings, Fairness'),
 ]
 
 # Documents to append as an appendix to all manuals.
@@ -296,8 +308,7 @@ texinfo_documents = [
 # Example configuration for intersphinx: refer to the Python standard library.
 # intersphinx configuration
 intersphinx_mapping = {
-    'python':
-    ('https://docs.python.org/{.major}'.format(sys.version_info), None),
+    'python': ('https://docs.python.org/{.major}'.format(sys.version_info), None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
     'matplotlib': ('https://matplotlib.org/', None),

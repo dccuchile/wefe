@@ -4,11 +4,11 @@
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
+    :members: 
+    :undoc-members:
 
-   {% block methods %}
-   .. automethod:: __init__
-   {% endblock %}
-
+    .. automethod:: __init__
+    
 .. include:: {{module}}.{{objname}}.examples
 
 .. raw:: html

@@ -4,13 +4,9 @@ WEFE API
 
 This is the documentation of the API of WEFE. 
 
-
-Next, the main classes:
-
 .. currentmodule:: wefe
 
 WordEmbeddingModel
-
 ==================
 
 .. autosummary::

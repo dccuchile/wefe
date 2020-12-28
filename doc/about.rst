@@ -345,10 +345,10 @@ We expect in the future to:
 
 - Implement the metrics that have come out in the last works about bias in embeddings.
 - Implement new queries on different criteria.
-- Extend the framework to other types of bias measurement in Embeddings.
-- Create a unified mechanism to store different queries.
 - Create a single script that evaluates different embedding models under different bias criteria. 
 - From the previous script, rank as many embeddings available on the web as possible.
+- Implement a de-bias module.
+- Implement a visualization module.
 
 Licence
 =======
@@ -363,6 +363,8 @@ Team
 - Pablo Badilla
 - `Felipe Bravo-Marquez <https://felipebravom.com/>`_.
 - `Jorge Pérez <https://users.dcc.uchile.cl/~jperez/>`_.
+
+Thank you very much to all our contributors!
 
 Contact
 =======

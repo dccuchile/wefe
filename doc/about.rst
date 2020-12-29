@@ -261,6 +261,23 @@ calculates the average target group vectors, measures the cosine similarity of e
 to a list of attribute words and calculates the correlation of the resulting
 similarity lists.
 
+Changelog
+=========
+
+- Renamed optional ``run_query`` parameter  ``warn_filtered_words`` to `warn_not_found_words`.
+- Added ``word_preprocessor_args`` parameter to ``run_query`` that allows to specify transformations prior to searching for words in word embeddings.
+- Added ``secondary_preprocessor_args`` parameter to ``run_query`` which allows to specify a second pre-processor transformation to words before searching them in word embeddings. It is not necessary to specify the first preprocessor to use this one.
+- Implemented ``__getitem__`` function in ``WordEmbeddingModel``. This method allows to obtain an embedding from a word from the model stored in the instance using indexers. 
+- Removed underscore from class and instance variable names.
+- Improved type and verification exception messages when creating objects and executing methods.
+- Fix an error that appeared when calculating rankings with two columns of aggregations with the same name.
+- Ranking correlations are now calculated using pandas ``corr`` method. 
+- Changed metric template, name and short_names to class variables.
+- Implemented ``random_state`` in RNSB to allow replication of the experiments.
+- run_query now returns as a result the default metric requested in the parameters and all calculated values that may be useful in the other variables of the dictionary.
+- Fixed problem with api documentation: now it shows methods of the classes.
+- Implemented p-value for WEAT
+
 
 Relevant Papers
 ===============

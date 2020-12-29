@@ -39,3 +39,5 @@ Repository
 
 You can find the project repository at the following link:
 `WEFE repository on Github <https://github.com/dccuchile/wefe/>`_.
+
+

@@ -2,4 +2,9 @@ name: wefe
 dependencies:
   - numpy
   - scipy
+  - pandas
   - scikit-learn
+  - gensim
+  - plotly
+  - six
+  - semantic_version

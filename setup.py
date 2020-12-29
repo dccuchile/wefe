@@ -22,22 +22,18 @@ URL = 'https://github.com/dccuchile/wefe'
 LICENSE = 'new BSD'
 DOWNLOAD_URL = 'https://github.com/dccuchile/wefe'
 VERSION = __version__
-INSTALL_REQUIRES = [
-    'numpy', 'scipy', 'scikit-learn', 'pandas', 'plotly', 'gensim'
-]
+INSTALL_REQUIRES = ['numpy', 'scipy', 'scikit-learn', 'pandas', 'plotly', 'gensim']
 CLASSIFIERS = [
     'Intended Audience :: Science/Research', 'Intended Audience :: Developers',
     'License :: OSI Approved', 'Programming Language :: Python',
     'Topic :: Software Development', 'Topic :: Scientific/Engineering',
     'Operating System :: Microsoft :: Windows', 'Operating System :: POSIX',
     'Operating System :: Unix', 'Operating System :: MacOS',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7'
+    'Programming Language :: Python :: 3.6', 'Programming Language :: Python :: 3.7'
 ]
 EXTRAS_REQUIRE = {
     'tests': ['pytest', 'pytest-cov'],
-    'docs':
-    ['sphinx', 'sphinx-gallery', 'sphinx_rtd_theme', 'numpydoc', 'matplotlib']
+    'docs': ['sphinx', 'sphinx-gallery', 'sphinx_rtd_theme', 'numpydoc', 'matplotlib']
 }
 
 setup(

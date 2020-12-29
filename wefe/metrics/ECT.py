@@ -23,11 +23,12 @@ class ECT(BaseMetric):
     5. Return the correlation value as score of the metric (in the range of -1 to 1); higher is
        better
 
-
     References
     ----------
+
     | [1]: Dev, S., & Phillips, J. (2019, April). Attenuating Bias in Word vectors.
     | [2]: https://github.com/sunipa/Attenuating-Bias-in-Word-Vec
+
     """
 
     # The metrics accepts two target sets and a single attribute set

@@ -532,3 +532,12 @@ def load_weat_w2v():
 
     weat_we = KeyedVectors.load_word2vec_format(weat_w2v_path, binary=False)
     return weat_we
+
+
+def print_doc_table(df):
+    from tabulate import tabulate
+    df_2 = df.reset_index()
+    print (tabulate(df_2, headers=df_2.columns, tablefmt="rst", showindex=False))
+
+def save_doc_image(fig, name):
+    fig.write_image(f'./doc/images/{name}.png', width = 1200, height= 600, scale=3)

@@ -81,3 +81,6 @@ target/
 ./doc/results/
 
 develop.ipynb
+
+conda-deploy/
+conda_deploy/

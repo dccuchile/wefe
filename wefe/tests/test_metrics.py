@@ -25,9 +25,50 @@ def test_WEAT():
 
     assert results['query_name'] == 'Flowers and Insects wrt Pleasant and Unpleasant'
     assert isinstance(results['result'], (np.float32, np.float64, float))
+    assert isinstance(results['weat'], (np.float32, np.float64, float))
+    assert isinstance(results['effect_size'], (np.float32, np.float64, float))
+    assert results['result'] == results['weat']
+    assert np.isnan(results['p_value'])
 
     results = weat.run_query(query, model, return_effect_size=True)
     assert isinstance(results['result'], (np.float32, np.float64, float))
+    assert isinstance(results['weat'], (np.float32, np.float64, float))
+    assert isinstance(results['effect_size'], (np.float32, np.float64, float))
+    assert results['result'] == results['effect_size']
+    assert np.isnan(results['p_value'])
+
+    results = weat.run_query(query,
+                             model,
+                             calculate_p_value=True,
+                             p_value_iterations=100,
+                             p_value_test_type='left-sided')
+
+    assert isinstance(results['result'], (np.float32, np.float64, float))
+    assert isinstance(results['weat'], (np.float32, np.float64, float))
+    assert isinstance(results['effect_size'], (np.float32, np.float64, float))
+    assert isinstance(results['p_value'], (np.float32, np.float64, float))
+
+    results = weat.run_query(query,
+                             model,
+                             calculate_p_value=True,
+                             p_value_iterations=100,
+                             p_value_test_type='right-sided')
+
+    assert isinstance(results['result'], (np.float32, np.float64, float))
+    assert isinstance(results['weat'], (np.float32, np.float64, float))
+    assert isinstance(results['effect_size'], (np.float32, np.float64, float))
+    assert isinstance(results['p_value'], (np.float32, np.float64, float))
+
+    results = weat.run_query(query,
+                             model,
+                             calculate_p_value=True,
+                             p_value_iterations=100,
+                             p_value_test_type='two-sided')
+
+    assert isinstance(results['result'], (np.float32, np.float64, float))
+    assert isinstance(results['weat'], (np.float32, np.float64, float))
+    assert isinstance(results['effect_size'], (np.float32, np.float64, float))
+    assert isinstance(results['p_value'], (np.float32, np.float64, float))
 
 
 def test_RND():

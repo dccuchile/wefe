@@ -127,14 +127,13 @@ Version 0.2.0
 --------------
 - Renamed optional `run_query` parameter  `warn_filtered_words` to 
 `warn_not_found_words`.
-- Implemented alias for WordEmbeddingModel class: WordEmbedding.
-- Added `word_preprocessor_options` parameter to `run_query` that allows to 
+- Added `word_preprocessor_args` parameter to `run_query` that allows to 
 specify transformations prior to searching for words in word embeddings.
-- Added `secondary_preprocessor_options` parameter to `run_query` which allows 
+- Added `secondary_preprocessor_args` parameter to `run_query` which allows 
 to specify a second pre-processor transformation to words before searching them 
 in word embeddings. It is not necessary to specify the first preprocessor to 
 use this one.
-- Implemented `__getitem__` function in WordEmbedding. This method allows to 
+- Implemented `__getitem__` function in WordEmbeddingModel. This method allows to 
 obtain an embedding from a word from the model stored in the instance using 
 indexers. 
 - Removed underscore from class and instance variable names.
@@ -148,6 +147,7 @@ aggregations with the same name.
 - run_query now returns as a result the default metric requested in the 
 parameters and all calculated values that may be useful in the other variables 
 of the dictionary.
+- Fixed problem with api documentation: now it shows methods of the classes.
 
 Citation
 =========

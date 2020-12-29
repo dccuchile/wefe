@@ -22,7 +22,10 @@ URL = 'https://github.com/dccuchile/wefe'
 LICENSE = 'new BSD'
 DOWNLOAD_URL = 'https://github.com/dccuchile/wefe'
 VERSION = __version__
-INSTALL_REQUIRES = ['numpy', 'scipy', 'scikit-learn', 'pandas', 'plotly', 'gensim']
+INSTALL_REQUIRES = [
+    'numpy', 'scipy', 'scikit-learn', 'pandas', 'plotly', 'gensim', 'six',
+    'semantic_version'
+]
 CLASSIFIERS = [
     'Intended Audience :: Science/Research', 'Intended Audience :: Developers',
     'License :: OSI Approved', 'Programming Language :: Python',

@@ -2,6 +2,8 @@ How to implement your own metric
 ================================
 
 The following guide will show you how to implement a metric using WEFE.
+You can find a notebook version of this tutorial at the following 
+`link <https://github.com/dccuchile/wefe/blob/master/wefe/examples/Metric_implementation_guide.ipynb/>`__.
 
 Create the class
 ----------------
@@ -39,7 +41,7 @@ following code scheme:
 
 .. code:: python3
 
-    from ..metrics.base_metric import BaseMetric
+    from wefe.metrics.base_metric import BaseMetric
      
     class ExampleMetric(BaseMetric):
         metric_template = (2, 1)
@@ -102,10 +104,10 @@ like using the following query:
 
 .. code:: python3
 
-     from ..word_embedding_model import WordEmbeddingModel
-     from ..query import Query
-     from ..utils import load_weat_w2v # a few embeddings of WEAT experiments
-     from ..datasets.datasets import load_weat # the word sets of WEAT experiments
+     from wefe.word_embedding_model import WordEmbeddingModel
+     from wefe.query import Query
+     from wefe.utils import load_weat_w2v # a few embeddings of WEAT experiments
+     from wefe.datasets.datasets import load_weat # the word sets of WEAT experiments
       
          
      weat = load_weat()
@@ -120,6 +122,9 @@ like using the following query:
     embeddings = model.get_embeddings_from_query(query=query)
     
     target_sets, attribute_sets = embeddings
+
+
+
 
 If you inspect ``target_sets``, it would look like the following
 dictionary:
@@ -167,9 +172,9 @@ Using the above, you can already implement the run_query method
     
     import numpy as np
     
-    from ..metrics.base_metric import BaseMetric
-    from ..query import Query
-    from ..word_embedding_model import WordEmbeddingModel, PreprocessorArgs
+    from wefe.metrics.base_metric import BaseMetric
+    from wefe.query import Query
+    from wefe.word_embedding_model import WordEmbeddingModel, PreprocessorArgs
     
     
     class ExampleMetric(BaseMetric):
@@ -317,12 +322,12 @@ the above.
 
 .. code:: python3
 
-    from ..metrics import BaseMetric
-    from ..query import Query
-    from ..word_embedding_model import WordEmbeddingModel
     from scipy.spatial import distance
     import numpy as np
     
+    from wefe.metrics import BaseMetric
+    from wefe.query import Query
+    from wefe.word_embedding_model import WordEmbeddingModel
     
     class ExampleMetric(BaseMetric):
     
@@ -408,7 +413,7 @@ the above.
                 than this limit, the result values will be np.nan, by default 0.2
     
             secondary_preprocessor_args : PreprocessorArgs, optional
-                Dictionary with the arguments that specify how the pre-processing of the 
+                A dictionary with the arguments that specify how the pre-processing of the 
                 words will be done, by default {}
                 The possible arguments for the function are: 
                 - lowercase: bool. Indicates if the words are transformed to lowercase.
@@ -422,7 +427,7 @@ the above.
                 , by default { 'strip_accents': False, 'lowercase': False, 'preprocessor': None, }
     
             secondary_preprocessor_args : PreprocessorArgs, optional
-                Dictionary with the arguments that specify how the secondary pre-processing 
+                A dictionary with the arguments that specify how the secondary pre-processing 
                 of the words will be done, by default None.
                 Indicates that in case a word is not found in the model's vocabulary 
                 (using the default preprocessor or specified in preprocessor_args), 
@@ -482,9 +487,9 @@ Now, let’s try it out:
 
 .. code:: python3
 
-    from ..query import Query
-    from ..utils import load_weat_w2v  # a few embeddings of WEAT experiments
-    from ..datasets.datasets import load_weat  # the word sets of WEAT experiments
+    from wefe.query import Query
+    from wefe.utils import load_weat_w2v  # a few embeddings of WEAT experiments
+    from wefe.datasets.datasets import load_weat  # the word sets of WEAT experiments
     
     weat = load_weat()
     model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
@@ -499,27 +504,33 @@ Now, let’s try it out:
     results = ExampleMetric().run_query(query, model)
     print(results)
 
+
+
+.. parsed-literal::
+
+    {'query_name': 'Flowers and Weapons wrt Pleasant', 'result': -0.10210171341896057, 'em': -0.10210171341896057}
+    
+
 We have completely defined a new metric. Congratulations!
 
-.. warning::
+**Note**
 
-    Some comments regarding the implementation of new metrics:
+Some comments regarding the implementation of new metrics:
 
-    - Note that the returned object must necessarily be a ``dict`` instance 
-    containing the ``result`` and ``query_name`` key-values. Otherwise
-    you will not be able to run query batches using utility functions
-    like ``run_queries``.
-    - ``run_query`` can receive additional parameters. Simply add them to
-    the function signature. These parameters can also be used when
-    running the metric from the ``run_queries`` utility function.
-    -  We recommend implementing the logic of the metric separated from the
-    ``run_query`` function. In other words, implement the logic in a
-    ``calc_your_metric`` function that receives the dictionaries with the
-    necessary embeddings and parameters.
-    -  The file where ``ExampleMetric`` is located can be found inside the
-    distances folder of the
-    ``repository <https://github.com/dccuchile/wefe/blob/master/wefe/metrics/example_metric.py/>``\ \_.
-    
+-  Note that the returned object must necessarily be a ``dict`` instance
+   containing the ``result`` and ``query_name`` key-values. Otherwise
+   you will not be able to run query batches using utility functions
+   like ``run_queries``.
+-  ``run_query`` can receive additional parameters. Simply add them to
+   the function signature. These parameters can also be used when
+   running the metric from the ``run_queries`` utility function.
+-  We recommend implementing the logic of the metric separated from the
+   ``run_query`` function. In other words, implement the logic in a
+   ``calc_your_metric`` function that receives the dictionaries with the
+   necessary embeddings and parameters.
+-  The file where ``ExampleMetric`` is located can be found inside the
+   distances folder of the
+   `repository <https://github.com/dccuchile/wefe/blob/master/wefe/metrics/example_metric.py/>`__.
 
 Contribute
 ----------
@@ -529,5 +540,6 @@ conventions, document everything, create specific tests for the metric,
 and make a pull request to the project’s Github repository. We would
 really appreciate it!
 
-You can visit the ``Contributing <contribute.html>``\ \_ section for
-more information.
+You can visit the
+`Contributing <https://wefe.readthedocs.io/en/latest/contribute.html>`__
+section for more information.

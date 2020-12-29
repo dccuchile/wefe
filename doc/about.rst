@@ -349,6 +349,7 @@ We expect in the future to:
 - From the previous script, rank as many embeddings available on the web as possible.
 - Implement a de-bias module.
 - Implement a visualization module.
+- Implement p-values with statistic resampling to all metrics.
 
 Licence
 =======

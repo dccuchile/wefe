@@ -5,4 +5,5 @@ pandas
 gensim>=3.8.3
 plotly
 six
+requests
 semantic_version

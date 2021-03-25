@@ -1,6 +1,6 @@
 """A Word Embedding contanier based on gensim BaseKeyedVectors."""
 import logging
-from typing import Callable, Dict, List, Tuple, Union
+from typing import Callable, Dict, Iterable, List, Tuple, Union
 
 import numpy as np
 import gensim
@@ -183,7 +183,7 @@ class WordEmbeddingModel:
 
     def get_embeddings_from_word_set(
         self,
-        word_set: List[str],
+        word_set: Iterable[str],
         preprocessor_args: PreprocessorArgs = {},
         secondary_preprocessor_args: PreprocessorArgs = None,
     ) -> Tuple[List[str], EmbeddingDict]:
@@ -193,8 +193,8 @@ class WordEmbeddingModel:
 
         Parameters
         ----------
-        word_set : List[str]
-            The list/array with the words that will be transformed
+        word_set : Iterable[str]
+            An iterable with the words that will be transformed to embeddings.
         preprocessor_args : PreprocessorArgs, optional
             Dictionary with the arguments that specify how the pre-processing of the
             words will be done, by default {}

@@ -84,7 +84,6 @@ class WordEmbeddingModel:
             of the model.
 
         """
-
         # Type checking
         if not isinstance(model, BaseKeyedVectors):
             raise TypeError(
@@ -117,7 +116,22 @@ class WordEmbeddingModel:
         else:
             self.model_name = model_name
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
+        """Check if other is the same WordEmbeddingModel that self.
+
+        Parameters
+        ----------
+        other : Any
+            Some object
+
+        Returns
+        -------
+        bool
+            True if other is a WordEmbeddingModel that have the same model, model_name
+            and vocab_prefix . False in any other case
+        """
+        if not isinstance(other, WordEmbeddingModel):
+            return False
         if self.model != other.model:
             return False
         if self.model_name != other.model_name:
@@ -126,7 +140,20 @@ class WordEmbeddingModel:
             return False
         return True
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Union[np.ndarray, None]:
+        """Given a word, returns its associated embedding or none if it does not exist.
+
+        Parameters
+        ----------
+        key : str
+            A word
+
+        Returns
+        -------
+        Union[np.ndarray, None]
+            The embedding associated with the word or none if none if the word does not
+            exist in the model.
+        """
         if key in self.vocab:
             return self.model[key]
         else:
@@ -159,7 +186,6 @@ class WordEmbeddingModel:
         str
             The pre-processed word according to the given parameters.
         """
-
         preprocessor = preprocessor_args.get("preprocessor", None)
         if preprocessor and callable(preprocessor):
             word = preprocessor(word)
@@ -223,9 +249,9 @@ class WordEmbeddingModel:
             to embeddings.
         """
 
-        if not isinstance(word_set, List):
+        if not isinstance(word_set, Iterable):
             raise TypeError(
-                "word_set should be a list of strings" ", got {}.".format(word_set)
+                "word_set should be a Iterable of strings" ", got {}.".format(word_set)
             )
 
         if not isinstance(preprocessor_args, Dict):

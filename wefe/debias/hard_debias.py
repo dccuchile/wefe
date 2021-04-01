@@ -46,15 +46,15 @@ class HardDebias(BaseDebias):
                 not_found_words,
                 defining_pair_embeddings,
             ) = word_embedding_model.get_embeddings_from_word_set(
-                pair, preprocessor_args, secondary_preprocessor_args
+                pair, preprocessor_args, secondary_preprocessor_args, normalize=True
             )
 
             # If some word of the current pair can not be transformed, discard the pair.
             if len(not_found_words) > 0:
                 if verbose is True:
-                    logging.warn(
-                        f"Lost {not_found_words} when converting {pair} {pairs_set_name}"
-                        f" pair to embedding. Omitting this definning pair."
+                    logging.warning(
+                        f"Word(s) {not_found_words} when converting {pair} {pairs_set_name}"
+                        f" pair to embedding. The pair will be omitted."
                     )
             else:
                 # Add the embedding dict to defining_pairs_embeddings
@@ -110,19 +110,27 @@ class HardDebias(BaseDebias):
 
     def _neutralize_embeddings(
         self,
-        debiased_embeddings: EmbeddingDict,
+        embedding_model: WordEmbeddingModel,
         bias_direction: np.ndarray,
         bias_criterion_specific_words: Set[str],
     ):
+        # words = []
+        # neutralized_embeddings = []
 
-        for idx, word in enumerate(debiased_embeddings.keys()):
+        info_log = np.linspace(0, len(embedding_model.vocab), 20, dtype=np.int)
+
+        logging.info("Embedding neutralization started")
+
+        for idx, word in enumerate(embedding_model.vocab):
             if word not in bias_criterion_specific_words:
-                current_embedding = debiased_embeddings[word]
+                current_embedding = embedding_model[word]
                 neutralized_embedding = self._drop(current_embedding, bias_direction)
-                debiased_embeddings[word] = neutralized_embedding
+                embedding_model.update_embedding(word, neutralized_embedding)
 
-            if idx % 10000 == 0:
-                logging.info(f"word {idx}")
+            if idx in info_log:
+                logging.info(
+                    f"Progress: {np.trunc(idx/ len(embedding_model.vocab) * 100)}% - Current word index: {idx}"
+                )
 
     def _normalize_embeddings(self, debiased_embeddings: EmbeddingDict):
         """Inefficient implementation of the E.normalize debiaswe for EmbeddingDict.
@@ -141,11 +149,10 @@ class HardDebias(BaseDebias):
 
     def _equalize_embeddings(
         self,
-        debiased_embeddings: EmbeddingDict,
+        embedding_model: WordEmbeddingModel,
         equalize_pairs_embeddings: List[EmbeddingDict],
         bias_direction: np.ndarray,
     ):
-
         for equalize_pair_embeddings in equalize_pairs_embeddings:
             (
                 (word_a, embedding_a),
@@ -163,8 +170,8 @@ class HardDebias(BaseDebias):
             new_b = -z * bias_direction + y
 
             # Update the embedding set with the equalized embeddings
-            debiased_embeddings[word_a] = new_a
-            debiased_embeddings[word_b] = new_b
+            embedding_model.update_embedding(word_a, new_a)
+            embedding_model.update_embedding(word_b, new_b)
 
     def _create_new_model(
         self,
@@ -181,27 +188,25 @@ class HardDebias(BaseDebias):
                 f"{word_embedding_model.model_name}_debiased_{debias_criterion_name}"
             )
 
-        new_model = WordEmbeddingModel(KeyedVectors(300), new_model_name)
-
         # Get the words and the embeddings
 
         # TODO: Ver el efecto de esta asignación en el uso de la memoria...
-        words = list(debiased_embeddings.keys())
-        embeddings = list(debiased_embeddings.values())
+        words = np.array(list(debiased_embeddings.keys()))
+        embeddings = np.array(list(debiased_embeddings.values()))
+
+        new_model = KeyedVectors(embeddings.shape[1])
 
         # Gensim 4
-        if hasattr(new_model.model, "add_vectors"):
-            new_model.model.add_vectors(
-                words, embeddings, replace=True,
-            )
+        if hasattr(new_model, "add_vectors"):
+            new_model.add_vectors(words, embeddings)
 
         # Gensim 3
         else:
-            new_model.model.add(
-                words, embeddings, replace=True,
-            )
+            new_model.add(words, embeddings)
 
-        return new_model
+        return WordEmbeddingModel(
+            new_model, new_model_name, word_embedding_model.vocab_prefix
+        )
 
     def run_debias(
         self,
@@ -253,10 +258,8 @@ class HardDebias(BaseDebias):
             [description], by default True
         """
         # ------------------------------------------------------------------------------:
-        # Generate the debiased embedding dict:
-        self._debiased_embeddings: Dict[str, np.ndarray] = {
-            w: word_embedding_model[w] for w in word_embedding_model.vocab.keys()
-        }
+        # Normalize
+        word_embedding_model.normalize_embeddings()
 
         # ------------------------------------------------------------------------------:
         # Obtain the embedding of the definitional pairs.
@@ -273,18 +276,19 @@ class HardDebias(BaseDebias):
         self._pca = self._identify_bias_subspace(
             self._definitional_pairs_embeddings, pca_args, verbose,
         )
-
         self._bias_direction = self._pca.components_[0]
 
         # ------------------------------------------------------------------------------
         # Neutralize the embeddings appointed in bias_criterion_specific_words:
         self._neutralize_embeddings(
-            self._debiased_embeddings,
+            word_embedding_model,
             self._bias_direction,
             set(bias_criterion_specific_words),
         )
 
-        self._normalize_embeddings(self._debiased_embeddings)
+        word_embedding_model.normalize_embeddings()
+
+        neutralized_embeddings = None
         # ------------------------------------------------------------------------------
         # Equalize the embeddings:
 
@@ -311,17 +315,15 @@ class HardDebias(BaseDebias):
 
         # Execute the equalization
         self._equalize_embeddings(
-            self._debiased_embeddings,
-            self._equalize_pairs_embeddings,
-            self._bias_direction,
+            word_embedding_model, self._equalize_pairs_embeddings, self._bias_direction,
         )
+        word_embedding_model.normalize_embeddings()
 
-        self._normalize_embeddings(self._debiased_embeddings)
+        # # ------------------------------------------------------------------------------
+        # # Generate the new KeyedVectors
+        # new_model = self._create_new_model(
+        #     word_embedding_model, self._new_embeddings, debias_criterion_name
+        # )
+        word_embedding_model.model_name = word_embedding_model.model_name + "_debiased"
 
-        # ------------------------------------------------------------------------------
-        # Generate the new KeyedVectors
-        new_model = self._create_new_model(
-            word_embedding_model, self._debiased_embeddings, debias_criterion_name
-        )
-
-        return new_model
+        return word_embedding_model

@@ -22,7 +22,7 @@ PreprocessorArgs = Dict[str, Union[bool, str, Callable, None]]
 
 
 class WordEmbeddingModel:
-    """A container for Word Embedding pre-trained models.
+    """A wrapper for Word Embedding pre-trained models.
 
     It can hold gensim's KeyedVectors or gensim's api loaded models.
     It includes the name of the model and some vocab prefix if needed.
@@ -31,7 +31,7 @@ class WordEmbeddingModel:
     def __init__(
         self, model: BaseKeyedVectors, model_name: str = None, vocab_prefix: str = None
     ):
-        """Initialize the word embedding model container.
+        """Initialize the word embedding model.
 
         Parameters
         ----------
@@ -159,6 +159,63 @@ class WordEmbeddingModel:
         else:
             return None
 
+    def normalize_embeddings(self, replace=True):
+        self.model.init_sims(replace=replace)
+
+    def update_embedding(self, word, embedding):
+
+        embedding_size = embedding.shape[0]
+
+        if word not in self.model.vocab:
+            raise ValueError(f"Word {word} not in model vocab")
+
+        if self.model.vector_size != embedding_size:
+            raise Exception(
+                f"Exception while trying to update {word} embedding: embedding size "
+                f"({embedding_size}) is different of model vector size "
+                f"({self.model.vector_size})."
+            )
+
+        if not np.issubdtype(self.model.vectors.dtype, embedding.dtype):
+            raise TypeError(
+                f"embedding dtype ({embedding.dtype}) is not the same of model's dtype "
+                f"({self.model.vectors.dtype})"
+            )
+
+        if gensim_version.major >= 4:
+            word_index = self.model.get_index(word)
+        else:
+            word_index = self.model.vocab[word].index
+
+        self.model.vectors[word_index] = embedding
+
+    def update_embeddings(self, words: Iterable[str], embeddings: np.array):
+        if not isinstance(embeddings, np.ndarray):
+            raise TypeError(
+                "embeddings argument should be an instance of np.ndarray. "
+                f"got: {type(embeddings)}"
+            )
+        if not isinstance(words, list):
+            raise TypeError(
+                f"words argument should be a list of strings. got: {type(words)}"
+            )
+
+        for idx, w in enumerate(words):
+            if not isinstance(w, str):
+                raise TypeError(
+                    f"element in index {idx} of words array is not a string. given: {w}"
+                )
+
+        if len(words) != len(embeddings):
+            raise Exception(
+                "Word list must have the same number of embeddings in the"
+                f"embeddings array. "
+                f"len(words) = {len(words)} - len(embeddings) = {len(embeddings)}"
+            )
+
+        for idx, word in enumerate(words):
+            self.update_embedding(word, embeddings[idx])
+
     def _preprocess_word(
         self,
         word: str,
@@ -212,6 +269,7 @@ class WordEmbeddingModel:
         word_set: Iterable[str],
         preprocessor_args: PreprocessorArgs = {},
         secondary_preprocessor_args: PreprocessorArgs = None,
+        normalize: bool = False,
     ) -> Tuple[List[str], EmbeddingDict]:
         """Transform a set of words into their respective embeddings and
         discard out words that are not in the model's vocabulary (according to the rules
@@ -298,6 +356,12 @@ class WordEmbeddingModel:
             # if also_search_for == {}, just add the word to not_found_words.
             else:
                 not_found_words.append(word)
+
+        if normalize:
+            for word in selected_embeddings.keys():
+                current_embedding = selected_embeddings[word]
+                norm = np.linalg.norm(current_embedding)
+                selected_embeddings[word] = current_embedding / norm
 
         return not_found_words, selected_embeddings
 

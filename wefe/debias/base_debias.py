@@ -9,16 +9,37 @@ class BaseDebias:
     name = "BaseDebias Class"
 
     @abstractmethod
-    def run_debias(self, word_embedding_model: WordEmbeddingModel, *args, **kwargs):
+    def run_debias(
+        self,
+        word_embedding_model: WordEmbeddingModel,
+        inplace: bool = True,
+        verbose: bool = True,
+        *args,
+        **kwargs,
+    ) -> WordEmbeddingModel:
         """Execute a debias method over the provided word embedding model.
 
         Parameters
         ----------
         word_embedding_model : WordEmbeddingModel
-            [description]
-        """
-        pass
+            A word embedding model object.
+        inplace : bool, optional
+            Indicates whether the debiasing is performed inplace (i.e., the original
+            embeddings are replaced by the new debiased ones) or a new model is created
+            and the original embeddings are kept.
 
-    @abstractmethod
-    def save(self):
+            **WARNING:** Inplace == False requires at least 2x RAM of the size of the
+            model. Otherwise the execution of the debias probably will rise
+            `MemoryError`.
+
+        verbose : bool, optional
+            Indicates whether the execution status of this function is printed in
+            the logger, by default True.
+
+        Returns
+        -------
+        WordEmbeddingModel
+            A word embeddings model that has been debiased.
+
+        """
         pass

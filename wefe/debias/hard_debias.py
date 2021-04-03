@@ -1,12 +1,13 @@
 """Bolukbasi's Hard Debias WEFE implementation."""
 import logging
-from gensim.models.keyedvectors import KeyedVectors
+from copy import deepcopy
+from typing import Collection, Dict, List, Any, Set, Union
 
 import numpy as np
+from gensim.models.keyedvectors import KeyedVectors
 from sklearn.decomposition import PCA
-from typing import Dict, Iterable, List, Any, Set, Union
 
-from wefe.word_embedding_model import EmbeddingDict, PreprocessorArgs, WordEmbeddingModel
+from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 from wefe.debias.base_debias import BaseDebias
 
 
@@ -24,49 +25,6 @@ class HardDebias(BaseDebias):
 
     name = "Bolukbasi's Hard Debias"
     short_name = "HD"
-
-    def _get_embeddings_from_pairs_sets(
-        self,
-        word_embedding_model: WordEmbeddingModel,
-        pairs: Iterable[Iterable[str]],
-        preprocessor_args: PreprocessorArgs,
-        secondary_preprocessor_args: PreprocessorArgs,
-        verbose: bool,
-        pairs_set_name: str = "definning",
-    ) -> List[EmbeddingDict]:
-
-        definitional_pairs_embeddings: List[EmbeddingDict] = []
-
-        # For each definitional pair:
-        for pair in pairs:
-
-            # Transform the pair to a embedding dict.
-            # i.e., (word_1, word_2) -> {'word_1': embedding, 'word_2'.: embedding}
-            (
-                not_found_words,
-                defining_pair_embeddings,
-            ) = word_embedding_model.get_embeddings_from_word_set(
-                pair, preprocessor_args, secondary_preprocessor_args, normalize=True
-            )
-
-            # If some word of the current pair can not be transformed, discard the pair.
-            if len(not_found_words) > 0:
-                if verbose is True:
-                    logging.warning(
-                        f"Word(s) {not_found_words} when converting {pair} {pairs_set_name}"
-                        f" pair to embedding. The pair will be omitted."
-                    )
-            else:
-                # Add the embedding dict to defining_pairs_embeddings
-                definitional_pairs_embeddings.append(defining_pair_embeddings)
-
-        if len(definitional_pairs_embeddings) == 0:
-            raise Exception(
-                f"Failed to convert any {pairs_set_name} pair to embedding. "
-                "To see more details, activate the verbose mode. "
-            )
-
-        return definitional_pairs_embeddings
 
     def _identify_bias_subspace(
         self,
@@ -129,7 +87,8 @@ class HardDebias(BaseDebias):
 
             if idx in info_log:
                 logging.info(
-                    f"Progress: {np.trunc(idx/ len(embedding_model.vocab) * 100)}% - Current word index: {idx}"
+                    f"Progress: {np.trunc(idx/ len(embedding_model.vocab) * 100)}% "
+                    f"- Current word index: {idx}"
                 )
 
     def _normalize_embeddings(self, debiased_embeddings: EmbeddingDict):
@@ -211,52 +170,63 @@ class HardDebias(BaseDebias):
     def run_debias(
         self,
         word_embedding_model: WordEmbeddingModel,
-        definitional_pairs: Iterable[Iterable[str]],
-        bias_criterion_specific_words: List[str],
-        equalize_pairs: Iterable[Iterable[str]],
-        preprocessor_args: PreprocessorArgs = {
-            "strip_accents": False,
-            "lowercase": False,
-            "preprocessor": None,
-        },
-        secondary_preprocessor_args: PreprocessorArgs = None,
+        definitional_pairs: Collection[Collection[str]],
+        bias_criterion_specific_words: Collection[str],
+        equalize_pairs: Collection[Collection[str]],
         pca_args: Dict[str, Any] = {"n_components": 10},
         debias_criterion_name: Union[str, None] = None,
+        inplace: bool = True,
         verbose: bool = True,
     ) -> WordEmbeddingModel:
         """Execute Bolukbasi's Debias in the word embedding model provided.
 
-        **WARNING:** Requires at least 2x RAM of the size of the model. Otherwise the
-        execution of this function probably will rise `MemoryError`.
-
         Parameters
         ----------
         word_embedding_model : WordEmbeddingModel
-            A word embedding model.
-
-        definitional_pairs : Iterable[Iterable[str]]
-            A iterable with pairs of words that describes the bias direction. e.g. :
-            `[['she', 'he'], ['her', 'his'], ...]`
-
-        bias_criterion_specific_words : List[str]
+            A word embedding model to debias.
+        definitional_pairs : Collection[Collection[str]]
+            [description]
+        bias_criterion_specific_words : Collection[str]
             A collection of words that is specific to the bias criteria and must not be
             debiased (i.e., it is good that these words are associated with a certain
             social group).
             e.g.:`["spokesman", "wife", "himself", "son", "mother", "father",...]`
-
-        equalize_pairs : Iterable[Iterable[str]]
+        equalize_pairs : Collection[Collection[str]]
             [description]
-        preprocessor_args : PreprocessorArgs, optional
-            [description], by default `{"strip_accents": False, "lowercase": False,
-            "preprocessor": None}`
 
-        secondary_preprocessor_args : PreprocessorArgs, optional
-            [description], by default None
         pca_args : Dict[str, Any], optional
-            [description], by default {"n_components": 10}
+            Arguments for calculating the PCA, by default {"n_components": 10}.
+            These arguments are the same as those of the `sklearn.decomposition.PCA`
+            class.
+
+        debias_criterion_name : Union[str, None], optional
+            Name of the criterion on which the debias is being performed,
+            This name will be included in the name of the returned model,
+            by default None
+
+        inplace : bool, optional
+            Indicates whether the debiasing is performed inplace (i.e., the original
+            embeddings are replaced by the new debiased ones) or a new model is created
+            and the original embeddings are kept.
+
+            **WARNING:** Inplace == False requires at least 2x RAM of the size of the
+            model. Otherwise the execution of the debias probably will rise
+            `MemoryError`.
+
+            By default True
+
         verbose : bool, optional
-            [description], by default True
+            Indicates whether the execution status of this function is printed in
+            the logger, by default True.
+
+        Returns
+        -------
+        WordEmbeddingModel
+            A word embeddings model that has been debiased.
         """
+        if inplace:
+            word_embedding_model = deepcopy(word_embedding_model)
+
         # ------------------------------------------------------------------------------:
         # Normalize
         word_embedding_model.normalize_embeddings()
@@ -264,12 +234,7 @@ class HardDebias(BaseDebias):
         # ------------------------------------------------------------------------------:
         # Obtain the embedding of the definitional pairs.
         self._definitional_pairs_embeddings = self._get_embeddings_from_pairs_sets(
-            word_embedding_model,
-            definitional_pairs,
-            preprocessor_args,
-            secondary_preprocessor_args,
-            verbose,
-            "definitional",
+            word_embedding_model, definitional_pairs, verbose, "definitional",
         )
         # ------------------------------------------------------------------------------:
         # Identify the bias subspace using the definning pairs.
@@ -287,8 +252,6 @@ class HardDebias(BaseDebias):
         )
 
         word_embedding_model.normalize_embeddings()
-
-        neutralized_embeddings = None
         # ------------------------------------------------------------------------------
         # Equalize the embeddings:
 
@@ -307,8 +270,6 @@ class HardDebias(BaseDebias):
         self._equalize_pairs_embeddings = self._get_embeddings_from_pairs_sets(
             word_embedding_model,
             equalize_pairs_candidates,
-            preprocessor_args,
-            secondary_preprocessor_args,
             verbose,
             pairs_set_name="equalize",
         )
@@ -321,9 +282,14 @@ class HardDebias(BaseDebias):
 
         # # ------------------------------------------------------------------------------
         # # Generate the new KeyedVectors
-        # new_model = self._create_new_model(
-        #     word_embedding_model, self._new_embeddings, debias_criterion_name
-        # )
-        word_embedding_model.model_name = word_embedding_model.model_name + "_debiased"
+        if debias_criterion_name is not None:
+            new_model_name = (
+                f"{word_embedding_model.model_name}_{debias_criterion_name}_debiased"
+            )
+        else:
+            new_model_name = (
+                f"{word_embedding_model.model_name}_{debias_criterion_name}_debiased"
+            )
+        word_embedding_model.model_name = new_model_name
 
         return word_embedding_model

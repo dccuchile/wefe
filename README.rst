@@ -123,6 +123,11 @@ To compile the documentation, run it::
 Changelog
 =========
 
+Version 0.2.1
+-------------
+- Implemented Bolukbasi's Hard Debias
+
+
 Version 0.2.0
 --------------
 

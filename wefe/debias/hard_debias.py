@@ -1,14 +1,15 @@
 """Bolukbasi's Hard Debias WEFE implementation."""
 import logging
 from copy import deepcopy
-from typing import Collection, Dict, List, Any, Set, Union
+from typing import Dict, List, Any, Set, Tuple, Union
 
 import numpy as np
-from gensim.models.keyedvectors import KeyedVectors
 from sklearn.decomposition import PCA
 
 from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 from wefe.debias.base_debias import BaseDebias
+
+logger = logging.getLogger(__name__)
 
 
 class HardDebias(BaseDebias):
@@ -75,7 +76,7 @@ class HardDebias(BaseDebias):
         # words = []
         # neutralized_embeddings = []
 
-        info_log = np.linspace(0, len(embedding_model.vocab), 20, dtype=np.int)
+        info_log = np.linspace(0, len(embedding_model.vocab), 11, dtype=np.int)
 
         logging.info("Embedding neutralization started")
 
@@ -90,21 +91,6 @@ class HardDebias(BaseDebias):
                     f"Progress: {np.trunc(idx/ len(embedding_model.vocab) * 100)}% "
                     f"- Current word index: {idx}"
                 )
-
-    def _normalize_embeddings(self, debiased_embeddings: EmbeddingDict):
-        """Inefficient implementation of the E.normalize debiaswe for EmbeddingDict.
-
-        Tryies to simulate the original debiaswe function E.normalize() that executes:
-        self.vecs /= np.linalg.norm(self.vecs, axis=1)[:, np.newaxis]
-
-        Parameters
-        ----------
-        debiased_embeddings : EmbeddingDict
-            [description]
-        """
-        for word, curr_embedding in debiased_embeddings.items():
-            curr_embedding_norm = np.linalg.norm(curr_embedding)
-            debiased_embeddings[word] = curr_embedding / curr_embedding_norm
 
     def _equalize_embeddings(
         self,
@@ -132,66 +118,34 @@ class HardDebias(BaseDebias):
             embedding_model.update_embedding(word_a, new_a)
             embedding_model.update_embedding(word_b, new_b)
 
-    def _create_new_model(
-        self,
-        word_embedding_model: WordEmbeddingModel,
-        debiased_embeddings: EmbeddingDict,
-        debias_criterion_name: Union[str, None],
-    ) -> WordEmbeddingModel:
-
-        # Get the new model name if it was specified:
-        if debias_criterion_name is not None:
-            new_model_name = f"{word_embedding_model.model_name}_debiased"
-        else:
-            new_model_name = (
-                f"{word_embedding_model.model_name}_debiased_{debias_criterion_name}"
-            )
-
-        # Get the words and the embeddings
-
-        # TODO: Ver el efecto de esta asignación en el uso de la memoria...
-        words = np.array(list(debiased_embeddings.keys()))
-        embeddings = np.array(list(debiased_embeddings.values()))
-
-        new_model = KeyedVectors(embeddings.shape[1])
-
-        # Gensim 4
-        if hasattr(new_model, "add_vectors"):
-            new_model.add_vectors(words, embeddings)
-
-        # Gensim 3
-        else:
-            new_model.add(words, embeddings)
-
-        return WordEmbeddingModel(
-            new_model, new_model_name, word_embedding_model.vocab_prefix
-        )
-
     def run_debias(
         self,
         word_embedding_model: WordEmbeddingModel,
-        definitional_pairs: Collection[Collection[str]],
-        bias_criterion_specific_words: Collection[str],
-        equalize_pairs: Collection[Collection[str]],
+        definitional_pairs: Union[List[List[str]], Tuple[Tuple[str]], np.ndarray],
+        bias_criterion_specific_words: Union[List[str], Tuple[str], np.ndarray],
+        equalize_pairs: Union[List[List[str]], Tuple[Tuple[str]], np.ndarray],
         pca_args: Dict[str, Any] = {"n_components": 10},
         debias_criterion_name: Union[str, None] = None,
         inplace: bool = True,
         verbose: bool = True,
     ) -> WordEmbeddingModel:
-        """Execute Bolukbasi's Debias in the word embedding model provided.
+        """Execute Bolukbasi's Hard Debias.
 
         Parameters
         ----------
         word_embedding_model : WordEmbeddingModel
             A word embedding model to debias.
-        definitional_pairs : Collection[Collection[str]]
+
+        definitional_pairs : Union[List[List[str]], Tuple[Tuple[str]], np.ndarray]
             [description]
-        bias_criterion_specific_words : Collection[str]
+
+        bias_criterion_specific_words : Union[List[str], Tuple[str], np.ndarray],
             A collection of words that is specific to the bias criteria and must not be
             debiased (i.e., it is good that these words are associated with a certain
             social group).
             e.g.:`["spokesman", "wife", "himself", "son", "mother", "father",...]`
-        equalize_pairs : Collection[Collection[str]]
+            
+        equalize_pairs : Union[List[List[str]], Tuple[Tuple[str]], np.ndarray]
             [description]
 
         pca_args : Dict[str, Any], optional
@@ -216,7 +170,7 @@ class HardDebias(BaseDebias):
             By default True
 
         verbose : bool, optional
-            Indicates whether the execution status of this function is printed in
+            Indicates whether the execution status of this method is printed in
             the logger, by default True.
 
         Returns
@@ -224,20 +178,43 @@ class HardDebias(BaseDebias):
         WordEmbeddingModel
             A word embeddings model that has been debiased.
         """
-        if inplace:
+        logger.info(f"Executing Hard Debias on {word_embedding_model.model_name}")
+
+        if verbose:
+            logger.setLevel(logging.DEBUG)
+        else:
+            logger.setLevel(logging.INFO)
+
+        if not inplace:
+            logger.warning(
+                "Inplace argument is False. This method will attempt to create a copy "
+                "of the original model. This may fail due to lack of memory."
+            )
             word_embedding_model = deepcopy(word_embedding_model)
+            logging.info("Copy created successfully.")
+        else:
+            logger.warning(
+                "Inplace argument is True. The execution of this method will mutate "
+                "the embeddings of the provided model."
+            )
 
         # ------------------------------------------------------------------------------:
-        # Normalize
+        # Normalize embeddings
+        logger.debug("Normalizing embeddings.")
         word_embedding_model.normalize_embeddings()
 
         # ------------------------------------------------------------------------------:
         # Obtain the embedding of the definitional pairs.
-        self._definitional_pairs_embeddings = self._get_embeddings_from_pairs_sets(
-            word_embedding_model, definitional_pairs, verbose, "definitional",
+        logger.debug("Obtaining definitional pairs.")
+        self._definitional_pairs_embeddings = word_embedding_model.get_embeddings_from_pairs(
+            pairs=definitional_pairs,
+            pairs_set_name="definitional",
+            warn_lost_pairs=True,
+            verbose=verbose,
         )
         # ------------------------------------------------------------------------------:
         # Identify the bias subspace using the definning pairs.
+        logger.debug("Identifying the bias subspace.")
         self._pca = self._identify_bias_subspace(
             self._definitional_pairs_embeddings, pca_args, verbose,
         )
@@ -245,15 +222,17 @@ class HardDebias(BaseDebias):
 
         # ------------------------------------------------------------------------------
         # Neutralize the embeddings appointed in bias_criterion_specific_words:
+        logger.debug("Neutralizing embeddings")
         self._neutralize_embeddings(
             word_embedding_model,
             self._bias_direction,
             set(bias_criterion_specific_words),
         )
 
+        logger.debug("Normalizing embeddings.")
         word_embedding_model.normalize_embeddings()
         # ------------------------------------------------------------------------------
-        # Equalize the embeddings:
+        # Equalize embeddings:
 
         # Get the equalization pairs candidates
         equalize_pairs_candidates = {
@@ -267,20 +246,25 @@ class HardDebias(BaseDebias):
         }
 
         # Get the equalization pairs embeddings candidates
-        self._equalize_pairs_embeddings = self._get_embeddings_from_pairs_sets(
-            word_embedding_model,
-            equalize_pairs_candidates,
-            verbose,
+        logger.debug("Obtaining equalize pairs.")
+        self._equalize_pairs_embeddings = word_embedding_model.get_embeddings_from_pairs(
+            pairs=equalize_pairs_candidates,
             pairs_set_name="equalize",
+            warn_lost_pairs=True,
+            verbose=verbose,
         )
 
         # Execute the equalization
+        logger.debug("Equalizing embeddings..")
         self._equalize_embeddings(
             word_embedding_model, self._equalize_pairs_embeddings, self._bias_direction,
         )
+
+        # ------------------------------------------------------------------------------
+        logger.debug("Normalizing embeddings.")
         word_embedding_model.normalize_embeddings()
 
-        # # ------------------------------------------------------------------------------
+        # ------------------------------------------------------------------------------
         # # Generate the new KeyedVectors
         if debias_criterion_name is not None:
             new_model_name = (
@@ -291,5 +275,8 @@ class HardDebias(BaseDebias):
                 f"{word_embedding_model.model_name}_{debias_criterion_name}_debiased"
             )
         word_embedding_model.model_name = new_model_name
+
+        logger.info("Done!")
+        logger.setLevel(logging.INFO)
 
         return word_embedding_model

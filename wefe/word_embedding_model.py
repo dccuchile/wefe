@@ -1,6 +1,6 @@
 """A Word Embedding contanier based on gensim BaseKeyedVectors."""
 import logging
-from typing import Callable, Collection, Dict, Iterable, List, Tuple, Union
+from typing import Callable, Dict, List, Set, Tuple, Union
 
 import numpy as np
 import gensim
@@ -174,18 +174,19 @@ class WordEmbeddingModel:
         if hasattr(self.model, "init_sims"):
             self.model.init_sims(replace=True)
         else:
-            raise TypeError("The model does not have the init_sims function.")
+            raise TypeError("The model does not have the init_sims method implemented.")
 
     def update_embedding(self, word: str, embedding: np.ndarray):
         """Update the value of an embedding of the model.
 
+        If the method is executed with a word that is not in the vocabulary, an
+        exception will be raised.
+
         Parameters
         ----------
         word : str
-            The word whose embedding will be replaced. This word must be in the
-            vocabulary. If the method is executed with a function that is not in the
-            vocabulary, an exception will be raised.
-
+            The word whose embedding will be replaced. This word must be in the model's
+            vocabulary.
         embedding : np.ndarray
             An embedding representing the word. It must have the same dimensions and
             data type as the model embeddings.
@@ -205,19 +206,24 @@ class WordEmbeddingModel:
             embeddings.
         """
         if not isinstance(word, str):
-            raise TypeError(f"word should be a string, got {type(str)}.")
+            raise TypeError(
+                f"word should be a string, got {word} with type {type(word)}."
+            )
 
         if word not in self.model.vocab:
-            raise ValueError(f"word {word} not in model vocab.")
+            raise ValueError(f"word '{word}' not in model vocab.")
 
         if not isinstance(embedding, np.ndarray):
-            raise TypeError(f"embedding should be a np.array, got {type(embedding)}.")
+            raise TypeError(
+                f"'{word}' new embedding should be a np.array,"
+                f" got {type(embedding)}."
+            )
 
         embedding_size = embedding.shape[0]
         if self.model.vector_size != embedding_size:
             raise ValueError(
-                f"The provided embedding's size ({embedding_size}) is different of "
-                f"model's vector size ({self.model.vector_size})."
+                f"The size of '{word}' embedding ({embedding_size}) is different from "
+                f"the size of the embeddings in the model ({self.model.vector_size})."
             )
 
         if not np.issubdtype(self.model.vectors.dtype, embedding.dtype):
@@ -233,17 +239,28 @@ class WordEmbeddingModel:
 
         self.model.vectors[word_index] = embedding
 
-    def update_embeddings(self, words: Collection[str], embeddings: np.array):
+    def update_embeddings(
+        self,
+        words: Union[List[str], Tuple[str], np.ndarray],
+        embeddings: Union[List[np.ndarray], Tuple[np.ndarray], np.array],
+    ):
         """Update a list of embeddings.
+
+        This method calls `update_embedding` method with each of the word-embedding
+        pairs.
+        All words must be in the vocabulary, otherwise an exception will be thrown.
+        Note that both `words` and `embeddings`must have the same number of elements,
+        otherwise the method will raise an exception.
 
         Parameters
         ----------
-        words : Collection[str]
-            A collection of words whose representations will be updated. All words
-            must be in the vocabulary, otherwise an exception will be thrown.
-        embeddings : np.array
-            An array with the new embeddings. They must have the same size and
-            data type as the model.
+        words : Union[List[str], Tuple[str], np.ndarray],
+            A list, tuple or np.array that contains the words whose representations
+            will be updated.
+        embeddings : Union[List[np.ndarray], Tuple[np.ndarray], np.array],
+            A list or tuple of embeddings or an np.array that contains all the new
+            embeddings. The embeddings must have the same size and data type as the
+            model.
 
         Raises
         ------
@@ -251,34 +268,25 @@ class WordEmbeddingModel:
             if words is not a list
         TypeError
             if embeddings is not a np.ndarray
-        TypeError
-            if some element of words is not a string.
         Exception
             if words collection has not the same size of the embedding array.
         """
-        if not isinstance(words, list):
+        if not isinstance(words, (list, tuple, np.ndarray)):
             raise TypeError(
-                f"words argument should be a list of strings. got {type(words)}."
+                "words argument should be a list, tuple or np.array of strings, "
+                f"got {type(words)}."
             )
 
-        if not isinstance(embeddings, np.ndarray):
+        if not isinstance(embeddings, (list, tuple, np.ndarray)):
             raise TypeError(
-                "embeddings should be an instance of np.ndarray. "
+                "embeddings should be a list, tuple or np.array, "
                 f"got: {type(embeddings)}"
             )
 
-        for idx, w in enumerate(words):
-            if not isinstance(w, str):
-                raise TypeError(
-                    f"element in index {idx} of words collection is not a string. "
-                    f"got: {w}"
-                )
-
         if len(words) != len(embeddings):
-            raise Exception(
-                "Word list must have the same number of embeddings in the"
-                f"embeddings array. "
-                f"len(words) = {len(words)} - len(embeddings) = {len(embeddings)}"
+            raise ValueError(
+                "words and embeddings must have the same size, got: "
+                f"len(words) = {len(words)}, len(embeddings) = {len(embeddings)}"
             )
 
         for idx, word in enumerate(words):
@@ -334,7 +342,7 @@ class WordEmbeddingModel:
 
     def get_embeddings_from_word_set(
         self,
-        word_set: Iterable[str],
+        word_set: Union[List[str], Tuple[str], Set[str], np.ndarray],
         preprocessor_args: PreprocessorArgs = {},
         secondary_preprocessor_args: PreprocessorArgs = None,
     ) -> Tuple[List[str], EmbeddingDict]:
@@ -345,8 +353,10 @@ class WordEmbeddingModel:
 
         Parameters
         ----------
-        word_set : Iterable[str]
-            An iterable with the words that will be transformed to embeddings.
+        word_set : Union[List[str], Tuple[str], Set[str], np.ndarray]
+            A list or tuple or np.array with the words that will be converted to 
+            embeddings.
+
         preprocessor_args : PreprocessorArgs, optional
             Dictionary with the arguments that specify how the pre-processing of the
             words will be done, by default {}
@@ -374,9 +384,10 @@ class WordEmbeddingModel:
             A tuple with a list of missing words and a dictionary that maps words
             to embeddings.
         """
-        if not isinstance(word_set, Iterable):
+        if not isinstance(word_set, (list, tuple, set, np.array)):
             raise TypeError(
-                "word_set should be a Iterable of strings" ", got {}.".format(word_set)
+                f"word_set should be a list, tuple, set or np.array of strings"
+                f", got {word_set}."
             )
 
         if not isinstance(preprocessor_args, Dict):
@@ -464,7 +475,7 @@ class WordEmbeddingModel:
 
     def get_embeddings_from_pairs(
         self,
-        pairs: Collection[Collection[str]],
+        pairs: Union[List[List[str]], Tuple[Tuple[str]], np.ndarray],
         pairs_set_name: Union[str, None] = None,
         warn_lost_pairs: bool = True,
         verbose: bool = False,
@@ -473,8 +484,8 @@ class WordEmbeddingModel:
 
         Parameters
         ----------
-        pairs : Collection[Collection[str]]
-            An iterable containing word pairs.
+        pairs :  Union[List[List[str]], Tuple[Tuple[str]], np.ndarray]
+            A list or tuple containing word pairs.
             Example: `[['woman', 'man'], ['she', 'he'], ['mother', 'father'] ...]`
 
         pairs_set_name : Union[str, optional]
@@ -497,82 +508,80 @@ class WordEmbeddingModel:
             and as values their associated embeddings.
 
         """
-        if not isinstance(pairs, (list, np.ndarray, set)):
+        if not isinstance(pairs, (list, tuple, set, np.ndarray)):
             raise TypeError(
-                "Pairs should be a collection of collection of strings, "
+                "pairs should be a list, tuple, set or np.array of pairs of strings, "
                 f"got: {type(pairs)}."
             )
 
         for idx, pair in enumerate(pairs):
-            if not isinstance(pair, (list, np.ndarray, set)):
+            if not isinstance(pair, (list, tuple, set, np.ndarray)):
                 raise TypeError(
-                    "All pair in pairs should be a collection, "
+                    "Every pair in pairs must be a list, set, tuple or np.array of strings, "
                     f"got in index {idx}: {type(pair)}"
                 )
             if len(pair) != 2:
                 raise ValueError(
-                    f"All pairs should have length 2, got in index {idx}: {len(pair)}"
+                    f"Every pair should have length 2. Got in index {idx}: {len(pair)}"
                 )
 
             if not isinstance(pair[0], str):
                 raise TypeError(
-                    "All members of a pair should be strings. "
+                    "All elements of a pair should be strings. "
                     f"Got in index {idx} at position 0: {type(pair[0])}"
                 )
 
             if not isinstance(pair[1], str):
                 raise TypeError(
-                    "All members of a pair should be strings. "
+                    "All elements of a pair should be strings. "
                     f"Got in index {idx} at position 1: {type(pair[1])}"
                 )
 
-        if not isinstance(pairs_set_name, str):
+        if pairs_set_name is not None and not isinstance(pairs_set_name, str):
             raise TypeError(
-                f"pairs_set_name should be a string. Got {type(pairs_set_name)}"
+                f"pairs_set_name should be a string or None, got: {type(pairs_set_name)}"
             )
-        if not isinstance(warn_lost_pairs, str):
+        if not isinstance(warn_lost_pairs, bool):
             raise TypeError(
-                f"warn_lost_pairs should be a bool. Got {type(pairs_set_name)}"
+                f"warn_lost_pairs should be a bool, got: {type(warn_lost_pairs)}"
             )
-        if not isinstance(verbose, str):
-            raise TypeError(f"verbose should be a bool. Got {type(pairs_set_name)}")
+        if not isinstance(verbose, bool):
+            raise TypeError(f"verbose should be a bool, got: {type(verbose)}")
 
         embedding_pairs: List[EmbeddingDict] = []
 
         # For each definitional pair:
-        for pair in pairs:
+        for pair_idx, pair in enumerate(pairs):
 
             # Transform the pair to a embedding dict.
-            # i.e., (word_1, word_2) -> {'word_1': embedding, 'word_2'.: embedding}
-            (not_found_words, embedding_pair,) = self.get_embeddings_from_word_set(
+            # idea: (word_1, word_2) -> {'word_1': embedding, 'word_2'.: embedding}
+            not_found_words, embedding_pair = self.get_embeddings_from_word_set(
                 pair, {}, None
             )
 
-            # If some word of the current pair can not be transformed, discard the pair.
-            if len(not_found_words) > 0:
-                if warn_lost_pairs:
-                    logging.warning(
-                        f"Word(s) {not_found_words} when converting {pair} "
-                        f"{pairs_set_name} pair to embedding. "
-                        "The pair will be omitted."
-                    )
+            # If some word of the current pair can not be converted, discard the pair.
+            if len(not_found_words) > 0 and warn_lost_pairs:
+                set_name = f"of the {pairs_set_name} " if pairs_set_name else ""
+                logging.warning(
+                    f"The word(s) {not_found_words} {set_name}pair at index {pair_idx} "
+                    "were not found. This pair will be omitted."
+                )
             else:
                 # Add the embedding dict to defining_pairs_embeddings
                 embedding_pairs.append(embedding_pair)
 
         if len(embedding_pairs) == 0:
-            if pairs_set_name is not None:
-                msg = f"No pair from the set {pairs_set_name} could be converted to "
-                "embedding because no pair could be fully found in the model vocabulary."
-            else:
-                msg = "No pair could be converted to embedding because no pair could "
-                "be fully found in the model vocabulary. "
+            set_name = f"from the set {pairs_set_name} " if pairs_set_name else ""
+            msg = (
+                f"No pair {set_name}could be converted to embedding because no pair "
+                "could be fully found in the model vocabulary."
+            )
             raise Exception(msg)
 
         elif verbose:
             logging.info(
                 f"{len(embedding_pairs)}/{len(pairs)} pairs of "
-                "words were correctly transformed to pairs of embeddings"
+                "words were correctly converted to pairs of embeddings"
             )
 
         return embedding_pairs

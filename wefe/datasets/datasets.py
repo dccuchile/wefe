@@ -237,23 +237,11 @@ def load_bingliu():
     negative = pd.read_csv(
         bingliu_neg_bytes, sep="\n", header=None, names=["word"], encoding="latin-1"
     )
-    negative_cleaned = (
-        negative.loc[
-            30:,
-        ]
-        .values.flatten()
-        .tolist()
-    )
+    negative_cleaned = negative.loc[30:,].values.flatten().tolist()
     positive = pd.read_csv(
         bingliu_pos_bytes, sep="\n", header=None, names=["word"], encoding="latin-1"
     )
-    positive_cleaned = (
-        positive.loc[
-            29:,
-        ]
-        .values.flatten()
-        .tolist()
-    )
+    positive_cleaned = positive.loc[29:,].values.flatten().tolist()
 
     bingliu_lexicon = {
         "positive_words": positive_cleaned,
@@ -300,38 +288,43 @@ def fetch_debias_multiclass() -> dict:
     ]
     # fetch gender
     with urllib.request.urlopen(BASE_URL + WORD_SETS_FILES[0]) as file:
-        gender = json.loads(file.read().decode())
+        gender_attributes = json.loads(file.read().decode())
 
-        gender_terms = np.array(gender["definite_sets"])
-        female_terms = gender_terms[:, 1].tolist()
-        male_terms = gender_terms[:, 0].tolist()
+        gender_definitional_sets = np.array(gender_attributes["definite_sets"])
 
-        gender_related_words = gender["analogy_templates"]["role"]
+        female_terms = gender_definitional_sets[:, 1].tolist()
+        male_terms = gender_definitional_sets[:, 0].tolist()
+
+        gender_related_words = gender_attributes["analogy_templates"]["role"]
         male_roles = gender_related_words["man"]
         female_roles = gender_related_words["woman"]
+
     # fetch race
     with urllib.request.urlopen(BASE_URL + WORD_SETS_FILES[1]) as file:
-        race = json.loads(file.read().decode())
+        race_attributes = json.loads(file.read().decode())
 
-        race_terms = np.array(race["definite_sets"])
-        black = np.unique(race_terms[:, 0]).tolist()
-        white = np.unique(race_terms[:, 1]).tolist()
-        asian = np.unique(race_terms[:, 2]).tolist()
+        race_definitional_sets = np.array(race_attributes["definite_sets"])
 
-        race_related_words = race["analogy_templates"]["role"]
-        white_related_words = race_related_words["caucasian"]
-        asian_related_words = race_related_words["asian"]
-        black_related_words = race_related_words["black"]
+        black = np.unique(race_definitional_sets[:, 0]).tolist()
+        white = np.unique(race_definitional_sets[:, 1]).tolist()
+        asian = np.unique(race_definitional_sets[:, 2]).tolist()
+
+        race_related_words = race_attributes["analogy_templates"]["role"]
+        white_biased_words = race_related_words["caucasian"]
+        asian_biased_words = race_related_words["asian"]
+        black_biased_words = race_related_words["black"]
+
     # fetch religion
     with urllib.request.urlopen(BASE_URL + WORD_SETS_FILES[2]) as file:
-        religion = json.loads(file.read().decode())
+        religion_attributes = json.loads(file.read().decode())
 
-        religion_terms = np.array(religion["definite_sets"])
-        judaism = np.unique(religion_terms[:, 0]).tolist()
-        christianity = np.unique(religion_terms[:, 1]).tolist()
-        islam = np.unique(religion_terms[:, 2]).tolist()
+        religion_definitional_sets = np.array(religion_attributes["definite_sets"])
 
-        religion_related_words = religion["analogy_templates"]["attribute"]
+        judaism = np.unique(religion_definitional_sets[:, 0]).tolist()
+        christianity = np.unique(religion_definitional_sets[:, 1]).tolist()
+        islam = np.unique(religion_definitional_sets[:, 2]).tolist()
+
+        religion_related_words = religion_attributes["analogy_templates"]["attribute"]
         greed = religion_related_words["jew"]
         conservative = religion_related_words["christian"]
         terrorism = religion_related_words["muslim"]
@@ -344,15 +337,18 @@ def fetch_debias_multiclass() -> dict:
         "black_terms": black,
         "white_terms": white,
         "asian_terms": asian,
-        "black_related_words": black_related_words,
-        "white_related_words": white_related_words,
-        "asian_related_words": asian_related_words,
+        "black_biased_words": black_biased_words,
+        "white_biased_words": white_biased_words,
+        "asian_biased_words": asian_biased_words,
         "judaism_terms": judaism,
         "christianity_terms": christianity,
         "islam_terms": islam,
         "greed": greed,
         "conservative": conservative,
         "terrorism": terrorism,
+        "gender_definitional_sets": gender_definitional_sets.tolist(),
+        "race_definitional_sets": race_definitional_sets.tolist(),
+        "religion_definitional_sets": religion_definitional_sets.tolist(),
     }
     return word_sets_dict
 

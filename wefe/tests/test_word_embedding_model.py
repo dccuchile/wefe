@@ -344,69 +344,70 @@ def test_get_embeddings_from_word_set(word2vec_sm):
 
 
 # -------------------------------------------------------------------------------------
-def test_get_embeddings_from_pairs(word2vec_sm, caplog):
+def test_get_embeddings_from_sets(word2vec_sm, caplog):
+
+    # ----------------------------------------------------------------------------------
+    # Test types and value checking.
 
     with pytest.raises(
         TypeError,
         match=(
-            r"pairs should be a list, tuple, set or np.array of pairs of strings"
-            r", got:.*"
+            r"sets should be a sequence of sequences \(list, tuple or np\.array\) of "
+            r"strings, got:.*"
         ),
     ):
-        word2vec_sm.get_embeddings_from_pairs(None)
+        word2vec_sm.get_embeddings_from_sets(None)
 
     with pytest.raises(
         TypeError,
         match=(
-            r"Every pair in pairs must be a list, set, tuple or np.array of strings"
+            r"Every set in sets should be a list, tuple or np.array of strings"
             r", got in index.*"
         ),
     ):
-        word2vec_sm.get_embeddings_from_pairs([None])
-
-    with pytest.raises(
-        ValueError, match=r"Every pair should have length 2. Got in index.*",
-    ):
-        word2vec_sm.get_embeddings_from_pairs([["she", "he", "it"]])
+        word2vec_sm.get_embeddings_from_sets([None])
 
     with pytest.raises(
         TypeError,
         match=(
-            r"All elements of a pair should be strings. "
-            r"Got in index.*at position 0:.*"
+            r"All set elements in a set of words should be strings. "
+            r"Got in set.*at position 0:.*"
         ),
     ):
-        word2vec_sm.get_embeddings_from_pairs([[1, "he"]])
+        word2vec_sm.get_embeddings_from_sets([[1, "he"]])
 
     with pytest.raises(
         TypeError,
         match=(
-            r"All elements of a pair should be strings. "
-            r"Got in index.* at position 1:.*"
+            r"All set elements in a set of words should be strings. "
+            r"Got in set.* at position 1:.*"
         ),
     ):
-        word2vec_sm.get_embeddings_from_pairs([["she", 1]])
+        word2vec_sm.get_embeddings_from_sets([["she", 1]])
 
     with pytest.raises(
-        TypeError, match=r"pairs_set_name should be a string or None, got:.*",
+        TypeError, match=r"sets_name should be a string or None, got:.*",
     ):
-        word2vec_sm.get_embeddings_from_pairs([["she", "he"]], 0)
+        word2vec_sm.get_embeddings_from_sets([["she", "he"]], 0)
 
     with pytest.raises(
-        TypeError, match=r"warn_lost_pairs should be a bool, got:.*",
+        TypeError, match=r"warn_lost_sets should be a bool, got:.*",
     ):
-        word2vec_sm.get_embeddings_from_pairs([["she", "he"]], "definning", None)
+        word2vec_sm.get_embeddings_from_sets([["she", "he"]], "definning", None)
 
     with pytest.raises(
         TypeError, match=r"verbose should be a bool, got:.*",
     ):
-        word2vec_sm.get_embeddings_from_pairs([["she", "he"]], "definning", True, None)
+        word2vec_sm.get_embeddings_from_sets([["she", "he"]], "definning", True, None)
+
+    # ----------------------------------------------------------------------------------
+    # Test with pairs of words
 
     pairs = [["woman", "man"], ["she", "he"], ["mother", "father"]]
     pairs_set_name = "definning"
 
-    embedding_pairs = word2vec_sm.get_embeddings_from_pairs(
-        pairs=pairs, pairs_set_name=pairs_set_name
+    embedding_pairs = word2vec_sm.get_embeddings_from_sets(
+        sets=pairs, sets_name=pairs_set_name
     )
 
     assert isinstance(embedding_pairs, list)
@@ -421,14 +422,43 @@ def test_get_embeddings_from_pairs(word2vec_sm, caplog):
             assert e.shape == (300,)
             assert all(word2vec_sm[w] == e)
 
+    # ----------------------------------------------------------------------------------
+    # Test with sets
+
+    sets = [
+        ["judaism", "christianity", "islam"],
+        ["jew", "christian", "muslim"],
+        ["synagogue", "church", "mosque"],
+    ]
+    sets_name = "definning"
+
+    embedding_pairs = word2vec_sm.get_embeddings_from_sets(
+        sets=sets, sets_name=sets_name
+    )
+
+    assert isinstance(embedding_pairs, list)
+
+    for embedding_pair in embedding_pairs:
+        assert isinstance(embedding_pair, dict)
+        assert len(embedding_pair.keys()) == 3
+        assert len(embedding_pair.values()) == 3
+        for w, e in embedding_pair.items():
+            assert isinstance(w, str)
+            assert isinstance(e, np.ndarray)
+            assert e.shape == (300,)
+            assert all(word2vec_sm[w] == e)
+
+    # ----------------------------------------------------------------------------------
+    # Test out of vocabulary (OOV) words and failures
+
     oov_pairs = [["the", "vbbge"], ["ddsds", "ferhh"]]
     pairs_with_oov = pairs + oov_pairs
 
     with caplog.at_level(logging.INFO):
-        embedding_pairs_2 = word2vec_sm.get_embeddings_from_pairs(
-            pairs=pairs_with_oov,
-            pairs_set_name=pairs_set_name,
-            warn_lost_pairs=True,
+        embedding_pairs_2 = word2vec_sm.get_embeddings_from_sets(
+            sets=pairs_with_oov,
+            sets_name=pairs_set_name,
+            warn_lost_sets=True,
             verbose=True,
         )
         assert len(embedding_pairs_2) == 3
@@ -441,16 +471,16 @@ def test_get_embeddings_from_pairs(word2vec_sm, caplog):
         pass
 
         assert (
-            "3/5 pairs of words were correctly converted to pairs of embeddings"
+            "3/5 sets of words were correctly converted to sets of embeddings"
             in caplog.text
         )
 
     with pytest.raises(
         Exception,
-        match=r"No pair could be converted to embedding because no pair "
+        match=r"No set could be converted to embedding because no set "
         "could be fully found in the model vocabulary.",
     ):
-        word2vec_sm.get_embeddings_from_pairs(pairs=oov_pairs)
+        word2vec_sm.get_embeddings_from_sets(sets=oov_pairs)
 
 
 def test_warn_not_found_words(word2vec_sm, caplog):

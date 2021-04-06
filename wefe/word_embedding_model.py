@@ -1,6 +1,6 @@
 """A Word Embedding contanier based on gensim BaseKeyedVectors."""
 import logging
-from typing import Callable, Dict, List, Set, Tuple, Union
+from typing import Callable, Dict, List, Sequence, Set, Tuple, Union
 
 import numpy as np
 import gensim
@@ -240,9 +240,7 @@ class WordEmbeddingModel:
         self.model.vectors[word_index] = embedding
 
     def update_embeddings(
-        self,
-        words: Union[List[str], Tuple[str], np.ndarray],
-        embeddings: Union[List[np.ndarray], Tuple[np.ndarray], np.array],
+        self, words: Sequence[str], embeddings: Union[Sequence[np.ndarray], np.array],
     ):
         """Update a list of embeddings.
 
@@ -254,13 +252,14 @@ class WordEmbeddingModel:
 
         Parameters
         ----------
-        words : Union[List[str], Tuple[str], np.ndarray],
-            A list, tuple or np.array that contains the words whose representations
-            will be updated.
-        embeddings : Union[List[np.ndarray], Tuple[np.ndarray], np.array],
-            A list or tuple of embeddings or an np.array that contains all the new
-            embeddings. The embeddings must have the same size and data type as the
-            model.
+        words : Sequence[str]
+            A sequence (list, tuple or np.array) that contains the words whose
+            representations will be updated.
+            
+        embeddings : Union[Sequence[np.ndarray], np.array],
+            A sequence (list or tuple) or a np.array of embeddings or an np.array that
+            contains all the new embeddings. The embeddings must have the same size and
+            data type as the model.
 
         Raises
         ------
@@ -342,7 +341,7 @@ class WordEmbeddingModel:
 
     def get_embeddings_from_word_set(
         self,
-        word_set: Union[List[str], Tuple[str], Set[str], np.ndarray],
+        word_set: Sequence[str],
         preprocessor_args: PreprocessorArgs = {},
         secondary_preprocessor_args: PreprocessorArgs = None,
     ) -> Tuple[List[str], EmbeddingDict]:
@@ -353,9 +352,9 @@ class WordEmbeddingModel:
 
         Parameters
         ----------
-        word_set : Union[List[str], Tuple[str], Set[str], np.ndarray]
-            A list or tuple or np.array with the words that will be converted to 
-            embeddings.
+        word_set : Sequence[str]
+            A  sequence (list, tuple or np.array) with the words that will be converted
+            to embeddings.
 
         preprocessor_args : PreprocessorArgs, optional
             Dictionary with the arguments that specify how the pre-processing of the
@@ -384,9 +383,9 @@ class WordEmbeddingModel:
             A tuple with a list of missing words and a dictionary that maps words
             to embeddings.
         """
-        if not isinstance(word_set, (list, tuple, set, np.array)):
+        if not isinstance(word_set, (list, tuple, set, np.ndarray)):
             raise TypeError(
-                f"word_set should be a list, tuple, set or np.array of strings"
+                f"word_set should be a list, tuple or np.array of strings"
                 f", got {word_set}."
             )
 
@@ -473,27 +472,28 @@ class WordEmbeddingModel:
             return True
         return False
 
-    def get_embeddings_from_pairs(
+    def get_embeddings_from_sets(
         self,
-        pairs: Union[List[List[str]], Tuple[Tuple[str]], np.ndarray],
-        pairs_set_name: Union[str, None] = None,
-        warn_lost_pairs: bool = True,
+        sets: Sequence[Sequence[str]],
+        sets_name: Union[str, None] = None,
+        warn_lost_sets: bool = True,
         verbose: bool = False,
     ) -> List[EmbeddingDict]:
-        """Given a list of word pairs, obtain their corresponding embeddings.
+        """Given a sequence of word sets, obtain their corresponding embeddings.
 
         Parameters
         ----------
-        pairs :  Union[List[List[str]], Tuple[Tuple[str]], np.ndarray]
-            A list or tuple containing word pairs.
-            Example: `[['woman', 'man'], ['she', 'he'], ['mother', 'father'] ...]`
+        sets :  Sequence[Sequence[str]]
+            A sequence containing word sets.
+            Example: `[['woman', 'man'], ['she', 'he'], ['mother', 'father'] ...]`.
 
-        pairs_set_name : Union[str, optional]
-            The name of the set of word pairs. Example: `definning sets`.
+        sets_name : Union[str, optional]
+            The name of the set of word sets. Example: `definning sets`.
+            This parameter is used only for printing.
             by default None
 
-        warn_lost_pairs : bool, optional
-            Indicates whether word pairs that cannot be fully converted to embeddings
+        warn_lost_sets : bool, optional
+            Indicates whether word sets that cannot be fully converted to embeddings
             are warned in the logger,
             by default True
 
@@ -508,83 +508,73 @@ class WordEmbeddingModel:
             and as values their associated embeddings.
 
         """
-        if not isinstance(pairs, (list, tuple, set, np.ndarray)):
+        if not isinstance(sets, (list, tuple, np.ndarray)):
             raise TypeError(
-                "pairs should be a list, tuple, set or np.array of pairs of strings, "
-                f"got: {type(pairs)}."
+                "sets should be a sequence of sequences (list, tuple or np.array) "
+                f"of strings, got: {type(sets)}."
             )
 
-        for idx, pair in enumerate(pairs):
-            if not isinstance(pair, (list, tuple, set, np.ndarray)):
+        for idx, set_ in enumerate(sets):
+            if not isinstance(set_, (list, tuple, np.ndarray)):
                 raise TypeError(
-                    "Every pair in pairs must be a list, set, tuple or np.array of strings, "
-                    f"got in index {idx}: {type(pair)}"
-                )
-            if len(pair) != 2:
-                raise ValueError(
-                    f"Every pair should have length 2. Got in index {idx}: {len(pair)}"
+                    "Every set in sets should be a list, tuple or np.array of "
+                    f"strings, got in index {idx}: {type(set_)}"
                 )
 
-            if not isinstance(pair[0], str):
-                raise TypeError(
-                    "All elements of a pair should be strings. "
-                    f"Got in index {idx} at position 0: {type(pair[0])}"
-                )
+            for word_idx, word in enumerate(set_):
+                if not isinstance(word, str):
+                    raise TypeError(
+                        "All set elements in a set of words should be strings. "
+                        f"Got in set {idx} at position {word_idx}: {type(word)}"
+                    )
 
-            if not isinstance(pair[1], str):
-                raise TypeError(
-                    "All elements of a pair should be strings. "
-                    f"Got in index {idx} at position 1: {type(pair[1])}"
-                )
-
-        if pairs_set_name is not None and not isinstance(pairs_set_name, str):
+        if sets_name is not None and not isinstance(sets_name, str):
             raise TypeError(
-                f"pairs_set_name should be a string or None, got: {type(pairs_set_name)}"
+                f"sets_name should be a string or None, got: {type(sets_name)}"
             )
-        if not isinstance(warn_lost_pairs, bool):
+        if not isinstance(warn_lost_sets, bool):
             raise TypeError(
-                f"warn_lost_pairs should be a bool, got: {type(warn_lost_pairs)}"
+                f"warn_lost_sets should be a bool, got: {type(warn_lost_sets)}"
             )
         if not isinstance(verbose, bool):
             raise TypeError(f"verbose should be a bool, got: {type(verbose)}")
 
-        embedding_pairs: List[EmbeddingDict] = []
+        embedding_sets: List[EmbeddingDict] = []
 
         # For each definitional pair:
-        for pair_idx, pair in enumerate(pairs):
+        for set_idx, set_ in enumerate(sets):
 
             # Transform the pair to a embedding dict.
             # idea: (word_1, word_2) -> {'word_1': embedding, 'word_2'.: embedding}
             not_found_words, embedding_pair = self.get_embeddings_from_word_set(
-                pair, {}, None
+                set_, {}, None
             )
 
             # If some word of the current pair can not be converted, discard the pair.
-            if len(not_found_words) > 0 and warn_lost_pairs:
-                set_name = f"of the {pairs_set_name} " if pairs_set_name else ""
+            if len(not_found_words) > 0 and warn_lost_sets:
+                set_name = f"of the {sets_name} " if sets_name else ""
                 logging.warning(
-                    f"The word(s) {not_found_words} {set_name}pair at index {pair_idx} "
+                    f"The word(s) {not_found_words} {set_name}pair at index {set_idx} "
                     "were not found. This pair will be omitted."
                 )
             else:
-                # Add the embedding dict to defining_pairs_embeddings
-                embedding_pairs.append(embedding_pair)
+                embedding_sets.append(embedding_pair)
 
-        if len(embedding_pairs) == 0:
-            set_name = f"from the set {pairs_set_name} " if pairs_set_name else ""
+        if len(embedding_sets) == 0:
+            set_name = f"from the set {sets_name} " if sets_name else ""
             msg = (
-                f"No pair {set_name}could be converted to embedding because no pair "
+                f"No set {set_name}could be converted to embedding because no set "
                 "could be fully found in the model vocabulary."
             )
             raise Exception(msg)
 
         elif verbose:
             logging.info(
-                f"{len(embedding_pairs)}/{len(pairs)} pairs of "
-                "words were correctly converted to pairs of embeddings"
+                f"{len(embedding_sets)}/{len(sets)} sets of "
+                "words were correctly converted to sets of embeddings"
             )
 
-        return embedding_pairs
+        return embedding_sets
 
     def get_embeddings_from_query(
         self,

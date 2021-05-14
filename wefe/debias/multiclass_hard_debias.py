@@ -73,7 +73,7 @@ class MulticlassHardDebias(HardDebias):
             v_b += np.dot(vector.transpose(), component) * component
         return v_b
 
-    def _neutralize_embedd<ings(
+    def _neutralize_embeddings(
         self,
         word_embedding_model: WordEmbeddingModel,
         bias_subspace: np.ndarray,

@@ -15,13 +15,17 @@ class ExampleMetric(BaseMetric):
 
     # replace with the parameters of your metric
     metric_template = (
-        2, 1
+        2,
+        1,
     )  # cardinalities of the targets and attributes sets that your metric will accept.
-    metric_name = 'Example Metric'
-    metric_short_name = 'EM'
+    metric_name = "Example Metric"
+    metric_short_name = "EM"
 
-    def _calc_metric(self, target_embeddings: List[EmbeddingDict],
-                     attribute_embeddings: List[EmbeddingDict]) -> np.float:
+    def _calc_metric(
+        self,
+        target_embeddings: List[EmbeddingDict],
+        attribute_embeddings: List[EmbeddingDict],
+    ) -> float:
         """Calculate the metric.
 
         Parameters
@@ -51,31 +55,34 @@ class ExampleMetric(BaseMetric):
         attribute_embeddings_0_avg = np.mean(attribute_embeddings_0, axis=0)
 
         # calculate the distances between the target sets and the attribute set
-        dist_target_0_attr = distance.cosine(target_embeddings_0_avg,
-                                             attribute_embeddings_0_avg)
-        dist_target_1_attr = distance.cosine(target_embeddings_1_avg,
-                                             attribute_embeddings_0_avg)
+        dist_target_0_attr = distance.cosine(
+            target_embeddings_0_avg, attribute_embeddings_0_avg
+        )
+        dist_target_1_attr = distance.cosine(
+            target_embeddings_1_avg, attribute_embeddings_0_avg
+        )
 
         # subtract the distances
         metric_result = dist_target_0_attr - dist_target_1_attr
         return metric_result
 
     def run_query(
-            self,
-            query: Query,
-            word_embedding: WordEmbeddingModel,
-            # any parameter that you need
-            # ...,
-            lost_vocabulary_threshold: float = 0.2,
-            preprocessor_args: PreprocessorArgs = {
-                'strip_accents': False,
-                'lowercase': False,
-                'preprocessor': None,
-            },
-            secondary_preprocessor_args: PreprocessorArgs = None,
-            warn_not_found_words: bool = False,
-            *args: Any,
-            **kwargs: Any) -> Dict[str, Any]:
+        self,
+        query: Query,
+        word_embedding: WordEmbeddingModel,
+        # any parameter that you need
+        # ...,
+        lost_vocabulary_threshold: float = 0.2,
+        preprocessor_args: PreprocessorArgs = {
+            "strip_accents": False,
+            "lowercase": False,
+            "preprocessor": None,
+        },
+        secondary_preprocessor_args: PreprocessorArgs = None,
+        warn_not_found_words: bool = False,
+        *args: Any,
+        **kwargs: Any
+    ) -> Dict[str, Any]:
         """Calculate the Example Metric metric over the provided parameters.
 
         Parameters
@@ -128,9 +135,16 @@ class ExampleMetric(BaseMetric):
             and other scores.
         """
         # check the types of the provided arguments (only the defaults).
-        super().run_query(query, word_embedding, lost_vocabulary_threshold,
-                          preprocessor_args, secondary_preprocessor_args,
-                          warn_not_found_words, *args, **kwargs)
+        super().run_query(
+            query,
+            word_embedding,
+            lost_vocabulary_threshold,
+            preprocessor_args,
+            secondary_preprocessor_args,
+            warn_not_found_words,
+            *args,
+            **kwargs
+        )
 
         # transform query word sets into embeddings
         embeddings = word_embedding.get_embeddings_from_query(
@@ -138,15 +152,16 @@ class ExampleMetric(BaseMetric):
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessor_args=preprocessor_args,
             secondary_preprocessor_args=secondary_preprocessor_args,
-            warn_not_found_words=warn_not_found_words)
+            warn_not_found_words=warn_not_found_words,
+        )
 
         # if there is any/some set has less words than the allowed limit,
         # return the default value (nan)
         if embeddings is None:
             return {
-                'query_name': query.query_name,  # the name of the evaluated query
-                'result': np.nan,  # the result of the metric
-                'em': np.nan,  # result of the calculated metric (recommended)
+                "query_name": query.query_name,  # the name of the evaluated query
+                "result": np.nan,  # the result of the metric
+                "em": np.nan,  # result of the calculated metric (recommended)
             }
 
         # get the targets and attribute sets transformed into embeddings.
@@ -163,4 +178,4 @@ class ExampleMetric(BaseMetric):
         result = self._calc_metric(target_embeddings, attribute_embeddings)
 
         # return the results.
-        return {"query_name": query.query_name, "result": result, 'em': result}
+        return {"query_name": query.query_name, "result": result, "em": result}

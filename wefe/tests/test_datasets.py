@@ -1,7 +1,8 @@
-from ..datasets.datasets import (
+from wefe.datasets.datasets import (
     load_bingliu,
     fetch_debiaswe,
     fetch_eds,
+    fetch_gn_glove,
     fetch_debias_multiclass,
     load_weat,
 )
@@ -13,14 +14,19 @@ def test_load_bingliu():
     assert list(bingliu.keys()) == ["positive_words", "negative_words"]
     assert len(list(bingliu.keys())) == 2
 
-    for key in bingliu:
-        assert len(bingliu[key]) > 0
+    for set_name, set_ in bingliu.items():
+        assert isinstance(set_name, str)
+        assert isinstance(set_, list)
+        assert len(set_) > 0
+        for word in set_:
+            assert isinstance(word, str)
+            assert len(word) > 0
 
 
 def test_fetch_eds():
-    eds = fetch_eds()
-    assert isinstance(eds, dict)
-    assert list(eds.keys()) == [
+    eds_dataset = fetch_eds()
+    assert isinstance(eds_dataset, dict)
+    assert list(eds_dataset.keys()) == [
         "adjectives_appearance",
         "adjectives_otherization",
         "adjectives_sensitive",
@@ -43,16 +49,21 @@ def test_fetch_eds():
         "female_terms",
         "adjectives_intelligence",
     ]
-    assert len(list(eds.keys())) == 21
+    assert len(list(eds_dataset.keys())) == 21
 
-    for key in eds:
-        assert len(eds[key]) > 0
+    for set_name, set_ in eds_dataset.items():
+        assert isinstance(set_name, str)
+        assert isinstance(set_, list)
+        assert len(set_) > 0
+        for word in set_:
+            assert isinstance(word, str)
+            assert len(word) > 0
 
 
 def test_fetch_debiaswe():
-    debiaswe = fetch_debiaswe()
-    assert isinstance(debiaswe, dict)
-    assert list(debiaswe.keys()) == [
+    debiaswe_datatset = fetch_debiaswe()
+    assert isinstance(debiaswe_datatset, dict)
+    assert list(debiaswe_datatset.keys()) == [
         "male_terms",
         "female_terms",
         "definitional_pairs",
@@ -60,18 +71,21 @@ def test_fetch_debiaswe():
         "gender_specific",
         "professions",
     ]
-    assert len(list(debiaswe.keys())) == 6
+    assert len(list(debiaswe_datatset.keys())) == 6
 
-    for key, val in debiaswe.items():
-        assert len(debiaswe[key]) > 0
-        for w in val:
-            assert isinstance(w, (str, list))
+    for set_name, set_ in debiaswe_datatset.items():
+        assert isinstance(set_name, str)
+        assert isinstance(set_, list)
+        assert len(set_) > 0
+        for word in set_:
+            assert isinstance(word, (str, list))
+            assert len(word) > 0
 
 
 def test_fetch_debias_multiclass():
-    debias_multiclass = fetch_debias_multiclass()
-    assert isinstance(debias_multiclass, dict)
-    assert list(debias_multiclass.keys()) == [
+    debias_multiclass_dataset = fetch_debias_multiclass()
+    assert isinstance(debias_multiclass_dataset, dict)
+    assert list(debias_multiclass_dataset.keys()) == [
         "male_terms",
         "female_terms",
         "male_roles",
@@ -79,20 +93,29 @@ def test_fetch_debias_multiclass():
         "black_terms",
         "white_terms",
         "asian_terms",
-        "black_related_words",
-        "white_related_words",
-        "asian_related_words",
+        "black_biased_words",
+        "white_biased_words",
+        "asian_biased_words",
         "judaism_terms",
         "christianity_terms",
         "islam_terms",
         "greed",
         "conservative",
         "terrorism",
+        "gender_definitional_sets",
+        "race_definitional_sets",
+        "religion_definitional_sets",
     ]
-    assert len(list(debias_multiclass.keys())) == 16
 
-    for key in debias_multiclass:
-        assert len(debias_multiclass[key]) > 0
+    assert len(list(debias_multiclass_dataset.keys())) == 19
+
+    for set_name, set_ in debias_multiclass_dataset.items():
+        assert isinstance(set_name, str)
+        assert isinstance(set_, list)
+        assert len(set_) > 0
+        for word in set_:
+            assert isinstance(word, (str, list))
+            assert len(word) > 0
 
 
 def test_load_weat():
@@ -130,5 +153,24 @@ def test_load_weat():
         "young_people_names",
         "old_people_names",
     ]
-    for key in weat:
-        assert len(weat[key]) > 0
+    for set_name, set_ in weat.items():
+        assert isinstance(set_name, str)
+        assert isinstance(set_, list)
+        assert len(set_) > 0
+        for word in set_:
+            assert isinstance(word, str)
+            assert len(word) > 0
+
+
+def test_load_weat():
+    gn_glove_words = fetch_gn_glove()
+    assert isinstance(gn_glove_words, dict)
+    assert list(gn_glove_words.keys()) == ["male_terms", "female_terms"]
+    for set_name, set_ in gn_glove_words.items():
+        assert isinstance(set_name, str)
+        assert isinstance(set_, list)
+        assert len(set_) > 0
+        for word in set_:
+            assert isinstance(word, str)
+            assert len(word) > 0
+

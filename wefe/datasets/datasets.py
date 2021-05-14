@@ -1,4 +1,5 @@
 """Module with functions to load datasets and sets of words related to bias."""
+from typing import Dict, List, Union
 import pandas as pd
 import urllib.request
 import json
@@ -6,9 +7,12 @@ import numpy as np
 import pkg_resources
 
 
-def fetch_eds(occupations_year: int = 2015, top_n_race_occupations: int = 15) -> dict:
+def fetch_eds(
+    occupations_year: int = 2015, top_n_race_occupations: int = 15
+) -> Dict[str, List[str]]:
     """Fetch the word sets used in the experiments of the work *Word Embeddings
     *Quantify 100 Years Of Gender And Ethnic Stereotypes*.
+
     This dataset includes gender (male, female), ethnicity (asian, black, white) and
     religion(christianity and islam) and adjetives (appearence, intelligence,
     otherization, sensitive) word sets.
@@ -111,21 +115,25 @@ def fetch_eds(occupations_year: int = 2015, top_n_race_occupations: int = 15) ->
         occupations_filtered.sort_values("white")
         .head(top_n_race_occupations)[["Occupation"]]
         .values.T[0]
+        .tolist()
     )
     occupations_black = (
         occupations_filtered.sort_values("black")
         .head(top_n_race_occupations)[["Occupation"]]
         .values.T[0]
+        .tolist()
     )
     occupations_asian = (
         occupations_filtered.sort_values("asian")
         .head(top_n_race_occupations)[["Occupation"]]
         .values.T[0]
+        .tolist()
     )
     occupations_hispanic = (
         occupations_filtered.sort_values("hispanic")
         .head(top_n_race_occupations)[["Occupation"]]
         .values.T[0]
+        .tolist()
     )
 
     # add loaded sets to the dataset
@@ -144,7 +152,7 @@ def fetch_eds(occupations_year: int = 2015, top_n_race_occupations: int = 15) ->
     return word_sets_dict
 
 
-def fetch_debiaswe() -> dict:
+def fetch_debiaswe() -> Dict[str, Union[List[str], list]]:
     """Fetch the word sets used in the paper Man is to Computer Programmer as
     Woman is to Homemaker? from the source. It includes gender (male, female)
     terms and related word sets.
@@ -207,7 +215,7 @@ def fetch_debiaswe() -> dict:
     return word_sets_dict
 
 
-def load_bingliu():
+def load_bingliu() -> Dict[str, List[str]]:
     """Load the bing-liu sentiment lexicon.
 
     References
@@ -251,9 +259,9 @@ def load_bingliu():
     return bingliu_lexicon
 
 
-def fetch_debias_multiclass() -> dict:
-    """Fetch the word sets used in the paper *Black Is To Criminals Caucasian*
-    *Is To Police: Detecting And Removing Multiclass Bias In Word Embeddings*.
+def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
+    """Fetch the word sets used in the paper Black Is To Criminals Caucasian
+    Is To Police: Detecting And Removing Multiclass Bias In Word Embeddings.
 
     This dataset gender (male, female), ethnicity(asian, black, white) and
     religion(christianity, judaism and islam) target and attribute word sets.
@@ -353,7 +361,45 @@ def fetch_debias_multiclass() -> dict:
     return word_sets_dict
 
 
-def load_weat():
+def fetch_gn_glove() -> Dict[str, List[str]]:
+    """Fetch the word sets used in the paper Learning Gender-Neutral Word Embeddings.
+
+    This dataset contain two sets of 221 female and male related words.
+
+    Reference
+    ---------
+    Zhao, J., Zhou, Y., Li, Z., Wang, W., & Chang, K. W. (2018, January). Learning
+    Gender-Neutral Word Embeddings. In EMNLP.
+
+    Returns
+    -------
+    Dict[str, List[str]]
+        A dictionary with male and female word sets.
+    """
+
+    BASE_URL = "https://raw.githubusercontent.com/uclanlp/gn_glove/master/wordlist/"
+    FILES = [
+        "female_word_file.txt",
+        "male_word_file.txt",
+    ]
+
+    # fetch female words
+    with urllib.request.urlopen(BASE_URL + FILES[0]) as file:
+        female_terms = file.read().decode().split("\n")
+        female_terms = list(filter(lambda x: x != "", female_terms))
+    # fetch male words
+    with urllib.request.urlopen(BASE_URL + FILES[1]) as file:
+        male_terms = file.read().decode().split("\n")
+        male_terms = list(filter(lambda x: x != "", male_terms))
+
+    word_sets_dict = {
+        "male_terms": male_terms,
+        "female_terms": female_terms,
+    }
+    return word_sets_dict
+
+
+def load_weat() -> Dict[str, List[str]]:
     """Load the word sets used in the paper *Semantics Derived Automatically*
     *From Language Corpora Contain Human-Like Biases*.
     It includes gender (male, female), ethnicity(black, white)

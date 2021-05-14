@@ -6,7 +6,7 @@ import numpy as np
 import gensim
 import semantic_version
 from sklearn.feature_extraction.text import strip_accents_ascii, strip_accents_unicode
-
+from sklearn import preprocessing
 from .query import Query
 
 gensim_version = semantic_version.Version.coerce(gensim.__version__)
@@ -477,6 +477,7 @@ class WordEmbeddingModel:
         sets: Sequence[Sequence[str]],
         sets_name: Union[str, None] = None,
         warn_lost_sets: bool = True,
+        normalize: bool = False,
         verbose: bool = False,
     ) -> List[EmbeddingDict]:
         """Given a sequence of word sets, obtain their corresponding embeddings.
@@ -558,6 +559,15 @@ class WordEmbeddingModel:
                     "were not found. This pair will be omitted."
                 )
             else:
+                if normalize:
+
+                    for word in embedding_pair:
+                        embedding = embedding_pair[word]
+                        normalized_embedding = embedding / np.linalg.norm(embedding)
+                        if np.linalg.norm(embedding) < 1:
+                            normalized_embedding = embedding / np.linalg.norm(embedding)
+                        embedding_pair[word] = normalized_embedding
+
                 embedding_sets.append(embedding_pair)
 
         if len(embedding_sets) == 0:

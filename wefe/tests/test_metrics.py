@@ -1,20 +1,25 @@
-import logging
-
 import numpy as np
+import pytest
+from gensim.models.keyedvectors import KeyedVectors
 
-from ..utils import load_weat_w2v
-from ..word_embedding_model import WordEmbeddingModel
-from ..datasets.datasets import load_weat
-from ..query import Query
-from ..metrics import WEAT, RND, RNSB, MAC, ECT
-
-LOGGER = logging.getLogger(__name__)
+from wefe.word_embedding_model import WordEmbeddingModel
+from wefe.datasets.datasets import load_weat
+from wefe.query import Query
+from wefe.metrics import WEAT, RND, RNSB, MAC, ECT
 
 
-def test_WEAT():
+@pytest.fixture
+def model():
+    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
+    return WordEmbeddingModel(w2v, "word2vec")
 
-    weat_word_set = load_weat()
-    model = WordEmbeddingModel(load_weat_w2v(), "weat_w2v", "")
+
+@pytest.fixture
+def weat_word_set():
+    return load_weat()
+
+
+def test_WEAT(model, weat_word_set):
 
     weat = WEAT()
     query = Query(
@@ -26,16 +31,16 @@ def test_WEAT():
     results = weat.run_query(query, model)
 
     assert results["query_name"] == "Flowers and Insects wrt Pleasant and Unpleasant"
-    assert isinstance(results["result"], (np.float32, np.float64, float))
-    assert isinstance(results["weat"], (np.float32, np.float64, float))
-    assert isinstance(results["effect_size"], (np.float32, np.float64, float))
+    assert isinstance(results["result"], np.number)
+    assert isinstance(results["weat"], np.number)
+    assert isinstance(results["effect_size"], np.number)
     assert results["result"] == results["weat"]
     assert np.isnan(results["p_value"])
 
     results = weat.run_query(query, model, return_effect_size=True)
-    assert isinstance(results["result"], (np.float32, np.float64, float))
-    assert isinstance(results["weat"], (np.float32, np.float64, float))
-    assert isinstance(results["effect_size"], (np.float32, np.float64, float))
+    assert isinstance(results["result"], np.number)
+    assert isinstance(results["weat"], np.number)
+    assert isinstance(results["effect_size"], np.number)
     assert results["result"] == results["effect_size"]
     assert np.isnan(results["p_value"])
 
@@ -47,10 +52,10 @@ def test_WEAT():
         p_value_test_type="left-sided",
     )
 
-    assert isinstance(results["result"], (np.float32, np.float64, float))
-    assert isinstance(results["weat"], (np.float32, np.float64, float))
-    assert isinstance(results["effect_size"], (np.float32, np.float64, float))
-    assert isinstance(results["p_value"], (np.float32, np.float64, float))
+    assert isinstance(results["result"], np.number)
+    assert isinstance(results["weat"], np.number)
+    assert isinstance(results["effect_size"], np.number)
+    assert isinstance(results["p_value"], (float, np.number))
 
     results = weat.run_query(
         query,
@@ -60,10 +65,10 @@ def test_WEAT():
         p_value_test_type="right-sided",
     )
 
-    assert isinstance(results["result"], (np.float32, np.float64, float))
-    assert isinstance(results["weat"], (np.float32, np.float64, float))
-    assert isinstance(results["effect_size"], (np.float32, np.float64, float))
-    assert isinstance(results["p_value"], (np.float32, np.float64, float))
+    assert isinstance(results["result"], np.number)
+    assert isinstance(results["weat"], np.number)
+    assert isinstance(results["effect_size"], np.number)
+    assert isinstance(results["p_value"], (float, np.number))
 
     results = weat.run_query(
         query,
@@ -73,16 +78,13 @@ def test_WEAT():
         p_value_test_type="two-sided",
     )
 
-    assert isinstance(results["result"], (np.float32, np.float64, float))
-    assert isinstance(results["weat"], (np.float32, np.float64, float))
-    assert isinstance(results["effect_size"], (np.float32, np.float64, float))
-    assert isinstance(results["p_value"], (np.float32, np.float64, float))
+    assert isinstance(results["result"], np.number)
+    assert isinstance(results["weat"], np.number)
+    assert isinstance(results["effect_size"], np.number)
+    assert isinstance(results["p_value"], (float, np.number))
 
 
-def test_RND():
-
-    weat_word_set = load_weat()
-    model = WordEmbeddingModel(load_weat_w2v(), "weat_w2v", "")
+def test_RND(model, weat_word_set):
 
     rnd = RND()
     query = Query(
@@ -94,13 +96,10 @@ def test_RND():
     results = rnd.run_query(query, model)
 
     assert results["query_name"] == "Flowers and Insects wrt Pleasant"
-    assert isinstance(results["result"], (np.float32, np.float64, float))
+    assert isinstance(results["result"], np.number)
 
 
-def test_RNSB(capsys):
-
-    weat_word_set = load_weat()
-    model = WordEmbeddingModel(load_weat_w2v(), "weat_w2v", "")
+def test_RNSB(capsys, model, weat_word_set):
 
     rnsb = RNSB()
     query = Query(
@@ -141,7 +140,7 @@ def test_RNSB(capsys):
         results["query_name"]
         == "Flowers, Insects, Male terms and Female terms wrt Pleasant and Unpleasant"
     )
-    assert isinstance(results["result"], (np.float32, np.float64, float))
+    assert isinstance(results["result"], np.number)
 
     # custom classifier, print model eval
     results = rnsb.run_query(query, model, print_model_evaluation=True)
@@ -154,7 +153,7 @@ def test_RNSB(capsys):
         results["query_name"]
         == "Flowers, Insects, Male terms and Female terms wrt Pleasant and Unpleasant"
     )
-    assert isinstance(results["result"], (np.float32, np.float64, float))
+    assert isinstance(results["result"], np.number)
 
     # lost word threshold test
     results = rnsb.run_query(
@@ -169,9 +168,7 @@ def test_RNSB(capsys):
     assert np.isnan(np.nan)
 
 
-def test_MAC():
-    weat_word_set = load_weat()
-    model = WordEmbeddingModel(load_weat_w2v(), "weat_w2v", "")
+def test_MAC(model, weat_word_set):
 
     mac = MAC()
     query = Query(
@@ -191,12 +188,10 @@ def test_MAC():
         results["query_name"]
         == "Flowers wrt Pleasant 5 , Pleasant 9, Unpleasant 5 and Unpleasant 9"
     )
-    assert isinstance(results["result"], (np.float32, np.float64, float))
+    assert isinstance(results["result"], np.number)
 
 
-def test_ECT():
-    weat_word_set = load_weat()
-    model = WordEmbeddingModel(load_weat_w2v(), "weat_w2v", "")
+def test_ECT(model, weat_word_set):
 
     ect = ECT()
     query = Query(
@@ -208,4 +203,4 @@ def test_ECT():
     results = ect.run_query(query, model)
 
     assert results["query_name"] == "Flowers and Insects wrt Pleasant"
-    assert isinstance(results["result"], (np.float32, np.float64, float))
+    assert isinstance(results["result"], np.number)

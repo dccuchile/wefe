@@ -7,3 +7,4 @@ plotly
 six
 requests
 semantic_version
+tqdm

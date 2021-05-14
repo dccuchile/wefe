@@ -1,15 +1,34 @@
-from .word_embedding_model import WordEmbeddingModel
-from .query import Query
-from .metrics.base_metric import BaseMetric
-from .metrics.WEAT import WEAT
-from .metrics.RND import RND
-from .metrics.RNSB import RNSB
-from .metrics.MAC import MAC
-from .metrics.ECT import ECT
-from .datasets import load_bingliu, fetch_debias_multiclass, fetch_debiaswe, fetch_eds, load_weat
-from ._version import __version__
+from wefe.word_embedding_model import WordEmbeddingModel
+from wefe.query import Query
+from wefe.metrics.base_metric import BaseMetric
+from wefe.metrics.WEAT import WEAT
+from wefe.metrics.RND import RND
+from wefe.metrics.RNSB import RNSB
+from wefe.metrics.MAC import MAC
+from wefe.metrics.ECT import ECT
+from wefe.datasets import (
+    load_bingliu,
+    fetch_debias_multiclass,
+    fetch_debiaswe,
+    fetch_eds,
+    load_weat,
+)
+from wefe._version import __version__
 
 __all__ = [
-    '', 'Query', 'BaseMetric', 'WEAT', 'RND', 'RNSB', 'MAC', 'load_bingliu',
-    'fetch_debias_multiclass', 'fetch_debiaswe', 'fetch_eds', 'load_weat', '__version__'
+    "",
+    "Query",
+    "WordEmbeddingModel",
+    "BaseMetric",
+    "WEAT",
+    "RND",
+    "RNSB",
+    "MAC",
+    "ECT",
+    "load_bingliu",
+    "fetch_debias_multiclass",
+    "fetch_debiaswe",
+    "fetch_eds",
+    "load_weat",
+    "__version__",
 ]

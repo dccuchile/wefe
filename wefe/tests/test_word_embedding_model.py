@@ -2,27 +2,24 @@ import gensim
 import pytest
 import numpy as np
 import logging
-
 from gensim.test.utils import common_texts
 from gensim.models import Word2Vec, FastText, KeyedVectors
 import semantic_version
 
-from ..query import Query
-from ..datasets import load_weat
-from ..word_embedding_model import WordEmbeddingModel
-from ..utils import load_weat_w2v
+from wefe.query import Query
+from wefe.datasets import load_weat
+from wefe.word_embedding_model import WordEmbeddingModel
 
-LOGGER = logging.getLogger(__name__)
 gensim_version = semantic_version.Version.coerce(gensim.__version__)
 
 
 @pytest.fixture
-def word2vec_sm():
-    w2v = KeyedVectors.load_word2vec_format("./wefe/tests/w2v_sm.bin", binary=True)
+def word2vec_test():
+    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
     return WordEmbeddingModel(w2v, "word2vec")
 
 
-def test__init__(word2vec_sm):
+def test__init__():
 
     # Test types verifications
 
@@ -48,7 +45,7 @@ def test__init__(word2vec_sm):
     ):
         WordEmbeddingModel({})
 
-    w2v = KeyedVectors.load_word2vec_format("./wefe/tests/w2v_sm.bin", binary=True)
+    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
 
     # test models
     model = WordEmbeddingModel(w2v)
@@ -67,10 +64,10 @@ def test__init__(word2vec_sm):
     assert model.vocab_prefix == "\\c\\en"
 
 
-def test__eq__(word2vec_sm):
-    model_1 = WordEmbeddingModel(word2vec_sm.model, "w2v")
-    model_2 = WordEmbeddingModel(word2vec_sm.model, "w2v_2")
-    model_3 = WordEmbeddingModel(word2vec_sm.model, "w2v_3", vocab_prefix="a")
+def test__eq__(word2vec_test):
+    model_1 = WordEmbeddingModel(word2vec_test.model, "w2v")
+    model_2 = WordEmbeddingModel(word2vec_test.model, "w2v_2")
+    model_3 = WordEmbeddingModel(word2vec_test.model, "w2v_3", vocab_prefix="a")
 
     assert model_1 == model_1
     assert model_1 != model_2
@@ -83,12 +80,12 @@ def test__eq__(word2vec_sm):
     assert model_3 == model_3
 
 
-def test__getitem__(word2vec_sm):
+def test__getitem__(word2vec_test):
 
-    embedding = word2vec_sm["ASDF"]
+    embedding = word2vec_test["ASDF"]
     assert embedding is None
 
-    embedding = word2vec_sm["career"]
+    embedding = word2vec_test["career"]
     assert isinstance(embedding, np.ndarray)
 
 
@@ -118,153 +115,157 @@ def test__init_with_fast_model():
     assert fast.wv == wem.model
 
 
-def test__preprocess_word(word2vec_sm):
+def test__preprocess_word(word2vec_test):
 
-    word = word2vec_sm._preprocess_word("Woman")
+    word = word2vec_test._preprocess_word("Woman")
     assert word == "Woman"
 
-    word = word2vec_sm._preprocess_word("Woman", {"lowercase": True})
+    word = word2vec_test._preprocess_word("Woman", {"lowercase": True})
     assert word == "woman"
 
-    word = word2vec_sm._preprocess_word("wömàn", {"strip_accents": True})
+    word = word2vec_test._preprocess_word("wömàn", {"strip_accents": True})
     assert word == "woman"
 
-    word = word2vec_sm._preprocess_word("wömàn", {"strip_accents": "ascii"})
+    word = word2vec_test._preprocess_word("wömàn", {"strip_accents": "ascii"})
     assert word == "woman"
 
-    word = word2vec_sm._preprocess_word("wömàn", {"strip_accents": "unicode"})
+    word = word2vec_test._preprocess_word("wömàn", {"strip_accents": "unicode"})
     assert word == "woman"
 
     # all together
-    word = word2vec_sm._preprocess_word(
+    word = word2vec_test._preprocess_word(
         "WöMàn", {"lowercase": True, "strip_accents": True}
     )
     assert word == "woman"
 
     # check for custom preprocessor
-    word = word2vec_sm._preprocess_word("Woman", {"preprocessor": lambda x: x.lower()})
+    word = word2vec_test._preprocess_word(
+        "Woman", {"preprocessor": lambda x: x.lower()}
+    )
     assert word == "woman"
 
     # check if preprocessor overrides any other option
-    word = word2vec_sm._preprocess_word(
+    word = word2vec_test._preprocess_word(
         "Woman", {"preprocessor": lambda x: x.upper(), "lowercase": True}
     )
     assert word == "WOMAN"
 
     # now with prefix
-    word2vec_sm = WordEmbeddingModel(word2vec_sm.model, "weat_w2v", "asd-")
-    word = word2vec_sm._preprocess_word("woman")
+    word2vec_test = WordEmbeddingModel(word2vec_test.model, "weat_w2v", "asd-")
+    word = word2vec_test._preprocess_word("woman")
     assert word == "asd-woman"
 
 
 # -------------------------------------------------------------------------------------
-def test_normalize_embeddings(word2vec_sm):
-    word2vec_sm.normalize_embeddings()
-    for word in word2vec_sm.vocab:
-        assert np.linalg.norm(word2vec_sm[word]) - 1.0 < 0.000001
+def test_normalize_embeddings(word2vec_test):
+    word2vec_test.normalize_embeddings()
+    for word in word2vec_test.vocab:
+        assert np.linalg.norm(word2vec_test[word]) - 1.0 < 0.000001
 
-    word2vec_sm.model = None
+    word2vec_test.model = None
 
     with pytest.raises(
         TypeError, match="The model does not have the init_sims method implemented."
     ):
-        word2vec_sm.normalize_embeddings()
+        word2vec_test.normalize_embeddings()
 
 
 # -------------------------------------------------------------------------------------
-def test_update_embedding(word2vec_sm):
-    new_embedding = np.ones(300, dtype=word2vec_sm.model.vectors.dtype)
-    word2vec_sm.update_embedding("The", new_embedding)
-    assert all(word2vec_sm["The"] == new_embedding)
+def test_update_embedding(word2vec_test):
+    new_embedding = np.ones(300, dtype=word2vec_test.model.vectors.dtype)
+    word2vec_test.update_embedding("The", new_embedding)
+    assert all(word2vec_test["The"] == new_embedding)
 
     with pytest.raises(TypeError, match=r"word should be a string, got .*"):
-        word2vec_sm.update_embedding(0, new_embedding)
+        word2vec_test.update_embedding(0, new_embedding)
 
     with pytest.raises(ValueError, match=r"word .* not in model vocab."):
-        word2vec_sm.update_embedding("blablablablabla", new_embedding)
+        word2vec_test.update_embedding("blablablablabla", new_embedding)
 
     with pytest.raises(
         TypeError, match=r".* new embedding should be a np\.array, got .*\."
     ):
-        word2vec_sm.update_embedding("The", 0)
+        word2vec_test.update_embedding("The", 0)
 
     with pytest.raises(
         ValueError,
         match=r"The size of .* embedding (.*) is different from the size of the "
         r"embeddings in the model (.*)\.",
     ):
-        word2vec_sm.update_embedding("The", np.ones(200, dtype=np.float64))
+        word2vec_test.update_embedding("The", np.ones(200, dtype=np.float64))
 
     with pytest.raises(
         ValueError, match=r"embedding dtype .* is not the same of model's dtype .*\."
     ):
-        word2vec_sm.update_embedding("The", np.ones(300, dtype=np.float64))
+        word2vec_test.update_embedding("The", np.ones(300, dtype=np.float64))
 
 
 # -------------------------------------------------------------------------------------
-def test_update_embeddings(word2vec_sm):
+def test_update_embeddings(word2vec_test):
     words = ["The", "in"]
     embeddings = [np.ones(300, dtype=np.float32), np.ones(300, dtype=np.float32) * -1]
 
-    word2vec_sm.update_embeddings(words, embeddings)
+    word2vec_test.update_embeddings(words, embeddings)
 
-    assert all(word2vec_sm["The"] == embeddings[0])
-    assert all(word2vec_sm["in"] == embeddings[1])
+    assert all(word2vec_test["The"] == embeddings[0])
+    assert all(word2vec_test["in"] == embeddings[1])
 
     embeddings_in_array = np.array(
         [np.ones(300, dtype=np.float32) * 2, np.ones(300, dtype=np.float32) * -2]
     )
-    word2vec_sm.update_embeddings(words, embeddings_in_array)
+    word2vec_test.update_embeddings(words, embeddings_in_array)
 
-    assert all(word2vec_sm["The"] == embeddings_in_array[0])
-    assert all(word2vec_sm["in"] == embeddings_in_array[1])
+    assert all(word2vec_test["The"] == embeddings_in_array[0])
+    assert all(word2vec_test["in"] == embeddings_in_array[1])
 
     with pytest.raises(
         TypeError,
         match=r"words argument should be a list, tuple or np.array of strings, got .*",
     ):
-        word2vec_sm.update_embeddings(None, embeddings)
+        word2vec_test.update_embeddings(None, embeddings)
 
     with pytest.raises(
         TypeError, match=r"embeddings should be a list, tuple or np.array, got:.*",
     ):
-        word2vec_sm.update_embeddings(words, None)
+        word2vec_test.update_embeddings(words, None)
 
     with pytest.raises(
         ValueError, match=r"words and embeddings must have the same size, got:.*",
     ):
-        word2vec_sm.update_embeddings(words + ["is"], embeddings)
+        word2vec_test.update_embeddings(words + ["is"], embeddings)
 
 
 # -------------------------------------------------------------------------------------
-def test_get_embeddings_from_word_set(word2vec_sm):
+def test_get_embeddings_from_word_set(word2vec_test):
 
     WORDS = ["man", "woman"]
 
     with pytest.raises(
         TypeError,
-        match=r"word_set should be a list, tuple, set or np.array of strings, got.*",
+        match=r"word_set should be a list, tuple or np.array of strings, got.*",
     ):
-        word2vec_sm.get_embeddings_from_word_set(None, preprocessor_args=1)
+        word2vec_test.get_embeddings_from_word_set(None, preprocessor_args=1)
 
     with pytest.raises(
         TypeError,
         match="preprocessor_args should be a dict of preprocessor arguments, got",
     ):
-        word2vec_sm.get_embeddings_from_word_set(WORDS, preprocessor_args=1)
+        word2vec_test.get_embeddings_from_word_set(WORDS, preprocessor_args=1)
 
     with pytest.raises(
         TypeError,
         match="secondary_preprocessor_args should be a dict of preprocessor arguments or "
         "None, got",
     ):
-        word2vec_sm.get_embeddings_from_word_set(WORDS, secondary_preprocessor_args=-1)
+        word2vec_test.get_embeddings_from_word_set(
+            WORDS, secondary_preprocessor_args=-1
+        )
 
     # ----------------------------------------------------------------------------------
-    # test basic opretaion of _get_embeddings_from_word_set
+    # test basic operation of _get_embeddings_from_word_set
     WORDS = ["man", "woman"]
 
-    not_found_words, embeddings = word2vec_sm.get_embeddings_from_word_set(WORDS)
+    not_found_words, embeddings = word2vec_test.get_embeddings_from_word_set(WORDS)
 
     assert len(embeddings) == 2
     assert len(not_found_words) == 0
@@ -272,12 +273,12 @@ def test_get_embeddings_from_word_set(word2vec_sm):
     assert list(embeddings.keys()) == ["man", "woman"]
     assert not_found_words == []
 
-    assert np.array_equal(word2vec_sm["man"], embeddings["man"])
-    assert np.array_equal(word2vec_sm["woman"], embeddings["woman"])
+    assert np.array_equal(word2vec_test["man"], embeddings["man"])
+    assert np.array_equal(word2vec_test["woman"], embeddings["woman"])
 
     # test with a word that does not exists in the model
     WORDS = ["man", "woman", "not_a_word_"]
-    not_found_words, embeddings = word2vec_sm.get_embeddings_from_word_set(WORDS)
+    not_found_words, embeddings = word2vec_test.get_embeddings_from_word_set(WORDS)
 
     assert len(embeddings) == 2
     assert len(not_found_words) == 1
@@ -285,8 +286,8 @@ def test_get_embeddings_from_word_set(word2vec_sm):
     assert list(embeddings.keys()) == ["man", "woman"]
     assert ["not_a_word_"] == not_found_words
 
-    assert np.array_equal(word2vec_sm["man"], embeddings["man"])
-    assert np.array_equal(word2vec_sm["woman"], embeddings["woman"])
+    assert np.array_equal(word2vec_test["man"], embeddings["man"])
+    assert np.array_equal(word2vec_test["woman"], embeddings["woman"])
 
     # ----------------------------------------------------------------------------------
     # test word preprocessor lowercase
@@ -294,7 +295,7 @@ def test_get_embeddings_from_word_set(word2vec_sm):
         "mAN",
         "WOmaN",
     ]
-    not_found_words, embeddings = word2vec_sm.get_embeddings_from_word_set(
+    not_found_words, embeddings = word2vec_test.get_embeddings_from_word_set(
         WORDS, {"lowercase": True}
     )
 
@@ -304,8 +305,8 @@ def test_get_embeddings_from_word_set(word2vec_sm):
     assert list(embeddings.keys()) == ["man", "woman"]
     assert not_found_words == []
 
-    assert np.array_equal(word2vec_sm["man"], embeddings["man"])
-    assert np.array_equal(word2vec_sm["woman"], embeddings["woman"])
+    assert np.array_equal(word2vec_test["man"], embeddings["man"])
+    assert np.array_equal(word2vec_test["woman"], embeddings["woman"])
 
     # ----------------------------------------------------------------------------------
     # test word preprocessor strip_accents:
@@ -313,7 +314,7 @@ def test_get_embeddings_from_word_set(word2vec_sm):
         "mán",
         "wömàn",
     ]
-    not_found_words, embeddings = word2vec_sm.get_embeddings_from_word_set(
+    not_found_words, embeddings = word2vec_test.get_embeddings_from_word_set(
         WORDS, {"strip_accents": True}
     )
 
@@ -323,13 +324,13 @@ def test_get_embeddings_from_word_set(word2vec_sm):
     assert list(embeddings.keys()) == ["man", "woman"]
     assert not_found_words == []
 
-    assert np.array_equal(word2vec_sm["man"], embeddings["man"])
-    assert np.array_equal(word2vec_sm["woman"], embeddings["woman"])
+    assert np.array_equal(word2vec_test["man"], embeddings["man"])
+    assert np.array_equal(word2vec_test["woman"], embeddings["woman"])
 
     # ----------------------------------------------------------------------------------
     # secondary_preprocessor_options:
     WORDS = ["mán", "wömàn", "qwerty", "ásdf"]
-    not_found_words, embeddings = word2vec_sm.get_embeddings_from_word_set(
+    not_found_words, embeddings = word2vec_test.get_embeddings_from_word_set(
         WORDS, secondary_preprocessor_args={"strip_accents": True}
     )
 
@@ -339,12 +340,12 @@ def test_get_embeddings_from_word_set(word2vec_sm):
     assert list(embeddings.keys()) == ["man", "woman"]
     assert not_found_words == ["qwerty", "ásdf"]
 
-    assert np.array_equal(word2vec_sm["man"], embeddings["man"])
-    assert np.array_equal(word2vec_sm["woman"], embeddings["woman"])
+    assert np.array_equal(word2vec_test["man"], embeddings["man"])
+    assert np.array_equal(word2vec_test["woman"], embeddings["woman"])
 
 
 # -------------------------------------------------------------------------------------
-def test_get_embeddings_from_sets(word2vec_sm, caplog):
+def test_get_embeddings_from_sets(word2vec_test, caplog):
 
     # ----------------------------------------------------------------------------------
     # Test types and value checking.
@@ -356,7 +357,7 @@ def test_get_embeddings_from_sets(word2vec_sm, caplog):
             r"strings, got:.*"
         ),
     ):
-        word2vec_sm.get_embeddings_from_sets(None)
+        word2vec_test.get_embeddings_from_sets(None)
 
     with pytest.raises(
         TypeError,
@@ -365,7 +366,7 @@ def test_get_embeddings_from_sets(word2vec_sm, caplog):
             r", got in index.*"
         ),
     ):
-        word2vec_sm.get_embeddings_from_sets([None])
+        word2vec_test.get_embeddings_from_sets([None])
 
     with pytest.raises(
         TypeError,
@@ -374,7 +375,7 @@ def test_get_embeddings_from_sets(word2vec_sm, caplog):
             r"Got in set.*at position 0:.*"
         ),
     ):
-        word2vec_sm.get_embeddings_from_sets([[1, "he"]])
+        word2vec_test.get_embeddings_from_sets([[1, "he"]])
 
     with pytest.raises(
         TypeError,
@@ -383,22 +384,24 @@ def test_get_embeddings_from_sets(word2vec_sm, caplog):
             r"Got in set.* at position 1:.*"
         ),
     ):
-        word2vec_sm.get_embeddings_from_sets([["she", 1]])
+        word2vec_test.get_embeddings_from_sets([["she", 1]])
 
     with pytest.raises(
         TypeError, match=r"sets_name should be a string or None, got:.*",
     ):
-        word2vec_sm.get_embeddings_from_sets([["she", "he"]], 0)
+        word2vec_test.get_embeddings_from_sets([["she", "he"]], 0)
 
     with pytest.raises(
         TypeError, match=r"warn_lost_sets should be a bool, got:.*",
     ):
-        word2vec_sm.get_embeddings_from_sets([["she", "he"]], "definning", None)
+        word2vec_test.get_embeddings_from_sets([["she", "he"]], "definning", None)
 
     with pytest.raises(
         TypeError, match=r"verbose should be a bool, got:.*",
     ):
-        word2vec_sm.get_embeddings_from_sets([["she", "he"]], "definning", True, None)
+        word2vec_test.get_embeddings_from_sets(
+            [["she", "he"]], "definning", True, None, None
+        )
 
     # ----------------------------------------------------------------------------------
     # Test with pairs of words
@@ -406,7 +409,7 @@ def test_get_embeddings_from_sets(word2vec_sm, caplog):
     pairs = [["woman", "man"], ["she", "he"], ["mother", "father"]]
     pairs_set_name = "definning"
 
-    embedding_pairs = word2vec_sm.get_embeddings_from_sets(
+    embedding_pairs = word2vec_test.get_embeddings_from_sets(
         sets=pairs, sets_name=pairs_set_name
     )
 
@@ -420,7 +423,7 @@ def test_get_embeddings_from_sets(word2vec_sm, caplog):
             assert isinstance(w, str)
             assert isinstance(e, np.ndarray)
             assert e.shape == (300,)
-            assert all(word2vec_sm[w] == e)
+            assert all(word2vec_test[w] == e)
 
     # ----------------------------------------------------------------------------------
     # Test with sets
@@ -432,7 +435,7 @@ def test_get_embeddings_from_sets(word2vec_sm, caplog):
     ]
     sets_name = "definning"
 
-    embedding_pairs = word2vec_sm.get_embeddings_from_sets(
+    embedding_pairs = word2vec_test.get_embeddings_from_sets(
         sets=sets, sets_name=sets_name
     )
 
@@ -446,7 +449,7 @@ def test_get_embeddings_from_sets(word2vec_sm, caplog):
             assert isinstance(w, str)
             assert isinstance(e, np.ndarray)
             assert e.shape == (300,)
-            assert all(word2vec_sm[w] == e)
+            assert all(word2vec_test[w] == e)
 
     # ----------------------------------------------------------------------------------
     # Test out of vocabulary (OOV) words and failures
@@ -455,7 +458,7 @@ def test_get_embeddings_from_sets(word2vec_sm, caplog):
     pairs_with_oov = pairs + oov_pairs
 
     with caplog.at_level(logging.INFO):
-        embedding_pairs_2 = word2vec_sm.get_embeddings_from_sets(
+        embedding_pairs_2 = word2vec_test.get_embeddings_from_sets(
             sets=pairs_with_oov,
             sets_name=pairs_set_name,
             warn_lost_sets=True,
@@ -480,20 +483,20 @@ def test_get_embeddings_from_sets(word2vec_sm, caplog):
         match=r"No set could be converted to embedding because no set "
         "could be fully found in the model vocabulary.",
     ):
-        word2vec_sm.get_embeddings_from_sets(sets=oov_pairs)
+        word2vec_test.get_embeddings_from_sets(sets=oov_pairs)
 
 
-def test_warn_not_found_words(word2vec_sm, caplog):
+def test_warn_not_found_words(word2vec_test, caplog):
 
-    word2vec_sm._warn_not_found_words("Set1", ["aaa", "bbb"])
+    word2vec_test._warn_not_found_words("Set1", ["aaa", "bbb"])
     msg = "The following words from set 'Set1' do not exist within the vocabulary"
     assert msg in caplog.text
     assert "['aaa', 'bbb']" in caplog.text
 
 
 @pytest.fixture
-def simple_model_and_query():
-    w2v = load_weat_w2v()
+def simple_model_and_query(word2vec_test):
+    w2v = word2vec_test.model
     model = WordEmbeddingModel(w2v, "weat_w2v", "")
     weat_wordsets = load_weat()
 
@@ -540,7 +543,9 @@ def test_get_embeddings_from_query(caplog, simple_model_and_query):
     ):
         model.get_embeddings_from_query(query, secondary_preprocessor_args=1)
 
-    with pytest.raises(TypeError, match="warn_not_found_words should be a boolean, got"):
+    with pytest.raises(
+        TypeError, match="warn_not_found_words should be a boolean, got"
+    ):
         model.get_embeddings_from_query(query, warn_not_found_words=None)
 
     embeddings = model.get_embeddings_from_query(query)
@@ -657,7 +662,7 @@ def test_preprocessor_args_on_get_embeddings_from_query(caplog, simple_model_and
 def test_threshold_param_on_get_embeddings_from_query(caplog, simple_model_and_query):
     w2v, model, query, flowers, insects, pleasant, unpleasant = simple_model_and_query
 
-    # with lost vocabulary theshold.
+    # with lost vocabulary threshold.
     flowers_ = flowers + ["aaa", "aab", "aac", "aad", "aaf", "aag", "aah", "aai", "aaj"]
     query = Query(
         [flowers_, insects],
@@ -670,7 +675,7 @@ def test_threshold_param_on_get_embeddings_from_query(caplog, simple_model_and_q
     assert embeddings is None
     assert "The transformation of 'Flowers' into" in caplog.text
 
-    # with lost vocabulary theshold.
+    # with lost vocabulary threshold.
     insects_ = insects + ["aaa", "aab", "aac", "aad", "aaf", "aag", "aah", "aai", "aaj"]
     query = Query(
         [flowers, insects_],
@@ -683,7 +688,7 @@ def test_threshold_param_on_get_embeddings_from_query(caplog, simple_model_and_q
     assert embeddings is None
     assert "The transformation of 'Insects' into" in caplog.text
 
-    # with lost vocabulary theshold.
+    # with lost vocabulary threshold.
     pleasant_ = pleasant + [
         "aaa",
         "aab",
@@ -706,7 +711,7 @@ def test_threshold_param_on_get_embeddings_from_query(caplog, simple_model_and_q
     assert embeddings is None
     assert "The transformation of 'Pleasant' into" in caplog.text
 
-    # test attribute 2 with lost vocabulary theshold.
+    # test attribute 2 with lost vocabulary threshold.
     unpleasant_ = insects + [
         "aaa",
         "aab",
@@ -729,7 +734,7 @@ def test_threshold_param_on_get_embeddings_from_query(caplog, simple_model_and_q
     assert embeddings is None
     assert "The transformation of 'Unpleasant' into" in caplog.text
 
-    # with lost vocabulary theshold.
+    # with lost vocabulary threshold.
     unpleasant_ = insects + [
         "aaa",
         "aab",

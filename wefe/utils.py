@@ -1,7 +1,7 @@
 """
 A collection of WEFE utility functions.
 
-This file contains functions for to process to massively execute queries, aggregate them 
+This file contains functions for to process to massively execute queries, aggregate them
 through rankings and graph these results.
 """
 
@@ -15,31 +15,84 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 
-from .word_embedding_model import WordEmbeddingModel
-from .query import Query
-from wefe.metrics import BaseMetric
+from sklearn.utils.validation import check_is_fitted as _check_is_fitted
+
+from wefe.word_embedding_model import WordEmbeddingModel
+from wefe.query import Query
+from wefe.metrics.base_metric import BaseMetric
+
+
+# -----------------------------------------------------------------------------
+# -------------------------- Numerical and algebraic --------------------------
+# -----------------------------------------------------------------------------
+
+
+def cosine_similarity(v: np.ndarray, u: np.ndarray) -> np.number:
+    """Calculates the cosine similarity between two vectors.
+
+    Parameters
+    ----------
+    v : np.ndarray
+        vector 1
+    u : np.ndarray
+        vector 2
+
+    Returns
+    -------
+    np.number
+        The calculated cosine similarity
+    """
+    return np.dot(v, u) / (np.linalg.norm(v) * np.linalg.norm(u))
+
+
+def cosine_distance(v: np.ndarray, u: np.ndarray) -> np.number:
+    """Calculate the cosine distance, which is defined as 1 - cosine similarity.
+
+    Parameters
+    ----------
+    v : np.ndarray
+        vector 1
+    u : np.ndarray
+        vector 2
+
+    Returns
+    -------
+    np.number
+        The calculated cosine distance
+    """
+    return 1 - cosine_similarity(v, u)
+
+
+def check_is_fitted(estimator, attributes):
+    msg = (
+        "This %(name)s instance is not fitted yet. Call 'fit' with "
+        "appropriate arguments before using this debias method."
+    )
+    _check_is_fitted(estimator, attributes, msg=msg)
+
 
 # -----------------------------------------------------------------------------
 # ---------------------------------- Runners ----------------------------------
 # -----------------------------------------------------------------------------
 
 AGGREGATION_FUNCTIONS = {
-    'sum': lambda df: df.sum(1),
-    'avg': lambda df: df.mean(1),
-    'abs_sum': lambda df: df.abs().sum(1),
-    'abs_avg': lambda df: df.abs().mean(1),
+    "sum": lambda df: df.sum(1),
+    "avg": lambda df: df.mean(1),
+    "abs_sum": lambda df: df.abs().sum(1),
+    "abs_avg": lambda df: df.abs().mean(1),
 }
 
 AGGREGATION_FUNCTION_NAMES = {
-    'sum': 'sum',
-    'avg': 'average',
-    'abs_sum': 'sum of abs values',
-    'abs_avg': 'average of abs values',
+    "sum": "sum",
+    "avg": "average",
+    "abs_sum": "sum of abs values",
+    "abs_avg": "average of abs values",
 }
 
 
-def generate_subqueries_from_queries_list(metric: Type[BaseMetric],
-                                          queries: List[Query]) -> List[Query]:
+def generate_subqueries_from_queries_list(
+    metric: Type[BaseMetric], queries: List[Query]
+) -> List[Query]:
     """Generates a list of subqueries from queries.
 
 
@@ -63,10 +116,16 @@ def generate_subqueries_from_queries_list(metric: Type[BaseMetric],
         try:
             subqueries += query.get_subqueries(metric.metric_template)
         except Exception as e:
-            logging.warning('Query in index {} ({}) can not be splitted in subqueries '
-                            'with the {} metric template = {}. Exception: \n{}'.format(
-                                query_idx, query.query_name, metric.metric_name,
-                                metric.metric_template, e))
+            logging.warning(
+                "Query in index {} ({}) can not be splitted in subqueries "
+                "with the {} metric template = {}. Exception: \n{}".format(
+                    query_idx,
+                    query.query_name,
+                    metric.metric_name,
+                    metric.metric_template,
+                    e,
+                )
+            )
 
     # remove duplicates (o(n^2)...)
     filtered_subqueries: List[Query] = []
@@ -82,18 +141,21 @@ def generate_subqueries_from_queries_list(metric: Type[BaseMetric],
     return filtered_subqueries
 
 
-def run_queries(metric: Type[BaseMetric],
-                queries: List[Query],
-                word_embeddings_models: List[WordEmbeddingModel],
-                queries_set_name: str = 'Unnamed queries set',
-                lost_vocabulary_threshold: float = 0.2,
-                metric_params: dict = {},
-                generate_subqueries: bool = False,
-                aggregate_results: bool = False,
-                aggregation_function: Union[str, Callable[[pd.DataFrame],
-                                                          pd.DataFrame]] = 'abs_avg',
-                return_only_aggregation: bool = False,
-                warn_filtered_words: bool = False) -> pd.DataFrame:
+def run_queries(
+    metric: Type[BaseMetric],
+    queries: List[Query],
+    word_embeddings_models: List[WordEmbeddingModel],
+    queries_set_name: str = "Unnamed queries set",
+    lost_vocabulary_threshold: float = 0.2,
+    metric_params: dict = {},
+    generate_subqueries: bool = False,
+    aggregate_results: bool = False,
+    aggregation_function: Union[
+        str, Callable[[pd.DataFrame], pd.DataFrame]
+    ] = "abs_avg",
+    return_only_aggregation: bool = False,
+    warn_filtered_words: bool = False,
+) -> pd.DataFrame:
     """Run several queries over a several word embedding models using a
     specific metic.
 
@@ -151,54 +213,72 @@ def run_queries(metric: Type[BaseMetric],
     # queries handling
     if not isinstance(queries, (list, np.ndarray)):
         raise TypeError(
-            'queries parameter must be a list or a numpy array. given: {}'.format(
-                queries))
+            "queries parameter must be a list or a numpy array. given: {}".format(
+                queries
+            )
+        )
     if len(queries) == 0:
         raise Exception(
-            'queries list must have at least one query instance. given: {}'.format(
-                queries))
+            "queries list must have at least one query instance. given: {}".format(
+                queries
+            )
+        )
 
     for idx, query in enumerate(queries):
         if query is None or not isinstance(query, Query):
             raise TypeError(
-                'item on index {} must be a Query instance. given: {}'.format(
-                    idx, query))
+                "item on index {} must be a Query instance. given: {}".format(
+                    idx, query
+                )
+            )
 
     # word vectors wrappers handling
     if not isinstance(word_embeddings_models, (list, np.ndarray)):
         raise TypeError(
-            'word_embeddings_models parameter must be a list or a numpy array.'
-            ' given: {}'.format(word_embeddings_models))
+            "word_embeddings_models parameter must be a list or a numpy array."
+            " given: {}".format(word_embeddings_models)
+        )
 
     if len(word_embeddings_models) == 0:
-        raise Exception('word_embeddings_models parameter must be a non empty list or '
-                        'numpy array. given: {}'.format(word_embeddings_models))
+        raise Exception(
+            "word_embeddings_models parameter must be a non empty list or "
+            "numpy array. given: {}".format(word_embeddings_models)
+        )
 
     for idx, model in enumerate(word_embeddings_models):
         if model is None or not isinstance(model, WordEmbeddingModel):
-            raise TypeError('item on index {} must be a WordEmbeddingModel instance. '
-                            'given: {}'.format(idx, model))
+            raise TypeError(
+                "item on index {} must be a WordEmbeddingModel instance. "
+                "given: {}".format(idx, model)
+            )
 
     # experiment name handling
-    if not isinstance(queries_set_name, str) or queries_set_name == '':
-        raise TypeError('When queries_set_name parameter is provided, it must be a '
-                        'non-empty string. given: {}'.format(queries_set_name))
+    if not isinstance(queries_set_name, str) or queries_set_name == "":
+        raise TypeError(
+            "When queries_set_name parameter is provided, it must be a "
+            "non-empty string. given: {}".format(queries_set_name)
+        )
 
     # metric_params handling
     if not isinstance(metric_params, dict):
         raise TypeError(
-            'run_experiment_params must be a dict with a params for the metric')
+            "run_experiment_params must be a dict with a params for the metric"
+        )
 
     # aggregate results bool
     if not isinstance(aggregate_results, bool):
-        raise TypeError('aggregate_results parameter must be a bool value. Given:'
-                        '{}'.format(aggregate_results))
+        raise TypeError(
+            "aggregate_results parameter must be a bool value. Given:"
+            "{}".format(aggregate_results)
+        )
 
     # aggregation function:
-    AGG_FUNCTION_MSG = ('aggregation_function must be one of \'sum\','
-                        'abs_sum\', \'avg\', \'abs_avg\' or a callable. given: {}')
+    AGG_FUNCTION_MSG = (
+        "aggregation_function must be one of 'sum',"
+        "abs_sum', 'avg', 'abs_avg' or a callable. given: {}"
+    )
     if isinstance(aggregation_function, str):
-        if aggregation_function not in ['sum', 'abs_sum', 'avg', 'abs_avg']:
+        if aggregation_function not in ["sum", "abs_sum", "avg", "abs_avg"]:
             raise Exception(AGG_FUNCTION_MSG.format(aggregation_function))
     elif not callable(aggregation_function):
         raise Exception(AGG_FUNCTION_MSG.format(aggregation_function))
@@ -206,8 +286,10 @@ def run_queries(metric: Type[BaseMetric],
     # average_with_abs_values handling
     if not isinstance(return_only_aggregation, bool):
         raise TypeError(
-            'return_only_aggregation param must be boolean. Given: {}'.format(
-                return_only_aggregation))
+            "return_only_aggregation param must be boolean. Given: {}".format(
+                return_only_aggregation
+            )
+        )
 
     if generate_subqueries:
         queries = generate_subqueries_from_queries_list(metric, queries)
@@ -224,45 +306,53 @@ def run_queries(metric: Type[BaseMetric],
                     model,
                     lost_vocabulary_threshold=lost_vocabulary_threshold,
                     warn_filtered_words=warn_filtered_words,
-                    **metric_params)
-                result['model_name'] = model.model_name
+                    **metric_params,
+                )
+                result["model_name"] = model.model_name
                 results.append(result)
 
-                if result['query_name'] not in query_names:
-                    query_names.append(result['query_name'])
+                if result["query_name"] not in query_names:
+                    query_names.append(result["query_name"])
     except Exception as e:
-        raise Exception('Error during executing the query: {} on the model: {}'.format(
-            query.query_name, model.model_name))
+        raise Exception(
+            "Error during executing the query: {} on the model: {}".format(
+                query.query_name, model.model_name
+            )
+        )
 
     # get original column order
     # reorder the results in a legible table
-    pivoted_results = pd.DataFrame(results).pivot(index='model_name',
-                                                  columns='query_name',
-                                                  values='result')
+    pivoted_results = pd.DataFrame(results).pivot(
+        index="model_name", columns="query_name", values="result"
+    )
     pivoted_results = pivoted_results.reindex(
         index=[model.model_name for model in word_embeddings_models],
-        columns=query_names)
+        columns=query_names,
+    )
 
     if aggregate_results:
 
         # if the aggregation function is one of the preimplemented functions.
         if aggregation_function in AGGREGATION_FUNCTIONS:
             aggregated_results = AGGREGATION_FUNCTIONS[aggregation_function](
-                pivoted_results)
+                pivoted_results
+            )
             aggregated_results_name = AGGREGATION_FUNCTION_NAMES[aggregation_function]
 
         # run the custom aggregation function over the pivoted results
         else:
             aggregated_results = aggregation_function(pivoted_results)
-            aggregated_results_name = 'custom aggregation'
+            aggregated_results_name = "custom aggregation"
 
         # generate the new aggregation column name.
-        aggregation_column_name = '{}: {} {} score'.format(
-            metric_instance.metric_short_name, queries_set_name, aggregated_results_name)
+        aggregation_column_name = "{}: {} {} score".format(
+            metric_instance.metric_short_name, queries_set_name, aggregated_results_name
+        )
 
         # set the aggregation column name.
-        aggregated_results = pd.DataFrame(aggregated_results,
-                                          columns=[aggregation_column_name])
+        aggregated_results = pd.DataFrame(
+            aggregated_results, columns=[aggregation_column_name]
+        )
 
         # return option with only aggregation.
         if return_only_aggregation:
@@ -274,7 +364,12 @@ def run_queries(metric: Type[BaseMetric],
     return pivoted_results
 
 
-def plot_queries_results(results: pd.DataFrame, by: str = 'query'):
+# -----------------------------------------------------------------------------
+# ----------------------------------- Plots -----------------------------------
+# -----------------------------------------------------------------------------
+
+
+def plot_queries_results(results: pd.DataFrame, by: str = "query"):
     """Plot the results obtained by a run_queries execution
 
     Parameters
@@ -297,42 +392,48 @@ def plot_queries_results(results: pd.DataFrame, by: str = 'query'):
     """
 
     if not isinstance(results, pd.DataFrame):
-        raise TypeError('results must be a pandas DataFrame, result of having executed '
-                        'running_queries. Given: {}'.format(results))
+        raise TypeError(
+            "results must be a pandas DataFrame, result of having executed "
+            "running_queries. Given: {}".format(results)
+        )
 
     results_copy = results.copy(deep=True)
 
-    if by == 'model':
+    if by == "model":
         results_copy = results_copy
     else:
         results_copy = results_copy.T
 
-    results_copy['query_name'] = results_copy.index
+    results_copy["query_name"] = results_copy.index
 
     cols = results_copy.columns
-    id_vars = ['query_name']
+    id_vars = ["query_name"]
     values_vars = [col_name for col_name in cols if col_name not in id_vars]
 
     # melt the dataframe
-    melted_results = pd.melt(results_copy,
-                             id_vars=id_vars,
-                             value_vars=values_vars,
-                             var_name='Word Embedding Model')
+    melted_results = pd.melt(
+        results_copy,
+        id_vars=id_vars,
+        value_vars=values_vars,
+        var_name="Word Embedding Model",
+    )
 
     # configure the plot
-    xaxis_title = 'Model' if by == 'model' else 'Query'
+    xaxis_title = "Model" if by == "model" else "Query"
 
-    fig = px.bar(melted_results,
-                 x='query_name',
-                 y="value",
-                 color='Word Embedding Model',
-                 barmode='group')
+    fig = px.bar(
+        melted_results,
+        x="query_name",
+        y="value",
+        color="Word Embedding Model",
+        barmode="group",
+    )
     fig.update_layout(
-        xaxis_title=xaxis_title,
-        yaxis_title='Bias measure',
+        xaxis_title=xaxis_title, yaxis_title="Bias measure",
     )
     fig.for_each_trace(
-        lambda t: t.update(x=['wrt<br>'.join(label.split('wrt')) for label in t.x]))
+        lambda t: t.update(x=["wrt<br>".join(label.split("wrt")) for label in t.x])
+    )
     # fig.show()
     return fig
 
@@ -344,7 +445,7 @@ def plot_queries_results(results: pd.DataFrame, by: str = 'query'):
 
 def create_ranking(
     results_dataframes: List[pd.DataFrame],
-    method: str = 'first',
+    method: str = "first",
     ascending: bool = True,
 ):
     """Creates a ranking form the aggregated scores of the provided dataframes.
@@ -390,9 +491,12 @@ def create_ranking(
     # check the input.
     for idx, results_df in enumerate(results_dataframes):
         if not isinstance(results_df, pd.DataFrame):
-            raise TypeError('All elements of results_dataframes must be a pandas '
-                            'Dataframe instance. Got {} at position {}'.format(
-                                type(results_df), idx))
+            raise TypeError(
+                "All elements of results_dataframes must be a pandas "
+                "Dataframe instance. Got {} at position {}".format(
+                    type(results_df), idx
+                )
+            )
 
     # get the avg_scores columns and merge into one dataframe
     aggregation_columns: List[pd.DataFrame] = []
@@ -402,7 +506,7 @@ def create_ranking(
 
     # check for duplicated column names
     column_names = pd.Series([series.name for series in aggregation_columns])
-    duplicated_names = column_names[column_names.duplicated(keep='first')]
+    duplicated_names = column_names[column_names.duplicated(keep="first")]
 
     no_duplicated_column_names = copy.copy(column_names)
     for duplicated_name in duplicated_names:
@@ -419,43 +523,46 @@ def create_ranking(
     return rankings
 
 
-def plot_ranking(ranking: pd.DataFrame,
-                 title: str = '',
-                 use_metric_as_facet: bool = False):
+def plot_ranking(
+    ranking: pd.DataFrame, title: str = "", use_metric_as_facet: bool = False
+):
     def melt_df(results):
         results = results.copy()
-        results['exp_name'] = results.index
-        id_vars = ['exp_name']
+        results["exp_name"] = results.index
+        id_vars = ["exp_name"]
         cols = results.columns
         values_vars = [col_name for col_name in cols if col_name not in id_vars]
-        melted_results = pd.melt(results,
-                                 id_vars=id_vars,
-                                 value_vars=values_vars,
-                                 var_name='Metric')
-        melted_results.columns = ['Embedding model', 'Metric', 'Ranking']
+        melted_results = pd.melt(
+            results, id_vars=id_vars, value_vars=values_vars, var_name="Metric"
+        )
+        melted_results.columns = ["Embedding model", "Metric", "Ranking"]
         return melted_results
 
     melted_ranking = melt_df(ranking.copy(deep=True))
 
     if use_metric_as_facet:
-        fig = px.bar(melted_ranking,
-                     x="Ranking",
-                     y="Embedding model",
-                     barmode="stack",
-                     color='Metric',
-                     orientation='h',
-                     facet_col='Metric')
+        fig = px.bar(
+            melted_ranking,
+            x="Ranking",
+            y="Embedding model",
+            barmode="stack",
+            color="Metric",
+            orientation="h",
+            facet_col="Metric",
+        )
     else:
-        fig = px.bar(melted_ranking,
-                     x="Ranking",
-                     y="Embedding model",
-                     barmode="stack",
-                     color='Metric',
-                     orientation='h')
-        fig.update_layout(yaxis={'categoryorder': 'total ascending'})
+        fig = px.bar(
+            melted_ranking,
+            x="Ranking",
+            y="Embedding model",
+            barmode="stack",
+            color="Metric",
+            orientation="h",
+        )
+        fig.update_layout(yaxis={"categoryorder": "total ascending"})
 
     fig.update_layout(showlegend=False)
-    fig.update_yaxes(title_text='')
+    fig.update_yaxes(title_text="")
     fig.update_yaxes(tickfont=dict(size=10))
     # fig.for_each_trace(lambda t: t.update(name=t.name.split('=')[1]))
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[1]))
@@ -467,12 +574,13 @@ def plot_ranking(ranking: pd.DataFrame,
 # -----------------------------------------------------------------------------
 
 
-def calculate_ranking_correlations(rankings: pd.DataFrame,
-                                   method='pearson') -> pd.DataFrame:
+def calculate_ranking_correlations(
+    rankings: pd.DataFrame, method="pearson"
+) -> pd.DataFrame:
     """Calculates the correlation between the calculated rankings.
     It uses pandas corr() method to calculate the correlations.
-    The method parameter documentarion was copied from the documentation of the pandas 
-    DataFrame.corr() method. 
+    The method parameter documentarion was copied from the documentation of the pandas
+    DataFrame.corr() method.
     To see the updated documentation, visit: 
     https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html
 
@@ -501,33 +609,37 @@ def calculate_ranking_correlations(rankings: pd.DataFrame,
 
     if not isinstance(rankings, pd.DataFrame):
         raise TypeError(
-            'rankings parameter must be a pandas DataFrame, result of having '
-            'executed create_rankings. Given: {}'.format(rankings))
-
-    matrix: List[np.ndarray] = []
+            "rankings parameter must be a pandas DataFrame, result of having "
+            "executed create_rankings. Given: {}".format(rankings)
+        )
 
     correlation_matrix = rankings.corr(method=method)
     return correlation_matrix
 
 
-def plot_ranking_correlations(correlation_matrix, title=''):
-    fig = go.Figure(data=go.Heatmap(z=correlation_matrix,
-                                    x=correlation_matrix.columns,
-                                    y=correlation_matrix.index,
-                                    hoverongaps=False,
-                                    zmin=0.0,
-                                    zmax=1,
-                                    colorscale='Darkmint'))
+def plot_ranking_correlations(correlation_matrix, title=""):
+    fig = go.Figure(
+        data=go.Heatmap(
+            z=correlation_matrix,
+            x=correlation_matrix.columns,
+            y=correlation_matrix.index,
+            hoverongaps=False,
+            zmin=0.0,
+            zmax=1,
+            colorscale="Darkmint",
+        )
+    )
     fig.update_layout(title=title, font=dict(color="#000000"))
     return fig
 
 
 def load_weat_w2v():
     from gensim.models import KeyedVectors
+
     # load dummy weat word vectors:
 
     resource_package = __name__
-    resource_path = '/'.join(('datasets', 'data', 'weat_w2v.txt'))
+    resource_path = "/".join(("datasets", "data", "weat_w2v.txt"))
     weat_w2v_path = pkg_resources.resource_filename(resource_package, resource_path)
 
     weat_we = KeyedVectors.load_word2vec_format(weat_w2v_path, binary=False)
@@ -536,8 +648,10 @@ def load_weat_w2v():
 
 def print_doc_table(df):
     from tabulate import tabulate
+
     df_2 = df.reset_index()
-    print (tabulate(df_2, headers=df_2.columns, tablefmt="rst", showindex=False))
+    print(tabulate(df_2, headers=df_2.columns, tablefmt="rst", showindex=False))
+
 
 def save_doc_image(fig, name):
-    fig.write_image(f'./doc/images/{name}.png', width = 1200, height= 600, scale=3)
+    fig.write_image(f"./doc/images/{name}.png", width=1200, height=600, scale=3)

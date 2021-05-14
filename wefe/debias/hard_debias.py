@@ -1,13 +1,16 @@
 """Bolukbasi et al. Hard Debias WEFE implementation."""
 import logging
 from copy import deepcopy
-from typing import Dict, List, Any, Sequence, Set, Tuple, Union
+from typing import Dict, List, Any, Optional, Sequence, Set
 
 import numpy as np
 from sklearn.decomposition import PCA
+from tqdm import tqdm
 
 from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 from wefe.debias.base_debias import BaseDebias
+from wefe.utils import check_is_fitted
+
 
 logger = logging.getLogger(__name__)
 
@@ -64,12 +67,29 @@ class HardDebias(BaseDebias):
     name = "Bolukbasi's Hard Debias"
     short_name = "HD"
 
+    def __init__(self, pca_args: Dict[str, Any] = None) -> None:
+        super().__init__()
+
+        if pca_args is None:
+            self.pca_args = {"n_components": 10}
+        else:
+            self.pca_args = pca_args
+
+    def _check_sets_size(
+        self, sets: Sequence[Sequence[str]], set_name: str,
+    ):
+
+        for idx, set_ in enumerate(sets):
+            if len(set_) != 2:
+                raise ValueError(
+                    f"The {set_name} pair at position {idx} has less/more elements "
+                    "than allowed by this method. "
+                    f"Number of elements: {len(set_)} - Allowed: 2. "
+                    f"Words in the set: {set_}"
+                )
+
     def _identify_bias_subspace(
-        self,
-        definning_pairs_embeddings: List[EmbeddingDict],
-        pca_args: Union[None, Dict[str, Any]] = None,
-        n_components=10,
-        verbose: bool = False,
+        self, definning_pairs_embeddings: List[EmbeddingDict], verbose: bool = False,
     ) -> PCA:
 
         matrix = []
@@ -84,37 +104,14 @@ class HardDebias(BaseDebias):
                 matrix.append(embedding - center)
         matrix = np.array(matrix)  # type: ignore
 
-        if pca_args is not None:
-            pca = PCA(**pca_args)
-
-        else:
-            pca = PCA(n_components=n_components)
-
+        pca = PCA(**self.pca_args)
         pca.fit(matrix)
 
         if verbose:
             explained_variance = pca.explained_variance_ratio_
-            if len(explained_variance) > 10:
-                logger.info(f"PCA variance explaned: {explained_variance[0:10]}")
-            else:
-                logger.info(f"PCA variance explaned: {explained_variance}")
+            print(f"PCA variance explained: {explained_variance[0:pca.n_components_]}")
 
         return pca
-
-    def _check_sets_size(
-        self,
-        sets: Sequence[Union[List[str], Tuple[str], Set[str], np.ndarray]],
-        set_name: str,
-    ):
-
-        for idx, set_ in enumerate(sets):
-            if len(set_) != 2:
-                raise ValueError(
-                    f"The {set_name} pair at position {idx} has less/more elements "
-                    "than allowed by this method. "
-                    f"Number of elements: {len(set_)} - Allowed: 2. "
-                    f"Words in the set: {set_}"
-                )
 
     def _drop(self, u: np.ndarray, v: np.ndarray) -> np.ndarray:
         """Neutralize the bias of an embedding.
@@ -148,19 +145,22 @@ class HardDebias(BaseDebias):
         bias_criterion_specific_words: Set[str],
     ):
 
-        info_log = np.linspace(0, len(embedding_model.vocab), 11, dtype=np.int)
+        # info_log = np.linspace(0, len(embedding_model.vocab), 11, dtype=int)
 
-        for idx, word in enumerate(embedding_model.vocab):
+        for idx, word in tqdm(enumerate(embedding_model.vocab)):
             if word not in bias_criterion_specific_words:
                 current_embedding = embedding_model[word]
-                neutralized_embedding = self._drop(current_embedding, bias_direction)
+                neutralized_embedding = self._drop(
+                    current_embedding, bias_direction  # type: ignore
+                )
+                neutralized_embedding = neutralized_embedding.astype(np.float32)
                 embedding_model.update_embedding(word, neutralized_embedding)
 
-            if idx in info_log:
-                logger.info(
-                    f"Progress: {np.trunc(idx/ len(embedding_model.vocab) * 100)}% "
-                    f"- Current word index: {idx}"
-                )
+            # if idx in info_log:
+            #     print(
+            #         f"Progress: {np.trunc(idx/ len(embedding_model.vocab) * 100)}% "
+            #         f"- Current word index: {idx}"
+            #     )
 
     def _equalize_embeddings(
         self,
@@ -185,133 +185,158 @@ class HardDebias(BaseDebias):
             new_b = -z * bias_direction + y
 
             # Update the embedding set with the equalized embeddings
-            embedding_model.update_embedding(word_a, new_a)
-            embedding_model.update_embedding(word_b, new_b)
+            embedding_model.update_embedding(word_a, new_a.astype(np.float32))
+            embedding_model.update_embedding(word_b, new_b.astype(np.float32))
 
-    def run_debias(
+    def fit(
         self,
-        word_embedding_model: WordEmbeddingModel,
+        model: WordEmbeddingModel,
         definitional_pairs: Sequence[Sequence[str]],
-        bias_criterion_specific_words: Sequence[str],
-        equalize_pairs: Sequence[Sequence[str]],
-        pca_args: Dict[str, Any] = {"n_components": 10},
-        debias_criterion_name: Union[str, None] = None,
-        inplace: bool = True,
-        verbose: bool = True,
-    ) -> WordEmbeddingModel:
-        """Execute Bolukbasi's Hard Debias.
+        debias_criterion_name: Optional[str] = None,
+        verbose: bool = False,
+    ) -> "BaseDebias":
+        """Compute the debias direction that will be neutralized later.
 
         Parameters
         ----------
-        word_embedding_model : WordEmbeddingModel
-            A word embedding model to debias.
-
         definitional_pairs : Sequence[Sequence[str]],
-            [description]
-
-        bias_criterion_specific_words : Sequence[str],
-            A collection of words that is specific to the bias criteria and must not be
-            debiased (i.e., it is good that these words are associated with a certain
-            social group).
-            e.g.:`["spokesman", "wife", "himself", "son", "mother", "father",...]`
-
-        equalize_pairs : Sequence[Sequence[str]],
-            [description]
-
-        pca_args : Dict[str, Any], optional
-            Arguments for calculating the PCA, by default {"n_components": 10}.
-            These arguments are the same as those of the `sklearn.decomposition.PCA`
-            class.
-
-        debias_criterion_name : Union[str, None], optional
-            Name of the criterion on which the debias is being performed,
-            This name will be included in the name of the returned model,
-            by default None
-
-        inplace : bool, optional
-            Indicates whether the debiasing is performed inplace (i.e., the original
-            embeddings are replaced by the new debiased ones) or a new model is created
-            and the original embeddings are kept.
-
-            **WARNING:** Inplace == False requires at least 2x RAM of the size of the
-            model. Otherwise the execution of the debias probably will rise
-            `MemoryError`.
-
-            By default True
-
-        verbose : bool, optional
-            Indicates whether the execution status of this method is printed in
-            the logger, by default True.
+            A sequence of string pairs that will be used to define the bias direction.
+            For example, for the case of gender debias, this list could be [['woman', 
+            'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
+        model : WordEmbeddingModel
+            The word embedding model to debias.
+        verbose: bool, optional
+            If true, it prints information about the debias status at each step,
+            by default True.
 
         Returns
         -------
-        WordEmbeddingModel
-            A word embeddings model that has been debiased.
+        BaseDebias
+            The debias method fitted.
         """
-        logger.info(f"Executing Hard Debias on {word_embedding_model.model_name}")
+        # ------------------------------------------------------------------------------
+        # Check arguments types
 
-        if verbose:
-            logger.setLevel(logging.DEBUG)
+        if debias_criterion_name is None or isinstance(debias_criterion_name, str):
+            self.debias_criterion_name_ = debias_criterion_name
         else:
-            logger.setLevel(logging.INFO)
-
-        if not inplace:
-            logger.warning(
-                "Inplace argument is False. This method will attempt to create a copy "
-                "of the original model. This may fail due to lack of memory."
-            )
-            word_embedding_model = deepcopy(word_embedding_model)
-            logger.info("Copy created successfully.")
-        else:
-            logger.warning(
-                "Inplace argument is True. The execution of this method will mutate "
-                "the embeddings of the provided model."
+            raise ValueError(
+                f"debias_criterion_name should be str, got: {debias_criterion_name}"
             )
 
         self._check_sets_size(definitional_pairs, "definitional")
-        self._check_sets_size(equalize_pairs, "equalize")
+        self.definitional_pairs_ = definitional_pairs
 
-        # ------------------------------------------------------------------------------:
-        # Normalize embeddings
-        logger.debug("Normalizing embeddings.")
-        word_embedding_model.normalize_embeddings()
-
-        # ------------------------------------------------------------------------------:
-        # Obtain the embedding of the definitional pairs.
-        logger.debug("Obtaining definitional pairs.")
-        self._definitional_pairs_embeddings = word_embedding_model.get_embeddings_from_sets(
+        # ------------------------------------------------------------------------------
+        # Obtain the embedding of each definitional pairs.
+        if verbose:
+            print("Obtaining definitional pairs.")
+        self.definitional_pairs_embeddings_ = model.get_embeddings_from_sets(
             sets=definitional_pairs,
             sets_name="definitional",
             warn_lost_sets=True,
+            normalize=True,
             verbose=verbose,
         )
 
         # ------------------------------------------------------------------------------:
         # Identify the bias subspace using the definning pairs.
-        logger.debug("Identifying the bias subspace.")
-        self._pca = self._identify_bias_subspace(
-            self._definitional_pairs_embeddings, pca_args, verbose,
+        if verbose:
+            print("Identifying the bias subspace.")
+
+        self.pca_ = self._identify_bias_subspace(
+            self.definitional_pairs_embeddings_, verbose,
         )
-        self._bias_direction = self._pca.components_[0]
+        self.bias_direction_ = self.pca_.components_[0]
+
+        return self
+
+    def transform(
+        self,
+        model: WordEmbeddingModel,
+        ignore: Optional[List[str]] = None,
+        equalize_pairs: Optional[Sequence[Sequence[str]]] = None,
+        copy: bool = True,
+        verbose: bool = True,
+    ) -> WordEmbeddingModel:
+        """Execute hard debias over the provided model.
+
+        Parameters
+        ----------
+        model : WordEmbeddingModel
+            The word embedding model to be debiased
+        ignore :  Optional[List[str]]
+            List of words that will not be neutralized.
+            **Warning**: In case it is None, the debias will be executed on the
+            whole vocabulary, causing words that should retain bias information (such
+            as `["spokesman", "wife", "himself", "son", "mother", "father",...] in the 
+            case of applying gender debias) to lose it,
+            by default None.
+        equalize_pairs : Optional[Sequence[Sequence[str]]]
+            A list with pairs of strings which will be equalized.
+            In the case of passing None, the equalization will be done over the word
+            pairs passed in definitional_pairs,
+            by default None.
+        copy : bool
+            If True, perform the debiasing on a copy of the model.
+            If False, apply the debias on the model provided.
+            **WARNING:** Setting copy with True requires at least 2x RAM of the size
+            of the model. Otherwise the execution of the debias may rise
+            `MemoryError`, by default True.
+        verbose : bool
+            If true, it prints information about the transform status at each step,
+            by default True.
+
+        Returns
+        -------
+        WordEmbeddingModel
+            The debiased embedding model.
+        """
+
+        if verbose:
+            print(f"Executing Hard Debias on {model.model_name}")
 
         # ------------------------------------------------------------------------------
-        # Neutralize the embeddings appointed in bias_criterion_specific_words:
-        logger.debug("Neutralizing embeddings")
-        self._neutralize_embeddings(
-            word_embedding_model,
-            self._bias_direction,
-            set(bias_criterion_specific_words),
+        # Check if the method is fitted
+        check_is_fitted(
+            self,
+            [
+                "definitional_pairs_",
+                "definitional_pairs_embeddings_",
+                "pca_",
+                "bias_direction_",
+            ],
         )
-
-        logger.debug("Normalizing embeddings.")
-        word_embedding_model.normalize_embeddings()
         # ------------------------------------------------------------------------------
-        # Equalize embeddings:
+        # Check and process arguments
+        if ignore is not None and not isinstance(ignore, list):
+            raise ValueError(
+                f"ignore should be None or a list of strings, got: {ignore}."
+            )
+
+        if ignore is None:
+            ignore = []
+        else:
+            for idx, elem in enumerate(ignore):
+                if not isinstance(elem, str):
+                    raise ValueError(
+                        "All elements in ignore list must be strings"
+                        f", got: {elem} at index {idx} "
+                    )
+
+        # if equalize pairs are none, set the definitional pairs as the pairs
+        # to equalize.
+        if equalize_pairs is None:
+            self.equalize_pairs_ = self.definitional_pairs_
+        else:
+            self.equalize_pairs_ = equalize_pairs
+
+        self._check_sets_size(self.equalize_pairs_, "equalize")
 
         # Get the equalization pairs candidates
-        equalize_pairs_candidates = [
+        self.equalize_pairs_candidates_ = [
             x
-            for e1, e2 in equalize_pairs
+            for e1, e2 in self.equalize_pairs_
             for x in [
                 (e1.lower(), e2.lower()),
                 (e1.title(), e2.title()),
@@ -321,37 +346,67 @@ class HardDebias(BaseDebias):
 
         # Get the equalization pairs embeddings candidates
         logger.debug("Obtaining equalize pairs.")
-        self._equalize_pairs_embeddings = word_embedding_model.get_embeddings_from_sets(
-            sets=equalize_pairs_candidates,
+        self.equalize_pairs_embeddings_ = model.get_embeddings_from_sets(
+            sets=self.equalize_pairs_candidates_,
             sets_name="equalize",
             warn_lost_sets=True,
+            normalize=True,
             verbose=verbose,
         )
 
-        # Execute the equalization
-        logger.debug("Equalizing embeddings..")
-        self._equalize_embeddings(
-            word_embedding_model, self._equalize_pairs_embeddings, self._bias_direction,
-        )
+        if copy:
+            logger.warning(
+                "copy argument is True. Transform will attempt to create a copy "
+                "of the original model. This may fail due to lack of memory."
+            )
+            model = deepcopy(model)
+            print("Model copy created successfully.")
+        else:
+            logger.warning(
+                "copy argument is False. The execution of this method will mutate "
+                "the embeddings of the provided model."
+            )
 
         # ------------------------------------------------------------------------------
+        # Execute Neutralization
+
+        # Normalize embeddings
         logger.debug("Normalizing embeddings.")
-        word_embedding_model.normalize_embeddings()
+        model.normalize_embeddings()
+
+        # Neutralize the embeddings appointed in ignore word set:
+        logger.debug("Neutralizing embeddings")
+        self._neutralize_embeddings(
+            model, self.bias_direction_, set(ignore),
+        )
+
+        logger.debug("Normalizing embeddings.")
+        model.normalize_embeddings()
+        # ------------------------------------------------------------------------------
+        # Execute Equalization:
+
+        logger.debug("Equalizing embeddings..")
+        self._equalize_embeddings(
+            model, self.equalize_pairs_embeddings_, self.bias_direction_,
+        )
+
+        logger.debug("Normalizing embeddings.")
+        model.normalize_embeddings()
 
         # ------------------------------------------------------------------------------
         # # Generate the new KeyedVectors
-        if debias_criterion_name is not None:
+        if self.debias_criterion_name_ is not None:
             new_model_name = (
-                f"{word_embedding_model.model_name}_{debias_criterion_name}_debiased"
+                f"{model.model_name}_{self.debias_criterion_name_}_debiased"
             )
         else:
             new_model_name = (
-                f"{word_embedding_model.model_name}_{debias_criterion_name}_debiased"
+                f"{model.model_name}_{self.debias_criterion_name_}_debiased"
             )
-        word_embedding_model.model_name = new_model_name
+        model.model_name = new_model_name
 
-        logger.info("Done!")
+        print("Done!")
         logger.setLevel(logging.INFO)
 
-        return word_embedding_model
+        return model
 

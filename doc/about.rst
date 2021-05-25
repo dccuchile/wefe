@@ -72,6 +72,16 @@ The main objectives we want to achieve with this library are:
      only positive ones, etc..)
 
 
+Similar Packages
+================
+
+There are quite a few alternatives that complement WEFE in the battle against 
+bias. Be sure to check them out!
+
+- Fair Embedding Engine: https://github.com/FEE-Fair-Embedding-Engine/FEE
+- ResponsiblyAI: https://github.com/ResponsiblyAI/responsibly
+
+
 The Framework
 =============
 

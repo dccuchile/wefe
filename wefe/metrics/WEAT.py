@@ -1,6 +1,6 @@
 import logging
 import math
-from typing import Any, Dict, List, Literal, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 
 import numpy as np
 
@@ -59,8 +59,8 @@ class WEAT(BaseMetric):
         attribute_embeddings: List[EmbeddingDict],
         original_score: np.number,
         iterations: int,
-        method: Literal["approximate", "exact"],
-        test_type: Literal["left-sided", "right-sided", "two-sided"],
+        method: str,
+        test_type: str,
         verbose: bool,
     ):
         # TODO: Add joblib or other library to parallelize this function.
@@ -139,7 +139,9 @@ class WEAT(BaseMetric):
                 logging.info(f"WEAT p-value: {len(permutations_seen)} / {runs} runs")
 
             permutation = tuple(
-                np.random.choice(pool_target_words, size=number_of_target_words).tolist()
+                np.random.choice(
+                    pool_target_words, size=number_of_target_words
+                ).tolist()
             )
             if permutation not in permutations_seen:
                 X_i_words = list(permutation[0:len_target_0])
@@ -174,10 +176,8 @@ class WEAT(BaseMetric):
         word_embedding: WordEmbeddingModel,
         return_effect_size: bool = False,
         calculate_p_value: bool = False,
-        p_value_test_type: Literal[
-            "left-sided", "right-sided", "two-sided"
-        ] = "right-sided",
-        p_value_method: Literal["approximate", "exact"] = "approximate",
+        p_value_test_type: str = "right-sided",
+        p_value_method: str = "approximate",
         p_value_iterations: int = 10000,
         p_value_verbose: bool = False,
         lost_vocabulary_threshold: float = 0.2,

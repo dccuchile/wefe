@@ -25,15 +25,13 @@ def test_hard_debias_class(model):
 
     hd = HardDebias()
     hd.fit(
-        model, definitional_pairs, debias_criterion_name="gender", verbose=True,
-    )
-    debiased_w2v = hd.transform(
         model,
-        ignore=gender_specific,
+        definitional_pairs,
         equalize_pairs=equalize_pairs,
-        copy=True,
+        debias_criterion_name="gender",
         verbose=True,
     )
+    debiased_w2v = hd.transform(model, ignore=gender_specific, copy=True, verbose=True,)
 
     weat_word_set = load_weat()
     weat = WEAT()

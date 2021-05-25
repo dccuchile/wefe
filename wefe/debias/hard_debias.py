@@ -142,13 +142,24 @@ class HardDebias(BaseDebias):
         self,
         embedding_model: WordEmbeddingModel,
         bias_direction: np.ndarray,
-        bias_criterion_specific_words: Set[str],
+        target: Optional[List[str]],
+        ignore: Optional[List[str]],
     ):
+
+        if target is not None:
+            target_ = set(target)
+        else:
+            target_ = set(embedding_model.vocab.keys())
+
+        if ignore is not None and target is None:
+            ignore_ = set(ignore)
+        else:
+            ignore_ = set()
 
         # info_log = np.linspace(0, len(embedding_model.vocab), 11, dtype=int)
 
-        for idx, word in tqdm(enumerate(embedding_model.vocab)):
-            if word not in bias_criterion_specific_words:
+        for idx, word in tqdm(enumerate(target_)):
+            if word not in ignore_:
                 current_embedding = embedding_model[word]
                 neutralized_embedding = self._drop(
                     current_embedding, bias_direction  # type: ignore
@@ -192,28 +203,39 @@ class HardDebias(BaseDebias):
         self,
         model: WordEmbeddingModel,
         definitional_pairs: Sequence[Sequence[str]],
+        equalize_pairs: Optional[Sequence[Sequence[str]]] = None,
         debias_criterion_name: Optional[str] = None,
         verbose: bool = False,
-    ) -> "BaseDebias":
-        """Compute the debias direction that will be neutralized later.
+    ) -> BaseDebias:
+        """Compute the bias direction and obtains the equalize embedding pairs.
 
         Parameters
         ----------
-        definitional_pairs : Sequence[Sequence[str]],
+        model : WordEmbeddingModel
+            The word embedding model to debias.
+        definitional_pairs : Sequence[Sequence[str]]
             A sequence of string pairs that will be used to define the bias direction.
             For example, for the case of gender debias, this list could be [['woman', 
             'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
-        model : WordEmbeddingModel
-            The word embedding model to debias.
-        verbose: bool, optional
-            If true, it prints information about the debias status at each step,
-            by default True.
+        equalize_pairs : Optional[Sequence[Sequence[str]]], optional
+            A list with pairs of strings which will be equalized.
+            In the case of passing None, the equalization will be done over the word
+            pairs passed in definitional_pairs,
+            by default None.
+        debias_criterion_name : Optional[str], optional
+            The name of the criterion for which the debias is being executed,
+            e.g. 'Gender'. This will indicate the name of the model returning transform,
+            by default None
+        verbose : bool, optional
+            True will print informative messages about the debiasing process,
+            by default False.
 
         Returns
         -------
         BaseDebias
             The debias method fitted.
         """
+
         # ------------------------------------------------------------------------------
         # Check arguments types
 
@@ -249,13 +271,46 @@ class HardDebias(BaseDebias):
         )
         self.bias_direction_ = self.pca_.components_[0]
 
+        # ------------------------------------------------------------------------------:
+        # Get the equalization pairs.
+
+        # if equalize pairs are none, set the definitional pairs as the pairs
+        # to equalize.
+        if equalize_pairs is None:
+            self.equalize_pairs_ = self.definitional_pairs_
+        else:
+            self.equalize_pairs_ = equalize_pairs
+
+        self._check_sets_size(self.equalize_pairs_, "equalize")
+
+        # Get the equalization pairs candidates
+        self.equalize_pairs_candidates_ = [
+            x
+            for e1, e2 in self.equalize_pairs_
+            for x in [
+                (e1.lower(), e2.lower()),
+                (e1.title(), e2.title()),
+                (e1.upper(), e2.upper()),
+            ]
+        ]
+
+        # Get the equalization pairs embeddings candidates
+        logger.debug("Obtaining equalize pairs.")
+        self.equalize_pairs_embeddings_ = model.get_embeddings_from_sets(
+            sets=self.equalize_pairs_candidates_,
+            sets_name="equalize",
+            warn_lost_sets=True,
+            normalize=True,
+            verbose=verbose,
+        )
+
         return self
 
     def transform(
         self,
         model: WordEmbeddingModel,
+        target: Optional[List[str]] = None,
         ignore: Optional[List[str]] = None,
-        equalize_pairs: Optional[Sequence[Sequence[str]]] = None,
         copy: bool = True,
         verbose: bool = True,
     ) -> WordEmbeddingModel:
@@ -264,28 +319,26 @@ class HardDebias(BaseDebias):
         Parameters
         ----------
         model : WordEmbeddingModel
-            The word embedding model to be debiased
-        ignore :  Optional[List[str]]
-            List of words that will not be neutralized.
-            **Warning**: In case it is None, the debias will be executed on the
-            whole vocabulary, causing words that should retain bias information (such
-            as `["spokesman", "wife", "himself", "son", "mother", "father",...] in the 
-            case of applying gender debias) to lose it,
-            by default None.
-        equalize_pairs : Optional[Sequence[Sequence[str]]]
-            A list with pairs of strings which will be equalized.
-            In the case of passing None, the equalization will be done over the word
-            pairs passed in definitional_pairs,
-            by default None.
-        copy : bool
-            If True, perform the debiasing on a copy of the model.
-            If False, apply the debias on the model provided.
-            **WARNING:** Setting copy with True requires at least 2x RAM of the size
+            The word embedding model to debias.
+        target : Optional[List[str]], optional
+            If a set of words is specified in target, the debias method will be performed
+            only on the word embeddings of this set. In the case of provide `None`, the
+            debias will be performed on all words (except those specified in ignore).
+            by default `None`.
+        ignore : Optional[List[str]], optional
+            If target is `None` and a set of words is specified in ignore, the debias
+            method will perform the debias in all words except those specified in this
+            set, by default `None`.
+        copy : bool, optional
+            If `True`, the debias will be performed on a copy of the model.
+            If `False`, the debias will be applied on the same model delivered, causing
+            its vectors to mutate.
+            **WARNING:** Setting copy with `True` requires at least 2x RAM of the size
             of the model. Otherwise the execution of the debias may rise
             `MemoryError`, by default True.
-        verbose : bool
-            If true, it prints information about the transform status at each step,
-            by default True.
+        verbose : bool, optional
+            `True` will print informative messages about the debiasing process,
+            by default False.
 
         Returns
         -------
@@ -324,36 +377,6 @@ class HardDebias(BaseDebias):
                         f", got: {elem} at index {idx} "
                     )
 
-        # if equalize pairs are none, set the definitional pairs as the pairs
-        # to equalize.
-        if equalize_pairs is None:
-            self.equalize_pairs_ = self.definitional_pairs_
-        else:
-            self.equalize_pairs_ = equalize_pairs
-
-        self._check_sets_size(self.equalize_pairs_, "equalize")
-
-        # Get the equalization pairs candidates
-        self.equalize_pairs_candidates_ = [
-            x
-            for e1, e2 in self.equalize_pairs_
-            for x in [
-                (e1.lower(), e2.lower()),
-                (e1.title(), e2.title()),
-                (e1.upper(), e2.upper()),
-            ]
-        ]
-
-        # Get the equalization pairs embeddings candidates
-        logger.debug("Obtaining equalize pairs.")
-        self.equalize_pairs_embeddings_ = model.get_embeddings_from_sets(
-            sets=self.equalize_pairs_candidates_,
-            sets_name="equalize",
-            warn_lost_sets=True,
-            normalize=True,
-            verbose=verbose,
-        )
-
         if copy:
             logger.warning(
                 "copy argument is True. Transform will attempt to create a copy "
@@ -377,7 +400,7 @@ class HardDebias(BaseDebias):
         # Neutralize the embeddings appointed in ignore word set:
         logger.debug("Neutralizing embeddings")
         self._neutralize_embeddings(
-            model, self.bias_direction_, set(ignore),
+            model, self.bias_direction_, target, ignore,
         )
 
         logger.debug("Normalizing embeddings.")
@@ -409,4 +432,3 @@ class HardDebias(BaseDebias):
         logger.setLevel(logging.INFO)
 
         return model
-

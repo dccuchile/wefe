@@ -125,7 +125,11 @@ Changelog
 
 Version 0.2.1
 -------------
-- Implemented Bolukbasi's Hard Debias
+- Implemented Bolukbasi's Hard Debias.
+- Implemented Manzini's Multiclass Hard Debias.
+- Implemented Direct Bias metric.
+- Moved the transformation logic of words, sets and queries to embeddings to its own module
+- Implemented a fetch function to retrieve gn-glove female-male word sets.
 
 
 Version 0.2.0

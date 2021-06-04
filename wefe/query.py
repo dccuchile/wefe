@@ -14,8 +14,7 @@ class Query:
         target_sets_names: Union[List[str], None] = None,
         attribute_sets_names: Union[List[str], None] = None,
     ):
-        """Initializes the container. It could include a name for each
-        word set.
+        """Initializes the container. It could include a name for each word set.
 
         Parameters
         ----------
@@ -210,9 +209,7 @@ class Query:
         return True
 
     def get_subqueries(self, new_template: tuple) -> list:
-        """Generate the subqueries from this query using the given template
-        """
-
+        """Generate the subqueries from this query using the given template"""
         if not isinstance(new_template[0], int):
             raise TypeError(
                 "The new target cardinality (new_template[0]) must be int. "
@@ -282,7 +279,7 @@ class Query:
         return np.array(subqueries).flatten().tolist()
 
     def _get_query_name(self) -> str:
-        """Generates the query name from the name of its target and
+        """Generate the query name from the name of its target and
         attribute sets.
 
         Returns

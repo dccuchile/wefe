@@ -1,11 +1,13 @@
-from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
-from wefe.query import Query
-from wefe.word_embedding_model import WordEmbeddingModel
-from sklearn.base import TransformerMixin
-from sklearn.feature_extraction.text import strip_accents_ascii, strip_accents_unicode
+"""Module with utilities that ease the transformation of word sets to embeddings."""
 import logging
+from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
+from sklearn.feature_extraction.text import strip_accents_ascii, strip_accents_unicode
+
+from wefe.query import Query
+from wefe.word_embedding_model import WordEmbeddingModel
+
 
 PreprocessorArgs = Dict[str, Union[bool, str, Callable, None]]
 EmbeddingDict = Dict[str, np.ndarray]
@@ -89,7 +91,7 @@ def get_embeddings_from_word_set(
     normalize: bool = False,
     verbose: bool = True,
 ) -> Tuple[List[str], Dict[str, np.ndarray]]:
-    """Transforms a sequence of words into dictionary of word-word embedding.
+    """Transform a sequence of words into dictionary that maps word - word embedding.
 
     The method discard out words that are not in the model's vocabulary
     (according to the rules specified in the preprocessors).
@@ -144,16 +146,23 @@ def get_embeddings_from_word_set(
     normalize : bool, optional
         True indicates that embeddings will be normalized, by default False
 
+    verbose : bool, optional
+        Indicates whether the execution status of this function is printed,
+        by default False
+
     Returns
     -------
     Tuple[List[str], Dict[str, np.ndarray]]
         A tuple containing the words that could not be found and a dictionary with
         the found words and their corresponding embeddings.
     """
+    # ----------------------------------------------------------------------------------
+    # type verifications.
+
     if not isinstance(model, WordEmbeddingModel):
         raise TypeError(f"model should be a WordEmbeddingModel instance, got {model}.")
 
-    if not isinstance(word_set, (list, tuple, set, np.ndarray)):
+    if not isinstance(word_set, (list, tuple, np.ndarray)):
         raise TypeError(
             "word_set should be a list, tuple or np.array of strings"
             f", got {word_set}."
@@ -179,10 +188,12 @@ def get_embeddings_from_word_set(
     if strategy != "first" and strategy != "all":
         raise ValueError(f"strategy should be 'first' or 'all', got {strategy}.")
 
+    # ----------------------------------------------------------------------------------
+    # filter the words
+
     selected_embeddings = {}
     not_found_words = []
 
-    # filter the words
     for word in word_set:
 
         for preprocessor in preprocessors:
@@ -209,7 +220,7 @@ def get_embeddings_from_word_set(
 
     if verbose:
         print(f"Words found during the transformation: {selected_embeddings.keys()}")
-        print(f"Words lost during the transformation: {not_found_words}")
+        print(f"Words not found during the transformation: {not_found_words}")
 
     return not_found_words, selected_embeddings
 
@@ -245,14 +256,25 @@ def get_embeddings_from_word_set(
 
 
 def _warn_not_found_words(
-    model: WordEmbeddingModel, set_name: str, not_found_words: List[str]
+    warn_not_found_words: bool,
+    not_found_words: List[str],
+    model_name: str,
+    set_name: str,
 ) -> None:
 
-    if len(not_found_words) > 0:
-        logging.warning(
-            "The following words from set '{}' do not exist within the vocabulary "
-            "of {}: {}".format(set_name, model.model_name, not_found_words)
-        )
+    if warn_not_found_words:
+        if not isinstance(warn_not_found_words, bool):
+            raise TypeError(
+                "warn_not_found_words should be a boolean, got {}.".format(
+                    warn_not_found_words
+                )
+            )
+
+        if len(not_found_words) > 0:
+            logging.warning(
+                "The following words from set '{}' do not exist within the vocabulary "
+                "of {}: {}".format(set_name, model_name, not_found_words)
+            )
 
 
 def _check_lost_vocabulary_threshold(
@@ -260,8 +282,14 @@ def _check_lost_vocabulary_threshold(
     embeddings: EmbeddingDict,
     word_set: List[str],
     word_set_name: str,
-    lost_words_threshold: float,
+    lost_vocabulary_threshold: float,
 ):
+
+    if not isinstance(lost_vocabulary_threshold, (float, (np.floating, float))):
+        raise TypeError(
+            "lost_vocabulary_threshold should be float or np.floating, "
+            "got {}.".format(lost_vocabulary_threshold)
+        )
 
     remaining_words = list(embeddings.keys())
     number_of_lost_words = len(word_set) - len(remaining_words)
@@ -269,7 +297,7 @@ def _check_lost_vocabulary_threshold(
 
     # if the percentage of filtered words are greater than the
     # threshold, log and return False
-    if percentage_of_lost_words > lost_words_threshold:
+    if percentage_of_lost_words > lost_vocabulary_threshold:
         logging.warning(
             "The transformation of '{}' into {} embeddings lost proportionally more "
             "words than specified in 'lost_words_threshold': {} lost with respect "
@@ -277,7 +305,7 @@ def _check_lost_vocabulary_threshold(
                 word_set_name,
                 model.model_name,
                 round(percentage_of_lost_words, 2),
-                lost_words_threshold,
+                lost_vocabulary_threshold,
             )
         )
         return True
@@ -288,8 +316,10 @@ def get_embeddings_from_sets(
     model: WordEmbeddingModel,
     sets: Sequence[Sequence[str]],
     sets_name: Union[str, None] = None,
-    warn_lost_sets: bool = True,
+    preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+    strategy: str = "first",
     normalize: bool = False,
+    warn_lost_sets: bool = True,
     verbose: bool = False,
 ) -> List[EmbeddingDict]:
     """Given a sequence of word sets, obtain their corresponding embeddings.
@@ -311,8 +341,8 @@ def get_embeddings_from_sets(
         by default True
 
     verbose : bool, optional
-        Indicates whether the execution status of this function is printed in
-        the logger, by default False
+        Indicates whether the execution status of this function is printed,
+        by default False
 
     Returns
     -------
@@ -355,8 +385,8 @@ def get_embeddings_from_sets(
 
         # Transform the pair to a embedding dict.
         # idea: (word_1, word_2) -> {'word_1': embedding, 'word_2'.: embedding}
-        not_found_words, embedding_pair = model.get_embeddings_from_word_set(
-            set_, {}, None
+        not_found_words, embedding_pair = get_embeddings_from_word_set(
+            model, set_, preprocessors, strategy, normalize, verbose
         )
 
         # If some word of the current pair can not be converted, discard the pair.
@@ -399,9 +429,11 @@ def get_embeddings_from_query(
     model: WordEmbeddingModel,
     query: Query,
     lost_vocabulary_threshold: float = 0.2,
-    preprocessor_args: PreprocessorArgs = {},
-    secondary_preprocessor_args: PreprocessorArgs = None,
+    preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+    strategy: str = "first",
+    normalize: bool = False,
     warn_not_found_words: bool = False,
+    verbose: bool = True,
 ) -> Union[Tuple[EmbeddingSets, EmbeddingSets], None]:
     """Obtain the word vectors associated with the provided Query.
 
@@ -422,42 +454,55 @@ def get_embeddings_from_query(
         In the case that any set of the query loses proportionally more words
         than this limit, this method will return None.
 
-    preprocessor_args : PreprocessorArgs, optional
-        Dictionary with the arguments that specify how the pre-processing of the
-        words will be done, by default {}
-        The possible arguments for the function are:
-        - lowercase: bool. Indicates if the words are transformed to lowercase.
-        - strip_accents: bool, {'ascii', 'unicode'}: Specifies if the accents of
+    preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+        A list with preprocessor options.
+
+        A dictionary of preprocessing options is a dictionary that specifies what
+        transformations will be made to each word prior to being searched in the
+        embeddings model. For example, `{'lowecase': True, 'strip_accents': True}` will
+        allow you to search for words in the word_set transformed to lowercase and
+        without accents.
+        Note that an empty dictionary `{}` indicates that no transformation
+        will be made to any word.
+
+        A list of these preprocessor options will allow you to search for several
+        variants of the words (depending on the search strategy) into the model.
+        For example `[{}, {'lowecase': True, 'strip_accents': True}]` will allow you
+        to search for each word first without any transformation and then transformed
+        to lowercase and without accents.
+
+        The available word preprocessing options are as follows (it is not necessary
+        to put them all):
+
+        - `lowercase`: `bool`. Indicates if the words are transformed to lowercase.
+        - `uppercase`: `bool`. Indicates if the words are transformed to uppercase.
+        - `titlecase`: `bool`. Indicates if the words are transformed to titlecase.
+        - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents of
                             the words are eliminated. The stripping type can be
                             specified. True uses 'unicode' by default.
-        - preprocessor: Callable. It receives a function that operates on each
+        - `preprocessor`: `Callable`. It receives a function that operates on each
                         word. In the case of specifying a function, it overrides
                         the default preprocessor (i.e., the previous options
                         stop working).
 
-    secondary_preprocessor_args : PreprocessorArgs, optional
-        Dictionary with the arguments that specify how the secondary pre-processing
-        of the words will be done, by default None.
-        Indicates that in case a word is not found in the model's vocabulary
-        (using the default preprocessor or specified in preprocessor_args),
-        the function performs a second search for that word using the preprocessor
-        specified in this parameter.
-        Example:
-        Suppose we have the word "John" in the query and only the lowercase
-        version "john" is found in the model's vocabulary.
-        If we use preprocessor_args by default (so as not to affect the search
-        for other words that may exist in capital letters in the model), the
-        function will not be able to extract the representation of "john" even
-        if it exists in lower case.
-        However, we can use {'lowecase' : True} in preprocessor_args
-        to specify that it also looks for the lower case version of "juan",
-        without affecting the first preprocessor. Thus, this preprocessor will
-        only remain as an alternative in case the first one does not work.
+        by default [{}]
+
+    strategy : str, optional
+        The strategy indicates how it will use the preprocessed words: 'first' will
+        include only the first transformed word found. all' will include all
+        transformed words found., by default "first"
+
+    normalize : bool, optional
+        True indicates that embeddings will be normalized, by default False
 
     warn_not_found_words : bool, optional
         A flag that indicates if the function will warn (in the logger)
         the words that were not found in the model's vocabulary,
         by default False.
+
+    verbose : bool, optional
+        Indicates whether the execution status of this function is printed,
+        by default False
 
     Returns
     -------
@@ -483,33 +528,6 @@ def get_embeddings_from_query(
     if not isinstance(query, Query):
         raise TypeError("query should be an instance of Query, got {}.".format(query))
 
-    if not isinstance(lost_vocabulary_threshold, (float, (np.floating, float))):
-        raise TypeError(
-            "lost_vocabulary_threshold should be float or np.floating, "
-            "got {}.".format(lost_vocabulary_threshold)
-        )
-
-    if not isinstance(preprocessor_args, Dict):
-        raise TypeError(
-            "preprocessor_args should be a dict of preprocessor"
-            " arguments, got {}.".format(preprocessor_args)
-        )
-
-    if not isinstance(secondary_preprocessor_args, (Dict, type(None))):
-        raise TypeError(
-            "secondary_preprocessor_args should be a dict of "
-            "preprocessor arguments or None, got {}.".format(
-                secondary_preprocessor_args
-            )
-        )
-
-    if not isinstance(warn_not_found_words, bool):
-        raise TypeError(
-            "warn_not_found_words should be a boolean, got {}.".format(
-                warn_not_found_words
-            )
-        )
-
     some_set_lost_more_words_than_threshold: bool = False
 
     target_embeddings: EmbeddingSets = {}
@@ -517,19 +535,20 @@ def get_embeddings_from_query(
 
     # --------------------------------------------------------------------
     # get target sets embeddings
-    # --------------------------------------------------------------------
     for target_set, target_set_name in zip(query.target_sets, query.target_sets_names):
         not_found_words, obtained_embeddings = get_embeddings_from_word_set(
-            target_set, preprocessor_args, secondary_preprocessor_args
+            model, target_set, preprocessors, strategy, normalize, verbose,
         )
 
         # warn not found words if it is enabled.
-        if warn_not_found_words:
-            _warn_not_found_words(target_set_name, not_found_words)
+        _warn_not_found_words(
+            warn_not_found_words, not_found_words, model.model_name, target_set_name
+        )
 
         # if the lost words are greater than the threshold,
         # warn and change the flag.
         if _check_lost_vocabulary_threshold(
+            model,
             obtained_embeddings,
             target_set,
             target_set_name,
@@ -541,22 +560,22 @@ def get_embeddings_from_query(
 
     # --------------------------------------------------------------------
     # get attribute sets embeddings
-    # --------------------------------------------------------------------
     for attribute_set, attribute_set_name in zip(
         query.attribute_sets, query.attribute_sets_names
     ):
 
-        not_found_words, obtained_embeddings = self.get_embeddings_from_word_set(
-            attribute_set, preprocessor_args, secondary_preprocessor_args
+        not_found_words, obtained_embeddings = get_embeddings_from_word_set(
+            model, attribute_set, preprocessors, strategy, normalize, verbose
         )
 
-        if warn_not_found_words:
-            # warn not found words if it is enabled.
-            self._warn_not_found_words(attribute_set_name, not_found_words)
+        _warn_not_found_words(
+            warn_not_found_words, not_found_words, model.model_name, attribute_set_name
+        )
 
         # if the filtered words are greater than the threshold,
         # log and change the flag.
-        if self._check_lost_vocabulary_threshold(
+        if _check_lost_vocabulary_threshold(
+            model,
             obtained_embeddings,
             attribute_set,
             attribute_set_name,

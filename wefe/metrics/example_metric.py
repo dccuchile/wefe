@@ -1,13 +1,17 @@
 """An example of how to implement metrics in WEFE."""
 
-from typing import Any, Dict, List, Union
+from typing import Any, Callable, Dict, List, Union
 
 import numpy as np
 from scipy.spatial import distance
 
-from ..metrics.base_metric import BaseMetric
-from ..query import Query
-from ..word_embedding_model import EmbeddingDict, WordEmbeddingModel, PreprocessorArgs
+from wefe.metrics.base_metric import BaseMetric
+from wefe.query import Query
+from wefe.word_embedding_model import (
+    EmbeddingDict,
+    WordEmbeddingModel,
+)
+from wefe.preprocessing import get_embeddings_from_query
 
 
 class ExampleMetric(BaseMetric):
@@ -73,12 +77,9 @@ class ExampleMetric(BaseMetric):
         # any parameter that you need
         # ...,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessor_args: PreprocessorArgs = {
-            "strip_accents": False,
-            "lowercase": False,
-            "preprocessor": None,
-        },
-        secondary_preprocessor_args: PreprocessorArgs = None,
+        preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+        strategy: str = "first",
+        normalize: bool = False,
         warn_not_found_words: bool = False,
         *args: Any,
         **kwargs: Any
@@ -88,40 +89,56 @@ class ExampleMetric(BaseMetric):
         Parameters
         ----------
         query : Query
-            A Query object that contains the target and attribute word sets to 
-            be tested.
+            A Query object that contains the target and attribute word sets to be tested.
 
-        word_embedding : WordEmbeddingModel
-            A WordEmbeddingModel object that contains certain word embedding 
-            pretrained model.
+        word_embedding_model : WordEmbeddingModel
+            An object containing a word embeddings model.
         
         lost_vocabulary_threshold : float, optional
-            Specifies the proportional limit of words that any set of the query is 
-            allowed to lose when transforming its words into embeddings. 
-            In the case that any set of the query loses proportionally more words 
+            Specifies the proportional limit of words that any set of the query is
+            allowed to lose when transforming its words into embeddings.
+            In the case that any set of the query loses proportionally more words
             than this limit, the result values will be np.nan, by default 0.2
-        
-        preprocessor_args : PreprocessorArgs, optional
-            Dictionary with the arguments that specify how the pre-processing of the 
-            words will be done, by default {}
-            The possible arguments for the function are: 
-            - lowercase: bool. Indicates if the words are transformed to lowercase.
-            - strip_accents: bool, {'ascii', 'unicode'}: Specifies if the accents of 
-                             the words are eliminated. The stripping type can be 
-                             specified. True uses 'unicode' by default.
-            - preprocessor: Callable. It receives a function that operates on each 
-                            word. In the case of specifying a function, it overrides 
-                            the default preprocessor (i.e., the previous options 
+
+        preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+            A list with preprocessor options.
+
+            A dictionary of preprocessing options is a dictionary that specifies what
+            transformations will be made to each word prior to being searched in the
+            embeddings model. For example, `{'lowecase': True, 'strip_accents': True}`
+            will allow you to search for words in the word_set transformed to lowercase
+            and without accents.
+            Note that an empty dictionary `{}` indicates that no transformation
+            will be made to any word.
+
+            A list of these preprocessor options will allow you to search for several
+            variants of the words (depending on the search strategy) into the model.
+            For example `[{}, {'lowecase': True, 'strip_accents': True}]` will allow you
+            to search for each word first without any transformation and then transformed
+            to lowercase and without accents.
+
+            The available word preprocessing options are as follows (it is not necessary
+            to put them all):
+
+            - `lowercase`: `bool`. Indicates if the words are transformed to lowercase.
+            - `uppercase`: `bool`. Indicates if the words are transformed to uppercase.
+            - `titlecase`: `bool`. Indicates if the words are transformed to titlecase.
+            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents of
+                                the words are eliminated. The stripping type can be
+                                specified. True uses 'unicode' by default.
+            - `preprocessor`: `Callable`. It receives a function that operates on each
+                            word. In the case of specifying a function, it overrides
+                            the default preprocessor (i.e., the previous options
                             stop working).
-            , by default { 'strip_accents': False, 'lowercase': False, 'preprocessor': None, }
-        
-        secondary_preprocessor_args : PreprocessorArgs, optional
-            Dictionary with the arguments that specify how the secondary pre-processing 
-            of the words will be done, by default None.
-            Indicates that in case a word is not found in the model's vocabulary 
-            (using the default preprocessor or specified in preprocessor_args), 
-            the function performs a second search for that word using the preprocessor 
-            specified in this parameter.
+            by default [{}]
+
+        strategy : str, optional
+            The strategy indicates how it will use the preprocessed words: 'first' will
+            include only the first transformed word found. all' will include all
+            transformed words found., by default "first"
+
+        normalize : bool, optional
+            True indicates that embeddings will be normalized, by default False
 
         warn_not_found_words : bool, optional
             Specifies if the function will warn (in the logger)
@@ -135,26 +152,18 @@ class ExampleMetric(BaseMetric):
             and other scores.
         """
         # check the types of the provided arguments (only the defaults).
-        super().run_query(
-            query,
-            word_embedding,
-            lost_vocabulary_threshold,
-            preprocessor_args,
-            secondary_preprocessor_args,
-            warn_not_found_words,
-            *args,
-            **kwargs
-        )
+        self._check_input(query, word_embedding)
 
         # transform query word sets into embeddings
-        embeddings = word_embedding.get_embeddings_from_query(
+        embeddings = get_embeddings_from_query(
+            model=word_embedding,
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
-            preprocessor_args=preprocessor_args,
-            secondary_preprocessor_args=secondary_preprocessor_args,
+            preprocessors=preprocessors,
+            strategy=strategy,
+            normalize=normalize,
             warn_not_found_words=warn_not_found_words,
         )
-
         # if there is any/some set has less words than the allowed limit,
         # return the default value (nan)
         if embeddings is None:

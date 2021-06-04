@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, Union, Tuple
+from typing import Any, Callable, Dict, List, Union, Tuple
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
@@ -99,19 +99,11 @@ class BaseMetric(ABC):
         query: Query,
         word_embedding: WordEmbeddingModel,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessor_options: Dict[str, Union[bool, str, Callable, None]] = {
-            "strip_accents": False,
-            "lowercase": False,
-            "preprocessor": None,
-        },
-        secondary_preprocessor_options: Union[
-            Dict[str, Union[bool, str, Callable, None]], None
-        ] = None,
+        preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+        strategy: str = "first",
+        normalize: bool = False,
         warn_not_found_words: bool = False,
         *args: Any,
         **kwargs: Any
     ) -> Dict[str, Any]:
-
-        self._check_input(query=query, word_embedding=word_embedding)
-
-        return {}
+        raise NotImplementedError()

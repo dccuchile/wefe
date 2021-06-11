@@ -1,7 +1,7 @@
 """Bolukbasi et al. Hard Debias WEFE implementation."""
 import logging
 from copy import deepcopy
-from typing import Dict, List, Any, Optional, Sequence, Set
+from typing import Dict, List, Any, Optional, Sequence
 
 import numpy as np
 from sklearn.decomposition import PCA
@@ -10,7 +10,7 @@ from tqdm import tqdm
 from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 from wefe.debias.base_debias import BaseDebias
 from wefe.utils import check_is_fitted
-
+from wefe.preprocessing import get_embeddings_from_sets
 
 logger = logging.getLogger(__name__)
 
@@ -215,7 +215,7 @@ class HardDebias(BaseDebias):
             The word embedding model to debias.
         definitional_pairs : Sequence[Sequence[str]]
             A sequence of string pairs that will be used to define the bias direction.
-            For example, for the case of gender debias, this list could be [['woman', 
+            For example, for the case of gender debias, this list could be [['woman',
             'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
         equalize_pairs : Optional[Sequence[Sequence[str]]], optional
             A list with pairs of strings which will be equalized.
@@ -235,7 +235,6 @@ class HardDebias(BaseDebias):
         BaseDebias
             The debias method fitted.
         """
-
         # ------------------------------------------------------------------------------
         # Check arguments types
 
@@ -253,7 +252,8 @@ class HardDebias(BaseDebias):
         # Obtain the embedding of each definitional pairs.
         if verbose:
             print("Obtaining definitional pairs.")
-        self.definitional_pairs_embeddings_ = model.get_embeddings_from_sets(
+        self.definitional_pairs_embeddings_ = get_embeddings_from_sets(
+            model=model,
             sets=definitional_pairs,
             sets_name="definitional",
             warn_lost_sets=True,
@@ -296,7 +296,8 @@ class HardDebias(BaseDebias):
 
         # Get the equalization pairs embeddings candidates
         logger.debug("Obtaining equalize pairs.")
-        self.equalize_pairs_embeddings_ = model.get_embeddings_from_sets(
+        self.equalize_pairs_embeddings_ = get_embeddings_from_sets(
+            model=model,
             sets=self.equalize_pairs_candidates_,
             sets_name="equalize",
             warn_lost_sets=True,
@@ -345,7 +346,6 @@ class HardDebias(BaseDebias):
         WordEmbeddingModel
             The debiased embedding model.
         """
-
         if verbose:
             print(f"Executing Hard Debias on {model.model_name}")
 

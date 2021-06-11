@@ -1,4 +1,4 @@
-import numpy as np
+"""Tests of Hard Debias debiasing method."""
 import pytest
 from gensim.models.keyedvectors import KeyedVectors
 
@@ -10,7 +10,14 @@ from wefe.query import Query
 
 
 @pytest.fixture
-def model():
+def model() -> WordEmbeddingModel:
+    """Load a subset of Word2vec as a testing model.
+
+    Returns
+    -------
+    WordEmbeddingModel
+        The loaded testing model.
+    """
     w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
     return WordEmbeddingModel(w2v, "word2vec")
 

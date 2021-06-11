@@ -128,8 +128,8 @@ Version 0.3.0
 - Implemented Bolukbasi's Hard Debias.
 - Implemented Manzini's Multiclass Hard Debias.
 - Implemented Direct Bias metric.
-- Moved the transformation logic of words, sets and queries to embeddings to its own module
 - Implemented a fetch function to retrieve gn-glove female-male word sets.
+- Moved the transformation logic of words, sets and queries to embeddings to its own module: preprocessing
 - Enhanced the preprocessor_args and secondary_preprocessor_args metric preprocessing parameters to an list of preprocessors `preprocessors` together with the parameter `strategy` indicating whether to consider all the transformed words (`'all'`) or only the first one encountered (`'first'`).
 
 Version 0.2.0

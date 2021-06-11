@@ -206,7 +206,7 @@ class WordEmbeddingModel:
                 f"word should be a string, got {word} with type {type(word)}."
             )
 
-        if word not in self.model.vocab:
+        if word not in self.model.key_to_index:
             raise ValueError(f"word '{word}' not in model vocab.")
 
         if not isinstance(embedding, np.ndarray):
@@ -229,16 +229,14 @@ class WordEmbeddingModel:
             )
 
         if gensim_version.major >= 4:
-            word_index = self.model.get_index(word)
+            word_index = self.model.key_to_index[word]
         else:
             word_index = self.model.vocab[word].index
 
         self.model.vectors[word_index] = embedding
 
     def update_embeddings(
-        self,
-        words: Sequence[str],
-        embeddings: Union[Sequence[np.ndarray], np.ndarray],
+        self, words: Sequence[str], embeddings: Union[Sequence[np.ndarray], np.ndarray],
     ):
         """Update a list of embeddings.
 

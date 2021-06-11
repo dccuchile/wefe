@@ -262,13 +262,14 @@ def _warn_not_found_words(
     set_name: str,
 ) -> None:
 
-    if warn_not_found_words:
-        if not isinstance(warn_not_found_words, bool):
-            raise TypeError(
-                "warn_not_found_words should be a boolean, got {}.".format(
-                    warn_not_found_words
-                )
+    if not isinstance(warn_not_found_words, bool):
+        raise TypeError(
+            "warn_not_found_words should be a boolean, got {}.".format(
+                warn_not_found_words
             )
+        )
+
+    if warn_not_found_words:
 
         if len(not_found_words) > 0:
             logging.warning(
@@ -287,7 +288,7 @@ def _check_lost_vocabulary_threshold(
 
     if not isinstance(lost_vocabulary_threshold, (float, (np.floating, float))):
         raise TypeError(
-            "lost_vocabulary_threshold should be float or np.floating, "
+            "lost_vocabulary_threshold should be float, "
             "got {}.".format(lost_vocabulary_threshold)
         )
 
@@ -326,6 +327,8 @@ def get_embeddings_from_sets(
 
     Parameters
     ----------
+    model
+
     sets :  Sequence[Sequence[str]]
         A sequence containing word sets.
         Example: `[['woman', 'man'], ['she', 'he'], ['mother', 'father'] ...]`.
@@ -351,6 +354,8 @@ def get_embeddings_from_sets(
         and as values their associated embeddings.
 
     """
+
+    # TODO: Agregar comprobación para model.
     if not isinstance(sets, (list, tuple, np.ndarray)):
         raise TypeError(
             "sets should be a sequence of sequences (list, tuple or np.array) "

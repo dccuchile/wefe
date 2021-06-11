@@ -9,7 +9,14 @@ from wefe.metrics import WEAT, RND, RNSB, MAC, ECT
 
 
 @pytest.fixture
-def model():
+def model() -> WordEmbeddingModel:
+    """Load a subset of Word2vec as a testing model.
+
+    Returns
+    -------
+    WordEmbeddingModel
+        The loaded testing model.
+    """
     w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
     return WordEmbeddingModel(w2v, "word2vec")
 

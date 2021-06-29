@@ -141,7 +141,7 @@ class HardDebias(BaseDebias):
         """
         return u - v * u.dot(v) / v.dot(v)
 
-    def _neutralize_embeddings(
+    def _neutralize(
         self,
         model: WordEmbeddingModel,
         bias_direction: np.ndarray,
@@ -168,7 +168,7 @@ class HardDebias(BaseDebias):
                     current_embedding, bias_direction  # type: ignore
                 )
                 neutralized_embedding = neutralized_embedding.astype(np.float32)
-                model.update_embedding(word, neutralized_embedding)
+                model.update(word, neutralized_embedding)
 
             # if idx in info_log:
             #     print(
@@ -176,7 +176,7 @@ class HardDebias(BaseDebias):
             #         f"- Current word index: {idx}"
             #     )
 
-    def _equalize_embeddings(
+    def _equalize(
         self,
         embedding_model: WordEmbeddingModel,
         equalize_pairs_embeddings: List[EmbeddingDict],
@@ -199,15 +199,15 @@ class HardDebias(BaseDebias):
             new_b = -z * bias_direction + y
 
             # Update the embedding set with the equalized embeddings
-            embedding_model.update_embedding(word_a, new_a.astype(np.float32))
-            embedding_model.update_embedding(word_b, new_b.astype(np.float32))
+            embedding_model.update(word_a, new_a.astype(np.float32))
+            embedding_model.update(word_b, new_b.astype(np.float32))
 
     def fit(
         self,
         model: WordEmbeddingModel,
         definitional_pairs: Sequence[Sequence[str]],
         equalize_pairs: Optional[Sequence[Sequence[str]]] = None,
-        debias_criterion_name: Optional[str] = None,
+        criterion_name: Optional[str] = None,
     ) -> BaseDebias:
         """Compute the bias direction and obtains the equalize embedding pairs.
 
@@ -224,7 +224,7 @@ class HardDebias(BaseDebias):
             In the case of passing None, the equalization will be done over the word
             pairs passed in definitional_pairs,
             by default None.
-        debias_criterion_name : Optional[str], optional
+        criterion_name : Optional[str], optional
             The name of the criterion for which the debias is being executed,
             e.g. 'Gender'. This will indicate the name of the model returning transform,
             by default None
@@ -240,11 +240,11 @@ class HardDebias(BaseDebias):
         # ------------------------------------------------------------------------------
         # Check arguments types
 
-        if debias_criterion_name is None or isinstance(debias_criterion_name, str):
-            self.debias_criterion_name_ = debias_criterion_name
+        if criterion_name is None or isinstance(criterion_name, str):
+            self.debias_criterion_name_ = criterion_name
         else:
             raise ValueError(
-                f"debias_criterion_name should be str, got: {debias_criterion_name}"
+                f"debias_criterion_name should be str, got: {criterion_name}"
             )
 
         self._check_sets_size(definitional_pairs, "definitional")
@@ -362,7 +362,7 @@ class HardDebias(BaseDebias):
         )
 
         if self.verbose:
-            print(f"Executing Hard Debias on {model.model_name}")
+            print(f"Executing Hard Debias on {model.name}")
         # ------------------------------------------------------------------------------
         # Copy
         if copy:
@@ -385,12 +385,12 @@ class HardDebias(BaseDebias):
         # Normalize embeddings
         if self.verbose:
             print("Normalizing embeddings.")
-        model.normalize_embeddings()
+        model.normalize()
 
         # Neutralize the embeddings:
         if self.verbose:
             print("Neutralizing embeddings")
-        self._neutralize_embeddings(
+        self._neutralize(
             model=model,
             bias_direction=self.bias_direction_,
             target=target,
@@ -399,32 +399,32 @@ class HardDebias(BaseDebias):
 
         if self.verbose:
             print("Normalizing embeddings.")
-        model.normalize_embeddings()
+        model.normalize()
         # ------------------------------------------------------------------------------
         # Execute Equalization:
 
         if self.verbose:
             print("Equalizing embeddings.")
 
-        self._equalize_embeddings(
+        self._equalize(
             model, self.equalize_pairs_embeddings_, self.bias_direction_,
         )
 
         if self.verbose:
             print("Normalizing embeddings.")
-        model.normalize_embeddings()
+        model.normalize()
 
         # ------------------------------------------------------------------------------
         # # Generate the new KeyedVectors
         if self.debias_criterion_name_ is not None:
             new_model_name = (
-                f"{model.model_name}_{self.debias_criterion_name_}_debiased"
+                f"{model.name}_{self.debias_criterion_name_}_debiased"
             )
         else:
             new_model_name = (
-                f"{model.model_name}_{self.debias_criterion_name_}_debiased"
+                f"{model.name}_{self.debias_criterion_name_}_debiased"
             )
-        model.model_name = new_model_name
+        model.name = new_model_name
 
         if self.verbose:
             print("Done!")

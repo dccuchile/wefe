@@ -71,6 +71,7 @@ def check_is_fitted(estimator, attributes):
     _check_is_fitted(estimator, attributes, msg=msg)
 
 
+
 # -----------------------------------------------------------------------------
 # ---------------------------------- Runners ----------------------------------
 # -----------------------------------------------------------------------------
@@ -156,8 +157,7 @@ def run_queries(
     return_only_aggregation: bool = False,
     warn_not_found_words: bool = False,
 ) -> pd.DataFrame:
-    """Run several queries over a several word embedding models using a
-    specific metic.
+    """Run several queries over a several word embedding models using a specific metic.
 
     Parameters
     ----------
@@ -308,7 +308,7 @@ def run_queries(
                     warn_not_found_words=warn_not_found_words,
                     **metric_params,
                 )
-                result["model_name"] = model.model_name
+                result["model_name"] = model.name
                 results.append(result)
 
                 if result["query_name"] not in query_names:
@@ -316,7 +316,7 @@ def run_queries(
     except Exception as e:
         raise Exception(
             "Error during executing the query: {} on the model: {}".format(
-                query.query_name, model.model_name
+                query.query_name, model.name
             )
         )
 
@@ -326,7 +326,7 @@ def run_queries(
         index="model_name", columns="query_name", values="result"
     )
     pivoted_results = pivoted_results.reindex(
-        index=[model.model_name for model in models], columns=query_names,
+        index=[model.name for model in models], columns=query_names,
     )
 
     if aggregate_results:

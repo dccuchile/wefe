@@ -303,9 +303,9 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
         female_terms = gender_definitional_sets[:, 1].tolist()
         male_terms = gender_definitional_sets[:, 0].tolist()
 
-        gender_related_words = gender_attributes["analogy_templates"]["role"]
-        male_roles = gender_related_words["man"]
-        female_roles = gender_related_words["woman"]
+        gender_analogy_templates = gender_attributes["analogy_templates"]["role"]
+        male_roles = gender_analogy_templates["man"]
+        female_roles = gender_analogy_templates["woman"]
 
     # fetch race
     with urllib.request.urlopen(BASE_URL + WORD_SETS_FILES[1]) as file:
@@ -317,10 +317,10 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
         white = np.unique(race_definitional_sets[:, 1]).tolist()
         asian = np.unique(race_definitional_sets[:, 2]).tolist()
 
-        race_related_words = race_attributes["analogy_templates"]["role"]
-        white_biased_words = race_related_words["caucasian"]
-        asian_biased_words = race_related_words["asian"]
-        black_biased_words = race_related_words["black"]
+        race_analogy_templates = race_attributes["analogy_templates"]["role"]
+        white_biased_words = race_analogy_templates["caucasian"]
+        asian_biased_words = race_analogy_templates["asian"]
+        black_biased_words = race_analogy_templates["black"]
 
     # fetch religion
     with urllib.request.urlopen(BASE_URL + WORD_SETS_FILES[2]) as file:
@@ -332,10 +332,12 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
         christianity = np.unique(religion_definitional_sets[:, 1]).tolist()
         islam = np.unique(religion_definitional_sets[:, 2]).tolist()
 
-        religion_related_words = religion_attributes["analogy_templates"]["attribute"]
-        greed = religion_related_words["jew"]
-        conservative = religion_related_words["christian"]
-        terrorism = religion_related_words["muslim"]
+        religion_analogy_templates = religion_attributes["analogy_templates"][
+            "attribute"
+        ]
+        greed = religion_analogy_templates["jew"]
+        conservative = religion_analogy_templates["christian"]
+        terrorism = religion_analogy_templates["muslim"]
 
     word_sets_dict = {
         "male_terms": male_terms,
@@ -357,6 +359,9 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
         "gender_definitional_sets": gender_definitional_sets.tolist(),
         "race_definitional_sets": race_definitional_sets.tolist(),
         "religion_definitional_sets": religion_definitional_sets.tolist(),
+        "gender_analogy_templates": gender_analogy_templates,
+        "race_analogy_templates": race_analogy_templates,
+        "religion_analogy_templates": religion_analogy_templates,
     }
     return word_sets_dict
 

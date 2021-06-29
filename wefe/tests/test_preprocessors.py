@@ -440,7 +440,7 @@ def test_warn_not_found_words(caplog):
 
 def test_get_embeddings_from_query(caplog, simple_query, model: WordEmbeddingModel):
     query, flowers, insects, pleasant, unpleasant = simple_query
-    w2v = model.model
+    w2v = model.wv
     # test types
 
     # target sets None
@@ -495,7 +495,7 @@ def test_get_embeddings_from_query(caplog, simple_query, model: WordEmbeddingMod
 
 def test_preprocessor_args_on_get_embeddings_from_query(caplog, simple_query, model):
     _, flowers, insects, pleasant, unpleasant = simple_query
-    w2v = model.model
+    w2v = model.wv
 
     # with lost words and warn_not_found_words=True
     flowers_2 = flowers + ["aaa", "bbb"]

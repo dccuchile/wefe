@@ -23,12 +23,12 @@ gensim_version = semantic_version.Version.coerce(gensim.__version__)
 def test_load_weat_w2v():
     test_model = load_test_model()
     assert isinstance(test_model, WordEmbeddingModel)
-    assert isinstance(test_model.model, KeyedVectors)
+    assert isinstance(test_model.wv, KeyedVectors)
 
     NUM_OF_EMBEDDINGS_IN_TEST_MODEL = 13013
     if gensim_version.major >= 4:
-        assert len(test_model.model) == NUM_OF_EMBEDDINGS_IN_TEST_MODEL
-        for word in test_model.model.key_to_index:
+        assert len(test_model.wv) == NUM_OF_EMBEDDINGS_IN_TEST_MODEL
+        for word in test_model.wv.key_to_index:
             assert isinstance(test_model[word], np.ndarray)
     else:
         assert len(test_model.vocab.keys()) == NUM_OF_EMBEDDINGS_IN_TEST_MODEL
@@ -79,9 +79,9 @@ def queries_and_models():
     negative_test_queries = [test_query_1, test_query_2]
 
     test_model = load_test_model()
-    dummy_model_1 = test_model.model
-    dummy_model_2 = test_model.model
-    dummy_model_3 = test_model.model
+    dummy_model_1 = test_model.wv
+    dummy_model_2 = test_model.wv
+    dummy_model_3 = test_model.wv
 
     models = [
         WordEmbeddingModel(dummy_model_1, "dummy_model_1"),

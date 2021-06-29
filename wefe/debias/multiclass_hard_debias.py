@@ -84,7 +84,28 @@ class MulticlassHardDebias(BaseDebias):
             v_b += np.dot(vector.transpose(), component) * component
         return v_b
 
-    def _neutralize_embeddings(
+    def _get_target(
+        self, model: WordEmbeddingModel, target: Optional[Sequence[str]] = None,
+    ) -> List[str]:
+
+        definitional_words = np.array(self.definitional_sets_).flatten().tolist()
+
+        if target is not None:
+            # keep only words in the model's vocab.
+            target = list(
+                filter(
+                    lambda x: x in model.vocab and x not in definitional_words, target,
+                )
+            )
+        else:
+            # indicate that all words are canditates to neutralize.
+            target = list(
+                filter(lambda x: x not in definitional_words, model.vocab.keys(),)
+            )
+
+        return target
+
+    def _neutralize(
         self,
         model: WordEmbeddingModel,
         bias_subspace: np.ndarray,
@@ -104,48 +125,17 @@ class MulticlassHardDebias(BaseDebias):
         for word in tqdm(target_):
             if word not in ignore_:
                 # get the embedding
-                embedding = model[word]
+                v = model[word]
                 # neutralize the embedding if the word is not in the definitional words.
-                projection = self._project_onto_subspace(embedding, bias_subspace)
+                v_b = self._project_onto_subspace(v, bias_subspace)
                 # neutralize the embedding
-                neutralized_embedding = (embedding - projection) / np.linalg.norm(
-                    embedding - projection
-                )
+                new_v = (v - v_b) / np.linalg.norm(v - v_b)
                 # update the old values
-                model.update_embedding(word, neutralized_embedding)
+                model.update(word, new_v)
 
-    def _get_words_to_neutralize(
+    def _equalize(
         self,
-        word_embedding_model: WordEmbeddingModel,
-        definitional_sets: Sequence[Sequence[str]],
-        words_to_neutralize: Optional[Sequence[str]] = None,
-    ) -> List[str]:
-
-        definitional_words = np.array(definitional_sets).flatten().tolist()
-
-        if words_to_neutralize is not None:
-            # keep only words in the model's vocab.
-            words_to_neutralize = list(
-                filter(
-                    lambda x: x in word_embedding_model.vocab
-                    and x not in definitional_words,
-                    words_to_neutralize,
-                )
-            )
-        else:
-            # indicate that neutralize all words.
-            words_to_neutralize = list(
-                filter(
-                    lambda x: x not in definitional_words,
-                    word_embedding_model.vocab.keys(),
-                )
-            )
-
-        return words_to_neutralize
-
-    def _equalize_embeddings(
-        self,
-        embedding_model: WordEmbeddingModel,
+        model: WordEmbeddingModel,
         equalize_sets_embeddings: List[EmbeddingDict],
         bias_subspace: np.ndarray,
     ):
@@ -154,22 +144,26 @@ class MulticlassHardDebias(BaseDebias):
             words = equalize_pair_embeddings.keys()
             embeddings = np.array(list(equalize_pair_embeddings.values()))
 
+            # calculate the mean of the equality set
             mean = np.mean(embeddings, axis=0)
+            # project the mean in the bias subspace
             mean_b = self._project_onto_subspace(mean, bias_subspace)
+            # discard the projection from the mean
             upsilon = mean - mean_b
 
             for (word, embedding) in zip(words, embeddings):
                 v_b = self._project_onto_subspace(embedding, bias_subspace)
                 frac = (v_b - mean_b) / np.linalg.norm(v_b - mean_b)
                 new_v = upsilon + np.sqrt(1 - np.sum(np.square(upsilon))) * frac
-                embedding_model.update_embedding(word, new_v)
+                model.update(word, new_v)
 
     def fit(
         self,
         model: WordEmbeddingModel,
         definitional_sets: Sequence[Sequence[str]],
+        equalize_sets: Sequence[Sequence[str]],
         criterion_name: Optional[str] = None,
-    ) -> "BaseDebias":
+    ) -> BaseDebias:
         """Compute the bias direction and obtains the equalize embedding pairs.
 
         Parameters
@@ -183,7 +177,7 @@ class MulticlassHardDebias(BaseDebias):
         equalize_pairs : Optional[Sequence[Sequence[str]]], optional
             A list with pairs of strings which will be equalized.
             In the case of passing None, the equalization will be done over the word
-            pairs passed in definitional_pairs,
+            pairs passed in definitional_sets,
             by default None.
         criterion_name : Optional[str], optional
             The name of the criterion for which the debias is being executed,
@@ -198,11 +192,12 @@ class MulticlassHardDebias(BaseDebias):
         BaseDebias
             The debias method fitted.
         """
-        self.debias_criterion_name = criterion_name
+        self.criterion_name_ = criterion_name
         # ------------------------------------------------------------------------------:
         # Obtain the embedding of the definitional sets.
 
-        logger.debug("Obtaining definitional sets.")
+        if self.verbose:
+            print("Obtaining definitional sets.")
         self.definitional_sets_ = definitional_sets
         self.definitional_sets_embeddings_ = get_embeddings_from_sets(
             model=model,
@@ -215,24 +210,27 @@ class MulticlassHardDebias(BaseDebias):
 
         # ------------------------------------------------------------------------------:
         # Identify the bias subspace using the definning sets.
-        logger.debug("Identifying the bias subspace.")
+        if self.verbose:
+            print("Identifying the bias subspace.")
         self.pca_ = self._identify_bias_subspace(self.definitional_sets_embeddings_,)
-        self.bias_direction_ = self.pca_.components_[: self.pca_num_components_]
+        self.bias_subspace_ = self.pca_.components_[: self.pca_num_components_]
 
         # ------------------------------------------------------------------------------
         # Equalize embeddings:
 
         # Get the equalization sets embeddings.
         # Note that the equalization sets are the same as the definitional sets.
-        logger.debug("Obtaining equalize pairs.")
-        self._equalize_pairs_embeddings = get_embeddings_from_sets(
+        if self.verbose:
+            print("Obtaining equalize pairs.")
+        self.equalize_sets_embeddings_ = get_embeddings_from_sets(
             model=model,
-            sets=definitional_sets,
+            sets=equalize_sets,
             sets_name="equalize",
             normalize=True,
             warn_lost_sets=True,
             verbose=self.verbose,
         )
+        return self
 
     def transform(
         self,
@@ -249,8 +247,9 @@ class MulticlassHardDebias(BaseDebias):
             The word embedding model to debias.
         target : Optional[List[str]], optional
             If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. In the case of provide `None`, the
-            debias will be performed on all words (except those specified in ignore).
+            only on the word embeddings of this set. If target is `None`, the
+            debias will be performed over all vocab (except those specified in ignore
+            and the definitional_sets).
             by default `None`.
         ignore : Optional[List[str]], optional
             If target is `None` and a set of words is specified in ignore, the debias
@@ -279,12 +278,12 @@ class MulticlassHardDebias(BaseDebias):
                 "definitional_sets_",
                 "definitional_sets_embeddings_",
                 "pca_",
-                "bias_direction_",
+                "bias_subspace_",
             ],
         )
 
         if self.verbose:
-            print(f"Executing Multiclass Hard Debias on {model.model_name}")
+            print(f"Executing Multiclass Hard Debias on {model.name}")
 
         # ------------------------------------------------------------------------------
         # Copy
@@ -307,54 +306,50 @@ class MulticlassHardDebias(BaseDebias):
         # if target is None, the debias will be performed in all embeddings.
         if self.verbose:
             print("Normalizing embeddings.")
-        target = self._get_words_to_neutralize(model, self.definitional_sets_, target)
+        model.normalize()
 
         # Neutralize the embeddings:
         if self.verbose:
             print("Neutralizing embeddings")
-        self._neutralize_embeddings(
+
+        # get the words that will be debiased.
+        target = self._get_target(model, target)
+        self._neutralize(
             model=model,
-            bias_subspace=self.bias_direction_,
+            bias_subspace=self.bias_subspace_,
             target=target,
             ignore=ignore,
         )
 
         if self.verbose:
             print("Normalizing embeddings.")
-        model.normalize_embeddings()
+        model.normalize()
+
         # ------------------------------------------------------------------------------
         # Equalize embeddings:
 
-        # Get the equalization sets embeddings.
-        # Note that the equalization sets are the same as the definitional sets.
-        logger.debug("Obtaining equalize pairs.")
-        self._equalize_pairs_embeddings = get_embeddings_from_sets(
-            model=model,
-            sets=self.definitional_sets_,
-            sets_name="equalize",
-            warn_lost_sets=True,
-            verbose=self.verbose,
-        )
-
         # Execute the equalization
         logger.debug("Equalizing embeddings..")
-        self._equalize_embeddings(
-            model, self._equalize_pairs_embeddings, self.bias_direction_,
+        self._equalize(
+            model=model,
+            equalize_sets_embeddings=self.equalize_sets_embeddings_,
+            bias_subspace=self.bias_subspace_,
         )
 
         # ------------------------------------------------------------------------------
-        logger.debug("Normalizing embeddings.")
-        model.normalize_embeddings()
+        if self.verbose:
+            print("Normalizing embeddings.")
+        model.normalize()
 
         # ------------------------------------------------------------------------------
         # # Generate the new KeyedVectors
-        if self.debias_criterion_name is not None:
-            new_model_name = f"{model.model_name}_{self.debias_criterion_name}_debiased"
+        if self.criterion_name_ is not None:
+            new_model_name = f"{model.name}_{self.criterion_name_}_debiased"
         else:
-            new_model_name = f"{model.model_name}_{self.debias_criterion_name}_debiased"
-        model.model_name = new_model_name
+            new_model_name = f"{model.name}_{self.criterion_name_}_debiased"
+        model.name = new_model_name
 
-        logger.info("Done!")
-        logger.setLevel(logging.INFO)
+        if self.verbose:
+            print("Done!")
 
         return model

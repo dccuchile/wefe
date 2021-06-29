@@ -304,7 +304,7 @@ def _check_lost_vocabulary_threshold(
             "words than specified in 'lost_words_threshold': {} lost with respect "
             "to {} maximum loss allowed.".format(
                 word_set_name,
-                model.model_name,
+                model.name,
                 round(percentage_of_lost_words, 2),
                 lost_vocabulary_threshold,
             )
@@ -555,7 +555,7 @@ def get_embeddings_from_query(
 
         # warn not found words if it is enabled.
         _warn_not_found_words(
-            warn_not_found_words, not_found_words, model.model_name, target_set_name
+            warn_not_found_words, not_found_words, model.name, target_set_name
         )
 
         # if the lost words are greater than the threshold,
@@ -587,7 +587,7 @@ def get_embeddings_from_query(
         )
 
         _warn_not_found_words(
-            warn_not_found_words, not_found_words, model.model_name, attribute_set_name
+            warn_not_found_words, not_found_words, model.name, attribute_set_name
         )
 
         # if the filtered words are greater than the threshold,

@@ -25,16 +25,16 @@ class WordEmbeddingModel:
     """
 
     def __init__(
-        self, model: BaseKeyedVectors, model_name: str = None, vocab_prefix: str = None
+        self, wv: BaseKeyedVectors, name: str = None, vocab_prefix: str = None
     ):
         """Initialize the word embedding model.
 
         Parameters
         ----------
-        model : BaseKeyedVectors.
+        wv : BaseKeyedVectors.
             An instance of word embedding loaded through gensim KeyedVector
             interface or gensim's api.
-        model_name : str, optional
+        name : str, optional
             The name of the model, by default ''.
         vocab_prefix : str, optional.
             A prefix that will be concatenated with all word in the model
@@ -60,7 +60,7 @@ class WordEmbeddingModel:
 
         >>> model = WordEmbeddingModel(dummy_model, 'Dummy model dim=10',
         ...                            vocab_prefix='/en/')
-        >>> print(model.model_name)
+        >>> print(model.name)
         Dummy model dim=10
         >>> print(model.vocab_prefix)
         /en/
@@ -68,7 +68,7 @@ class WordEmbeddingModel:
 
         Attributes
         ----------
-        model : BaseKeyedVectors
+        wv : BaseKeyedVectors
             The model.
         vocab :
             The vocabulary of the model (a dict with the words that have an associated
@@ -81,16 +81,14 @@ class WordEmbeddingModel:
 
         """
         # Type checking
-        if not isinstance(model, BaseKeyedVectors):
+        if not isinstance(wv, BaseKeyedVectors):
             raise TypeError(
-                "model should be an instance of gensim's BaseKeyedVectors"
-                ", got {}.".format(model)
+                "wv should be an instance of gensim's BaseKeyedVectors"
+                ", got {}.".format(wv)
             )
 
-        if not isinstance(model_name, (str, type(None))):
-            raise TypeError(
-                "model_name should be a string or None, got {}.".format(model_name)
-            )
+        if not isinstance(name, (str, type(None))):
+            raise TypeError("name should be a string or None, got {}.".format(name))
 
         if not isinstance(vocab_prefix, (str, type(None))):
             raise TypeError(
@@ -98,19 +96,19 @@ class WordEmbeddingModel:
             )
 
         # Assign the attributes
-        self.model = model
+        self.wv = wv
 
         # Obtain the vocabulary
         if gensim_version.major == 4:
-            self.vocab = model.key_to_index
+            self.vocab = wv.key_to_index
         else:
-            self.vocab = model.vocab
+            self.vocab = wv.vocab
 
         self.vocab_prefix = vocab_prefix
-        if model_name is None:
-            self.model_name = "Unnamed word embedding model"
+        if name is None:
+            self.name = "Unnamed model"
         else:
-            self.model_name = model_name
+            self.name = name
 
     def __eq__(self, other) -> bool:
         """Check if other is the same WordEmbeddingModel that self.
@@ -128,9 +126,9 @@ class WordEmbeddingModel:
         """
         if not isinstance(other, WordEmbeddingModel):
             return False
-        if self.model != other.model:
+        if self.wv != other.wv:
             return False
-        if self.model_name != other.model_name:
+        if self.name != other.name:
             return False
         if self.vocab_prefix != other.vocab_prefix:
             return False
@@ -151,28 +149,24 @@ class WordEmbeddingModel:
             exist in the model.
         """
         if key in self.vocab:
-            return self.model[key]
+            return self.wv[key]
         else:
             return None
 
-    def normalize_embeddings(self):
+    def normalize(self):
         """Normalize word embeddings in the model by using the L2 norm.
 
         Use the `init_sims` function of the gensim's `KeyedVectors` class.
         **Warning**: This operation is inplace. In other words, it replaces the
         embeddings with their L2 normalized versions.
 
-        Parameters
-        ----------
-        replace : bool, optional
-            [description], by default True
         """
-        if hasattr(self.model, "init_sims"):
-            self.model.init_sims(replace=True)
+        if hasattr(self.wv, "init_sims"):
+            self.wv.init_sims(replace=True)
         else:
             raise TypeError("The model does not have the init_sims method implemented.")
 
-    def update_embedding(self, word: str, embedding: np.ndarray):
+    def update(self, word: str, embedding: np.ndarray):
         """Update the value of an embedding of the model.
 
         If the method is executed with a word that is not in the vocabulary, an
@@ -206,7 +200,7 @@ class WordEmbeddingModel:
                 f"word should be a string, got {word} with type {type(word)}."
             )
 
-        if word not in self.model.key_to_index:
+        if word not in self.wv.key_to_index:
             raise ValueError(f"word '{word}' not in model vocab.")
 
         if not isinstance(embedding, np.ndarray):
@@ -216,29 +210,29 @@ class WordEmbeddingModel:
             )
 
         embedding_size = embedding.shape[0]
-        if self.model.vector_size != embedding_size:
+        if self.wv.vector_size != embedding_size:
             raise ValueError(
                 f"The size of '{word}' embedding ({embedding_size}) is different from "
-                f"the size of the embeddings in the model ({self.model.vector_size})."
+                f"the size of the embeddings in the model ({self.wv.vector_size})."
             )
 
-        if not np.issubdtype(self.model.vectors.dtype, embedding.dtype):
+        if not np.issubdtype(self.wv.vectors.dtype, embedding.dtype):
             raise ValueError(
                 f"embedding dtype ({embedding.dtype}) is not the same of model's dtype "
-                f"({self.model.vectors.dtype})."
+                f"({self.wv.vectors.dtype})."
             )
 
         if gensim_version.major >= 4:
-            word_index = self.model.key_to_index[word]
+            word_index = self.wv.key_to_index[word]
         else:
-            word_index = self.model.vocab[word].index
+            word_index = self.wv.vocab[word].index
 
-        self.model.vectors[word_index] = embedding
+        self.wv.vectors[word_index] = embedding
 
-    def update_embeddings(
+    def batch_update(
         self, words: Sequence[str], embeddings: Union[Sequence[np.ndarray], np.ndarray],
     ):
-        """Update a list of embeddings.
+        """Update a batch of embeddings.
 
         This method calls `update_embedding` method with each of the word-embedding
         pairs.
@@ -285,4 +279,4 @@ class WordEmbeddingModel:
             )
 
         for idx, word in enumerate(words):
-            self.update_embedding(word, embeddings[idx])
+            self.update(word, embeddings[idx])

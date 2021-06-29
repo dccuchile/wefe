@@ -105,17 +105,21 @@ def test_fetch_debias_multiclass():
         "gender_definitional_sets",
         "race_definitional_sets",
         "religion_definitional_sets",
+        "gender_analogy_templates",
+        "race_analogy_templates",
+        "religion_analogy_templates",
     ]
 
-    assert len(list(debias_multiclass_dataset.keys())) == 19
+    assert len(list(debias_multiclass_dataset.keys())) == 22
 
     for set_name, set_ in debias_multiclass_dataset.items():
         assert isinstance(set_name, str)
-        assert isinstance(set_, list)
-        assert len(set_) > 0
-        for word in set_:
-            assert isinstance(word, (str, list))
-            assert len(word) > 0
+        assert isinstance(set_, (list, dict))
+        if isinstance(set_, list):
+            assert len(set_) > 0
+            for word in set_:
+                assert isinstance(word, (str, list))
+                assert len(word) > 0
 
 
 def test_load_weat():

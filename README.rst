@@ -53,13 +53,13 @@ Installation
 There are two different ways to install WEFE: 
 
 
-To install the package with ``pip``   ::
+To install the package with ```pip```   ::
 
     pip install wefe
 
 - With conda: 
 
-To install the package with ``conda``::
+To install the package with ```conda```::
 
     conda install -c pbadilla wefe 
 
@@ -125,26 +125,27 @@ Changelog
 
 Version 0.3.0
 -------------
-- Implemented Bolukbasi's Hard Debias.
-- Implemented Manzini's Multiclass Hard Debias.
+- Implemented Bolukbasi et al. Hard Debias.
+- Implemented  Thomas Manzini et al. Multiclass Hard Debias.
 - Implemented Direct Bias metric.
 - Implemented a fetch function to retrieve gn-glove female-male word sets.
 - Moved the transformation logic of words, sets and queries to embeddings to its own module: preprocessing
 - Enhanced the preprocessor_args and secondary_preprocessor_args metric preprocessing parameters to an list of preprocessors `preprocessors` together with the parameter `strategy` indicating whether to consider all the transformed words (`'all'`) or only the first one encountered (`'first'`).
+- Renamed WordEmbeddingModel attributes ```model``` and ```model_name```  to `wv` and ```name``` respectively.
 
 Version 0.2.0
 --------------
 
-- Renamed optional ``run_query`` parameter  ``warn_filtered_words`` to `warn_not_found_words`.
-- Added ``word_preprocessor_args`` parameter to ``run_query`` that allows to specify transformations prior to searching for words in word embeddings.
-- Added ``secondary_preprocessor_args`` parameter to ``run_query`` which allows to specify a second pre-processor transformation to words before searching them in word embeddings. It is not necessary to specify the first preprocessor to use this one.
-- Implemented ``__getitem__`` function in ``WordEmbeddingModel``. This method allows to obtain an embedding from a word from the model stored in the instance using indexers. 
+- Renamed optional ```run_query``` parameter  ```warn_filtered_words``` to `warn_not_found_words`.
+- Added ```word_preprocessor_args``` parameter to ```run_query``` that allows to specify transformations prior to searching for words in word embeddings.
+- Added ```secondary_preprocessor_args``` parameter to ```run_query``` which allows to specify a second pre-processor transformation to words before searching them in word embeddings. It is not necessary to specify the first preprocessor to use this one.
+- Implemented ```__getitem__``` function in ```WordEmbeddingModel```. This method allows to obtain an embedding from a word from the model stored in the instance using indexers. 
 - Removed underscore from class and instance variable names.
 - Improved type and verification exception messages when creating objects and executing methods.
 - Fix an error that appeared when calculating rankings with two columns of aggregations with the same name.
-- Ranking correlations are now calculated using pandas ``corr`` method. 
+- Ranking correlations are now calculated using pandas ```corr``` method. 
 - Changed metric template, name and short_names to class variables.
-- Implemented ``random_state`` in RNSB to allow replication of the experiments.
+- Implemented ```random_state``` in RNSB to allow replication of the experiments.
 - run_query now returns as a result the default metric requested in the parameters and all calculated values that may be useful in the other variables of the dictionary.
 - Fixed problem with api documentation: now it shows methods of the classes.
 - Implemented p-value for WEAT

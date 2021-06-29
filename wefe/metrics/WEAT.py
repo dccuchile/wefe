@@ -1,4 +1,4 @@
-"""Word Embedding Assosiation Test (WEAT) metric implementation"""
+"""Word Embedding Assosiation Test (WEAT) metric implementation."""
 import logging
 import math
 from typing import Any, Callable, Dict, List, Set, Tuple, Union
@@ -186,19 +186,16 @@ class WEAT(BaseMetric):
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
-        *args: Any,
-        **kwargs: Any,
     ) -> Dict[str, Any]:
         """Calculate the WEAT metric over the provided parameters.
 
         Parameters
         ----------
         query : Query
-            A Query object that contains the target and attribute word sets to
-            be tested.
+            A Query object that contains the target and attribute sets to be tested.
 
         word_embedding_model : WordEmbeddingModel
-            An object containing a word embeddings model.
+            An object containing a word embedding model.
 
         return_effect_size : bool, optional
             Specifies if the returned score in 'result' field of results dict
@@ -238,17 +235,18 @@ class WEAT(BaseMetric):
 
             A dictionary of preprocessing options is a dictionary that specifies what
             transformations will be made to each word prior to being searched in the
-            embeddings model. For example, `{'lowecase': True, 'strip_accents': True}` will
-            allow you to search for words in the word_set transformed to lowercase and
-            without accents.
+            word embedding model vocabulary.
+            For example, `{'lowecase': True, 'strip_accents': True}` allows you to
+            transform the words to lowercase and remove the accents and then search
+            for them in the model.
             Note that an empty dictionary `{}` indicates that no transformation
             will be made to any word.
 
             A list of these preprocessor options will allow you to search for several
             variants of the words (depending on the search strategy) into the model.
-            For example `[{}, {'lowecase': True, 'strip_accents': True}]` will allow you
-            to search for each word first without any transformation and then transformed
-            to lowercase and without accents.
+            For example `[{}, {'lowecase': True, 'strip_accents': True}]` allows you
+            to search for each word, first, without any transformation and then,
+            transformed to lowercase and without accents.
 
             The available word preprocessing options are as follows (it is not necessary
             to put them all):
@@ -256,20 +254,19 @@ class WEAT(BaseMetric):
             - `lowercase`: `bool`. Indicates if the words are transformed to lowercase.
             - `uppercase`: `bool`. Indicates if the words are transformed to uppercase.
             - `titlecase`: `bool`. Indicates if the words are transformed to titlecase.
-            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents of
-                                the words are eliminated. The stripping type can be
+            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents
+                                of the words are eliminated. The stripping type can be
                                 specified. True uses 'unicode' by default.
             - `preprocessor`: `Callable`. It receives a function that operates on each
                             word. In the case of specifying a function, it overrides
                             the default preprocessor (i.e., the previous options
                             stop working).
-
-            by default [{}]
+            by default [{}].
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
             include only the first transformed word found. all' will include all
-            transformed words found., by default "first"
+            transformed words found, by default "first".
 
         normalize : bool, optional
             True indicates that embeddings will be normalized, by default False
@@ -284,6 +281,64 @@ class WEAT(BaseMetric):
         Dict[str, Any]
             A dictionary with the query name, the resulting score of the metric,
             and the scores of WEAT and the effect size of the metric.
+
+        Examples
+        --------
+        >>> from wefe.query import Query
+        >>> from wefe.utils import load_test_model
+        >>> from wefe.metrics import WEAT
+        >>>
+        >>> # define the query
+        >>> query = Query(
+        ...     target_sets=[
+        ...         ["female", "woman", "girl", "sister", "she", "her", "hers",
+        ...          "daughter"],
+        ...         ["male", "man", "boy", "brother", "he", "him", "his", "son"],
+        ...     ],
+        ...     attribute_sets=[
+        ...         ["home", "parents", "children", "family", "cousins", "marriage",
+        ...          "wedding", "relatives",
+        ...         ],
+        ...         ["executive", "management", "professional", "corporation", "salary",
+        ...          "office", "business", "career",
+        ...         ],
+        ...     ],
+        ...     target_sets_names=["Female terms", "Male Terms"],
+        ...     attribute_sets_names=["Family", "Careers"],
+        ... )
+        >>>
+        >>> # load the model (in this case, the test model included in wefe)
+        >>> model = load_test_model()
+        >>>
+        >>> # instance the metric and run the query
+        >>> WEAT().run_query(query, model) # doctest: +SKIP
+        {'query_name': 'Female terms and Male Terms wrt Family and Careers',
+        'result': 0.4634388245467562,
+        'weat': 0.4634388245467562,
+        'effect_size': 0.45076532408312986,
+        'p_value': nan}
+        >>>
+        >>>
+        >>> # if you want to return the effect size as result value, use
+        >>> # return_effect_size parameter as True while running the query.
+        >>> WEAT().run_query(query, model, return_effect_size=True) # doctest: +SKIP
+        {'query_name': 'Female terms and Male Terms wrt Family and Careers',
+        'result': 0.45076532408312986,
+        'weat': 0.4634388245467562,
+        'effect_size': 0.45076532408312986,
+        'p_value': nan}
+        >>>
+        >>>
+        >>> # if you want the embeddings to be normalized before calculating the metrics
+        >>> # use the normalize parameter as True before executing the query.
+        >>> WEAT().run_query(query, model, normalize=True) # doctest: +SKIP
+        {'query_name': 'Female terms and Male Terms wrt Family and Careers',
+        'result': 0.4634388248814503,
+        'weat': 0.4634388248814503,
+        'effect_size': 0.4507653062895615,
+        'p_value': nan}
+
+
         """
         # check the types of the provided arguments (only the defaults).
         self._check_input(query, word_embedding)
@@ -322,7 +377,6 @@ class WEAT(BaseMetric):
         attribute_1 = list(attribute_embeddings[1].values())
 
         # if the requested value is the effect size:
-
         weat_effect_size = self._calc_effect_size(
             target_0, target_1, attribute_0, attribute_1
         )

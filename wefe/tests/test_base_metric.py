@@ -1,15 +1,14 @@
 import pytest
-from ..utils import load_weat_w2v
-from ..metrics.base_metric import BaseMetric
-from ..word_embedding_model import WordEmbeddingModel
-from ..datasets.datasets import load_weat
-from ..query import Query
+from wefe.utils import load_test_model
+from wefe.metrics.base_metric import BaseMetric
+from wefe.word_embedding_model import WordEmbeddingModel
+from wefe.datasets.datasets import load_weat
+from wefe.query import Query
 
 
 @pytest.fixture
 def simple_model_and_query():
-    w2v = load_weat_w2v()
-    model = WordEmbeddingModel(w2v, "weat_w2v", "")
+    test_model = load_test_model()
     weat_wordsets = load_weat()
 
     flowers = weat_wordsets["flowers"]
@@ -22,7 +21,7 @@ def simple_model_and_query():
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
-    return w2v, model, query, flowers, insects, pleasant, unpleasant
+    return test_model, query, flowers, insects, pleasant, unpleasant
 
 
 def test_validate_metric_input(simple_model_and_query):
@@ -36,7 +35,7 @@ def test_validate_metric_input(simple_model_and_query):
     base_metric.metric_name = "Example Metric"
     base_metric.metric_short_name = "EM"
 
-    w2v, model, query, flowers, insects, pleasant, unpleasant = simple_model_and_query
+    test_model, query, flowers, insects, pleasant, unpleasant = simple_model_and_query
 
     query = Query(
         [flowers, insects],
@@ -46,7 +45,7 @@ def test_validate_metric_input(simple_model_and_query):
     )
 
     with pytest.raises(TypeError, match="query should be a Query instance, got*"):
-        base_metric._check_input(None, model)
+        base_metric._check_input(None, test_model)
 
     with pytest.raises(
         TypeError, match="word_embedding should be a WordEmbeddingModel instance, got*"
@@ -65,7 +64,7 @@ def test_validate_metric_input(simple_model_and_query):
         "Instruments wrt Pleasant and Unpleasant' query does not match with the "
         "cardinality required by Example Metric. Provided query: 3, metric: 2",
     ):
-        base_metric._check_input(query, model)
+        base_metric._check_input(query, test_model)
 
     query = Query(
         [flowers, insects],
@@ -79,7 +78,7 @@ def test_validate_metric_input(simple_model_and_query):
         "wrt Pleasant and Unpleasant' query does not match with the cardinality "
         "required by Example Metric. Provided query: 2, metric: 3",
     ):
-        base_metric._check_input(query, model)
+        base_metric._check_input(query, test_model)
 
 
 def test_run_query(simple_model_and_query):
@@ -93,7 +92,7 @@ def test_run_query(simple_model_and_query):
     base_metric.metric_name = "Example Metric"
     base_metric.metric_short_name = "EM"
 
-    w2v, model, query, flowers, insects, pleasant, unpleasant = simple_model_and_query
+    test_model, query, _, _, _, _ = simple_model_and_query
 
     with pytest.raises(NotImplementedError,):
-        base_metric.run_query(query, model)
+        base_metric.run_query(query, test_model)

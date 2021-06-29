@@ -282,7 +282,7 @@ def test_get_embeddings_from_word_set(model):
 
 
 # -------------------------------------------------------------------------------------
-def test_get_embeddings_from_sets(model, caplog):
+def test_get_embeddings_from_sets(model, caplog, capsys):
 
     # ----------------------------------------------------------------------------------
     # Test types and value checking.
@@ -402,6 +402,7 @@ def test_get_embeddings_from_sets(model, caplog):
             warn_lost_sets=True,
             verbose=True,
         )
+        out = capsys.readouterr().out
         assert len(embedding_pairs_2) == 3
         assert (
             "The word(s) ['vbbge'] of the definning pair at index 3 were not found. "
@@ -411,10 +412,7 @@ def test_get_embeddings_from_sets(model, caplog):
         "not found. This pair will be omitted." in caplog.text
         pass
 
-        assert (
-            "3/5 sets of words were correctly converted to sets of embeddings"
-            in caplog.text
-        )
+        assert "3/5 sets of words were correctly converted to sets of embeddings" in out
 
     with pytest.raises(
         Exception,

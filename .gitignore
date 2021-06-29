@@ -84,3 +84,6 @@ develop.ipynb
 
 conda-deploy/
 conda_deploy/
+
+*.csv
+*.xls

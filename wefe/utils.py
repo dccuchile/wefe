@@ -27,7 +27,7 @@ from wefe.metrics.base_metric import BaseMetric
 # -----------------------------------------------------------------------------
 
 
-def cosine_similarity(v: np.ndarray, u: np.ndarray) -> np.number:
+def cosine_similarity(v: np.ndarray, u: np.ndarray) -> float:
     """Calculates the cosine similarity between two vectors.
 
     Parameters
@@ -45,7 +45,7 @@ def cosine_similarity(v: np.ndarray, u: np.ndarray) -> np.number:
     return np.dot(v, u) / (np.linalg.norm(v) * np.linalg.norm(u))
 
 
-def cosine_distance(v: np.ndarray, u: np.ndarray) -> np.number:
+def cosine_distance(v: np.ndarray, u: np.ndarray) -> float:
     """Calculate the cosine distance, which is defined as 1 - cosine similarity.
 
     Parameters
@@ -144,7 +144,7 @@ def generate_subqueries_from_queries_list(
 def run_queries(
     metric: Type[BaseMetric],
     queries: List[Query],
-    word_embeddings_models: List[WordEmbeddingModel],
+    models: List[WordEmbeddingModel],
     queries_set_name: str = "Unnamed queries set",
     lost_vocabulary_threshold: float = 0.2,
     metric_params: dict = {},
@@ -154,7 +154,7 @@ def run_queries(
         str, Callable[[pd.DataFrame], pd.DataFrame]
     ] = "abs_avg",
     return_only_aggregation: bool = False,
-    warn_filtered_words: bool = False,
+    warn_not_found_words: bool = False,
 ) -> pd.DataFrame:
     """Run several queries over a several word embedding models using a
     specific metic.
@@ -233,19 +233,19 @@ def run_queries(
             )
 
     # word vectors wrappers handling
-    if not isinstance(word_embeddings_models, (list, np.ndarray)):
+    if not isinstance(models, (list, np.ndarray)):
         raise TypeError(
             "word_embeddings_models parameter must be a list or a numpy array."
-            " given: {}".format(word_embeddings_models)
+            " given: {}".format(models)
         )
 
-    if len(word_embeddings_models) == 0:
+    if len(models) == 0:
         raise Exception(
             "word_embeddings_models parameter must be a non empty list or "
-            "numpy array. given: {}".format(word_embeddings_models)
+            "numpy array. given: {}".format(models)
         )
 
-    for idx, model in enumerate(word_embeddings_models):
+    for idx, model in enumerate(models):
         if model is None or not isinstance(model, WordEmbeddingModel):
             raise TypeError(
                 "item on index {} must be a WordEmbeddingModel instance. "
@@ -300,12 +300,12 @@ def run_queries(
     query_names = []
     try:
         for query in queries:
-            for model in word_embeddings_models:
+            for model in models:
                 result = metric_instance.run_query(
                     query,
                     model,
                     lost_vocabulary_threshold=lost_vocabulary_threshold,
-                    warn_filtered_words=warn_filtered_words,
+                    warn_not_found_words=warn_not_found_words,
                     **metric_params,
                 )
                 result["model_name"] = model.model_name
@@ -326,8 +326,7 @@ def run_queries(
         index="model_name", columns="query_name", values="result"
     )
     pivoted_results = pivoted_results.reindex(
-        index=[model.model_name for model in word_embeddings_models],
-        columns=query_names,
+        index=[model.model_name for model in models], columns=query_names,
     )
 
     if aggregate_results:
@@ -633,17 +632,24 @@ def plot_ranking_correlations(correlation_matrix, title=""):
     return fig
 
 
-def load_weat_w2v():
+def load_test_model() -> WordEmbeddingModel:
+    """Load a Word2vec subset to test metrics and debias methods.
+
+    Returns
+    -------
+    WordEmbeddingModel
+        The loaded model
+    """
     from gensim.models import KeyedVectors
 
     # load dummy weat word vectors:
 
     resource_package = __name__
-    resource_path = "/".join(("datasets", "data", "weat_w2v.txt"))
+    resource_path = "/".join(("datasets", "data", "test_model.kv"))
     weat_w2v_path = pkg_resources.resource_filename(resource_package, resource_path)
 
-    weat_we = KeyedVectors.load_word2vec_format(weat_w2v_path, binary=False)
-    return weat_we
+    test_model = KeyedVectors.load(weat_w2v_path)
+    return WordEmbeddingModel(test_model, "Test w2v model")
 
 
 def print_doc_table(df):

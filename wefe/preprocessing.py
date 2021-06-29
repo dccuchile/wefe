@@ -89,7 +89,7 @@ def get_embeddings_from_word_set(
     preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
     strategy: str = "first",
     normalize: bool = False,
-    verbose: bool = True,
+    verbose: bool = False,
 ) -> Tuple[List[str], Dict[str, np.ndarray]]:
     """Transform a sequence of words into dictionary that maps word - word embedding.
 
@@ -390,6 +390,9 @@ def get_embeddings_from_sets(
 
         # Transform the pair to a embedding dict.
         # idea: (word_1, word_2) -> {'word_1': embedding, 'word_2'.: embedding}
+        # TODO: Add identifier of the set that is being transformed.
+        # if verbose:
+        #     print(f"Transforming '{}' set ")
         not_found_words, embedding_pair = get_embeddings_from_word_set(
             model, set_, preprocessors, strategy, normalize, verbose
         )
@@ -422,7 +425,7 @@ def get_embeddings_from_sets(
         raise Exception(msg)
 
     elif verbose:
-        logging.info(
+        print(
             f"{len(embedding_sets)}/{len(sets)} sets of "
             "words were correctly converted to sets of embeddings"
         )
@@ -438,7 +441,7 @@ def get_embeddings_from_query(
     strategy: str = "first",
     normalize: bool = False,
     warn_not_found_words: bool = False,
-    verbose: bool = True,
+    verbose: bool = False,
 ) -> Union[Tuple[EmbeddingSets, EmbeddingSets], None]:
     """Obtain the word vectors associated with the provided Query.
 
@@ -542,7 +545,12 @@ def get_embeddings_from_query(
     # get target sets embeddings
     for target_set, target_set_name in zip(query.target_sets, query.target_sets_names):
         not_found_words, obtained_embeddings = get_embeddings_from_word_set(
-            model, target_set, preprocessors, strategy, normalize, verbose,
+            model=model,
+            word_set=target_set,
+            preprocessors=preprocessors,
+            strategy=strategy,
+            normalize=normalize,
+            verbose=verbose,
         )
 
         # warn not found words if it is enabled.
@@ -570,7 +578,12 @@ def get_embeddings_from_query(
     ):
 
         not_found_words, obtained_embeddings = get_embeddings_from_word_set(
-            model, attribute_set, preprocessors, strategy, normalize, verbose
+            model=model,
+            word_set=attribute_set,
+            preprocessors=preprocessors,
+            strategy=strategy,
+            normalize=normalize,
+            verbose=verbose,
         )
 
         _warn_not_found_words(

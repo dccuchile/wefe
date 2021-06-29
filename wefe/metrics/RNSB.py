@@ -1,3 +1,4 @@
+"""Relative Negative Sentiment Bias (RNSB) metric implementation."""
 from typing import Any, Callable, Dict, Tuple, List, Union
 import logging
 from wefe.preprocessing import get_embeddings_from_query
@@ -11,7 +12,7 @@ from sklearn.metrics import classification_report
 from sklearn.base import BaseEstimator
 
 from wefe.query import Query
-from wefe.word_embedding_model import PreprocessorArgs, WordEmbeddingModel
+from wefe.word_embedding_model import WordEmbeddingModel
 from wefe.metrics.base_metric import BaseMetric
 
 logging.basicConfig(level=logging.DEBUG)
@@ -220,8 +221,6 @@ class RNSB(BaseMetric):
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
-        *args: Any,
-        **kwargs: Any
     ) -> Dict[str, Any]:
         """Calculate the RNSB metric over the provided parameters.
 
@@ -278,17 +277,18 @@ class RNSB(BaseMetric):
 
             A dictionary of preprocessing options is a dictionary that specifies what
             transformations will be made to each word prior to being searched in the
-            embeddings model. For example, `{'lowecase': True, 'strip_accents': True}` will
-            allow you to search for words in the word_set transformed to lowercase and
-            without accents.
+            word embedding model vocabulary.
+            For example, `{'lowecase': True, 'strip_accents': True}` allows you to
+            transform the words to lowercase and remove the accents and then search
+            for them in the model.
             Note that an empty dictionary `{}` indicates that no transformation
             will be made to any word.
 
             A list of these preprocessor options will allow you to search for several
             variants of the words (depending on the search strategy) into the model.
-            For example `[{}, {'lowecase': True, 'strip_accents': True}]` will allow you
-            to search for each word first without any transformation and then transformed
-            to lowercase and without accents.
+            For example `[{}, {'lowecase': True, 'strip_accents': True}]` allows you
+            to search for each word, first, without any transformation and then,
+            transformed to lowercase and without accents.
 
             The available word preprocessing options are as follows (it is not necessary
             to put them all):
@@ -296,20 +296,19 @@ class RNSB(BaseMetric):
             - `lowercase`: `bool`. Indicates if the words are transformed to lowercase.
             - `uppercase`: `bool`. Indicates if the words are transformed to uppercase.
             - `titlecase`: `bool`. Indicates if the words are transformed to titlecase.
-            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents of
-                                the words are eliminated. The stripping type can be
+            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents
+                                of the words are eliminated. The stripping type can be
                                 specified. True uses 'unicode' by default.
             - `preprocessor`: `Callable`. It receives a function that operates on each
                             word. In the case of specifying a function, it overrides
                             the default preprocessor (i.e., the previous options
                             stop working).
-
-            by default [{}]
+            by default [{}].
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
             include only the first transformed word found. all' will include all
-            transformed words found., by default "first"
+            transformed words found, by default "first".
 
         normalize : bool, optional
             True indicates that embeddings will be normalized, by default False
@@ -326,6 +325,77 @@ class RNSB(BaseMetric):
             A dictionary with the query name, the calculated kl-divergence,
             the negative probabilities for all tested target words and
             the normalized distribution of probabilities.
+
+        Examples
+        --------
+        >>> from wefe.query import Query
+        >>> from wefe.utils import load_test_model
+        >>> from wefe.metrics import RNSB
+        >>> 
+        >>> # define the query
+        >>> query = Query(
+        ...     target_sets=[
+        ...         ["female", "woman", "girl", "sister", "she", "her", "hers",
+        ...          "daughter"],
+        ...         ["male", "man", "boy", "brother", "he", "him", "his", "son"],
+        ...     ],
+        ...     attribute_sets=[
+        ...         ["home", "parents", "children", "family", "cousins", "marriage",
+        ...          "wedding", "relatives",],
+        ...         ["executive", "management", "professional", "corporation", "salary",
+        ...          "office", "business", "career", ],
+        ...     ],
+        ...     target_sets_names=["Female terms", "Male Terms"],
+        ...     attribute_sets_names=["Family", "Careers"],
+        ... )
+        >>> 
+        >>> # load the model (in this case, the test model included in wefe)
+        >>> model = load_test_model()
+        >>> 
+        >>> # instance the metric and run the query
+        >>> RNSB().run_query(query, model) # doctest: +SKIP
+        {
+            "query_name": "Female terms and Male Terms wrt Family and Careers",
+            "result": 0.09223875552506647,
+            "kl-divergence": 0.09223875552506647,
+            "clf_accuracy": 1.0,
+            "negative_sentiment_probabilities": {
+                "female": 0.5543954373912665,
+                "woman": 0.3107589242224508,
+                "girl": 0.18710587484907013,
+                "sister": 0.1787081823837198,
+                "she": 0.4172419154977331,
+                "her": 0.4030950036121549,
+                "hers": 0.3126640373120572,
+                "daughter": 0.14249529344431694,
+                "male": 0.4422224610164615,
+                "man": 0.4194123616222211,
+                "boy": 0.20556697141459176,
+                "brother": 0.19801831727151584,
+                "he": 0.5577524826493919,
+                "him": 0.514179075019818,
+                "his": 0.5544435993736733,
+                "son": 0.18711536982098712,
+            },
+            "negative_sentiment_distribution": {
+                "female": 0.09926195811727109,
+                "woman": 0.05563995884577796,
+                "girl": 0.0335004479837668,
+                "sister": 0.0319968796973831,
+                "she": 0.0747052496243332,
+                "her": 0.07217230999250153,
+                "hers": 0.05598106059906622,
+                "daughter": 0.02551312816774791,
+                "male": 0.07917790162647549,
+                "man": 0.07509385803950792,
+                "boy": 0.03680582257831352,
+                "brother": 0.0354542707060297,
+                "he": 0.09986302166025017,
+                "him": 0.09206140304753956,
+                "his": 0.09927058129913385,
+                "son": 0.03350214801490194,
+            },
+        }
         """
         # check the types of the provided arguments (only the defaults).
         self._check_input(query, word_embedding)

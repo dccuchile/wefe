@@ -1,5 +1,5 @@
 """Contains a base class for implement any debias method in WEFE."""
-from typing import List, Optional, Union
+from typing import List, Optional
 from abc import abstractmethod
 
 from sklearn.base import BaseEstimator
@@ -83,7 +83,6 @@ class BaseDebias(BaseEstimator):
         target: Optional[List[str]] = None,
         ignore: Optional[List[str]] = None,
         copy: bool = True,
-        verbose: bool = True,  # TODO: Cambiar esto por False para el deploy
         **fit_params,
     ) -> WordEmbeddingModel:
         """Convenience method to execute fit and transform in a single call.
@@ -115,6 +114,49 @@ class BaseDebias(BaseEstimator):
         WordEmbeddingModel
             The debiased word embedding model.
         """
-        return self.fit(model, verbose=verbose, **fit_params).transform(
-            model, target=target, ignore=ignore, copy=copy, verbose=verbose
+        return self.fit(model, **fit_params).transform(
+            model, target=target, ignore=ignore, copy=copy
         )
+
+    def _check_transform_args(
+        self,
+        model: WordEmbeddingModel,
+        target: Optional[List[str]] = None,
+        ignore: Optional[List[str]] = None,
+        copy: bool = True,
+    ):
+        # check model
+        if not isinstance(model, WordEmbeddingModel):
+            raise TypeError(
+                f"model should be a WordEmbeddingModel instance, got {model}."
+            )
+
+        # check target
+        if target is not None and not isinstance(target, list):
+            raise TypeError(f"target should be None or a list, got: {target}.")
+
+        if isinstance(target, list):
+            for idx, word in enumerate(target):
+                if not isinstance(word, str):
+                    raise ValueError(
+                        "All elements in target should be strings"
+                        f", got: {word} at index {idx} "
+                    )
+
+        # check ignore
+        if ignore is not None and not isinstance(ignore, list):
+            raise TypeError(
+                f"ignore should be None or a list of strings, got: {ignore}."
+            )
+
+        if isinstance(ignore, list):
+            for idx, word in enumerate(ignore):
+                if not isinstance(word, str):
+                    raise ValueError(
+                        "All elements in ignore should be strings"
+                        f", got: {word} at index {idx} "
+                    )
+
+        # check copy
+        if not isinstance(copy, bool):
+            raise TypeError(f"copy should be a bool, got {copy}.")

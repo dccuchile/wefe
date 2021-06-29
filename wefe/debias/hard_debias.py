@@ -67,13 +67,16 @@ class HardDebias(BaseDebias):
     name = "Bolukbasi's Hard Debias"
     short_name = "HD"
 
-    def __init__(self, pca_args: Dict[str, Any] = None) -> None:
-        super().__init__()
+    def __init__(
+        self, pca_args: Dict[str, Any] = {"n_components": 10}, verbose: bool = False
+    ) -> None:
 
-        if pca_args is None:
-            self.pca_args = {"n_components": 10}
-        else:
-            self.pca_args = pca_args
+        # check verbose
+        if not isinstance(verbose, bool):
+            raise TypeError(f"verbose should be a bool, got {verbose}.")
+
+        self.pca_args = pca_args
+        self.verbose = verbose
 
     def _check_sets_size(
         self, sets: Sequence[Sequence[str]], set_name: str,
@@ -140,7 +143,7 @@ class HardDebias(BaseDebias):
 
     def _neutralize_embeddings(
         self,
-        embedding_model: WordEmbeddingModel,
+        model: WordEmbeddingModel,
         bias_direction: np.ndarray,
         target: Optional[List[str]],
         ignore: Optional[List[str]],
@@ -149,7 +152,7 @@ class HardDebias(BaseDebias):
         if target is not None:
             target_ = set(target)
         else:
-            target_ = set(embedding_model.vocab.keys())
+            target_ = set(model.vocab.keys())
 
         if ignore is not None and target is None:
             ignore_ = set(ignore)
@@ -158,14 +161,14 @@ class HardDebias(BaseDebias):
 
         # info_log = np.linspace(0, len(embedding_model.vocab), 11, dtype=int)
 
-        for idx, word in tqdm(enumerate(target_)):
+        for word in tqdm(target_):
             if word not in ignore_:
-                current_embedding = embedding_model[word]
+                current_embedding = model[word]
                 neutralized_embedding = self._drop(
                     current_embedding, bias_direction  # type: ignore
                 )
                 neutralized_embedding = neutralized_embedding.astype(np.float32)
-                embedding_model.update_embedding(word, neutralized_embedding)
+                model.update_embedding(word, neutralized_embedding)
 
             # if idx in info_log:
             #     print(
@@ -205,7 +208,6 @@ class HardDebias(BaseDebias):
         definitional_pairs: Sequence[Sequence[str]],
         equalize_pairs: Optional[Sequence[Sequence[str]]] = None,
         debias_criterion_name: Optional[str] = None,
-        verbose: bool = False,
     ) -> BaseDebias:
         """Compute the bias direction and obtains the equalize embedding pairs.
 
@@ -250,7 +252,7 @@ class HardDebias(BaseDebias):
 
         # ------------------------------------------------------------------------------
         # Obtain the embedding of each definitional pairs.
-        if verbose:
+        if self.verbose:
             print("Obtaining definitional pairs.")
         self.definitional_pairs_embeddings_ = get_embeddings_from_sets(
             model=model,
@@ -258,21 +260,21 @@ class HardDebias(BaseDebias):
             sets_name="definitional",
             warn_lost_sets=True,
             normalize=True,
-            verbose=verbose,
+            verbose=self.verbose,
         )
 
         # ------------------------------------------------------------------------------:
         # Identify the bias subspace using the definning pairs.
-        if verbose:
+        if self.verbose:
             print("Identifying the bias subspace.")
 
         self.pca_ = self._identify_bias_subspace(
-            self.definitional_pairs_embeddings_, verbose,
+            self.definitional_pairs_embeddings_, self.verbose,
         )
         self.bias_direction_ = self.pca_.components_[0]
 
         # ------------------------------------------------------------------------------:
-        # Get the equalization pairs.
+        # Obtain the equalization pairs.
 
         # if equalize pairs are none, set the definitional pairs as the pairs
         # to equalize.
@@ -294,7 +296,7 @@ class HardDebias(BaseDebias):
             ]
         ]
 
-        # Get the equalization pairs embeddings candidates
+        # Obtain the equalization pairs embeddings candidates
         logger.debug("Obtaining equalize pairs.")
         self.equalize_pairs_embeddings_ = get_embeddings_from_sets(
             model=model,
@@ -302,7 +304,7 @@ class HardDebias(BaseDebias):
             sets_name="equalize",
             warn_lost_sets=True,
             normalize=True,
-            verbose=verbose,
+            verbose=self.verbose,
         )
 
         return self
@@ -313,7 +315,6 @@ class HardDebias(BaseDebias):
         target: Optional[List[str]] = None,
         ignore: Optional[List[str]] = None,
         copy: bool = True,
-        verbose: bool = True,
     ) -> WordEmbeddingModel:
         """Execute hard debias over the provided model.
 
@@ -337,20 +338,19 @@ class HardDebias(BaseDebias):
             **WARNING:** Setting copy with `True` requires at least 2x RAM of the size
             of the model. Otherwise the execution of the debias may rise
             `MemoryError`, by default True.
-        verbose : bool, optional
-            `True` will print informative messages about the debiasing process,
-            by default False.
 
         Returns
         -------
         WordEmbeddingModel
             The debiased embedding model.
         """
-        if verbose:
-            print(f"Executing Hard Debias on {model.model_name}")
-
         # ------------------------------------------------------------------------------
-        # Check if the method is fitted
+        # Check types and if the method is fitted
+
+        self._check_transform_args(
+            model=model, target=target, ignore=ignore, copy=copy,
+        )
+
         check_is_fitted(
             self,
             [
@@ -360,32 +360,21 @@ class HardDebias(BaseDebias):
                 "bias_direction_",
             ],
         )
+
+        if self.verbose:
+            print(f"Executing Hard Debias on {model.model_name}")
         # ------------------------------------------------------------------------------
-        # Check and process arguments
-        if ignore is not None and not isinstance(ignore, list):
-            raise ValueError(
-                f"ignore should be None or a list of strings, got: {ignore}."
-            )
-
-        if ignore is None:
-            ignore = []
-        else:
-            for idx, elem in enumerate(ignore):
-                if not isinstance(elem, str):
-                    raise ValueError(
-                        "All elements in ignore list must be strings"
-                        f", got: {elem} at index {idx} "
-                    )
-
+        # Copy
         if copy:
-            logger.warning(
+            print(
                 "copy argument is True. Transform will attempt to create a copy "
                 "of the original model. This may fail due to lack of memory."
             )
             model = deepcopy(model)
             print("Model copy created successfully.")
+
         else:
-            logger.warning(
+            print(
                 "copy argument is False. The execution of this method will mutate "
                 "the embeddings of the provided model."
             )
@@ -394,26 +383,35 @@ class HardDebias(BaseDebias):
         # Execute Neutralization
 
         # Normalize embeddings
-        logger.debug("Normalizing embeddings.")
+        if self.verbose:
+            print("Normalizing embeddings.")
         model.normalize_embeddings()
 
-        # Neutralize the embeddings appointed in ignore word set:
-        logger.debug("Neutralizing embeddings")
+        # Neutralize the embeddings:
+        if self.verbose:
+            print("Neutralizing embeddings")
         self._neutralize_embeddings(
-            model, self.bias_direction_, target, ignore,
+            model=model,
+            bias_direction=self.bias_direction_,
+            target=target,
+            ignore=ignore,
         )
 
-        logger.debug("Normalizing embeddings.")
+        if self.verbose:
+            print("Normalizing embeddings.")
         model.normalize_embeddings()
         # ------------------------------------------------------------------------------
         # Execute Equalization:
 
-        logger.debug("Equalizing embeddings..")
+        if self.verbose:
+            print("Equalizing embeddings.")
+
         self._equalize_embeddings(
             model, self.equalize_pairs_embeddings_, self.bias_direction_,
         )
 
-        logger.debug("Normalizing embeddings.")
+        if self.verbose:
+            print("Normalizing embeddings.")
         model.normalize_embeddings()
 
         # ------------------------------------------------------------------------------
@@ -428,7 +426,7 @@ class HardDebias(BaseDebias):
             )
         model.model_name = new_model_name
 
-        print("Done!")
-        logger.setLevel(logging.INFO)
+        if self.verbose:
+            print("Done!")
 
         return model

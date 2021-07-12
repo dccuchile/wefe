@@ -231,7 +231,6 @@ class MulticlassHardDebias(BaseDebias):
             sets_name="equalize",
             normalize=True,
             warn_lost_sets=True,
-            discard_incomplete_sets=False,
             verbose=self.verbose,
         )
         return self

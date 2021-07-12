@@ -32,7 +32,7 @@ class BaseDebias(BaseEstimator):
             by default False.
 
         """
-        return self
+        raise NotImplementedError()
 
     @abstractmethod
     def transform(
@@ -75,7 +75,7 @@ class BaseDebias(BaseEstimator):
         WordEmbeddingModel
             The debiased word embedding model.
         """
-        pass
+        raise NotImplementedError()
 
     def fit_transform(
         self,
@@ -133,12 +133,14 @@ class BaseDebias(BaseEstimator):
 
         # check target
         if target is not None and not isinstance(target, list):
-            raise TypeError(f"target should be None or a list, got: {target}.")
+            raise TypeError(
+                f"target should be None or a list of strings, got {target}."
+            )
 
         if isinstance(target, list):
             for idx, word in enumerate(target):
                 if not isinstance(word, str):
-                    raise ValueError(
+                    raise TypeError(
                         "All elements in target should be strings"
                         f", got: {word} at index {idx} "
                     )
@@ -146,13 +148,13 @@ class BaseDebias(BaseEstimator):
         # check ignore
         if ignore is not None and not isinstance(ignore, list):
             raise TypeError(
-                f"ignore should be None or a list of strings, got: {ignore}."
+                f"ignore should be None or a list of strings, got {ignore}."
             )
 
         if isinstance(ignore, list):
             for idx, word in enumerate(ignore):
                 if not isinstance(word, str):
-                    raise ValueError(
+                    raise TypeError(
                         "All elements in ignore should be strings"
                         f", got: {word} at index {idx} "
                     )

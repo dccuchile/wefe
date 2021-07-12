@@ -1,8 +1,10 @@
 """Tests of Hard Debias debiasing method."""
+from numpy import mat
 import pytest
 from gensim.models.keyedvectors import KeyedVectors
 
 from wefe.datasets import fetch_debiaswe, load_weat, fetch_debias_multiclass
+from wefe.debias.base_debias import BaseDebias
 from wefe.debias.hard_debias import HardDebias
 from wefe.debias.multiclass_hard_debias import MulticlassHardDebias
 from wefe.word_embedding_model import WordEmbeddingModel
@@ -21,6 +23,82 @@ def model() -> WordEmbeddingModel:
     """
     w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
     return WordEmbeddingModel(w2v, "word2vec")
+
+
+def test_base_debias(model):
+
+    bd = BaseDebias()
+    with pytest.raises(NotImplementedError,):
+        bd.fit(None)
+    with pytest.raises(NotImplementedError,):
+        bd.transform(None)
+    with pytest.raises(NotImplementedError,):
+        bd.fit_transform(None)
+
+    debiaswe_wordsets = fetch_debiaswe()
+    gender_specific = debiaswe_wordsets["gender_specific"]
+
+    # type checking function
+    with pytest.raises(
+        TypeError, match=r"model should be a WordEmbeddingModel instance, got .*",
+    ):
+        bd._check_transform_args(None)
+
+    with pytest.raises(
+        TypeError, match=r"target should be None or a list of strings, got .*",
+    ):
+        bd._check_transform_args(model, target=1)
+    with pytest.raises(
+        TypeError, match=r"All elements in target should be strings, .*",
+    ):
+        bd._check_transform_args(model, target=gender_specific + [10])
+
+    with pytest.raises(
+        TypeError, match=r"ignore should be None or a list of strings, got .*",
+    ):
+        bd._check_transform_args(model, ignore=1)
+    with pytest.raises(
+        TypeError, match=r"All elements in ignore should be strings, .*",
+    ):
+        bd._check_transform_args(model, ignore=gender_specific + [10])
+
+    with pytest.raises(
+        TypeError, match=r"copy should be a bool, got .*",
+    ):
+        bd._check_transform_args(model, copy=None)
+
+    assert (
+        bd._check_transform_args(
+            model, target=["word1", "word2"], ignore=gender_specific, copy=False
+        )
+        is None
+    )
+
+
+def test_hard_debias_checks(model):
+    debiaswe_wordsets = fetch_debiaswe()
+
+    definitional_pairs = debiaswe_wordsets["definitional_pairs"]
+
+    with pytest.raises(
+        TypeError, match=r"verbose should be a bool, got .*",
+    ):
+        HardDebias(verbose=1)
+
+    with pytest.raises(
+        ValueError,
+        match=r"The definitional pair at position 10 \(\['word1', 'word2', 'word3'\]\) has more words than allowed by Hard Debias: got 3 words, expected 2\.",
+    ):
+        HardDebias().fit(
+            model, definitional_pairs + [["word1", "word2", "word3"]],
+        )
+    with pytest.raises(
+        ValueError,
+        match=r"The definitional pair at position 10 \(\['word1'\]\) has less words than allowed by Hard Debias: got 1 words, expected 2\.",
+    ):
+        HardDebias().fit(
+            model, definitional_pairs + [["word1"]],
+        )
 
 
 def test_hard_debias_class(model):

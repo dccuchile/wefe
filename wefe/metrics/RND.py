@@ -10,16 +10,17 @@ from wefe.preprocessing import get_embeddings_from_query
 
 
 class RND(BaseMetric):
-    """A implementation of Relative Norm Distance (RND).
+    """Relative Norm Distance (RND).
 
     It measures the relative strength of association of a set of neutral words
     with respect to two groups.
 
     References
     ----------
-    Nikhil Garg, Londa Schiebinger, Dan Jurafsky, and James Zou.
-    Word embeddings quantify 100 years of gender and ethnic stereotypes.
-    Proceedings of the National Academy of Sciences, 115(16):E3635–E3644,2018.
+    | [1]: Nikhil Garg, Londa Schiebinger, Dan Jurafsky, and James Zou.
+    | Word embeddings quantify 100 years of gender and ethnic stereotypes.
+    | Proceedings of the National Academy of Sciences, 115(16):E3635–E3644,2018.
+    | [2]: https://github.com/nikhgarg/EmbeddingDynamicStereotypes
     """
 
     metric_template = (2, 1)
@@ -88,7 +89,7 @@ class RND(BaseMetric):
     def run_query(
         self,
         query: Query,
-        word_embedding: WordEmbeddingModel,
+        model: WordEmbeddingModel,
         distance: str = "norm",
         average_distances: bool = True,
         lost_vocabulary_threshold: float = 0.2,
@@ -106,8 +107,8 @@ class RND(BaseMetric):
         query : Query
             A Query object that contains the target and attribute sets to be tested.
 
-        word_embedding_model : WordEmbeddingModel
-            An object containing a word embedding model.
+        model : WordEmbeddingModel
+            A word embedding model.
 
         distance : str, optional
             Specifies which type of distance will be calculated. It could be:
@@ -247,11 +248,11 @@ class RND(BaseMetric):
                                'wedding': 0.104610026}}
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, word_embedding)
+        self._check_input(query, model)
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
-            model=word_embedding,
+            model=model,
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessors=preprocessors,

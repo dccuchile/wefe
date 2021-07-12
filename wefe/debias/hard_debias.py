@@ -1,4 +1,4 @@
-"""Bolukbasi et al. Hard Debias WEFE implementation."""
+"""Hard Debias WEFE implementation."""
 import logging
 from copy import deepcopy
 from typing import Dict, List, Any, Optional, Sequence
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class HardDebias(BaseDebias):
-    """Hard Debias binary debiasing method implementation on WEFE.
+    """Hard Debias debiasing method.
 
     This method allows to reduce the bias of an embedding model through geometric
     operations between embeddings.
@@ -27,10 +27,10 @@ class HardDebias(BaseDebias):
 
     The main idea of this method is:
 
-    1. to identify a bias subspace through the defining sets. In the case of gender,
+    1. **Identify a bias subspace through the defining sets.** In the case of gender,
     these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
 
-    2. Neutralize the bias subspace of embeddings that should not be biased.
+    2. **Neutralize the bias subspace of embeddings that should not be biased.**
     First, it is defined a set of words that are correct to be related to the bias
     criterion: the *criterion specific gender words*.
     For example, in the case of gender, *gender specific* words are:
@@ -52,19 +52,23 @@ class HardDebias(BaseDebias):
     Then subtract the projection from the embedding.
     - u' = u - bias_subspace
 
-    3. Equalization
+    3. **Equalizate the embeddings with respect to the bias direction.**. 
+    Given an equalization set (set of word pairs such as [she, he], [men, women], ...,
+    but not limited to the definitional set) this step executes, for each pair,
+    an equalization with respect to the bias direction.
+    That is, it takes both embeddings of the pair and distributes them at the same
+    distance from the bias direction, such that neither is closer to the bias direction
+    than the other.
 
-
-    References
-    ----------
-    Bolukbasi, T., Chang, K. W., Zou, J. Y., Saligrama, V., & Kalai, A. T. (2016).
-    Man is to computer programmer as woman is to homemaker? debiasing word embeddings.
-    Advances in Neural Information Processing Systems.
-
-    https://github.com/tolga-b/debiaswe
+    Reference
+    ---------
+    | [1]: Bolukbasi, T., Chang, K. W., Zou, J. Y., Saligrama, V., & Kalai, A. T. (2016).
+    | Man is to computer programmer as woman is to homemaker? debiasing word embeddings.
+    | Advances in Neural Information Processing Systems.
+    | [2]: https://github.com/tolga-b/debiaswe
     """
 
-    name = "Bolukbasi's Hard Debias"
+    name = "Hard Debias"
     short_name = "HD"
 
     def __init__(
@@ -84,11 +88,12 @@ class HardDebias(BaseDebias):
 
         for idx, set_ in enumerate(sets):
             if len(set_) != 2:
+                adverb = "less" if len(set_) < 2 else "more"
+
                 raise ValueError(
-                    f"The {set_name} pair at position {idx} has less/more elements "
-                    "than allowed by this method. "
-                    f"Number of elements: {len(set_)} - Allowed: 2. "
-                    f"Words in the set: {set_}"
+                    f"The {set_name} pair at position {idx} ({set_}) has {adverb} "
+                    f"words than allowed by {self.name}: "
+                    f"got {len(set_)} words, expected 2."
                 )
 
     def _identify_bias_subspace(
@@ -286,6 +291,11 @@ class HardDebias(BaseDebias):
         self._check_sets_size(self.equalize_pairs_, "equalize")
 
         # Get the equalization pairs candidates
+        if self.verbose:
+            print(
+                "Obtaining equalize pairs candidates by creating "
+                "pairs with lower(), title() and upper()"
+            )
         self.equalize_pairs_candidates_ = [
             x
             for e1, e2 in self.equalize_pairs_
@@ -417,13 +427,9 @@ class HardDebias(BaseDebias):
         # ------------------------------------------------------------------------------
         # # Generate the new KeyedVectors
         if self.debias_criterion_name_ is not None:
-            new_model_name = (
-                f"{model.name}_{self.debias_criterion_name_}_debiased"
-            )
+            new_model_name = f"{model.name}_{self.debias_criterion_name_}_debiased"
         else:
-            new_model_name = (
-                f"{model.name}_{self.debias_criterion_name_}_debiased"
-            )
+            new_model_name = f"{model.name}_{self.debias_criterion_name_}_debiased"
         model.name = new_model_name
 
         if self.verbose:

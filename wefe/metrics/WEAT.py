@@ -16,17 +16,18 @@ from wefe.query import Query
 
 
 class WEAT(BaseMetric):
-    """A implementation of Word Embedding Association Test (WEAT).
+    """Word Embedding Association Test (WEAT).
 
+    The metric was originally proposed in [1].
     It measures the degree of association between two sets of target words and
     two sets of attribute words through a permutation test.
 
 
     References
     ----------
-    Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan.
-    Semantics derived automatically from language corpora contain human-like biases.
-    Science,356(6334):183–186, 2017.
+    | [1]: Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan. Semantics derived
+    | automatically from language corpora contain human-like biases. 
+    | Science, 356(6334):183–186, 2017.
     """
 
     metric_template = (2, 2)
@@ -174,7 +175,7 @@ class WEAT(BaseMetric):
     def run_query(
         self,
         query: Query,
-        word_embedding: WordEmbeddingModel,
+        model: WordEmbeddingModel,
         return_effect_size: bool = False,
         calculate_p_value: bool = False,
         p_value_test_type: str = "right-sided",
@@ -186,6 +187,8 @@ class WEAT(BaseMetric):
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
+        *args: Any,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """Calculate the WEAT metric over the provided parameters.
 
@@ -194,8 +197,8 @@ class WEAT(BaseMetric):
         query : Query
             A Query object that contains the target and attribute sets to be tested.
 
-        word_embedding_model : WordEmbeddingModel
-            An object containing a word embedding model.
+        model : WordEmbeddingModel
+            A word embedding model.
 
         return_effect_size : bool, optional
             Specifies if the returned score in 'result' field of results dict
@@ -341,11 +344,11 @@ class WEAT(BaseMetric):
 
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, word_embedding)
+        self._check_input(query, model)
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
-            model=word_embedding,
+            model=model,
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessors=preprocessors,

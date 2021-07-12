@@ -18,17 +18,20 @@ logger = logging.getLogger(__name__)
 class MulticlassHardDebias(BaseDebias):
     """Generalized version of Hard Debias that enables multiclass debiasing.
 
+    Generalized refers to the fact that this method extends Hard Debias in order to
+    support more than two types of social target sets within the definitional set.
+    For example, for the case of religion bias, it supports a debias using words
+    associated with Christianity, Islam and Judaism.
+
     Reference
     ---------
-    Manzini, T., Chong, L. Y., Black, A. W., & Tsvetkov, Y. (2019, June).
-    Black is to Criminal as Caucasian is to Police: Detecting and Removing Multiclass
-    Bias in Word Embeddings.
-    In Proceedings of the 2019 Conference of the North American Chapter of the
-    Association for Computational Linguistics: Human Language Technologies,
-    Volume 1 (Long and Short Papers) (pp. 615-621).
-
-    https://github.com/TManzini/DebiasMulticlassWordEmbedding
-
+    | [1]: Manzini, T., Chong, L. Y., Black, A. W., & Tsvetkov, Y. (2019, June).
+    | Black is to Criminal as Caucasian is to Police: Detecting and Removing Multiclass
+    | Bias in Word Embeddings.
+    | In Proceedings of the 2019 Conference of the North American Chapter of the
+    | Association for Computational Linguistics: Human Language Technologies,
+    | Volume 1 (Long and Short Papers) (pp. 615-621).
+    | [2]: https://github.com/TManzini/DebiasMulticlassWordEmbedding
     """
 
     def __init__(
@@ -228,6 +231,7 @@ class MulticlassHardDebias(BaseDebias):
             sets_name="equalize",
             normalize=True,
             warn_lost_sets=True,
+            discard_incomplete_sets=False,
             verbose=self.verbose,
         )
         return self

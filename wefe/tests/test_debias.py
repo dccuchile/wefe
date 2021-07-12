@@ -6,7 +6,7 @@ from wefe.datasets import fetch_debiaswe, load_weat, fetch_debias_multiclass
 from wefe.debias.hard_debias import HardDebias
 from wefe.debias.multiclass_hard_debias import MulticlassHardDebias
 from wefe.word_embedding_model import WordEmbeddingModel
-from wefe.metrics import WEAT
+from wefe.metrics import WEAT, MAC
 from wefe.query import Query
 
 
@@ -60,7 +60,7 @@ def test_hard_debias_class(model):
 def test_multiclass_hard_debias_class(model):
 
     multiclass_debias_wordsets = fetch_debias_multiclass()
-    weat_word_set = load_weat()
+    weat_wordsets = load_weat()
     weat = WEAT()
 
     # -------------
@@ -82,22 +82,37 @@ def test_multiclass_hard_debias_class(model):
     gender_debiased_w2v = mhd.transform(model, copy=True)
 
     gender_query = Query(
-        [weat_word_set["male_names"], weat_word_set["female_names"]],
-        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5"]],
+        [weat_wordsets["male_names"], weat_wordsets["female_names"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
         ["Male Names", "Female Names"],
         ["Pleasant", "Unpleasant"],
     )
+    # tests with WEAT
     biased_results = weat.run_query(gender_query, model)
     debiased_results = weat.run_query(gender_query, gender_debiased_w2v)
-
     assert debiased_results["weat"] < biased_results["weat"]
+
+    # test with MAC (from the original repository)
+
+    gender_query_2 = Query(
+        multiclass_debias_wordsets["gender_eval_target"],
+        list(multiclass_debias_wordsets["gender_analogy_templates"].values()),
+    )
+
+    biased_results_2 = MAC().run_query(gender_query_2, model)
+    debiased_results_2 = MAC().run_query(gender_query_2, gender_debiased_w2v)
+
+    # in this case, closer to one is better:
+    assert biased_results_2["mac"] < debiased_results_2["mac"]
 
     # ----------------
     # Ethnicity Debias
 
-    ethnicity_definitional_sets = multiclass_debias_wordsets["race_definitional_sets"]
+    ethnicity_definitional_sets = multiclass_debias_wordsets[
+        "ethnicity_definitional_sets"
+    ]
     ethnicity_equalize_sets = list(
-        multiclass_debias_wordsets["race_analogy_templates"].values()
+        multiclass_debias_wordsets["ethnicity_analogy_templates"].values()
     )
 
     mhd = MulticlassHardDebias()
@@ -112,14 +127,27 @@ def test_multiclass_hard_debias_class(model):
 
     ethnicity_query = Query(
         [
-            weat_word_set["european_american_names_5"],
-            weat_word_set["african_american_names_5"],
+            weat_wordsets["european_american_names_5"],
+            weat_wordsets["african_american_names_5"],
         ],
-        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5"]],
-        ["European American Names", "African American Names"],
-        ["Pleasant", "Unpleasant"],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        ["european_american_names_5", "african_american_names_5"],
+        ["pleasant_5", "unpleasant_5"],
     )
     biased_results = weat.run_query(ethnicity_query, model)
     debiased_results = weat.run_query(ethnicity_query, ethnicity_debiased_w2v)
 
     assert debiased_results["weat"] < biased_results["weat"]
+
+    # # tests with MAC (from the original debias method repo)
+
+    # ethnicity_query_2 = Query(
+    #     multiclass_debias_wordsets["ethnicity_eval_target"],
+    #     list(multiclass_debias_wordsets["ethnicity_analogy_templates"].values()),
+    # )
+
+    # biased_results_2 = MAC().run_query(ethnicity_query_2, model)
+    # debiased_results_2 = MAC().run_query(ethnicity_query_2, gender_debiased_w2v)
+
+    # # in this case, closer to one is better:
+    # assert biased_results_2["mac"] < debiased_results_2["mac"]

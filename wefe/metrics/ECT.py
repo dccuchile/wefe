@@ -11,24 +11,20 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class ECT(BaseMetric):
-    """An implementation of the Embedding Coherence Test.
+    """Embedding Coherence Test [1].
 
-    The metrics was originally proposed in [1] and implemented in [2].
+    The metric was originally proposed in [1] and implemented in [2].
 
     The general steps of the test, as defined in [1], are as follows:
 
-    1. Embedd all given target and attribute words with the given embedding model
-    2. Calculate mean vectors for the two sets of target word vectors
-    3. Measure the cosine similarity of the mean target vectors to all of the given
-    attribute words
-    4. Calculate the Spearman r correlation between the resulting two lists of
-    similarities
-    5. Return the correlation value as score of the metric (in the range of -1 to 1);
-    higher is better
+    1. Embedd all given target and attribute words with the given embedding model.
+    2. Calculate mean vectors for the two sets of target word vectors.
+    3. Measure the cosine similarity of the mean target vectors to all of the given attribute words.
+    4. Calculate the Spearman r correlation between the resulting two lists of similarities.
+    5. Return the correlation value as score of the metric (in the range of -1 to 1); higher is better.
 
     References
     ----------
-
     | [1]: Dev, S., & Phillips, J. (2019, April). Attenuating Bias in Word vectors.
     | [2]: https://github.com/sunipa/Attenuating-Bias-in-Word-Vec
 
@@ -42,7 +38,7 @@ class ECT(BaseMetric):
     def run_query(
         self,
         query: Query,
-        word_embedding: WordEmbeddingModel,
+        model: WordEmbeddingModel,
         lost_vocabulary_threshold: float = 0.2,
         preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
@@ -59,31 +55,32 @@ class ECT(BaseMetric):
             A Query object that contains the target and attribute word sets to be
             tested.
 
-        word_embedding_model : WordEmbeddingModel
-            An object containing a word embeddings model.
+        model : WordEmbeddingModel
+            A word embedding model.
 
         lost_vocabulary_threshold : float, optional
             Specifies the proportional limit of words that any set of the query is
             allowed to lose when transforming its words into embeddings.
             In the case that any set of the query loses proportionally more words
             than this limit, the result values will be np.nan, by default 0.2
-        
+
         preprocessors : List[Dict[str, Union[str, bool, Callable]]]
             A list with preprocessor options.
 
             A dictionary of preprocessing options is a dictionary that specifies what
             transformations will be made to each word prior to being searched in the
-            embeddings model. For example, `{'lowecase': True, 'strip_accents': True}` 
-            will allow you to search for words in the word_set transformed to lowercase 
-            and without accents.
+            word embedding model vocabulary.
+            For example, `{'lowecase': True, 'strip_accents': True}` allows you to
+            transform the words to lowercase and remove the accents and then search
+            for them in the model.
             Note that an empty dictionary `{}` indicates that no transformation
             will be made to any word.
 
             A list of these preprocessor options will allow you to search for several
             variants of the words (depending on the search strategy) into the model.
-            For example `[{}, {'lowecase': True, 'strip_accents': True}]` will allow you
-            to search for each word first without any transformation and then transformed
-            to lowercase and without accents.
+            For example `[{}, {'lowecase': True, 'strip_accents': True}]` allows you
+            to search for each word, first, without any transformation and then,
+            transformed to lowercase and without accents.
 
             The available word preprocessing options are as follows (it is not necessary
             to put them all):
@@ -91,25 +88,29 @@ class ECT(BaseMetric):
             - `lowercase`: `bool`. Indicates if the words are transformed to lowercase.
             - `uppercase`: `bool`. Indicates if the words are transformed to uppercase.
             - `titlecase`: `bool`. Indicates if the words are transformed to titlecase.
-            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents of
-                                the words are eliminated. The stripping type can be
+            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents
+                                of the words are eliminated. The stripping type can be
                                 specified. True uses 'unicode' by default.
             - `preprocessor`: `Callable`. It receives a function that operates on each
                             word. In the case of specifying a function, it overrides
                             the default preprocessor (i.e., the previous options
                             stop working).
 
-            by default [{}]
+            by default [{}].
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
             include only the first transformed word found. all' will include all
-            transformed words found., by default "first"
-            
+            transformed words found, by default "first".
+
+        normalize : bool, optional
+            True indicates that embeddings will be normalized, by default False
+
         warn_not_found_words : bool, optional
             Specifies if the function will warn (in the logger)
             the words that were not found in the model's vocabulary
             , by default False.
+
 
         Returns
         -------
@@ -118,11 +119,11 @@ class ECT(BaseMetric):
         """
 
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, word_embedding)
+        self._check_input(query, model)
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
-            model=word_embedding,
+            model=model,
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessors=preprocessors,

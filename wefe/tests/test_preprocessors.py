@@ -10,7 +10,7 @@ from wefe.preprocessing import (
     _warn_not_found_words,
     get_embeddings_from_query,
     get_embeddings_from_sets,
-    get_embeddings_from_word_set,
+    get_embeddings_from_set,
     preprocess_word,
 )
 from wefe.query import Query
@@ -109,13 +109,13 @@ def test_get_embeddings_from_word_set_types(model):
     with pytest.raises(
         TypeError, match=r"model should be a WordEmbeddingModel instance, got .*\."
     ):
-        get_embeddings_from_word_set(None, None)
+        get_embeddings_from_set(None, None)
 
     with pytest.raises(
         TypeError,
         match=r"word_set should be a list, tuple or np.array of strings, got.*",
     ):
-        get_embeddings_from_word_set(model, word_set=None)
+        get_embeddings_from_set(model, word_set=None)
 
     with pytest.raises(
         TypeError,
@@ -124,7 +124,7 @@ def test_get_embeddings_from_word_set_types(model):
             r"options, got .*\."
         ),
     ):
-        get_embeddings_from_word_set(model, WORDS, preprocessors=None)
+        get_embeddings_from_set(model, WORDS, preprocessors=None)
 
     with pytest.raises(
         TypeError,
@@ -133,24 +133,24 @@ def test_get_embeddings_from_word_set_types(model):
             r"an empty dictionary {}, got: .*\."
         ),
     ):
-        get_embeddings_from_word_set(model, WORDS, preprocessors=[])
+        get_embeddings_from_set(model, WORDS, preprocessors=[])
 
     with pytest.raises(
         TypeError, match=r"each preprocessor should be a dict, got .* at index .*\."
     ):
-        get_embeddings_from_word_set(
+        get_embeddings_from_set(
             model, WORDS, preprocessors=[{"lower": True}, {"upper": True}, 1]
         )
 
     with pytest.raises(
         ValueError, match=r"strategy should be 'first' or 'all', got .*\."
     ):
-        get_embeddings_from_word_set(model, WORDS, strategy=None)
+        get_embeddings_from_set(model, WORDS, strategy=None)
 
     with pytest.raises(
         ValueError, match=r"strategy should be 'first' or 'all', got .*\."
     ):
-        get_embeddings_from_word_set(model, WORDS, strategy="blabla")
+        get_embeddings_from_set(model, WORDS, strategy="blabla")
 
 
 def test_get_embeddings_from_word_set(model):
@@ -159,7 +159,7 @@ def test_get_embeddings_from_word_set(model):
     # test basic operation of _get_embeddings_from_word_set
     WORDS = ["man", "woman"]
 
-    not_found_words, embeddings = get_embeddings_from_word_set(model, WORDS)
+    not_found_words, embeddings = get_embeddings_from_set(model, WORDS)
 
     assert len(embeddings) == 2
     assert len(not_found_words) == 0
@@ -173,7 +173,7 @@ def test_get_embeddings_from_word_set(model):
     # ----------------------------------------------------------------------------------
     # test with a word that does not exists in the model
     WORDS = ["man", "woman", "not_a_word_"]
-    not_found_words, embeddings = get_embeddings_from_word_set(model, WORDS)
+    not_found_words, embeddings = get_embeddings_from_set(model, WORDS)
 
     assert len(embeddings) == 2
     assert len(not_found_words) == 1
@@ -190,7 +190,7 @@ def test_get_embeddings_from_word_set(model):
         "mAN",
         "WOmaN",
     ]
-    not_found_words, embeddings = get_embeddings_from_word_set(
+    not_found_words, embeddings = get_embeddings_from_set(
         model, WORDS, [{"lowercase": True}]
     )
 
@@ -209,7 +209,7 @@ def test_get_embeddings_from_word_set(model):
         "mán",
         "wömàn",
     ]
-    not_found_words, embeddings = get_embeddings_from_word_set(
+    not_found_words, embeddings = get_embeddings_from_set(
         model, WORDS, [{"strip_accents": True}]
     )
 
@@ -228,7 +228,7 @@ def test_get_embeddings_from_word_set(model):
         "mán",
         "WöMàn",
     ]
-    not_found_words, embeddings = get_embeddings_from_word_set(
+    not_found_words, embeddings = get_embeddings_from_set(
         model,
         WORDS,
         [
@@ -254,7 +254,7 @@ def test_get_embeddings_from_word_set(model):
         "mán",
         "WöMàn",
     ]
-    not_found_words, embeddings = get_embeddings_from_word_set(
+    not_found_words, embeddings = get_embeddings_from_set(
         model,
         WORDS,
         [
@@ -275,7 +275,7 @@ def test_get_embeddings_from_word_set(model):
     # test normalize
     WORDS = ["man", "woman"]
 
-    _, embeddings = get_embeddings_from_word_set(model, WORDS, normalize=True)
+    _, embeddings = get_embeddings_from_set(model, WORDS, normalize=True)
 
     assert 0.99999 < np.linalg.norm(embeddings["man"]) < 1.00001
     assert 0.99999 < np.linalg.norm(embeddings["woman"]) < 1.00001
@@ -404,13 +404,8 @@ def test_get_embeddings_from_sets(model, caplog, capsys):
         )
         out = capsys.readouterr().out
         assert len(embedding_pairs_2) == 3
-        assert (
-            "The word(s) ['vbbge'] of the definning pair at index 3 were not found. "
-            "This pair will be omitted." in caplog.text
-        )
-        assert "The word(s) ['ddsds', 'ferhh'] of the definning pair at index 4 were "
-        "not found. This pair will be omitted." in caplog.text
-        pass
+        assert "Word(s) found: ['the'], not found: ['vbbge']" in out
+        assert "Word(s) found: [], not found: ['ddsds', 'ferhh']" in out
 
         assert "3/5 sets of words were correctly converted to sets of embeddings" in out
 

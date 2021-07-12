@@ -21,14 +21,14 @@ class BaseMetric(ABC):
     # The initials or short name of the metric
     metric_short_name: str
 
-    def _check_input(self, query: Query, word_embedding: WordEmbeddingModel,) -> None:
+    def _check_input(self, query: Query, model: WordEmbeddingModel) -> None:
         """Check if Query and WordEmbeddingModel parameters are valid.
 
         Parameters
         ----------
         query : Query
             The query that the method will execute.
-        word_embedding :
+        model : WordEmbeddingModel
             A word embedding model.
 
         Raises
@@ -53,10 +53,10 @@ class BaseMetric(ABC):
             raise TypeError("query should be a Query instance, got {}".format(query))
 
         # check if the word_embedding is a instance of
-        if not isinstance(word_embedding, WordEmbeddingModel):
+        if not isinstance(model, WordEmbeddingModel):
             raise TypeError(
                 "word_embedding should be a WordEmbeddingModel instance, "
-                "got: {}".format(word_embedding)
+                "got: {}".format(model)
             )
 
         # templates:
@@ -97,7 +97,7 @@ class BaseMetric(ABC):
     def run_query(
         self,
         query: Query,
-        word_embedding: WordEmbeddingModel,
+        model: WordEmbeddingModel,
         lost_vocabulary_threshold: float = 0.2,
         preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",

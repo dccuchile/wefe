@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 class RNSB(BaseMetric):
-    """A implementation of Relative Relative Negative Sentiment Bias (RNSB).
+    """Relative Relative Negative Sentiment Bias (RNSB).
 
     References
     ----------
@@ -210,7 +210,7 @@ class RNSB(BaseMetric):
     def run_query(
         self,
         query: Query,
-        word_embedding: WordEmbeddingModel,
+        model: WordEmbeddingModel,
         estimator: BaseEstimator = LogisticRegression,
         estimator_params: Dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},
         num_iterations: int = 1,
@@ -239,8 +239,8 @@ class RNSB(BaseMetric):
             A Query object that contains the target and attribute word sets to
             be tested.
 
-        word_embedding_model : WordEmbeddingModel
-            An object containing a word embeddings model.
+        model : WordEmbeddingModel
+            A word embedding model.
 
         estimator : BaseEstimator, optional
             A scikit-learn classifier class that implements predict_proba function,
@@ -331,7 +331,7 @@ class RNSB(BaseMetric):
         >>> from wefe.query import Query
         >>> from wefe.utils import load_test_model
         >>> from wefe.metrics import RNSB
-        >>> 
+        >>>
         >>> # define the query
         >>> query = Query(
         ...     target_sets=[
@@ -348,10 +348,10 @@ class RNSB(BaseMetric):
         ...     target_sets_names=["Female terms", "Male Terms"],
         ...     attribute_sets_names=["Family", "Careers"],
         ... )
-        >>> 
+        >>>
         >>> # load the model (in this case, the test model included in wefe)
         >>> model = load_test_model()
-        >>> 
+        >>>
         >>> # instance the metric and run the query
         >>> RNSB().run_query(query, model) # doctest: +SKIP
         {
@@ -398,11 +398,11 @@ class RNSB(BaseMetric):
         }
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, word_embedding)
+        self._check_input(query, model)
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
-            model=word_embedding,
+            model=model,
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessors=preprocessors,

@@ -1,7 +1,7 @@
 from wefe.word_embedding_model import WordEmbeddingModel
 from wefe.query import Query
 from wefe.metrics.base_metric import BaseMetric
-from wefe.metrics.WEAT import WEAT
+from wefe.metrics import WEAT
 from wefe.metrics.RND import RND
 from wefe.metrics.RNSB import RNSB
 from wefe.metrics.MAC import MAC
@@ -13,6 +13,7 @@ from wefe.datasets import (
     fetch_eds,
     load_weat,
 )
+from wefe.debias import HardDebias, MulticlassHardDebias
 from wefe._version import __version__
 
 __all__ = [
@@ -25,6 +26,8 @@ __all__ = [
     "RNSB",
     "MAC",
     "ECT",
+    "HardDebias",
+    "MulticlassHardDebias",
     "load_bingliu",
     "fetch_debias_multiclass",
     "fetch_debiaswe",

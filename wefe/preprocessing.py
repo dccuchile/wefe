@@ -83,7 +83,7 @@ def preprocess_word(
     return word
 
 
-def get_embeddings_from_word_set(
+def get_embeddings_from_set(
     model: WordEmbeddingModel,
     word_set: Sequence[str],
     preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
@@ -219,40 +219,12 @@ def get_embeddings_from_word_set(
         }
 
     if verbose:
-        print(f"Words found during the transformation: {selected_embeddings.keys()}")
-        print(f"Words not found during the transformation: {not_found_words}")
+        print(
+            f"Word(s) found: {list(selected_embeddings.keys())}, "
+            f"not found: {not_found_words}"
+        )
 
     return not_found_words, selected_embeddings
-
-
-# class WordEmbeddingMapper(TransformerMixin):
-#     def __init__(
-#         self,
-#         model: WordEmbeddingModel,
-#         preprocessor_args: PreprocessorArgs = {},
-#         secondary_preprocessor_args: PreprocessorArgs = None,
-#         normalize: bool = False,
-#     ) -> None:
-#         self.preprocessor_args = preprocessor_args
-#         self.secondary_preprocessor_args = secondary_preprocessor_args
-#         self.normalize = normalize
-
-#     def fit_transform(self, X, y, **fit_params):
-#         return super().fit_transform(X, y=y, **fit_params)
-
-#     def fit(self, X, y=None):
-#         return self
-
-#     def transform(self, X: Sequence[str], y=None) -> np.ndarray:
-#         _, selected_embeddings = get_embeddings_from_word_set(
-#             self.model,
-#             X,
-#             self.preprocessor_args,
-#             self.secondary_preprocessor_args,
-#             self.normalize,
-#         )
-#         embeddings = np.array(selected_embeddings.values)
-#         return embeddings
 
 
 def _warn_not_found_words(
@@ -320,6 +292,7 @@ def get_embeddings_from_sets(
     preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
     strategy: str = "first",
     normalize: bool = False,
+    discard_incomplete_sets: bool = True,
     warn_lost_sets: bool = True,
     verbose: bool = False,
 ) -> List[EmbeddingDict]:
@@ -338,6 +311,51 @@ def get_embeddings_from_sets(
         This parameter is used only for printing.
         by default None
 
+        preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+        A list with preprocessor options.
+
+        A dictionary of preprocessing options is a dictionary that specifies what
+        transformations will be made to each word prior to being searched in the
+        word embedding model vocabulary.
+        For example, `{'lowecase': True, 'strip_accents': True}` allows you to
+        transform the words to lowercase and remove the accents and then search
+        for them in the model.
+        Note that an empty dictionary `{}` indicates that no transformation
+        will be made to any word.
+
+        A list of these preprocessor options will allow you to search for several
+        variants of the words (depending on the search strategy) into the model.
+        For example `[{}, {'lowecase': True, 'strip_accents': True}]` allows you
+        to search for each word, first, without any transformation and then,
+        transformed to lowercase and without accents.
+
+        The available word preprocessing options are as follows (it is not necessary
+        to put them all):
+
+        - `lowercase`: `bool`. Indicates if the words are transformed to lowercase.
+        - `uppercase`: `bool`. Indicates if the words are transformed to uppercase.
+        - `titlecase`: `bool`. Indicates if the words are transformed to titlecase.
+        - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents
+                            of the words are eliminated. The stripping type can be
+                            specified. True uses 'unicode' by default.
+        - `preprocessor`: `Callable`. It receives a function that operates on each
+                        word. In the case of specifying a function, it overrides
+                        the default preprocessor (i.e., the previous options
+                        stop working).
+        by default [{}].
+
+    strategy : str, optional
+        The strategy indicates how it will use the preprocessed words: 'first' will
+        include only the first transformed word found. all' will include all
+        transformed words found, by default "first".
+
+    normalize : bool, optional
+        True indicates that embeddings will be normalized, by default False
+
+    discard_incomplete_sets : bool, optional
+        True indicates that if a set could not be completely converted, it will be
+        discarded., by default True
+
     warn_lost_sets : bool, optional
         Indicates whether word sets that cannot be fully converted to embeddings
         are warned in the logger,
@@ -354,7 +372,6 @@ def get_embeddings_from_sets(
         and as values their associated embeddings.
 
     """
-
     # TODO: Agregar comprobación para model.
     if not isinstance(sets, (list, tuple, np.ndarray)):
         raise TypeError(
@@ -393,15 +410,15 @@ def get_embeddings_from_sets(
         # TODO: Add identifier of the set that is being transformed.
         # if verbose:
         #     print(f"Transforming '{}' set ")
-        not_found_words, embedding_pair = get_embeddings_from_word_set(
+        not_found_words, embedding_pair = get_embeddings_from_set(
             model, set_, preprocessors, strategy, normalize, verbose
         )
 
         # If some word of the current pair can not be converted, discard the pair.
-        if len(not_found_words) > 0 and warn_lost_sets:
-            set_name = f"of the {sets_name} " if sets_name else ""
+        if discard_incomplete_sets and len(not_found_words) > 0 and warn_lost_sets:
+            set_name = f" of {sets_name} pair" if sets_name else ""
             logging.warning(
-                f"The word(s) {not_found_words} {set_name}pair at index {set_idx} "
+                f"Word(s) {not_found_words}{set_name} at index {set_idx} "
                 "were not found. This pair will be omitted."
             )
         else:
@@ -544,7 +561,7 @@ def get_embeddings_from_query(
     # --------------------------------------------------------------------
     # get target sets embeddings
     for target_set, target_set_name in zip(query.target_sets, query.target_sets_names):
-        not_found_words, obtained_embeddings = get_embeddings_from_word_set(
+        not_found_words, obtained_embeddings = get_embeddings_from_set(
             model=model,
             word_set=target_set,
             preprocessors=preprocessors,
@@ -577,7 +594,7 @@ def get_embeddings_from_query(
         query.attribute_sets, query.attribute_sets_names
     ):
 
-        not_found_words, obtained_embeddings = get_embeddings_from_word_set(
+        not_found_words, obtained_embeddings = get_embeddings_from_set(
             model=model,
             word_set=attribute_set,
             preprocessors=preprocessors,

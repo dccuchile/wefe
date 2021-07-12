@@ -107,7 +107,7 @@ def fetch_eds(
     word_sets_dict["male_occupations"] = male_occupations
     word_sets_dict["female_occupations"] = female_occupations
 
-    # ---- Occupations by Race ----
+    # ---- Occupations by Ethnicity ----
 
     occupations = pd.read_csv(EDS_BASE_URL + "occupation_percentages_race_occ1950.csv")
     occupations_filtered = occupations[occupations["Census year"] == occupations_year]
@@ -263,19 +263,25 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
     """Fetch the word sets used in the paper Black Is To Criminals Caucasian
     Is To Police: Detecting And Removing Multiclass Bias In Word Embeddings.
 
-    This dataset gender (male, female), ethnicity(asian, black, white) and
-    religion(christianity, judaism and islam) target and attribute word sets.
-
+    This dataset contains gender (male, female), ethnicity(asian, black, white) and
+    religion (christianity, judaism and islam) word sets.
+    This helper allows to access independently to each of the word sets (to be used
+    as target or attribute sets in metrics) as well as to access them in the original
+    format (to be used in debiasing methods).
+    The dictionary keys whose names contain definitional sets and analogies
+    templates are the keys that point to the original format focused on debiasing.
+    
     References
     ----------
-    Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
-    Black is to criminals caucasian is to police: Detecting and removing
-    multiclass bias in word embeddings. In Proceedings of the 2019 Conference
-    of the North American Chapter of the Association for Computational
-    Linguistics:
-    Human Lan-guage Technologies, Volume 1 (Long and Short Papers),pages
-    615–621, Minneapolis, Minnesota, June 2019.
-    As-sociation for Computational Linguistics.
+    | [1]: Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
+    | Black is to criminalas caucasian is to police: Detecting and removing multiclass
+    | bias in word embeddings.
+    | In Proceedings of the 2019 Conference of the North American Chapter of the
+    | Association for Computational Linguistics:
+    | Human Language Technologies, Volume 1 (Long and Short Papers), pages 615–621,
+    | Minneapolis, Minnesota, June 2019. Association for Computational Linguistics.
+    | [2]: https://github.com/TManzini/DebiasMulticlassWordEmbedding/blob/master/Debiasing/evalBias.py
+
 
     Returns
     -------
@@ -296,50 +302,55 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
     ]
     # fetch gender
     with urllib.request.urlopen(BASE_URL + WORD_SETS_FILES[0]) as file:
-        gender_attributes = json.loads(file.read().decode())
+        gender = json.loads(file.read().decode())
 
-        gender_definitional_sets = np.array(gender_attributes["definite_sets"])
+        gender_definitional_sets = np.array(gender["definite_sets"])
 
         female_terms = gender_definitional_sets[:, 1].tolist()
         male_terms = gender_definitional_sets[:, 0].tolist()
 
-        gender_analogy_templates = gender_attributes["analogy_templates"]["role"]
+        gender_analogy_templates = gender["analogy_templates"]["role"]
         male_roles = gender_analogy_templates["man"]
         female_roles = gender_analogy_templates["woman"]
 
-    # fetch race
+        gender_eval_target = gender["eval_targets"]
+
+    # fetch ethnicity
     with urllib.request.urlopen(BASE_URL + WORD_SETS_FILES[1]) as file:
-        race_attributes = json.loads(file.read().decode())
+        ethnicity = json.loads(file.read().decode())
 
-        race_definitional_sets = np.array(race_attributes["definite_sets"])
+        ethnicity_definitional_sets = np.array(ethnicity["definite_sets"])
 
-        black = np.unique(race_definitional_sets[:, 0]).tolist()
-        white = np.unique(race_definitional_sets[:, 1]).tolist()
-        asian = np.unique(race_definitional_sets[:, 2]).tolist()
+        black = np.unique(ethnicity_definitional_sets[:, 0]).tolist()
+        white = np.unique(ethnicity_definitional_sets[:, 1]).tolist()
+        asian = np.unique(ethnicity_definitional_sets[:, 2]).tolist()
 
-        race_analogy_templates = race_attributes["analogy_templates"]["role"]
-        white_biased_words = race_analogy_templates["caucasian"]
-        asian_biased_words = race_analogy_templates["asian"]
-        black_biased_words = race_analogy_templates["black"]
+        ethnicity_analogy_templates = ethnicity["analogy_templates"]["role"]
+        white_biased_words = ethnicity_analogy_templates["caucasian"]
+        asian_biased_words = ethnicity_analogy_templates["asian"]
+        black_biased_words = ethnicity_analogy_templates["black"]
+
+        ethnicity_eval_target = ethnicity["eval_targets"]
 
     # fetch religion
     with urllib.request.urlopen(BASE_URL + WORD_SETS_FILES[2]) as file:
-        religion_attributes = json.loads(file.read().decode())
+        religion = json.loads(file.read().decode())
 
-        religion_definitional_sets = np.array(religion_attributes["definite_sets"])
+        religion_definitional_sets = np.array(religion["definite_sets"])
 
         judaism = np.unique(religion_definitional_sets[:, 0]).tolist()
         christianity = np.unique(religion_definitional_sets[:, 1]).tolist()
         islam = np.unique(religion_definitional_sets[:, 2]).tolist()
 
-        religion_analogy_templates = religion_attributes["analogy_templates"][
-            "attribute"
-        ]
+        religion_analogy_templates = religion["analogy_templates"]["attribute"]
         greed = religion_analogy_templates["jew"]
         conservative = religion_analogy_templates["christian"]
         terrorism = religion_analogy_templates["muslim"]
 
+        religion_eval_target = religion["eval_targets"]
+
     word_sets_dict = {
+        # preprocessed word sets
         "male_terms": male_terms,
         "female_terms": female_terms,
         "male_roles": male_roles,
@@ -356,12 +367,16 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
         "greed": greed,
         "conservative": conservative,
         "terrorism": terrorism,
+        # original word sets
         "gender_definitional_sets": gender_definitional_sets.tolist(),
-        "race_definitional_sets": race_definitional_sets.tolist(),
+        "ethnicity_definitional_sets": ethnicity_definitional_sets.tolist(),
         "religion_definitional_sets": religion_definitional_sets.tolist(),
         "gender_analogy_templates": gender_analogy_templates,
-        "race_analogy_templates": race_analogy_templates,
+        "ethnicity_analogy_templates": ethnicity_analogy_templates,
         "religion_analogy_templates": religion_analogy_templates,
+        "gender_eval_target": gender_eval_target,
+        "ethnicity_eval_target": ethnicity_eval_target,
+        "religion_eval_target": religion_eval_target,
     }
     return word_sets_dict
 

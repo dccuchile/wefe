@@ -22,16 +22,16 @@ def model() -> WordEmbeddingModel:
 
 
 @pytest.fixture
-def weat_word_set():
+def weat_wordsets():
     return load_weat()
 
 
-def test_WEAT(model, weat_word_set):
+def test_WEAT(model, weat_wordsets):
 
     weat = WEAT()
     query = Query(
-        [weat_word_set["flowers"], weat_word_set["insects"]],
-        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5"]],
+        [weat_wordsets["flowers"], weat_wordsets["insects"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
@@ -91,12 +91,12 @@ def test_WEAT(model, weat_word_set):
     assert isinstance(results["p_value"], (float, np.number))
 
 
-def test_RND(model, weat_word_set):
+def test_RND(model, weat_wordsets):
 
     rnd = RND()
     query = Query(
-        [weat_word_set["flowers"], weat_word_set["insects"]],
-        [weat_word_set["pleasant_5"]],
+        [weat_wordsets["flowers"], weat_wordsets["insects"]],
+        [weat_wordsets["pleasant_5"]],
         ["Flowers", "Insects"],
         ["Pleasant"],
     )
@@ -106,12 +106,12 @@ def test_RND(model, weat_word_set):
     assert isinstance(results["result"], np.number)
 
 
-def test_RNSB(capsys, model, weat_word_set):
+def test_RNSB(capsys, model, weat_wordsets):
 
     rnsb = RNSB()
     query = Query(
-        [weat_word_set["flowers"], weat_word_set["insects"]],
-        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5"]],
+        [weat_wordsets["flowers"], weat_wordsets["insects"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
@@ -132,12 +132,12 @@ def test_RNSB(capsys, model, weat_word_set):
 
     query = Query(
         [
-            weat_word_set["flowers"],
-            weat_word_set["instruments"],
-            weat_word_set["male_terms"],
-            weat_word_set["female_terms"],
+            weat_wordsets["flowers"],
+            weat_wordsets["instruments"],
+            weat_wordsets["male_terms"],
+            weat_wordsets["female_terms"],
         ],
-        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
         ["Flowers", "Insects", "Male terms", "Female terms"],
         ["Pleasant", "Unpleasant"],
     )
@@ -165,8 +165,8 @@ def test_RNSB(capsys, model, weat_word_set):
     # lost word threshold test
     results = rnsb.run_query(
         Query(
-            [["bla", "asd"], weat_word_set["insects"]],
-            [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5"]],
+            [["bla", "asd"], weat_wordsets["insects"]],
+            [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
             ["Flowers", "Insects"],
             ["Pleasant", "Unpleasant"],
         ),
@@ -175,16 +175,16 @@ def test_RNSB(capsys, model, weat_word_set):
     assert np.isnan(np.nan)
 
 
-def test_MAC(model, weat_word_set):
+def test_MAC(model, weat_wordsets):
 
     mac = MAC()
     query = Query(
-        [weat_word_set["flowers"]],
+        [weat_wordsets["flowers"]],
         [
-            weat_word_set["pleasant_5"],
-            weat_word_set["pleasant_9"],
-            weat_word_set["unpleasant_5"],
-            weat_word_set["unpleasant_9"],
+            weat_wordsets["pleasant_5"],
+            weat_wordsets["pleasant_9"],
+            weat_wordsets["unpleasant_5"],
+            weat_wordsets["unpleasant_9"],
         ],
         ["Flowers"],
         ["Pleasant 5 ", "Pleasant 9", "Unpleasant 5", "Unpleasant 9"],
@@ -196,14 +196,19 @@ def test_MAC(model, weat_word_set):
         == "Flowers wrt Pleasant 5 , Pleasant 9, Unpleasant 5 and Unpleasant 9"
     )
     assert isinstance(results["result"], np.number)
+    assert isinstance(results["mac"], np.number)
+    assert isinstance(results["targets_eval"], dict)
+    assert len(results["targets_eval"]["Flowers"]) == len(weat_wordsets["flowers"])
+    # 4 = number of attribute sets
+    assert len(results["targets_eval"]["Flowers"][weat_wordsets["flowers"][0]]) == 4
 
 
-def test_ECT(model, weat_word_set):
+def test_ECT(model, weat_wordsets):
 
     ect = ECT()
     query = Query(
-        [weat_word_set["flowers"], weat_word_set["insects"]],
-        [weat_word_set["pleasant_5"]],
+        [weat_wordsets["flowers"], weat_wordsets["insects"]],
+        [weat_wordsets["pleasant_5"]],
         ["Flowers", "Insects"],
         ["Pleasant"],
     )

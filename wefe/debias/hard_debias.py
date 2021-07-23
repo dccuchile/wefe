@@ -164,22 +164,14 @@ class HardDebias(BaseDebias):
         else:
             ignore_ = set()
 
-        # info_log = np.linspace(0, len(embedding_model.vocab), 11, dtype=int)
-
         for word in tqdm(target_):
-            if word not in ignore_:
+            if word not in ignore_ and word in model.vocab:
                 current_embedding = model[word]
                 neutralized_embedding = self._drop(
                     current_embedding, bias_direction  # type: ignore
                 )
                 neutralized_embedding = neutralized_embedding.astype(np.float32)
                 model.update(word, neutralized_embedding)
-
-            # if idx in info_log:
-            #     print(
-            #         f"Progress: {np.trunc(idx/ len(embedding_model.vocab) * 100)}% "
-            #         f"- Current word index: {idx}"
-            #     )
 
     def _equalize(
         self,
@@ -188,24 +180,28 @@ class HardDebias(BaseDebias):
         bias_direction: np.ndarray,
     ):
         for equalize_pair_embeddings in equalize_pairs_embeddings:
-            (
-                (word_a, embedding_a),
-                (word_b, embedding_b,),
-            ) = equalize_pair_embeddings.items()
+            if (
+                isinstance(equalize_pair_embeddings, dict)
+                and len(equalize_pair_embeddings) == 2
+            ):
+                (
+                    (word_a, embedding_a),
+                    (word_b, embedding_b,),
+                ) = equalize_pair_embeddings.items()
 
-            y = self._drop((embedding_a + embedding_b) / 2, bias_direction)
+                y = self._drop((embedding_a + embedding_b) / 2, bias_direction)
 
-            z = np.sqrt(1 - np.linalg.norm(y) ** 2)
+                z = np.sqrt(1 - np.linalg.norm(y) ** 2)
 
-            if (embedding_a - embedding_b).dot(bias_direction) < 0:
-                z = -z
+                if (embedding_a - embedding_b).dot(bias_direction) < 0:
+                    z = -z
 
-            new_a = z * bias_direction + y
-            new_b = -z * bias_direction + y
+                new_a = z * bias_direction + y
+                new_b = -z * bias_direction + y
 
-            # Update the embedding set with the equalized embeddings
-            embedding_model.update(word_a, new_a.astype(np.float32))
-            embedding_model.update(word_b, new_b.astype(np.float32))
+                # Update the embedding set with the equalized embeddings
+                embedding_model.update(word_a, new_a.astype(np.float32))
+                embedding_model.update(word_b, new_b.astype(np.float32))
 
     def fit(
         self,
@@ -263,7 +259,7 @@ class HardDebias(BaseDebias):
             model=model,
             sets=definitional_pairs,
             sets_name="definitional",
-            warn_lost_sets=True,
+            warn_lost_sets=self.verbose,
             normalize=True,
             verbose=self.verbose,
         )
@@ -307,12 +303,11 @@ class HardDebias(BaseDebias):
         ]
 
         # Obtain the equalization pairs embeddings candidates
-        logger.debug("Obtaining equalize pairs.")
         self.equalize_pairs_embeddings_ = get_embeddings_from_sets(
             model=model,
             sets=self.equalize_pairs_candidates_,
             sets_name="equalize",
-            warn_lost_sets=True,
+            warn_lost_sets=self.verbose,
             normalize=True,
             verbose=self.verbose,
         )
@@ -325,6 +320,7 @@ class HardDebias(BaseDebias):
         target: Optional[List[str]] = None,
         ignore: Optional[List[str]] = None,
         copy: bool = True,
+        **transform_params,
     ) -> WordEmbeddingModel:
         """Execute hard debias over the provided model.
 

@@ -1,5 +1,4 @@
 """Tests of Hard Debias debiasing method."""
-from numpy import mat
 import pytest
 from gensim.models.keyedvectors import KeyedVectors
 
@@ -101,7 +100,24 @@ def test_hard_debias_checks(model):
         )
 
 
-def test_hard_debias_class(model):
+def test_hard_debias_class(model, capsys):
+
+    # -----------------------------------------------------------------
+    # Queries
+    weat_word_set = load_weat()
+    weat = WEAT()
+    query_1 = Query(
+        [weat_word_set["male_names"], weat_word_set["female_names"]],
+        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5"]],
+        ["Male Names", "Female Names"],
+        ["Pleasant", "Unpleasant"],
+    )
+    query_2 = Query(
+        [weat_word_set["male_names"], weat_word_set["female_names"]],
+        [weat_word_set["career"], weat_word_set["family"]],
+        ["Male Names", "Female Names"],
+        ["Pleasant", "Unpleasant"],
+    )
 
     debiaswe_wordsets = fetch_debiaswe()
 
@@ -109,30 +125,90 @@ def test_hard_debias_class(model):
     equalize_pairs = debiaswe_wordsets["equalize_pairs"]
     gender_specific = debiaswe_wordsets["gender_specific"]
 
+    # -----------------------------------------------------------------
+    # Gender Debias
     hd = HardDebias()
     hd.fit(
         model,
-        definitional_pairs,
+        definitional_pairs=definitional_pairs,
         equalize_pairs=equalize_pairs,
         criterion_name="gender",
     )
 
-    # -------------
-    # Gender Debias
-    gender_debiased_w2v = hd.transform(model, ignore=gender_specific, copy=True,)
+    gender_debiased_w2v = hd.transform(model, ignore=gender_specific, copy=True)
 
-    weat_word_set = load_weat()
-    weat = WEAT()
-    query = Query(
-        [weat_word_set["male_names"], weat_word_set["female_names"]],
-        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5"]],
-        ["Male Names", "Female Names"],
-        ["Pleasant", "Unpleasant"],
-    )
-    biased_results = weat.run_query(query, model)
-    debiased_results = weat.run_query(query, gender_debiased_w2v)
-
+    biased_results = weat.run_query(query_1, model, normalize=True)
+    debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
     assert debiased_results["weat"] < biased_results["weat"]
+
+    biased_results = weat.run_query(query_2, model, normalize=True)
+    debiased_results = weat.run_query(query_2, gender_debiased_w2v, normalize=True)
+    assert debiased_results["weat"] < biased_results["weat"]
+
+    # -----------------------------------------------------------------
+    # Test target param
+    hd = HardDebias(verbose=True)
+
+    attributes = weat_word_set["pleasant_5"] + weat_word_set["unpleasant_5"]
+
+    gender_debiased_w2v = hd.fit(
+        model,
+        definitional_pairs=definitional_pairs,
+        equalize_pairs=equalize_pairs,
+        criterion_name="gender",
+    ).transform(model, target=attributes, copy=True)
+
+    biased_results = weat.run_query(query_1, model, normalize=True)
+    debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
+    assert debiased_results["weat"] < biased_results["weat"]
+
+    biased_results = weat.run_query(query_2, model, normalize=True)
+    debiased_results = weat.run_query(query_2, gender_debiased_w2v, normalize=True)
+    assert debiased_results["weat"] - biased_results["weat"] < 0.000000
+
+    # -----------------------------------------------------------------
+    # Test ignore param
+    hd = HardDebias(verbose=True)
+
+    # in this test, the targets and attributes are included in the ignore list.
+    # this implies that neither of these words should be subjected to debias and
+    # therefore, both queries when executed with weat should return the same score.
+    targets = weat_word_set["male_names"] + weat_word_set["female_names"]
+    attributes = weat_word_set["pleasant_5"] + weat_word_set["unpleasant_5"]
+    gender_debiased_w2v = hd.fit(
+        model,
+        definitional_pairs,
+        equalize_pairs=equalize_pairs,
+        criterion_name="gender",
+    ).transform(model, ignore=gender_specific + targets + attributes, copy=True)
+
+    biased_results = weat.run_query(query_1, model, normalize=True)
+    debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
+
+    assert debiased_results["weat"] - biased_results["weat"] < 0.000000
+
+    # -----------------------------------------------------------------
+    # Test verbose
+    hd = HardDebias(verbose=True)
+    gender_debiased_w2v = hd.fit(
+        model,
+        definitional_pairs,
+        equalize_pairs=equalize_pairs,
+        criterion_name="gender",
+    ).transform(model, ignore=gender_specific, copy=True)
+
+    out = capsys.readouterr().out
+    assert "Obtaining definitional pairs." in out
+    assert "PCA variance explained:" in out
+    assert "Identifying the bias subspace" in out
+    assert "Obtaining equalize pairs candidates by creating" in out
+    assert "Obtaining equalize pairs" in out
+    assert f"Executing Hard Debias on {model.name}" in out
+    assert "copy argument is True. Transform will attempt to create a copy" in out
+    assert "Normalizing embeddings" in out
+    assert "Neutralizing embeddings" in out
+    assert "Equalizing embeddings" in out
+    assert "Done!" in out
 
 
 def test_multiclass_hard_debias_class(model):
@@ -166,8 +242,8 @@ def test_multiclass_hard_debias_class(model):
         ["Pleasant", "Unpleasant"],
     )
     # tests with WEAT
-    biased_results = weat.run_query(gender_query, model)
-    debiased_results = weat.run_query(gender_query, gender_debiased_w2v)
+    biased_results = weat.run_query(gender_query, model, normalize=True)
+    debiased_results = weat.run_query(gender_query, gender_debiased_w2v, normalize=True)
     assert debiased_results["weat"] < biased_results["weat"]
 
     # test with MAC (from the original repository)
@@ -212,8 +288,10 @@ def test_multiclass_hard_debias_class(model):
         ["european_american_names_5", "african_american_names_5"],
         ["pleasant_5", "unpleasant_5"],
     )
-    biased_results = weat.run_query(ethnicity_query, model)
-    debiased_results = weat.run_query(ethnicity_query, ethnicity_debiased_w2v)
+    biased_results = weat.run_query(ethnicity_query, model, normalize=True)
+    debiased_results = weat.run_query(
+        ethnicity_query, ethnicity_debiased_w2v, normalize=True
+    )
 
     assert debiased_results["weat"] < biased_results["weat"]
 

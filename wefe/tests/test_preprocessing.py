@@ -568,6 +568,12 @@ def test_preprocessor_args_on_get_embeddings_from_query(caplog, simple_query, mo
 def test_threshold_param_on_get_embeddings_from_query(caplog, simple_query, model):
     query, flowers, insects, pleasant, unpleasant = simple_query
 
+    # check param type
+    with pytest.raises(
+        TypeError, match=r"lost_vocabulary_threshold should be float, .*"
+    ):
+        get_embeddings_from_query(model, query, lost_vocabulary_threshold='')
+
     # with lost vocabulary threshold.
     flowers_ = flowers + ["aaa", "aab", "aac", "aad", "aaf", "aag", "aah", "aai", "aaj"]
     query = Query(
@@ -661,3 +667,4 @@ def test_threshold_param_on_get_embeddings_from_query(caplog, simple_query, mode
     embeddings = get_embeddings_from_query(model, query, lost_vocabulary_threshold=0.5)
 
     assert embeddings is not None
+

@@ -7,11 +7,10 @@ from wefe.metrics.base_metric import BaseMetric
 from wefe.query import Query
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.word_embedding_model import WordEmbeddingModel
-from wefe.utils import cosine_distance
 
 
 class MAC(BaseMetric):
-    """Mean Average Cosine Similarity (MAC) .
+    """Mean Average Cosine Similarity (MAC).
 
     The general steps of the test are as follows [1]:
 
@@ -27,9 +26,8 @@ class MAC(BaseMetric):
 
     References
     ----------
-
     | [1]: Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
-    | Black is to criminalas caucasian is to police: Detecting and removing multiclass
+    | Black is to criminal as caucasian is to police: Detecting and removing multiclass
     | bias in word embeddings.
     | In Proceedings of the 2019 Conference of the North American Chapter of the
     | Association for Computational Linguistics:
@@ -42,7 +40,7 @@ class MAC(BaseMetric):
     metric_name = "Mean Average Cosine Similarity"
     metric_short_name = "MAC"
 
-    def _calc_s(self, t: np.ndarray, A_j: np.ndarray) -> float:
+    def _calc_s(self, t: np.ndarray, A_j: np.ndarray) -> np.number:
         """Calculate the mean cos similarity of a target embedding and a attribute set.
 
         Parameters
@@ -161,7 +159,7 @@ class MAC(BaseMetric):
             True indicates that embeddings will be normalized, by default False
 
         warn_not_found_words : bool, optional
-            Specifies if the function will warn (in the logger)
+            Specifies if the function will warn
             the words that were not found in the model's vocabulary
             , by default False.
 
@@ -171,6 +169,57 @@ class MAC(BaseMetric):
             A dictionary with the query name, the resulting score of the metric,
             and a dictionary with the distances of each attribute word
             with respect to the target sets means.
+
+        Examples
+        --------
+        >>> from wefe.metrics import MAC
+        >>> from wefe.query import Query
+        >>> from wefe.utils import load_test_model
+        >>>
+        >>> query = Query(
+        ...     target_sets=[
+        ...         ["female", "woman", "girl", "sister", "she", "her", "hers",
+        ...          "daughter"],
+        ...         ["male", "man", "boy", "brother", "he", "him", "his", "son"],
+        ...     ],
+        ...     attribute_sets=[
+        ...         ["home", "parents", "children", "family", "cousins", "marriage",
+        ...          "wedding", "relatives",
+        ...         ],
+        ...         ["executive", "management", "professional", "corporation", "salary",
+        ...          "office", "business", "career",
+        ...         ],
+        ...     ],
+        ...     target_sets_names=["Female terms", "Male Terms"],
+        ...     attribute_sets_names=["Family", "Careers"],
+        ... )
+        >>>
+        >>> # load the model (in this case, the test model included in wefe)
+        >>> model = load_test_model()
+        >>>
+        >>> # instance the metric and run the query
+        >>> MAC().run_query(query, model) # doctest: +SKIP
+        {'query_name': 'Female terms and Male Terms wrt Family and Careers',
+        'result': 0.8416415235615204,
+        'mac': 0.8416415235615204,
+        'targets_eval': {'Female terms': {'female': {'Family': 0.9185737599618733,
+            'Careers': 0.916069650076679},
+            'woman': {'Family': 0.752434104681015, 'Careers': 0.9377805145923048},
+            'girl': {'Family': 0.707457959651947, 'Careers': 0.9867974997032434},
+            'sister': {'Family': 0.5973392464220524, 'Careers': 0.9482253392925486},
+            'she': {'Family': 0.7872791914269328, 'Careers': 0.9161583095556125},
+            'her': {'Family': 0.7883057091385126, 'Careers': 0.9237247597193345},
+            'hers': {'Family': 0.7385367527604103, 'Careers': 0.9480051446007565},
+            'daughter': {'Family': 0.5472579970955849, 'Careers': 0.9277344475267455}},
+        'Male Terms': {'male': {'Family': 0.8735092766582966,
+            'Careers': 0.9468009045813233},
+            'man': {'Family': 0.8249392118304968, 'Careers': 0.9350165261421353},
+            'boy': {'Family': 0.7106057899072766, 'Careers': 0.9879048476286698},
+            'brother': {'Family': 0.6280269809067249, 'Careers': 0.9477180293761194},
+            'he': {'Family': 0.8693044614046812, 'Careers': 0.8771287016716087},
+            'him': {'Family': 0.8230192996561527, 'Careers': 0.888683641096577},
+            'his': {'Family': 0.8876195731572807, 'Careers': 0.8920885202242061},
+            'son': {'Family': 0.5764635019004345, 'Careers': 0.9220191016211174}}}}
         """
         # check the types of the provided arguments (only the defaults).
         self._check_input(query, model)

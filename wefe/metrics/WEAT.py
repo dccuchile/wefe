@@ -4,6 +4,7 @@ import math
 from typing import Any, Callable, Dict, List, Set, Tuple, Union
 
 import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 
 from wefe.metrics.base_metric import BaseMetric
 from wefe.word_embedding_model import (
@@ -11,7 +12,6 @@ from wefe.word_embedding_model import (
     WordEmbeddingModel,
 )
 from wefe.preprocessing import get_embeddings_from_query
-from wefe.utils import cosine_similarity
 from wefe.query import Query
 
 
@@ -36,8 +36,8 @@ class WEAT(BaseMetric):
 
     def _calc_s(self, w, A, B) -> np.number:
 
-        A_mean_sim = np.mean([cosine_similarity(w, a) for a in A], dtype=np.float64)
-        B_mean_sim = np.mean([cosine_similarity(w, b) for b in B], dtype=np.float64)
+        A_mean_sim = np.mean(cosine_similarity([w], A), dtype=np.float64)
+        B_mean_sim = np.mean(cosine_similarity([w], B), dtype=np.float64)
         return A_mean_sim - B_mean_sim
 
     def _calc_weat(self, X, Y, A, B) -> np.number:

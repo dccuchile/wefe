@@ -258,7 +258,7 @@ def _check_lost_vocabulary_threshold(
     lost_vocabulary_threshold: float,
 ):
 
-    if not isinstance(lost_vocabulary_threshold, (float, (np.floating, float))):
+    if not isinstance(lost_vocabulary_threshold, (float, np.floating)):
         raise TypeError(
             "lost_vocabulary_threshold should be float, "
             "got {}.".format(lost_vocabulary_threshold)
@@ -370,9 +370,7 @@ def get_embeddings_from_sets(
     List[EmbeddingDict]
         A list of dictionaries. Each dictionary contains as keys a pair of words
         and as values their associated embeddings.
-
     """
-    # TODO: Agregar comprobación para model.
     if not isinstance(sets, (list, tuple, np.ndarray)):
         raise TypeError(
             "sets should be a sequence of sequences (list, tuple or np.array) "
@@ -535,19 +533,6 @@ def get_embeddings_from_query(
         A tuple of dictionaries containing the targets and attribute sets or None
         in case there is a set that has proportionally less embeddings than it was
         allowed to lose.
-
-    Raises
-    ------
-    TypeError
-        If query is not an instance of Query
-    TypeError
-        If lost_vocabulary_threshold is not float
-    TypeError
-        If preprocessor_args is not a dictionary
-    TypeError
-        If secondary_preprocessor_args is not a dictionary
-    TypeError
-        If warn_not_found_words is not a boolean
     """
     # Type check
     if not isinstance(query, Query):

@@ -45,6 +45,14 @@ def test__init__():
 
     w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
 
+    with pytest.raises(TypeError, match=r"name should be a string or None, got"):
+        WordEmbeddingModel(w2v, name=1)
+
+    with pytest.raises(
+        TypeError, match=r"vocab_prefix should be a string or None, got"
+    ):
+        WordEmbeddingModel(w2v, vocab_prefix=1)
+
     # test models
     model = WordEmbeddingModel(w2v)
     assert model.wv == w2v
@@ -66,6 +74,9 @@ def test__eq__(word2vec_test):
     model_1 = WordEmbeddingModel(word2vec_test.wv, "w2v")
     model_2 = WordEmbeddingModel(word2vec_test.wv, "w2v_2")
     model_3 = WordEmbeddingModel(word2vec_test.wv, "w2v_3", vocab_prefix="a")
+    model_3_ = WordEmbeddingModel(word2vec_test.wv, "w2v_3", vocab_prefix="b")
+
+    assert model_1 != ""
 
     assert model_1 == model_1
     assert model_1 != model_2
@@ -76,6 +87,8 @@ def test__eq__(word2vec_test):
 
     assert model_2 != model_3
     assert model_3 == model_3
+
+    assert model_3_ != model_3
 
 
 def test__getitem__(word2vec_test):

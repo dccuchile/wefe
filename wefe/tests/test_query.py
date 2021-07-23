@@ -1,3 +1,4 @@
+"""Query Testing"""
 import pytest
 from wefe.datasets.datasets import load_weat
 from wefe.query import Query
@@ -156,8 +157,7 @@ def test_eq():
     query_bad_name_4 = Query(
         [flowers, insects],
         [pleasant_1, unpleasant_1],
-        ["Flowers", "Insects"],
-        ["Pleasant 1", "asant 2"],
+        attribute_sets_names=["Pleasant 1", "asant 2"],
     )
 
     assert query_bad_name_1 != query
@@ -185,9 +185,13 @@ def test_templates():
     )
 
     # input validation
-    with pytest.raises(TypeError, match="The new target cardinality (new_template[0])*"):
+    with pytest.raises(
+        TypeError, match="The new target cardinality (new_template[0])*"
+    ):
         query.get_subqueries(("2", 2))
-    with pytest.raises(TypeError, match="The new target cardinality (new_template[0])*"):
+    with pytest.raises(
+        TypeError, match="The new target cardinality (new_template[0])*"
+    ):
         query.get_subqueries((None, 2))
     with pytest.raises(
         TypeError, match="The new attribute cardinality (new_template[1])*"
@@ -292,4 +296,50 @@ def test_generate_query_name():
         "and Target set 3 wrt Attribute set 0 and "
         "Attribute set 1"
     )
+
+    query = Query(
+        [
+            weat_word_set["flowers"],
+            weat_word_set["instruments"],
+            weat_word_set["weapons"],
+            weat_word_set["insects"],
+        ],
+        [],
+    )
+
+    assert (
+        query.query_name == "Target set 0, Target set 1, Target set 2 "
+        "and Target set 3"
+    )
+
+
+def test_wrong_target_and_attribute_sets_and_names(caplog):
+    weat_word_set = load_weat()
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            r"target_sets \(len=1\) does not have the same number of "
+            r"elements as target_sets_names \(len=2\)"
+        ),
+    ):
+        q = Query(
+            [weat_word_set["flowers"]],
+            [weat_word_set["pleasant_5"]],
+            ["Flowers", "asdf"],
+            ["Pleasant"],
+        )
+    with pytest.raises(
+        ValueError,
+        match=(
+            r"attribute_sets \(len=1\) does not have the same number of elements as "
+            r"attribute_sets_names \(len=2\)"
+        ),
+    ):
+        q = Query(
+            [weat_word_set["flowers"]],
+            [weat_word_set["pleasant_5"]],
+            ["Flowers"],
+            ["Pleasant", "asdf"],
+        )
 

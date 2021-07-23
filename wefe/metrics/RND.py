@@ -1,8 +1,8 @@
 """Relative Norm Distance (RND) metric implementation."""
 import numpy as np
 from typing import Any, Callable, Dict, List, Tuple, Union
+from sklearn.metrics.pairwise import cosine_similarity
 
-from wefe.utils import cosine_similarity
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 from wefe.metrics.base_metric import BaseMetric
@@ -34,12 +34,12 @@ class RND(BaseMetric):
             return np.linalg.norm(np.subtract(vec1, vec2))
         elif distance_type == "cos":
             # c = np.dot(vec1, vec2) / np.linalg.norm(vec1) / np.linalg.norm(vec2)
-            c = cosine_similarity(vec1, vec2)
-            return abs(c)
+            c = cosine_similarity([vec1], [vec2]).flatten()
+            return c[0]
         else:
-            raise Exception(
-                'Parameter distance_type can be either "norm" or "cos". '
-                "Given: {} ".format(distance_type)
+            raise ValueError(
+                'distance_type can be either "norm" or "cos", '
+                "got: {} ".format(distance_type)
             )
 
     def __calc_rnd(
@@ -49,7 +49,6 @@ class RND(BaseMetric):
         attribute: np.ndarray,
         attribute_words: list,
         distance_type: str,
-        average_distances: bool,
     ) -> Tuple[float, Dict[str, float]]:
 
         # calculates the average wv for the group words.
@@ -79,19 +78,15 @@ class RND(BaseMetric):
             k: v for k, v in sorted(distance_by_words.items(), key=lambda item: item[1])
         }
 
-        if average_distances:
-            # calculate the average of the distances and return
-            mean_distance = sum_of_distances / len(distance_by_words)
-            return mean_distance, sorted_distances_by_word
-
-        return sum_of_distances, sorted_distances_by_word
+        # calculate the average of the distances and return
+        mean_distance = sum_of_distances / len(distance_by_words)
+        return mean_distance, sorted_distances_by_word
 
     def run_query(
         self,
         query: Query,
         model: WordEmbeddingModel,
         distance: str = "norm",
-        average_distances: bool = True,
         lost_vocabulary_threshold: float = 0.2,
         preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
@@ -113,10 +108,6 @@ class RND(BaseMetric):
         distance : str, optional
             Specifies which type of distance will be calculated. It could be:
             {norm, cos} , by default 'norm'.
-
-        average_distances : bool, optional
-            Specifies wheter the function averages the distances at the end of
-            the calculations, by default True
 
         lost_vocabulary_threshold : float, optional
             Specifies the proportional limit of words that any set of the query is
@@ -291,7 +282,6 @@ class RND(BaseMetric):
             attribute_0_embeddings,
             attribute_0_words,
             distance,
-            average_distances,
         )
 
         return {

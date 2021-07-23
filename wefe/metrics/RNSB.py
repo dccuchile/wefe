@@ -23,11 +23,11 @@ class RNSB(BaseMetric):
 
     References
     ----------
-    [1] Chris Sweeney and Maryam Najafian.
-        A transparent framework for evaluating unintended demographic bias in word
-        embeddings.
-        In Proceedings of the 57th Annual Meeting of the Association for
-        Computational Linguistics, pages 1662–1667, 2019.
+    | [1]: Chris Sweeney and Maryam Najafian. A transparent framework for evaluating
+    |      unintended demographic bias in word embeddings.
+    |      In Proceedings of the 57th Annual Meeting of the Association for
+    |      Computational Linguistics, pages 1662–1667, 2019.
+    | [2]: https://github.com/ChristopherSweeney/AIFairness/blob/master/python_notebooks/Measuring_and_Mitigating_Word_Embedding_Bias.ipynb
     """
 
     metric_template = ("n", 2)
@@ -89,7 +89,7 @@ class RNSB(BaseMetric):
             attributes_labels,
             shuffle=True,
             random_state=random_state,
-            test_size=0.33,
+            test_size=0.1,
             stratify=attributes_labels,
         )
         X_embeddings_train, X_embeddings_test, y_train, y_test = split
@@ -100,14 +100,16 @@ class RNSB(BaseMetric):
         # Check the number of train and test examples.
         if num_train_positive_examples == 1:
             raise Exception(
-                "After dividing the datset using stratified train_test_split, "
-                "the attribute 0 has 0 training examples."
+                "After splitting the dataset using train_test_split "
+                "(with test_size=0.1), the first attribute remained with 0 training "
+                "examples."
             )
 
         if num_train_negative_examples < 1:
             raise Exception(
-                "After dividing the datset using stratified train_test_split, "
-                "the attribute 1 has 0 training examples."
+                "After splitting the dataset using train_test_split "
+                "(with test_size=0.1), the second attribute remained with 0 training "
+                "examples."
             )
 
         # when random_state is not none, set it on classifier params.
@@ -159,30 +161,19 @@ class RNSB(BaseMetric):
         ]
 
         # get the probabilities associated with each target word vector
-        probabilities = np.array(
-            [
-                classifier.predict_proba(target_embeddings)
-                for target_embeddings in target_embeddings_sets
-            ]
-        )
+        probabilities = [
+            classifier.predict_proba(target_embeddings)
+            for target_embeddings in target_embeddings_sets
+        ]
 
         # extract only the negative sentiment probability for each word
-        negative_probabilities = np.array(
-            [probability[:, 1] for probability in probabilities]
-        )
-
-        # flatten the array
         negative_probabilities = np.concatenate(
-            [
-                negative_probabilities_arr.flatten()
-                for negative_probabilities_arr in negative_probabilities
-            ]
+            [probability[:, 1].flatten() for probability in probabilities]
         )
 
         # normalization of the probabilities
-        sum_of_negative_probabilities = np.sum(negative_probabilities)
         normalized_negative_probabilities = np.array(
-            negative_probabilities / sum_of_negative_probabilities
+            negative_probabilities / np.sum(negative_probabilities)
         )
 
         # get the uniform dist
@@ -221,6 +212,8 @@ class RNSB(BaseMetric):
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
+        *args: Any,
+        **kwargs: Any
     ) -> Dict[str, Any]:
         """Calculate the RNSB metric over the provided parameters.
 
@@ -417,7 +410,7 @@ class RNSB(BaseMetric):
             return {
                 "query_name": query.query_name,
                 "result": np.nan,
-                "kl-divergence": np.nan,
+                "rnsb": np.nan,
                 "score": np.nan,
                 "negative_sentiment_probabilities": {},
                 "negative_sentiment_distribution": {},
@@ -473,7 +466,7 @@ class RNSB(BaseMetric):
         return {
             "query_name": query.query_name,
             "result": divergence,
-            "kl-divergence": divergence,
+            "rnsb": divergence,
             "clf_accuracy": np.mean(scores),
             "negative_sentiment_probabilities": negative_sentiment_probabilities,
             "negative_sentiment_distribution": negative_sentiment_distribution,

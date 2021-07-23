@@ -143,15 +143,11 @@ class Query:
             ]
         else:
             if len(target_sets_names) != self.template[0]:
-                logging.warning(
-                    "target_sets_names does not have the same elements ({}) as"
-                    " target_sets ({}). Setting default names".format(
-                        len(target_sets_names), self.template[0]
-                    )
+                raise ValueError(
+                    f"target_sets (len={self.template[0]}) does not have the same "
+                    "number of elements as target_sets_names "
+                    f"(len={len(target_sets_names)})"
                 )
-                self.target_sets_names = [
-                    "Target set {}".format(i) for i in range(self.template[0])
-                ]
             else:
                 self.target_sets_names = target_sets_names
 
@@ -162,16 +158,11 @@ class Query:
             ]
         else:
             if len(attribute_sets_names) != self.template[1]:
-                logging.warning(
-                    "attribute_sets_names does not have the same elements "
-                    " ({}) as attribute_sets ({}). Setting default names".format(
-                        len(attribute_sets_names), self.template[1]
-                    )
+                raise ValueError(
+                    f"attribute_sets (len={self.template[1]}) does not have the same "
+                    "number of elements as attribute_sets_names "
+                    f"(len={len(attribute_sets_names)})"
                 )
-                self.attribute_sets_names = [
-                    "Attribute set {}".format(i) for i in range(self.template[1])
-                ]
-
             else:
                 self.attribute_sets_names = attribute_sets_names
 

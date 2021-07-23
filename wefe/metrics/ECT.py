@@ -1,3 +1,4 @@
+"""Embedding Coherence Test metric implementation."""
 from typing import Any, Callable, Dict, List, Union
 from wefe.preprocessing import get_embeddings_from_query
 import numpy as np
@@ -14,14 +15,19 @@ class ECT(BaseMetric):
     """Embedding Coherence Test [1].
 
     The metric was originally proposed in [1] and implemented in [2].
-
+    Values closer to 1 are better as they represent less bias.
+    
     The general steps of the test, as defined in [1], are as follows:
 
     1. Embedd all given target and attribute words with the given embedding model.
     2. Calculate mean vectors for the two sets of target word vectors.
-    3. Measure the cosine similarity of the mean target vectors to all of the given attribute words.
-    4. Calculate the Spearman r correlation between the resulting two lists of similarities.
-    5. Return the correlation value as score of the metric (in the range of -1 to 1); higher is better.
+    3. Measure the cosine similarity of the mean target vectors to all of the given
+       attribute words.
+    4. Calculate the Spearman r correlation between the resulting two lists of
+       similarities.
+    5. Return the correlation value as score of the metric (in the range of -1 to 1);
+       higher is better.
+
 
     References
     ----------
@@ -47,7 +53,7 @@ class ECT(BaseMetric):
         *args: Any,
         **kwargs: Any
     ) -> Dict[str, Any]:
-        """Runs ECT with the given query with the given parameters.
+        """Run ECT with the given query with the given parameters.
 
         Parameters
         ----------
@@ -111,13 +117,48 @@ class ECT(BaseMetric):
             the words that were not found in the model's vocabulary
             , by default False.
 
-
         Returns
         -------
         Dict[str, Any]
             A dictionary with the query name and the result of the query.
-        """
 
+        Examples
+        --------
+        >>> from wefe.metrics import ECT
+        >>> from wefe.query import Query
+        >>> from wefe.utils import load_test_model
+        >>>
+        >>> # define the query
+        >>> query = Query(
+        ...     target_sets=[
+        ...         ["female", "woman", "girl", "sister", "she", "her", "hers",
+        ...          "daughter"],
+        ...         ["male", "man", "boy", "brother", "he", "him", "his", "son"],
+        ...     ],
+        ...     attribute_sets=[
+        ...         [
+        ...             "home", "parents", "children", "family", "cousins", "marriage",
+        ...             "wedding", "relatives",
+        ...         ],
+        ...     ],
+        ...     target_sets_names=["Female terms", "Male Terms"],
+        ...     attribute_sets_names=["Family"],
+        ... )
+        >>> # load the model (in this case, the test model included in wefe)
+        >>> model = load_test_model()
+        >>>
+        >>> # instance the metric and run the query
+        >>> ECT().run_query(query, model) # doctest: +SKIP
+        {'query_name': 'Female terms and Male Terms wrt Family',
+        'result': 0.6190476190476191,
+        'ect': 0.6190476190476191}
+        >>> # if you want the embeddings to be normalized before calculating the metrics
+        >>> # use the normalize parameter as True before executing the query.
+        >>> ECT().run_query(query, model, normalize=True) # doctest: +SKIP
+        {'query_name': 'Female terms and Male Terms wrt Family',
+        'result': 0.7619047619047621,
+        'ect': 0.7619047619047621}
+        """
         # check the types of the provided arguments (only the defaults).
         self._check_input(query, model)
 
@@ -134,7 +175,7 @@ class ECT(BaseMetric):
 
         # If the lost vocabulary threshold is exceeded, return the default value
         if embeddings is None:
-            return {"query_name": query.query_name, "result": np.nan}
+            return {"query_name": query.query_name, "result": np.nan, "ect": np.nan}
 
         # get the targets and attribute sets transformed into embeddings.
         target_sets, attribute_sets = embeddings
@@ -170,7 +211,6 @@ class ECT(BaseMetric):
         float
             The value denoting the Spearman correlation.
         """
-
         # Calculate mean vectors for both target vector sets
         target_means = [np.mean(s, axis=0) for s in (target_set_1, target_set_2)]
 

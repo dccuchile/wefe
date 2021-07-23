@@ -169,7 +169,7 @@ def test_load_weat():
             assert len(word) > 0
 
 
-def test_load_weat():
+def test_load_gn_glove():
     gn_glove_words = fetch_gn_glove()
     assert isinstance(gn_glove_words, dict)
     assert list(gn_glove_words.keys()) == ["male_terms", "female_terms"]

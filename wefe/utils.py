@@ -71,10 +71,10 @@ def check_is_fitted(estimator, attributes):
     _check_is_fitted(estimator, attributes, msg=msg)
 
 
-
 # -----------------------------------------------------------------------------
 # ---------------------------------- Runners ----------------------------------
 # -----------------------------------------------------------------------------
+
 
 AGGREGATION_FUNCTIONS = {
     "sum": lambda df: df.sum(1),

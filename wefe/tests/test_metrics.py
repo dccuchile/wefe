@@ -1,3 +1,4 @@
+"""Metrics Testing"""
 import numpy as np
 import pytest
 from gensim.models.keyedvectors import KeyedVectors
@@ -100,10 +101,44 @@ def test_RND(model, weat_wordsets):
         ["Flowers", "Insects"],
         ["Pleasant"],
     )
+    # test with euclidean distance
     results = rnd.run_query(query, model)
 
     assert results["query_name"] == "Flowers and Insects wrt Pleasant"
     assert isinstance(results["result"], np.number)
+    assert isinstance(results["rnd"], np.number)
+    assert isinstance(results["distances_by_word"], dict)
+    assert len(results["distances_by_word"]) > 0
+
+    # test with cosine distance
+    results = rnd.run_query(query, model, distance="cos")
+
+    assert results["query_name"] == "Flowers and Insects wrt Pleasant"
+    assert isinstance(results["result"], np.number)
+    assert isinstance(results["rnd"], np.number)
+    assert isinstance(results["distances_by_word"], dict)
+    assert len(results["distances_by_word"]) > 0
+
+    with pytest.raises(
+        ValueError, match=r'distance_type can be either "norm" or "cos", .*'
+    ):
+        rnd.run_query(query, model, distance="other_distance")
+
+    # lost word threshold test
+    results = rnd.run_query(
+        Query(
+            [["bla", "asd"], weat_wordsets["insects"]],
+            [weat_wordsets["pleasant_5"]],
+            ["Flowers", "Insects"],
+            ["Pleasant"],
+        ),
+        model,
+    )
+    assert results["query_name"] == "Flowers and Insects wrt Pleasant"
+    assert np.isnan(results["result"])
+    assert np.isnan(results["rnd"])
+    assert isinstance(results["distances_by_word"], dict)
+    assert len(results["distances_by_word"]) == 0
 
 
 def test_RNSB(capsys, model, weat_wordsets):
@@ -121,7 +156,7 @@ def test_RNSB(capsys, model, weat_wordsets):
     assert list(results.keys()) == [
         "query_name",
         "result",
-        "kl-divergence",
+        "rnsb",
         "clf_accuracy",
         "negative_sentiment_probabilities",
         "negative_sentiment_distribution",
@@ -161,6 +196,7 @@ def test_RNSB(capsys, model, weat_wordsets):
         == "Flowers, Insects, Male terms and Female terms wrt Pleasant and Unpleasant"
     )
     assert isinstance(results["result"], np.number)
+    assert isinstance(results["rnsb"], np.number)
 
     # lost word threshold test
     results = rnsb.run_query(
@@ -172,7 +208,32 @@ def test_RNSB(capsys, model, weat_wordsets):
         ),
         model,
     )
-    assert np.isnan(np.nan)
+    assert np.isnan(results["rnsb"])
+    assert np.isnan(results["result"])
+    assert isinstance(results["negative_sentiment_probabilities"], dict)
+    assert isinstance(results["negative_sentiment_distribution"], dict)
+    assert len(results["negative_sentiment_probabilities"]) == 0
+    assert len(results["negative_sentiment_distribution"]) == 0
+
+    # test random state
+    query = Query(
+        [
+            weat_wordsets["flowers"],
+            weat_wordsets["instruments"],
+            weat_wordsets["male_terms"],
+            weat_wordsets["female_terms"],
+        ],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        ["Flowers", "Insects", "Male terms", "Female terms"],
+        ["Pleasant", "Unpleasant"],
+    )
+    results = rnsb.run_query(query, model, random_state=42)
+
+    assert (
+        results["query_name"]
+        == "Flowers, Insects, Male terms and Female terms wrt Pleasant and Unpleasant"
+    )
+    assert isinstance(results["result"], np.number)
 
 
 def test_MAC(model, weat_wordsets):
@@ -202,6 +263,19 @@ def test_MAC(model, weat_wordsets):
     # 4 = number of attribute sets
     assert len(results["targets_eval"]["Flowers"][weat_wordsets["flowers"][0]]) == 4
 
+    # test metric with a target set that loses more words than allowed.
+    query = Query(
+        [weat_wordsets["flowers"], ["blabla", "asdf"]],
+        [weat_wordsets["pleasant_5"]],
+        ["Flowers", "Insects"],
+        ["Pleasant"],
+    )
+    results = mac.run_query(query, model)
+
+    assert results["query_name"] == "Flowers and Insects wrt Pleasant"
+    assert np.isnan(results["mac"])
+    assert np.isnan(results["result"])
+
 
 def test_ECT(model, weat_wordsets):
 
@@ -216,3 +290,18 @@ def test_ECT(model, weat_wordsets):
 
     assert results["query_name"] == "Flowers and Insects wrt Pleasant"
     assert isinstance(results["result"], np.number)
+    assert isinstance(results["ect"], np.number)
+
+    # test metric with a target set that loses more words than allowed.
+    query = Query(
+        [weat_wordsets["flowers"], ["blabla", "asdf"]],
+        [weat_wordsets["pleasant_5"]],
+        ["Flowers", "Insects"],
+        ["Pleasant"],
+    )
+    results = ect.run_query(query, model)
+
+    assert results["query_name"] == "Flowers and Insects wrt Pleasant"
+    assert np.isnan(results["ect"])
+    assert np.isnan(results["result"])
+

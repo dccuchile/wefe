@@ -62,7 +62,7 @@ def test_validate_metric_input(simple_model_and_query):
         Exception,
         match="The cardinality of the set of target words of the 'Flowers, Weapons and "
         "Instruments wrt Pleasant and Unpleasant' query does not match with the "
-        "cardinality required by Example Metric. Provided query: 3, metric: 2",
+        "cardinality required by EM. Provided query: 3, metric: 2",
     ):
         base_metric._check_input(query, test_model)
 
@@ -76,7 +76,7 @@ def test_validate_metric_input(simple_model_and_query):
         Exception,
         match="The cardinality of the set of attribute words of the 'Flowers and Weapons "
         "wrt Pleasant and Unpleasant' query does not match with the cardinality "
-        "required by Example Metric. Provided query: 2, metric: 3",
+        "required by EM. Provided query: 2, metric: 3",
     ):
         base_metric._check_input(query, test_model)
 

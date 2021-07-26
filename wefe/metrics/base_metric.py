@@ -71,7 +71,7 @@ class BaseMetric(ABC):
                 "query does not match with the cardinality required by {}. "
                 "Provided query: {}, metric: {}.".format(
                     query.query_name,
-                    self.metric_name,
+                    self.metric_short_name,
                     query.template[0],
                     self.metric_template[0],
                 )
@@ -87,7 +87,7 @@ class BaseMetric(ABC):
                 "'{}' query does not match with the cardinality "
                 "required by {}. Provided query: {}, metric: {}.".format(
                     query.query_name,
-                    self.metric_name,
+                    self.metric_short_name,
                     query.template[1],
                     self.metric_template[1],
                 )

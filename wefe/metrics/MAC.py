@@ -24,16 +24,18 @@ class MAC(BaseMetric):
                 * Calculate the mean of the cosines similarities and save it in a array.
     3. Average all the mean cosine similarities and return the calculated score.
 
+    The closer the value is to 1, the less biased the query will be.
+
     References
     ----------
-    | [1]: Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
-    | Black is to criminal as caucasian is to police: Detecting and removing multiclass
-    | bias in word embeddings.
-    | In Proceedings of the 2019 Conference of the North American Chapter of the
-    | Association for Computational Linguistics:
-    | Human Language Technologies, Volume 1 (Long and Short Papers), pages 615–621,
-    | Minneapolis, Minnesota, June 2019. Association for Computational Linguistics.
-    | [2]: https://github.com/TManzini/DebiasMulticlassWordEmbedding/blob/master/Debiasing/evalBias.py
+    |  [1]: Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
+    |  Black is to criminal as caucasian is to police: Detecting and removing multiclass
+    |  bias in word embeddings.
+    |  In Proceedings of the 2019 Conference of the North American Chapter of the
+    |  Association for Computational Linguistics:
+    |  Human Language Technologies, Volume 1 (Long and Short Papers), pages 615–621,
+    |  Minneapolis, Minnesota, June 2019. Association for Computational Linguistics.
+    |  [2]: https://github.com/TManzini/DebiasMulticlassWordEmbedding/blob/master/Debiasing/evalBias.py
     """
 
     metric_template = ("n", "n")

@@ -382,7 +382,7 @@ class HardDebias(BaseDebias):
         else:
             print(
                 "copy argument is False. The execution of this method will mutate "
-                "the embeddings of the provided model."
+                "the original model."
             )
 
         # ------------------------------------------------------------------------------

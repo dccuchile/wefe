@@ -3,7 +3,9 @@ User guide
 ==========
 
 The following guide is designed to present the more general details on
-using the package. Below:
+using the package to perform measurements and bias reductions. 
+
+In the first section of bias measurement:
 
 -  We first present how to run a simple query using some embedding
    model.
@@ -14,14 +16,23 @@ using the package. Below:
 -  Finally, we show how to calculate the correlations between the
    rankings obtained.
 
+In the second section of bias mitigation: 
+
+- We present the interface to reduce bias in Word Embeddings 
+  models through two different methods.
+
 
 .. warning::
 
-  To accurately study the biases contained in word embeddings, queries may
-  contain words that could be offensive to certain groups or individuals.
-  The relationships studied between these words DO NOT represent the
-  ideas, thoughts or beliefs of the authors of this library. This applies
-  to this and all pages of the documentation.
+    To accurately study and reduce biases contained in word embeddings, queries may
+    contain words that could be offensive to certain groups or individuals.
+    The relationships studied between these words DO NOT represent the
+    ideas, thoughts or beliefs of the authors of this library. This applies
+    to this and all pages of the documentation.
+
+Bias Measurement
+================
+
 
 
 .. note::
@@ -34,7 +45,6 @@ using the package. Below:
 
 A jupyter notebook with this code is located in the following link: `WEFE User
 Guide <https://github.com/dccuchile/wefe/blob/master/examples/User_Guide.ipynb>`__.
-
 
 
 Run a Query
@@ -916,3 +926,7 @@ other.
 
 .. image:: images/ranking_correlations.png
   :alt: Ranking correlations
+
+
+Bias Mitigation
+===============

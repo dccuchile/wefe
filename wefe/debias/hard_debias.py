@@ -373,7 +373,7 @@ class HardDebias(BaseDebias):
         # Copy
         if copy:
             print(
-                "copy argument is True. Transform will attempt to create a copy "
+                "Copy argument is True. Transform will attempt to create a copy "
                 "of the original model. This may fail due to lack of memory."
             )
             model = deepcopy(model)

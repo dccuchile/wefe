@@ -608,7 +608,7 @@ def calculate_ranking_correlations(
 
     if not isinstance(rankings, pd.DataFrame):
         raise TypeError(
-            "rankings parameter must be a pandas DataFrame, result of having "
+            "rankings parameter must be a pandas DataFrame result of having "
             "executed create_rankings. Given: {}".format(rankings)
         )
 

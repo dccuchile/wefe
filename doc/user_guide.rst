@@ -1,25 +1,27 @@
-==========
-User guide
-==========
+WEFE User guide
+===============
 
 The following guide is designed to present the more general details on
-using the package to perform measurements and bias reductions. 
+using the package. This guide is divided into two sections:
 
-In the first section of bias measurement:
+The first section explains how bias measurements are performed in WEFE:
 
--  We first present how to run a simple query using some embedding
-   model.
--  We then show how to run multiple queries on multiple embeddings.
--  After that, we show how to compare the results obtained from running
-   multiple sets of queries on multiple embeddings using different
-   metrics through ranking calculation.
+-  We present how to run a simple query using ``Glove`` embedding model.
+-  We show how to run multiple queries on multiple embeddings.
+-  We show how to compare the results obtained from running multiple
+   sets of queries on multiple embeddings using different metrics
+   through ranking calculation.
 -  Finally, we show how to calculate the correlations between the
    rankings obtained.
 
-In the second section of bias mitigation: 
+The second section explains how the bias mitigation is performed in
+WEFE.
 
-- We present the interface to reduce bias in Word Embeddings 
-  models through two different methods.
+-  We present how to reduce binary bias (such as gender bias) using Hard
+   Debias.
+-  We present how to reduce multiclass bias (such as ethnic having
+   classes like black, white, Latino, etc…) using Multiclass Hard
+   Debias.
 
 
 .. warning::
@@ -29,9 +31,6 @@ In the second section of bias mitigation:
     The relationships studied between these words DO NOT represent the
     ideas, thoughts or beliefs of the authors of this library. This applies
     to this and all pages of the documentation.
-
-Bias Measurement
-================
 
 
 
@@ -47,36 +46,60 @@ A jupyter notebook with this code is located in the following link: `WEFE User
 Guide <https://github.com/dccuchile/wefe/blob/master/examples/User_Guide.ipynb>`__.
 
 
+--------------
+
+
+Bias Measurement
+----------------
+
 Run a Query
------------
+~~~~~~~~~~~
 
-The following code explains how to run a gender query using
-`Glove <https://nlp.stanford.edu/projects/glove/>`__. embeddings and the
-Word Embedding Association Test (``WEAT``) as fairness metric.
+The following subsections explains how to run a simple query that
+measures gender bias on
+`Glove <https://nlp.stanford.edu/projects/glove/>`__. The example uses
+the Word Embedding Association Test (``WEAT``) metric quantifying the
+bias in the embeddings model. Below we show the three usual steps for
+performing a query in ``WEFE``:
 
-Below we show the three usual steps for performing a query in ``WEFE``:
+.. note::
 
-.. code:: ipython3
-
-    # Load the package
-    from wefe.query import Query
-    from wefe.word_embedding_model import WordEmbeddingModel
-    from wefe.metrics.WEAT import WEAT
-    from wefe.datasets.datasets import load_weat
-    import gensim.downloader as api
+  ``WEAT`` is a fairness metric that quantifies the relationship between
+  two sets of target words (sets of words intended to denote a social
+  groups as men and women) and two sets of attribute words (sets of words
+  representing some attitude, characteristic, trait, occupational field,
+  etc. that can be associated with individuals from any social group). The
+  closer its value is to 0, the less biased the model is. WEAT was
+  originally implemented in *Semantics derived automatically from language
+  corpora contain human-like biases* paper.
 
 Load a word embeddings model as a ``WordEmbedding`` object.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Here, we load the word embedding pretrained model using the gensim
-library and then we create a WordEmbeddingModel instance. For this
-example, we will use a 25-dimensional ``Glove`` embedding model trained
-from a Twitter dataset.
+Load the word embedding model and then wrap it using a
+``WordEmbeddingModel`` (class that allows WEFE to handle the models).
+
+WEFE bases all its operations on word embeddings using Gensim’s
+``KeyedVectors`` interface. Any model that can be loaded using
+``KeyedVectors`` will be compatible with WEFE.
+
+The following example uses a 25-dim pre-trained ``Glove`` model using a
+twitter dataset loaded using
+```gensim-data`` <https://github.com/RaRe-Technologies/gensim-data>`__.
 
 .. code:: ipython3
 
-    twitter_25 = api.load('glove-twitter-25')
-    model = WordEmbeddingModel(twitter_25, 'glove twitter dim=25')
+    import gensim.downloader as api
+    
+    from wefe.datasets import load_weat
+    from wefe.metrics import WEAT
+    from wefe.query import Query
+    from wefe.word_embedding_model import WordEmbeddingModel
+    
+    twitter_25 = api.load("glove-twitter-25")
+    # WordEmbeddingModel receives as first argument a KeyedVectors model
+    # and the second argument the model name.
+    model = WordEmbeddingModel(twitter_25, "glove twitter dim=25")
 
 
 
@@ -84,22 +107,56 @@ Create the query using a ``Query`` object
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Define the target and attribute words sets and create a Query object
-that contains them. Some well-known word sets are already provided by
-the package and can be easily loaded by the user. Users can also set
-their own custom-made sets.
+that contains them.
 
-For this example, we will create a query with gender terms with respect
-to family and career. The words we will use will be taken from the set
-of words used in the ``WEAT`` paper (included in the package).
+For this initial example, a query is used to study the association
+between gender with respect to family and career. The words used are
+taken from the set of words used in the *Semantics derived automatically
+from language corpora contain human-like biases* paper, which are
+included in the ``datasets`` module.
 
 .. code:: ipython3
 
-    # load the weat word sets
-    word_sets = load_weat()
+    gender_query = Query(
+        target_sets=[
+            ["female", "woman", "girl", "sister", "she", "her", "hers", "daughter"],
+            ["male", "man", "boy", "brother", "he", "him", "his", "son"],
+        ],
+        attribute_sets=[
+            [
+                "home",
+                "parents",
+                "children",
+                "family",
+                "cousins",
+                "marriage",
+                "wedding",
+                "relatives",
+            ],
+            [
+                "executive",
+                "management",
+                "professional",
+                "corporation",
+                "salary",
+                "office",
+                "business",
+                "career",
+            ],
+        ],
+        target_sets_names=["Female terms", "Male Terms"],
+        attribute_sets_names=["Family", "Careers"],
+    )
     
-    gender_query = Query([word_sets['male_terms'], word_sets['female_terms']],
-                  [word_sets['career'], word_sets['family']],
-                  ['Male terms', 'Female terms'], ['Career', 'Family'])
+    print(gender_query)
+
+
+.. parsed-literal::
+
+    <Query: Female terms and Male Terms wrt Family and Careers
+    - Target sets: [['home', 'parents', 'children', 'family', 'cousins', 'marriage', 'wedding', 'relatives'], ['executive', 'management', 'professional', 'corporation', 'salary', 'office', 'business', 'career']]
+    - Attribute sets:[['female', 'woman', 'girl', 'sister', 'she', 'her', 'hers', 'daughter'], ['male', 'man', 'boy', 'brother', 'he', 'him', 'his', 'son']]>
+
 
 Run the Query
 ~~~~~~~~~~~~~
@@ -107,29 +164,26 @@ Run the Query
 Instantiate the metric that you will use and then execute ``run_query``
 with the parameters created in the previous steps.
 
-The bias measurement process consists of three stages:
+Any bias measurement process at WEFE consists of the following steps:
 
-1. Checking the measurement parameters.
+1. Metric arguments checking.
 2. Transform the word sets into word embeddings.
 3. Calculate the metric.
 
-In this case we are going to use the ``WEAT`` metric.
+In this case we are going to use the ``WEAT`` metric (proposed in the
+same paper of the set of words used in the query).
 
 .. code:: ipython3
 
-    weat = WEAT()
-    result = weat.run_query(gender_query, model)
+    metric = WEAT()
+    result = metric.run_query(gender_query, model)
     print(result)
 
 
-.. code:: ipython3
+.. parsed-literal::
 
-    {'query_name': 'Male terms and Female terms wrt Career and Family', 
-     'result': 0.3165841, 
-     'weat': 0.3165841, 
-     'effect_size': 0.677944, 
-     'p-value': None}
-    
+    {'query_name': 'Female terms and Male Terms wrt Family and Careers', 'result': 0.3165843551978469, 'weat': 0.3165843551978469, 'effect_size': 0.6779444653930398, 'p_value': nan}
+
 
 By default, the results are a ``dict`` containing the query name (in the
 key ``query_name``) and the calculated value of the metric in the
@@ -137,13 +191,14 @@ key ``query_name``) and the calculated value of the metric in the
 the calculated metric (which is duplicated in the “results” key).
 
 Depending on the metric class used, the result ``dict`` can also return
-more metrics, detailed word-by-word values or other statistics. Also
-some metrics allow you to change the default value in results, which
-will have implications a little further down the line.
+more metrics, detailed word-by-word values or other statistics like
+p-values. Also some metrics allow you to change the default value in
+results, which will have implications a little further down the line.
 
-In this case, ``WEAT`` returns the value of ``weat`` and the
-``effect_size``, with weat as default in the results key.
-
+Details of all the metrics implemented, their references, parameters and
+examples of execution can be found at `API
+documentation <https://wefe.readthedocs.io/en/latest/api.html>`__.
+          
 Metric Params
 ~~~~~~~~~~~~~
 

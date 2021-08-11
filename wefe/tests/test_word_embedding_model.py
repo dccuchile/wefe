@@ -91,6 +91,11 @@ def test__eq__(word2vec_test):
     assert model_3_ != model_3
 
 
+def test__contains__(word2vec_test):
+    assert "men" in word2vec_test
+    assert "asdf" not in word2vec_test
+
+
 def test__getitem__(word2vec_test):
 
     embedding = word2vec_test["ASDF"]

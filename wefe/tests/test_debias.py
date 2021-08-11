@@ -205,7 +205,7 @@ def test_hard_debias_class(model, capsys):
     assert "Obtaining equalize pairs candidates by creating" in out
     assert "Obtaining equalize pairs" in out
     assert f"Executing Hard Debias on {model.name}" in out
-    assert "copy argument is True. Transform will attempt to create a copy" in out
+    assert "Copy argument is True. Transform will attempt to create a copy" in out
     assert "Normalizing embeddings" in out
     assert "Neutralizing embeddings" in out
     assert "Equalizing embeddings" in out

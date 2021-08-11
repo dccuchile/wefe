@@ -199,6 +199,21 @@ class Query:
                 return False
         return True
 
+    def __repr__(self) -> str:
+        try:
+            repr_ = (
+                "<Query: "
+                + self.query_name
+                + "\n- Target sets: "
+                + repr(self.attribute_sets)
+                + "\n- Attribute sets:"
+                + repr(self.target_sets)
+                + ">"
+            )
+            return repr_
+        except:
+            return "<Query with no/wrong __repr__>"
+
     def get_subqueries(self, new_template: tuple) -> list:
         """Generate the subqueries from this query using the given template"""
         if not isinstance(new_template[0], int):

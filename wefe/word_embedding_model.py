@@ -153,6 +153,21 @@ class WordEmbeddingModel:
         else:
             return None
 
+    def __contains__(self, key):
+        """Check if a word exists in the model's vocabulary.
+
+        Parameters
+        ----------
+        key : str
+            Some word.
+
+        Returns
+        -------
+        bool
+            True if the word exists in the model's vocabulary.
+        """
+        return key in self.vocab
+
     def normalize(self):
         """Normalize word embeddings in the model by using the L2 norm.
 
@@ -200,7 +215,7 @@ class WordEmbeddingModel:
                 f"word should be a string, got {word} with type {type(word)}."
             )
 
-        if word not in self.wv.key_to_index:
+        if word not in self.wv.vocab:
             raise ValueError(f"word '{word}' not in model vocab.")
 
         if not isinstance(embedding, np.ndarray):

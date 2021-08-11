@@ -215,7 +215,7 @@ class WordEmbeddingModel:
                 f"word should be a string, got {word} with type {type(word)}."
             )
 
-        if word not in self.wv.vocab:
+        if word not in self:
             raise ValueError(f"word '{word}' not in model vocab.")
 
         if not isinstance(embedding, np.ndarray):

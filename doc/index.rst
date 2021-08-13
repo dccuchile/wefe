@@ -22,7 +22,6 @@ the detailed API documentation and extensive examples.
    :caption: Documentation
 
    user_guide
-   create_metric
    loading_embeddings
    contribute
    api

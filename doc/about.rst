@@ -3,7 +3,7 @@ About
 =====
 
 *Word Embedding Fairness Evaluation* (WEFE) is an open source library for 
-measuring bias in word embedding models. 
+measuring an mitigating bias in word embedding models. 
 It generalizes many existing fairness metrics into a unified framework and 
 provides a standard interface for:
 
@@ -14,69 +14,57 @@ provides a standard interface for:
 - Computing a fairness metric on a given pre-trained word embedding model 
   using user-given queries.
 
+WEFE also standardizes the process of mitigating bias through an interface similar 
+to the ``scikit-learn`` ``fit-transform``.
+This standardization separates the mitigation process into two stages:
 
-It also provides more advanced features for:
-
-- Running several queries on multiple embedding models and returning a 
-  DataFrame with the results.
-- Plotting those results on a barplot.
-- Based on the above results, calculating a bias ranking for all embedding 
-  models. 
-  This allows the user to evaluate the fairness of the embedding models according to
-  the bias criterion (defined by the query) and the metric used.
-- Plotting the ranking on a barplot.
-- Correlating the rankings. This allows the user to see how the rankings of 
-  the different metrics or evaluation criteria are correlated with respect 
-  to the bias presented by the models.
+- The logic of calculating the transformation to be performed on the model (``fit``).
+- The execution of the mitigation transformation on the model (``transform``).
 
 Motivation and objectives
 =========================
 
-Word Embeddings models are a core component in almost all NLP systems.
-Several studies has shown that they are prone to inherit stereotypical social 
+Word Embeddings models are a core component in almost all NLP downstream systems.
+Several studies has shown that they are prone to inherit stereotypical social
 biases from the corpus they were built on.
-The common method for quantifying bias is to use a metric that calculates the 
-relationship between sets of word embeddings representing different social 
+The common method for quantifying bias is to use a metric that calculates the
+relationship between sets of word embeddings representing different social
 groups and attributes.
 
-Although previous studies have begun to measure bias in embeddings, they are 
-limited both in the types of bias measured (gender, ethnic) and in the models 
+Although previous studies have begun to measure bias in embeddings, they are
+limited both in the types of bias measured (gender, ethnic) and in the models
 tested. 
-Moreover, each study proposes its own metric, which makes the relationship 
+Moreover, each study proposes its own metric, which makes the relationship
 between the results obtained unclear.
 
-This fact led us to consider that we could use these metrics and studies to 
-make a case study in which we compare and rank the embedding models according 
+This fact led us to consider that we could use these metrics and studies to
+make a case study in which we compare and rank the embedding models according
 to their bias.
 
-In order to address the above, we first proposed WEFE as a theoretical framework 
-that aims to formalize the main building blocks for measuring bias in word 
-embedding models.
-Then, the need to conduct our case study led to the implementation of WEFE in 
-code.
+We originally proposed WEFE as a theoretical framework that aims to formalize the
+main building blocks for measuring bias in word embedding models.
+Then, the need to conduct our case study led to the implementation of WEFE in code.
 Seeing the possibility that other research teams are facing the same problem, 
 we decided to improve this code and publish it as a library, hoping that it 
 can be useful for their studies.
+
+Finally, we realized that the library had the potential to cover more areas than just
+bias measurement. This is why WEFE is constantly being improved, which so far has
+resulted in a new bias mitigation module and multiple enhancements and fixes.
 
 The main objectives we want to achieve with this library are:
 
 - To provide a ready-to-use tool that allows the user to run bias tests in a 
   straightforward manner. 
-- To provide simple interface to develop new metrics.
-- To solve the two main problems that arise when comparing experiments based 
-  on different metrics:
-
-   - Some metrics operate with different numbers of word sets as input. 
-   - The outputs of different metrics are incompatible with each other 
-     (their scales are different, some metrics return real numbers and others 
-     only positive ones, etc..)
+- To provide a ready-to-use tool that allows the user to mitigate bias by means of a 
+- simple fit-transform interface.
+- To provide simple interface and utils to develop new metrics and mitigation methods.
 
 
 Similar Packages
 ================
 
-There are quite a few alternatives that complement WEFE in the battle against 
-bias. Be sure to check them out!
+There are quite a few alternatives that complement WEFE. Be sure to check them out!
 
 - Fair Embedding Engine: https://github.com/FEE-Fair-Embedding-Engine/FEE
 - ResponsiblyAI: https://github.com/ResponsiblyAI/responsibly
@@ -271,23 +259,6 @@ calculates the average target group vectors, measures the cosine similarity of e
 to a list of attribute words and calculates the correlation of the resulting
 similarity lists.
 
-Changelog
-=========
-
-- Renamed optional ``run_query`` parameter  ``warn_filtered_words`` to `warn_not_found_words`.
-- Added ``word_preprocessor_args`` parameter to ``run_query`` that allows to specify transformations prior to searching for words in word embeddings.
-- Added ``secondary_preprocessor_args`` parameter to ``run_query`` which allows to specify a second pre-processor transformation to words before searching them in word embeddings. It is not necessary to specify the first preprocessor to use this one.
-- Implemented ``__getitem__`` function in ``WordEmbeddingModel``. This method allows to obtain an embedding from a word from the model stored in the instance using indexers. 
-- Removed underscore from class and instance variable names.
-- Improved type and verification exception messages when creating objects and executing methods.
-- Fix an error that appeared when calculating rankings with two columns of aggregations with the same name.
-- Ranking correlations are now calculated using pandas ``corr`` method. 
-- Changed metric template, name and short_names to class variables.
-- Implemented ``random_state`` in RNSB to allow replication of the experiments.
-- run_query now returns as a result the default metric requested in the parameters and all calculated values that may be useful in the other variables of the dictionary.
-- Fixed problem with api documentation: now it shows methods of the classes.
-- Implemented p-value for WEAT
-
 
 Relevant Papers
 ===============
@@ -376,6 +347,8 @@ We expect in the future to:
 - Implement a de-bias module.
 - Implement a visualization module.
 - Implement p-values with statistic resampling to all metrics.
+
+Obviously the development of these features is slow. `Contributions <contribute.html>`_  are always welcome!
 
 Licence
 =======

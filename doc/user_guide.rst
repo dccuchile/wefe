@@ -350,32 +350,37 @@ names with respect to pleasant and unpleasant attributes.
 Word Preprocessors
 ~~~~~~~~~~~~~~~~~~
 
-``run_queries`` allows to preprocess each word of each set through the
-parameter ``preprocessors`` (list of one or more preprocessor), which we
-will define below:
+``run_queries`` allows to preprocess each word before they are searched in the model's 
+vocabulary.through the parameter ``preprocessors``. (list of one or more preprocessor).
+This parameter accepts a list of individual preprocessors, which are defined below:
 
-A ``preprocessor`` is a dictionary that specifies which processes are
-performed before searching for the embedding associated with a word. For
-example, the ``preprocessor``
+A ``preprocessor`` is a dictionary that specifies what processing(s) are 
+performed on each word before its looked up in the model vocabulary.
+For example, the ``preprocessor``
 ``{'lowecase': True, 'strip_accents': True}`` allows you to lowercase
 and remove the accent from each word before searching for them in the
-model. Note that an empty dictionary ``{}`` indicates that no
+model vocabulary. Note that an empty dictionary ``{}`` indicates that no
 preprocessing is done.
 
 The possible options for a preprocessor are:
 
-*  ``lowercase``: ``bool``. Indicates if the words are transformed to lowercase.
-*  ``uppercase``: ``bool``. Indicates if the words are transformed to uppercase.
-*  ``titlecase``: ``bool``. Indicates if the words are transformed to titlecase.
-*  ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies if the accents of the words are eliminated. The stripping type can be specified. True uses ‘unicode’ by default.
+*  ``lowercase``: ``bool``. Indicates that the words are transformed to lowercase.
+*  ``uppercase``: ``bool``. Indicates that the words are transformed to uppercase.
+*  ``titlecase``: ``bool``. Indicates that the words are transformed to titlecase.
+*  ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that the accents of the words are eliminated. The stripping type can be specified. True uses ‘unicode’ by default.
 *  ``preprocessor``: ``Callable``. It receives a function that operates on each word. In the case of specifying a function, it overrides the default preprocessor (i.e., the previous options stop working).
 
 
-A list of these preprocessor options allows to search for several
-variants of the words into the model. By default, in case there is more
-than one preprocessor in the list, the first preprocessed word found in
-the embeddings model will be used. This behavior can be controlled by
-the ``strategy`` parameter of ``run_query``.
+A list of preprocessor options allows to search for several
+variants of the words into the model. For example, the preprocessors
+``[{}, {"lowercase": True, "strip_accents": True}]``
+``{}`` allows first to search for the original words in the vocabulary of the model. 
+In case some of them are not found, ``{"lowercase": True, "strip_accents": True}`` 
+is executed on these words and then they are searched in the model vocabulary.
+
+By default (in case there is more than one preprocessor in the list) the first 
+preprocessed word found in the embeddings model will be used. 
+This behavior can be controlled by the ``strategy`` parameter of ``run_query``.
 
 In the following example, we will provide a list with only one
 preprocessor that instructs ``run_query`` to lowercase and remove all
@@ -557,8 +562,8 @@ dataset. The queries are executed using ``WEAT`` metric.
 
 
 
-Load the models:
-~~~~~~~~~~~~~~~~
+Load the models
+~~~~~~~~~~~~~~~
 
 Load three different Glove Twitter embedding models. These models were
 trained using the same dataset varying the number of embedding
@@ -1891,13 +1896,16 @@ between the original model and the debiased model.
 
 
 Target Parameter
-^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~
 
--  target
-    \`\ ``If a set of words is specified in target, the debias method will be performed   only on the word embeddings of this set. In the case of provide``\ None\ ``, the   debias will be performed on all words (except those specified in ignore).   by default``\ None`.
 
-In this example only the words related to career and family are
-debiased:
+-  target: If a set of words is specified in target, the debias method will be performed
+   only on the word embeddings associated with this set. In the case of providing
+   ``None``, the transformation will be performed on all vocabulary words except those
+   specified in ignore. By default ``None``.
+
+   In the following example, the target parameter is used to execute the transformation 
+   only on the career and family word set:
 
 .. code:: python
 
@@ -1943,6 +1951,7 @@ debiased:
 Next, a bias test is run on the mitigated embeddings associated with the
 target words. In this case, the value of the metric is lower on the
 query executed on the mitigated model than on the original one.
+These results indicate that there was a mitigation of bias on embeddings of these words.
 
 .. code:: python
 
@@ -1962,6 +1971,7 @@ However, if a bias test is run with words that were outside the target
 word set, the results are almost the same. The slight difference in the
 metric scores lies in the fact that the equalize sets were still
 equalized.
+Equalization can be deactivated by delivering an empty equalize set (``[]``)
 
 .. code:: python
 

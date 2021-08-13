@@ -13,7 +13,7 @@ There are two different ways to install WEFE:
 
 - To install the package with pip, run in a console::
 
-    pip install wefe
+    pip install --upgrade wefe
 
 - To install the package with conda, run in a console::
 
@@ -32,8 +32,8 @@ Run your first Query
 
 
 In the following code we will show how to implement the example query presented 
-in WEFE's home page: A gender Query using WEAT metrics on the google's 
-word2vec Word Embedding model. 
+in WEFE's home page: A gender Query using WEAT metrics on the glove-twitter Word 
+Embedding model. 
 
 The following graphic shows the flow of the query execution:
 
@@ -52,20 +52,17 @@ These stages will be implemented next:
 create a :code:`` instance with it.
 This object took a gensim's :code:`KeyedVectors` object and a model name as 
 parameters.
-As we said previously, for this example, we will use 
-:code:`word2vec-google-news-300` model, but in order to speed up the execution 
-time, the embedding model could be changed to :code:`glove-twitter-25'`.
+As we said previously, for this example, we will use :code:`glove-twitter-25'` embedding model.
 
 >>> # import the modules
 >>> from wefe.query import Query
->>> from wefe.word_embedding import 
+>>> from wefe.word_embedding_model import WordEmbeddingModel
 >>> from wefe.metrics.WEAT import WEAT
 >>> import gensim.downloader as api
 >>>
->>> # load word2vec 
->>> # it can be changed to 'glove-twitter-25' to speed up the loading time.
->>> twitter_25 = api.load('word2vec-google-news-300')
->>> model = (twitter_25, 'glove twitter dim=25')
+>>> # load glove 
+>>> twitter_25 = api.load('glove-twitter-25')
+>>> model = WordEmbeddingModel(twitter_25, 'glove twitter dim=25')
 
 2. Create the Query with a loaded, fetched or custom target and attribute 
 word sets. In this case, we will manually set both target words and attribute
@@ -75,24 +72,31 @@ words.
 >>> target_sets = [['she', 'woman', 'girl'], ['he', 'man', 'boy']]
 >>> target_sets_names = ['Female Terms', 'Male Terms']
 >>>
->>> attribute_sets = [['math', 'physics', 'chemistry'], ['poetry','dance','literature']]
->>> attribute_sets_names = ['Science', 'Arts']
+>>> attribute_sets = [['poetry','dance','literature'], ['math', 'physics', 'chemistry']]
+>>> attribute_sets_names = ['Arts', 'Science']
 >>>
 >>> # create the query
 >>> query = Query(target_sets, attribute_sets, target_sets_names,
 >>>               attribute_sets_names)
 
 3. Instantiate the metric to be used and then, execute :code:`run_query` 
-with the parameters created in the past steps. In this case we will use 
-:code:`WEAT`. 
+with the parameters created in the past steps. In this case we will use the
+`WEAT <about.html#weat>`_ metric. 
 
 >>> # instance a WEAT metric
 >>> weat = WEAT() 
 >>> result = weat.run_query(query, model)
 >>> print(result)
-{'query_name': 'Male Terms and Female Terms wrt Arts and Science',
- 'result': -0.010003209}
+{
+  'query_name': 'Female Terms and Male Terms wrt Arts and Science', 
+  'result': 0.2595698336760204, 
+  'weat': 0.2595698336760204, 
+  'effect_size': 1.452482230821006, 
+  'p_value': nan
+}
 
-With this, we close the basic tutorial on the use of the WEFE package. 
-For more advanced examples, visit user the `User Guide <user_guide.html>`_ 
+A score greater than 0 indicates that there is indeed a biased relationship between 
+women and the arts with respect to men and science. 
+
+For more advanced usage, visit user the `User Guide <user_guide.html>`_ 
 section.

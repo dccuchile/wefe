@@ -21,7 +21,8 @@ the detailed API documentation and extensive examples.
    :maxdepth: 2
    :caption: Documentation
 
-   user_guide
+   
+   
    loading_embeddings
    contribute
    api

@@ -268,35 +268,35 @@ class RNSB(BaseMetric):
         preprocessors : List[Dict[str, Union[str, bool, Callable]]]
             A list with preprocessor options.
 
-            A dictionary of preprocessing options is a dictionary that specifies what
-            transformations will be made to each word prior to being searched in the
-            word embedding model vocabulary.
-            For example, `{'lowecase': True, 'strip_accents': True}` allows you to
-            transform the words to lowercase and remove the accents and then search
-            for them in the model.
-            Note that an empty dictionary `{}` indicates that no transformation
-            will be made to any word.
+            A ``preprocessor`` is a dictionary that specifies what processing(s) are
+            performed on each word before its looked up in the model vocabulary.
+            For example, the ``preprocessor``
+            ``{'lowecase': True, 'strip_accents': True}`` allows you to lowercase
+            and remove the accent from each word before searching for them in the
+            model vocabulary. Note that an empty dictionary ``{}`` indicates that no
+            preprocessing is done.
 
-            A list of these preprocessor options will allow you to search for several
-            variants of the words (depending on the search strategy) into the model.
-            For example `[{}, {'lowecase': True, 'strip_accents': True}]` allows you
-            to search for each word, first, without any transformation and then,
-            transformed to lowercase and without accents.
+            The possible options for a preprocessor are:
 
-            The available word preprocessing options are as follows (it is not necessary
-            to put them all):
+            *   ``lowercase``: ``bool``. Indicates that the words are transformed to
+                lowercase.
+            *   ``uppercase``: ``bool``. Indicates that the words are transformed to
+                uppercase.
+            *   ``titlecase``: ``bool``. Indicates that the words are transformed to
+                titlecase.
+            *   ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that
+                the accents of the words are eliminated. The stripping type can be
+                specified. True uses ‘unicode’ by default.
+            *   ``preprocessor``: ``Callable``. It receives a function that operates
+                on each word. In the case of specifying a function, it overrides the
+                default preprocessor (i.e., the previous options stop working).
 
-            - `lowercase`: `bool`. Indicates if the words are transformed to lowercase.
-            - `uppercase`: `bool`. Indicates if the words are transformed to uppercase.
-            - `titlecase`: `bool`. Indicates if the words are transformed to titlecase.
-            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents
-                                of the words are eliminated. The stripping type can be
-                                specified. True uses 'unicode' by default.
-            - `preprocessor`: `Callable`. It receives a function that operates on each
-                            word. In the case of specifying a function, it overrides
-                            the default preprocessor (i.e., the previous options
-                            stop working).
-            by default [{}].
+            A list of preprocessor options allows to search for several
+            variants of the words into the model. For example, the preprocessors
+            ``[{}, {"lowercase": True, "strip_accents": True}]``
+            ``{}`` allows first to search for the original words in the vocabulary of the model. 
+            In case some of them are not found, ``{"lowercase": True, "strip_accents": True}`` 
+            is executed on these words and then they are searched in the model vocabulary.
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
@@ -310,7 +310,6 @@ class RNSB(BaseMetric):
             Specifies if the function will warn (in the logger)
             the words that were not found in the model's vocabulary
             , by default False.
-
 
         Returns
         -------

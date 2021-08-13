@@ -170,10 +170,8 @@ This step could return either:
 
 -  A tuple otherwise. This tuple contains two values:
 
-    -  A dictionary that maps each target set name to a dictionary
-        containing its words and embeddings.
-    -  A dictionary that maps each attribute set name to a dictionary
-        containing its words and embeddings.
+    -  A dictionary that maps each target set name to a dictionary containing its words and embeddings.
+    -  A dictionary that maps each attribute set name to a dictionary containing its words and embeddings.
 
 We can illustrate what the outputs of the previous transformation look
 like using the following query:
@@ -242,11 +240,13 @@ The idea of keeping a mapping between set names, words and their embeddings is t
 there are some metrics that can calculate sub-metrics at different levels and that can
 be useful for further use.
 
-## Example Metric
-~~~~~~~~~~~~~~~~~
+Example Metric
+~~~~~~~~~~~~~~
 
 Using the steps previously seen, a sample metric is implemented:
+
 .. code:: python3
+
     from typing import Any, Dict, Union, List, Callable
 
     import numpy as np
@@ -405,10 +405,10 @@ Implement the logic of the metric
 Suppose we want to implement an extremely simple three-step metric,
 where:
 
-1. We calculate the average of all the sets,
-2. Then, calculate the cosine distance between the target set averages
+1.  We calculate the average of all the sets,
+2.  Then, calculate the cosine distance between the target set averages
     and the attribute average.
-3. Subtract these distances.
+3.  Subtract these distances.
 
 To do this, we create a new method :code:``_calc_metric`` in which,
 using the array of embedding dict objects as input, we will implement
@@ -628,18 +628,18 @@ We have completely defined a new metric. Congratulations!
 
 Some comments regarding the implementation of new metrics:
 
--  Note that the returned object must necessarily be a ``dict`` instance
+-   Note that the returned object must necessarily be a ``dict`` instance
     containing the ``result`` and ``query_name`` key-values. Otherwise
     you will not be able to run query batches using utility functions
     like ``run_queries``.
--  ``run_query`` can receive additional parameters. Simply add them to
+-   ``run_query`` can receive additional parameters. Simply add them to
     the function signature. These parameters can also be used when
     running the metric from the ``run_queries`` utility function.
--  We recommend implementing the logic of the metric separated from the
+-   We recommend implementing the logic of the metric separated from the
     ``run_query`` function. In other words, implement the logic in a
     ``calc_your_metric`` function that receives the dictionaries with the
     necessary embeddings and parameters.
--  The file where ``ExampleMetric`` is located can be found inside the
+-   The file where ``ExampleMetric`` is located can be found inside the
     distances folder of the
     `repository <https://github.com/dccuchile/wefe/blob/master/wefe/metrics/example_metric.py/>`__.
 

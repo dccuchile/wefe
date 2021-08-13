@@ -1,5 +1,5 @@
-WEFE User guide
-===============
+User guide
+==========
 
 The following guide is designed to present the more general details on
 using the package. This guide is divided into two sections:
@@ -82,11 +82,8 @@ Load the word embedding model and then wrap it using a
 
 WEFE bases all its operations on word embeddings using Gensim’s
 ``KeyedVectors`` interface. Any model that can be loaded using
-``KeyedVectors`` will be compatible with WEFE.
-
-The following example uses a 25-dim pre-trained ``Glove`` model using a
-twitter dataset loaded using
-```gensim-data`` <https://github.com/RaRe-Technologies/gensim-data>`__.
+``KeyedVectors`` will be compatible with WEFE. The following example uses a 25-dim pre-trained ``Glove`` model using a
+twitter dataset loaded using `gensim-data <https://github.com/RaRe-Technologies/gensim-data/>`__.
 
 .. code:: python
 
@@ -997,31 +994,31 @@ results using the parameter ``return_only_aggregation``
     fig.show()
 
 
-Model Bias Ranking
-~~~~~~~~~~~~~~~~~~
+Model Ranking
+~~~~~~~~~~~~~
 
 It may be desirable to obtain an overall view of the bias by model using
 different metrics or bias criteria. While the aggregate values can be
 compared directly, two problems are likely to be encountered:
 
-1. One type of bias criterion can dominate the other because of
+1.  One type of bias criterion can dominate the other because of
     significant differences in magnitude.
 
-2. Different metrics can operate on different scales, which makes them
+2.  Different metrics can operate on different scales, which makes them
     difficult to compare.
 
 To show these problems, suppose:
 
--  We have two sets of queries: one that explores gender biases and
+-   We have two sets of queries: one that explores gender biases and
     another that explores ethnicity biases.
--  3 ``Glove`` models of 25, 50 and 100 dimensions trained on the same
+-   3 ``Glove`` models of 25, 50 and 100 dimensions trained on the same
     twitter dataset.
 
 Then we run ``run_queries`` on this set of model-queries using WEAT, and
 to corroborate the results obtained, we also use Relative Negative
 Sentiment Bias (RNSB).
 
-1. The first problem occurs when the bias scores obtained from one set
+1.  The first problem occurs when the bias scores obtained from one set
     of queries are much higher than those from the other set, even when
     the same metric is used.
 
@@ -1030,7 +1027,7 @@ the models described above, the results obtained are as follows:
 
 .. raw:: html
 
-    <table>
+    <table border="1" class="docutils align-default">
     <thead>
       <tr class="header">
         <th>
@@ -1120,7 +1117,7 @@ the models described above, the results obtained are as follows:
 As can be seen, the results of ethnicity bias are much greater than
 those of gender.
 
-1. The second problem is when different metrics return results on
+2.  The second problem is when different metrics return results on
     different scales of magnitude.
 
 When executing ``run_queries`` with the gender queries and models
@@ -1129,7 +1126,7 @@ follows:
 
 .. raw:: html
 
-    <table>
+    <table border="1" class="docutils align-default">
     <thead>
       <tr class="header">
         <th>

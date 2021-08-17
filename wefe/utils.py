@@ -8,7 +8,7 @@ through rankings and graph these results.
 import logging
 import pkg_resources
 import copy
-from typing import Union, Callable, List, Type
+from typing import Dict, Union, Callable, List, Type
 
 import pandas as pd
 import numpy as np
@@ -20,47 +20,6 @@ from sklearn.utils.validation import check_is_fitted as _check_is_fitted
 from wefe.word_embedding_model import WordEmbeddingModel
 from wefe.query import Query
 from wefe.metrics.base_metric import BaseMetric
-
-
-# -----------------------------------------------------------------------------
-# -------------------------- Numerical and algebraic --------------------------
-# -----------------------------------------------------------------------------
-
-
-def cosine_similarity(v: np.ndarray, u: np.ndarray) -> float:
-    """Calculates the cosine similarity between two vectors.
-
-    Parameters
-    ----------
-    v : np.ndarray
-        vector 1
-    u : np.ndarray
-        vector 2
-
-    Returns
-    -------
-    np.number
-        The calculated cosine similarity
-    """
-    return np.dot(v, u) / (np.linalg.norm(v) * np.linalg.norm(u))
-
-
-def cosine_distance(v: np.ndarray, u: np.ndarray) -> float:
-    """Calculate the cosine distance, which is defined as 1 - cosine similarity.
-
-    Parameters
-    ----------
-    v : np.ndarray
-        vector 1
-    u : np.ndarray
-        vector 2
-
-    Returns
-    -------
-    np.number
-        The calculated cosine distance
-    """
-    return 1 - cosine_similarity(v, u)
 
 
 def check_is_fitted(estimator, attributes):
@@ -94,8 +53,7 @@ AGGREGATION_FUNCTION_NAMES = {
 def generate_subqueries_from_queries_list(
     metric: Type[BaseMetric], queries: List[Query]
 ) -> List[Query]:
-    """Generates a list of subqueries from queries.
-
+    """Generate a list of subqueries from queries.
 
     Parameters
     ----------
@@ -151,9 +109,7 @@ def run_queries(
     metric_params: dict = {},
     generate_subqueries: bool = False,
     aggregate_results: bool = False,
-    aggregation_function: Union[
-        str, Callable[[pd.DataFrame], pd.DataFrame]
-    ] = "abs_avg",
+    aggregation_function: Union[str, Callable] = "abs_avg",
     return_only_aggregation: bool = False,
     warn_not_found_words: bool = False,
 ) -> pd.DataFrame:
@@ -193,17 +149,17 @@ def run_queries(
         Implemented functions: 'sum', 'abs_sub', 'avg' and 'abs_avg',
         by default 'abs_avg'.
     return_only_aggregation : bool, optional
-        [description], by default False
+        If return_only_aggregation is True, only the column with the added queries is
+        returned, by default False.
 
     Returns
     -------
     pd.DataFrame
-        A dataframe with the results. The index contains the word embedding
-        model name and the columns the experiment name.
+        A dataframe with the results. The index contains the word embedding model name
+        and the columns the experiment name.
         Each cell represents the result of run a metric using a specific word
         embedding model and query.
     """
-
     # check inputs:
 
     # metric handling (TODO: issubclass not working...)
@@ -313,10 +269,11 @@ def run_queries(
 
                 if result["query_name"] not in query_names:
                     query_names.append(result["query_name"])
+
     except Exception as e:
         raise Exception(
-            "Error during executing the query: {} on the model: {}".format(
-                query.query_name, model.name
+            "Error during executing the query {} on the model {}: {}".format(
+                query.query_name, model.name, str(e)
             )
         )
 
@@ -332,7 +289,10 @@ def run_queries(
     if aggregate_results:
 
         # if the aggregation function is one of the preimplemented functions.
-        if aggregation_function in AGGREGATION_FUNCTIONS:
+        if (
+            isinstance(aggregation_function, str)
+            and aggregation_function in AGGREGATION_FUNCTIONS
+        ):
             aggregated_results = AGGREGATION_FUNCTIONS[aggregation_function](
                 pivoted_results
             )
@@ -369,7 +329,7 @@ def run_queries(
 
 
 def plot_queries_results(results: pd.DataFrame, by: str = "query"):
-    """Plot the results obtained by a run_queries execution
+    """Plot the results obtained by a run_queries execution.
 
     Parameters
     ----------
@@ -389,7 +349,6 @@ def plot_queries_results(results: pd.DataFrame, by: str = "query"):
     TypeError
         if results is not a instance of pandas DataFrame.
     """
-
     if not isinstance(results, pd.DataFrame):
         raise TypeError(
             "results must be a pandas DataFrame, result of having executed "
@@ -447,7 +406,8 @@ def create_ranking(
     method: str = "first",
     ascending: bool = True,
 ):
-    """Creates a ranking form the aggregated scores of the provided dataframes.
+    """Create a ranking form the aggregated scores of the provided dataframes.
+
     The function will assume that the aggregated scores are in the last column
     of each result dataframe.
     It uses pandas.DataFrame.rank to generate the ranks.
@@ -467,12 +427,8 @@ def create_ranking(
         - first: ranks assigned in order they appear in the array
         - dense: like ‘min’, but rank always increases by 1 between groups.
 
-
     ascending : bool, optional
         Whether or not the elements should be ranked in ascending order, by default True.
-
-
-
 
     Returns
     -------
@@ -486,7 +442,6 @@ def create_ranking(
     TypeError
         If some element of results_dataframes is not a pandas DataFrame.
     """
-
     # check the input.
     for idx, results_df in enumerate(results_dataframes):
         if not isinstance(results_df, pd.DataFrame):
@@ -517,7 +472,6 @@ def create_ranking(
 
     avg_scores = pd.concat(aggregation_columns, axis=1)
     avg_scores.columns = no_duplicated_column_names
-
     rankings = avg_scores.rank(method=method, ascending=ascending)
     return rankings
 
@@ -576,11 +530,12 @@ def plot_ranking(
 def calculate_ranking_correlations(
     rankings: pd.DataFrame, method="pearson"
 ) -> pd.DataFrame:
-    """Calculates the correlation between the calculated rankings.
+    """Calculate the correlation between the calculated rankings.
+
     It uses pandas corr() method to calculate the correlations.
     The method parameter documentarion was copied from the documentation of the pandas
     DataFrame.corr() method.
-    To see the updated documentation, visit: 
+    To see the updated documentation, visit:
     https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.corr.html
 
 
@@ -605,7 +560,6 @@ def calculate_ranking_correlations(
     pd.DataFrame
         A dataframe with the calculated correlations.
     """
-
     if not isinstance(rankings, pd.DataFrame):
         raise TypeError(
             "rankings parameter must be a pandas DataFrame result of having "

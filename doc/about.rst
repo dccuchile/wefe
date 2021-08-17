@@ -43,12 +43,13 @@ to their bias.
 
 We originally proposed WEFE as a theoretical framework that aims to formalize the
 main building blocks for measuring bias in word embedding models.
-Then, the need to conduct our case study led to the implementation of WEFE in code.
+The purpose of developing this framework was to run a case study that consistently 
+compares and ranks different embedding models.
 Seeing the possibility that other research teams are facing the same problem, 
 we decided to improve this code and publish it as a library, hoping that it 
 can be useful for their studies.
 
-Finally, we realized that the library had the potential to cover more areas than just
+Later, we realized that the library had the potential to cover more areas than just
 bias measurement. This is why WEFE is constantly being improved, which so far has
 resulted in a new bias mitigation module and multiple enhancements and fixes.
 
@@ -70,10 +71,10 @@ There are quite a few alternatives that complement WEFE. Be sure to check them o
 - ResponsiblyAI: https://github.com/ResponsiblyAI/responsibly
 
 
-The Framework
-=============
+Measurement Framework
+=====================
 
-Here we present the main building blocks of the framework and then, we present 
+Here we present the main building blocks of the measuring framework and then, we present 
 the common usage pattern of WEFE. 
 
 Target set 
@@ -340,11 +341,11 @@ Roadmap
 
 We expect in the future to:
 
-- Implement the metrics that have come out in the last works about bias in embeddings.
+- Improve the bias mitigation module.
+- Implement the metrics that have come out in last works about bias in embeddings.
 - Implement new queries on different criteria.
 - Create a single script that evaluates different embedding models under different bias criteria. 
 - From the previous script, rank as many embeddings available on the web as possible.
-- Implement a de-bias module.
 - Implement a visualization module.
 - Implement p-values with statistic resampling to all metrics.
 
@@ -360,7 +361,7 @@ Details of the license on this `link <https://github.com/dccuchile/wefe/blob/mas
 Team
 ====
 
-- Pablo Badilla
+- `Pablo Badilla <https://github.com/pbadillatorrealba>`_.
 - `Felipe Bravo-Marquez <https://felipebravom.com/>`_.
 - `Jorge Pérez <https://users.dcc.uchile.cl/~jperez/>`_.
 

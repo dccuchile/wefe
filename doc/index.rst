@@ -22,7 +22,7 @@ the detailed API documentation and extensive examples.
    :caption: Documentation
 
    
-   
+   user_guide
    loading_embeddings
    contribute
    api

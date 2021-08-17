@@ -52,7 +52,7 @@ class HardDebias(BaseDebias):
     Then subtract the projection from the embedding.
     - u' = u - bias_subspace
 
-    3. **Equalizate the embeddings with respect to the bias direction.**. 
+    3. **Equalizate the embeddings with respect to the bias direction.**.
     Given an equalization set (set of word pairs such as [she, he], [men, women], ...,
     but not limited to the definitional set) this step executes, for each pair,
     an equalization with respect to the bias direction.
@@ -72,15 +72,37 @@ class HardDebias(BaseDebias):
     short_name = "HD"
 
     def __init__(
-        self, pca_args: Dict[str, Any] = {"n_components": 10}, verbose: bool = False
+        self,
+        pca_args: Dict[str, Any] = {"n_components": 10},
+        verbose: bool = False,
+        criterion_name: Optional[str] = None,
     ) -> None:
+        """Initialize a Hard Debias instance.
 
+        Parameters
+        ----------
+        pca_args : Dict[str, Any], optional
+            Arguments for the PCA that is calculated internally in the identification
+            of the bias subspace, by default {"n_components": 10}
+        verbose : bool, optional
+            True will print informative messages about the debiasing process,
+            by default False.
+        criterion_name : Optional[str], optional
+            The name of the criterion for which the debias is being executed,
+            e.g. 'Gender'. This will indicate the name of the model returning transform,
+            by default None
+        """
         # check verbose
         if not isinstance(verbose, bool):
             raise TypeError(f"verbose should be a bool, got {verbose}.")
 
         self.pca_args = pca_args
         self.verbose = verbose
+
+        if criterion_name is None or isinstance(criterion_name, str):
+            self.criterion_name_ = criterion_name
+        else:
+            raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
     def _check_sets_size(
         self, sets: Sequence[Sequence[str]], set_name: str,
@@ -208,7 +230,7 @@ class HardDebias(BaseDebias):
         model: WordEmbeddingModel,
         definitional_pairs: Sequence[Sequence[str]],
         equalize_pairs: Optional[Sequence[Sequence[str]]] = None,
-        criterion_name: Optional[str] = None,
+        **fit_params,
     ) -> BaseDebias:
         """Compute the bias direction and obtains the equalize embedding pairs.
 
@@ -225,29 +247,13 @@ class HardDebias(BaseDebias):
             In the case of passing None, the equalization will be done over the word
             pairs passed in definitional_pairs,
             by default None.
-        criterion_name : Optional[str], optional
-            The name of the criterion for which the debias is being executed,
-            e.g. 'Gender'. This will indicate the name of the model returning transform,
-            by default None
-        verbose : bool, optional
-            True will print informative messages about the debiasing process,
-            by default False.
 
         Returns
         -------
         BaseDebias
             The debias method fitted.
         """
-        # ------------------------------------------------------------------------------
         # Check arguments types
-
-        if criterion_name is None or isinstance(criterion_name, str):
-            self.debias_criterion_name_ = criterion_name
-        else:
-            raise ValueError(
-                f"debias_criterion_name should be str, got: {criterion_name}"
-            )
-
         self._check_sets_size(definitional_pairs, "definitional")
         self.definitional_pairs_ = definitional_pairs
 
@@ -320,7 +326,6 @@ class HardDebias(BaseDebias):
         target: Optional[List[str]] = None,
         ignore: Optional[List[str]] = None,
         copy: bool = True,
-        **transform_params,
     ) -> WordEmbeddingModel:
         """Execute hard debias over the provided model.
 
@@ -357,6 +362,7 @@ class HardDebias(BaseDebias):
             model=model, target=target, ignore=ignore, copy=copy,
         )
 
+        # check if the following attributes exists in the object.
         check_is_fitted(
             self,
             [
@@ -422,10 +428,10 @@ class HardDebias(BaseDebias):
 
         # ------------------------------------------------------------------------------
         # # Generate the new KeyedVectors
-        if self.debias_criterion_name_ is not None:
-            new_model_name = f"{model.name}_{self.debias_criterion_name_}_debiased"
+        if self.criterion_name_ is None:
+            new_model_name = f"{model.name}_debiased"
         else:
-            new_model_name = f"{model.name}_{self.debias_criterion_name_}_debiased"
+            new_model_name = f"{model.name}_{self.criterion_name_}_debiased"
         model.name = new_model_name
 
         if self.verbose:

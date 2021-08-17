@@ -1,5 +1,5 @@
 =========================================
-Loading embeddings from different sources
+Loading Embeddings From Different Sources
 =========================================
 
 WEFE depends on gensim's :code:`KeyedVectors` to operate the word 

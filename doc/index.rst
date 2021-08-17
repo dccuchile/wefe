@@ -22,7 +22,8 @@ the detailed API documentation and extensive examples.
    :caption: Documentation
 
    
-   user_guide
+   user_guide_measurement
+   user_guide_mitigation
    loading_embeddings
    contribute
    api

@@ -35,9 +35,26 @@ class MulticlassHardDebias(BaseDebias):
     """
 
     def __init__(
-        self, pca_args: Dict[str, Any] = {"n_components": 10}, verbose: bool = False,
+        self,
+        pca_args: Dict[str, Any] = {"n_components": 10},
+        verbose: bool = False,
+        criterion_name: Optional[str] = None,
     ) -> None:
+        """Initialize a Multiclass Hard Debias instance.
 
+        Parameters
+        ----------
+        pca_args : Dict[str, Any], optional
+            Arguments for the PCA that is calculated internally in the identification
+            of the bias subspace, by default {"n_components": 10}
+        verbose : bool, optional
+            True will print informative messages about the debiasing process,
+            by default False.
+        criterion_name : Optional[str], optional
+            The name of the criterion for which the debias is being executed,
+            e.g. 'Gender'. This will indicate the name of the model returning transform,
+            by default None
+        """
         # check pca args
         if not isinstance(pca_args, dict):
             raise TypeError(f"pca_args should be a dict, got {pca_args}.")
@@ -52,6 +69,13 @@ class MulticlassHardDebias(BaseDebias):
             self.pca_num_components_ = pca_args["n_components"]
         else:
             self.pca_num_components_ = 10
+
+        if criterion_name is None or isinstance(criterion_name, str):
+            self.criterion_name_ = criterion_name
+        else:
+            raise ValueError(
+                f"debias_criterion_name should be str, got: {criterion_name}"
+            )
 
     def _identify_bias_subspace(
         self, definning_sets_embeddings: List[EmbeddingDict],
@@ -165,7 +189,6 @@ class MulticlassHardDebias(BaseDebias):
         model: WordEmbeddingModel,
         definitional_sets: Sequence[Sequence[str]],
         equalize_sets: Sequence[Sequence[str]],
-        criterion_name: Optional[str] = None,
     ) -> BaseDebias:
         """Compute the bias direction and obtains the equalize embedding pairs.
 
@@ -182,20 +205,12 @@ class MulticlassHardDebias(BaseDebias):
             In the case of passing None, the equalization will be done over the word
             pairs passed in definitional_sets,
             by default None.
-        criterion_name : Optional[str], optional
-            The name of the criterion for which the debias is being executed,
-            e.g. 'Gender'. This will indicate the name of the model returning transform,
-            by default None
-        verbose : bool, optional
-            True will print informative messages about the debiasing process,
-            by default False.
 
         Returns
         -------
         BaseDebias
             The debias method fitted.
         """
-        self.criterion_name_ = criterion_name
         # ------------------------------------------------------------------------------:
         # Obtain the embedding of the definitional sets.
 
@@ -346,8 +361,8 @@ class MulticlassHardDebias(BaseDebias):
 
         # ------------------------------------------------------------------------------
         # # Generate the new KeyedVectors
-        if self.criterion_name_ is not None:
-            new_model_name = f"{model.name}_{self.criterion_name_}_debiased"
+        if self.criterion_name_ is None:
+            new_model_name = f"{model.name}_debiased"
         else:
             new_model_name = f"{model.name}_{self.criterion_name_}_debiased"
         model.name = new_model_name

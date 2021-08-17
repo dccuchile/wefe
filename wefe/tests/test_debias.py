@@ -128,15 +128,15 @@ def test_hard_debias_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Gender Debias
-    hd = HardDebias()
+    hd = HardDebias(criterion_name="gender",)
     hd.fit(
-        model,
-        definitional_pairs=definitional_pairs,
-        equalize_pairs=equalize_pairs,
-        criterion_name="gender",
+        model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
     )
 
     gender_debiased_w2v = hd.transform(model, ignore=gender_specific, copy=True)
+
+    assert model.name == "word2vec"
+    assert gender_debiased_w2v.name == "word2vec_gender_debiased"
 
     biased_results = weat.run_query(query_1, model, normalize=True)
     debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
@@ -148,15 +148,12 @@ def test_hard_debias_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Test target param
-    hd = HardDebias(verbose=True)
+    hd = HardDebias(verbose=True, criterion_name="gender",)
 
     attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
 
     gender_debiased_w2v = hd.fit(
-        model,
-        definitional_pairs=definitional_pairs,
-        equalize_pairs=equalize_pairs,
-        criterion_name="gender",
+        model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
     ).transform(model, target=attributes, copy=True)
 
     biased_results = weat.run_query(query_1, model, normalize=True)
@@ -169,7 +166,7 @@ def test_hard_debias_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Test ignore param
-    hd = HardDebias(verbose=True)
+    hd = HardDebias(verbose=True, criterion_name="gender",)
 
     # in this test, the targets and attributes are included in the ignore list.
     # this implies that neither of these words should be subjected to debias and
@@ -177,10 +174,7 @@ def test_hard_debias_class(model, capsys):
     targets = weat_wordset["male_names"] + weat_wordset["female_names"]
     attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
     gender_debiased_w2v = hd.fit(
-        model,
-        definitional_pairs,
-        equalize_pairs=equalize_pairs,
-        criterion_name="gender",
+        model, definitional_pairs, equalize_pairs=equalize_pairs,
     ).transform(model, ignore=gender_specific + targets + attributes, copy=True)
 
     biased_results = weat.run_query(query_1, model, normalize=True)
@@ -192,10 +186,7 @@ def test_hard_debias_class(model, capsys):
     # Test verbose
     hd = HardDebias(verbose=True)
     gender_debiased_w2v = hd.fit(
-        model,
-        definitional_pairs,
-        equalize_pairs=equalize_pairs,
-        criterion_name="gender",
+        model, definitional_pairs, equalize_pairs=equalize_pairs,
     ).transform(model, ignore=gender_specific, copy=True)
 
     out = capsys.readouterr().out
@@ -211,14 +202,14 @@ def test_hard_debias_class(model, capsys):
     assert "Equalizing embeddings" in out
     assert "Done!" in out
 
+    assert model.name == "word2vec"
+    assert gender_debiased_w2v.name == "word2vec_debiased"
+
     # -----------------------------------------------------------------
     # Test inplace (copy = False)
-    hd = HardDebias()
+    hd = HardDebias(criterion_name="gender",)
     hd.fit(
-        model,
-        definitional_pairs=definitional_pairs,
-        equalize_pairs=equalize_pairs,
-        criterion_name="gender",
+        model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
     )
 
     gender_debiased_w2v = hd.transform(model, ignore=gender_specific, copy=False)
@@ -242,15 +233,17 @@ def test_multiclass_hard_debias_class(model):
     debiaswe_wordsets = fetch_debiaswe()
     gender_specific = debiaswe_wordsets["gender_specific"]
 
-    mhd = MulticlassHardDebias()
+    mhd = MulticlassHardDebias(criterion_name="gender",)
     mhd.fit(
         model=model,
         definitional_sets=gender_definitional_sets,
         equalize_sets=gender_equalize_sets,
-        criterion_name="gender",
     )
 
     gender_debiased_w2v = mhd.transform(model, copy=True)
+
+    assert model.name == "word2vec"
+    assert gender_debiased_w2v.name == "word2vec_gender_debiased"
 
     gender_query_1 = Query(
         [weat_wordsets["male_names"], weat_wordsets["female_names"]],
@@ -305,15 +298,16 @@ def test_multiclass_hard_debias_class(model):
         multiclass_debias_wordsets["ethnicity_analogy_templates"].values()
     )
 
-    mhd = MulticlassHardDebias(verbose=True)
+    mhd = MulticlassHardDebias(verbose=True, criterion_name="ethnicity",)
     mhd.fit(
         model=model,
         definitional_sets=ethnicity_definitional_sets,
         equalize_sets=ethnicity_equalize_sets,
-        criterion_name="ethnicity",
     )
 
     ethnicity_debiased_w2v = mhd.transform(model, copy=True)
+    assert model.name == "word2vec"
+    assert ethnicity_debiased_w2v.name == "word2vec_ethnicity_debiased"
 
     # test with weat
 
@@ -345,8 +339,10 @@ def test_multiclass_hard_debias_class(model):
         model,
         definitional_sets=gender_definitional_sets,
         equalize_sets=gender_equalize_sets,
-        criterion_name="gender",
     ).transform(model, target=attributes, copy=True)
+
+    assert model.name == "word2vec"
+    assert gender_debiased_w2v.name == "word2vec_debiased"
 
     biased_results = weat.run_query(gender_query_1, model, normalize=True)
     debiased_results = weat.run_query(
@@ -362,7 +358,7 @@ def test_multiclass_hard_debias_class(model):
 
     # -----------------------------------------------------------------
     # Test ignore param
-    mhd = MulticlassHardDebias()
+    mhd = MulticlassHardDebias(criterion_name="gender",)
 
     # in this test, the targets and attributes are included in the ignore list.
     # this implies that neither of these words should be subjected to debias and
@@ -373,7 +369,6 @@ def test_multiclass_hard_debias_class(model):
         model,
         definitional_sets=gender_definitional_sets,
         equalize_sets=gender_equalize_sets,
-        criterion_name="gender",
     ).transform(model, ignore=gender_specific + targets + attributes, copy=True)
 
     biased_results = weat.run_query(gender_query_1, model, normalize=True)
@@ -386,12 +381,11 @@ def test_multiclass_hard_debias_class(model):
     # -----------------------------------------------------------------
 
     # Test inplace (copy = False)
-    mhd = MulticlassHardDebias()
+    mhd = MulticlassHardDebias(criterion_name="gender",)
     mhd.fit(
         model=model,
         definitional_sets=gender_definitional_sets,
         equalize_sets=gender_equalize_sets,
-        criterion_name="gender",
     )
 
     gender_debiased_w2v = mhd.transform(model, copy=False)

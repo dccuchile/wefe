@@ -643,8 +643,279 @@ Some comments regarding the implementation of new metrics:
     distances folder of the
     `repository <https://github.com/dccuchile/wefe/blob/master/wefe/metrics/example_metric.py/>`__.
 
+    
 Mitigation Method Implementation Guide
 ======================================
 
 
-WIP...
+The main idea when implementing a mitigation method is that it has to follow the logic
+of the transformations in scikit-learn. 
+That is, you must separate the logic of the calculation of the mitigation 
+transformation (`fit`) with the application of the transformation on the model 
+(`transform`).
+
+In practical terms, every WEFE transformation must extend the `BaseDebias` class. 
+`BaseDebias` has two abstract methods that must be implemented: `fit` and `transform`.
+
+
+Fit
+---
+
+
+`fit` is the method in charge of calculating the bias mitigation transformation 
+that will be subsequently applied to the model.
+`BaseDebias` implements it as an abstract method that requires only one argument: 
+`model`, which expects a `WordEmbeddingModel` instance.
+
+.. code:: python3
+
+    @abstractmethod
+    def fit(
+        self,
+        model: WordEmbeddingModel,
+        **fit_params,
+    ) -> "BaseDebias":
+        """Fit the transformation.
+
+        Parameters
+        ----------
+        model : WordEmbeddingModel
+            The word embedding model to debias.
+        """
+        raise NotImplementedError()
+
+
+The idea of requesting model at this point is that the calculation of the 
+transformation commonly requires some words from the model vocabulary.
+
+As each bias mitigation method is different, it is expected that these can receive more 
+parameters than those listed above. In, `HardDebias`, `fit` is defined using the default
+parameter `model` plus `definitional_pairs` and `equalize_pairs`, which are 
+specific to `HardDebias`:
+
+.. code:: python3
+
+    def fit(
+        self,
+        model: WordEmbeddingModel,
+        definitional_pairs: Sequence[Sequence[str]],
+        equalize_pairs: Optional[Sequence[Sequence[str]]] = None,
+        **fit_params,
+    ) -> BaseDebias:
+        """Compute the bias direction and obtains the equalize embedding pairs.
+
+        Parameters
+        ----------
+        model : WordEmbeddingModel
+            The word embedding model to debias.
+        definitional_pairs : Sequence[Sequence[str]]
+            A sequence of string pairs that will be used to define the bias direction.
+            For example, for the case of gender debias, this list could be [['woman',
+            'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
+        equalize_pairs : Optional[Sequence[Sequence[str]]], optional
+            A list with pairs of strings which will be equalized.
+            In the case of passing None, the equalization will be done over the word
+            pairs passed in definitional_pairs,
+            by default None.
+        criterion_name : Optional[str], optional
+            The name of the criterion for which the debias is being executed,
+            e.g. 'Gender'. This will indicate the name of the model returning transform,
+            by default None
+
+        Returns
+        -------
+        BaseDebias
+            The debias method fitted.
+        """
+        self._check_sets_size(definitional_pairs, "definitional")
+        self.definitional_pairs_ = definitional_pairs
+
+        # ------------------------------------------------------------------------------
+        # Obtain the embedding of each definitional pairs.
+        if self.verbose:
+            print("Obtaining definitional pairs.")
+        self.definitional_pairs_embeddings_ = get_embeddings_from_sets(
+            model=model,
+            sets=definitional_pairs,
+            sets_name="definitional",
+            warn_lost_sets=self.verbose,
+            normalize=True,
+            verbose=self.verbose,
+        )
+
+        # ------------------------------------------------------------------------------:
+        # Identify the bias subspace using the definning pairs.
+        if self.verbose:
+            print("Identifying the bias subspace.")
+
+        self.pca_ = self._identify_bias_subspace(
+            self.definitional_pairs_embeddings_, self.verbose,
+        )
+        self.bias_direction_ = self.pca_.components_[0]
+        # code was cut for simplicity.
+        # you can visit the missing code in the file debias/HardDebias
+        ...
+        return self
+
+.. note::
+
+Note that `get_embeddings_from_sets` is used to transform word sets to embeddings sets. 
+This function, as well as the one to transform queries to embeddings, are available 
+in the `preprocessing` module.
+
+Once fit has calculated the transformation, the method should return self.
+
+
+
+Transform
+---------
+
+This method is intended to implement the application of the transformation calculated
+in `fit` on the embedding model.It must always receive the same 4 arguments:
+
+- `model`: The model on which the transformation will be applied
+- `target`: A set of words or None. If it is specified, the debias method will be performed
+  only on the word embeddings of this set. In the case of provide `None`, the
+  debias will be performed on all words (except those specified in ignore).
+  by default `None`.
+- `ignore`: A set of words or None. If target is `None` and a set of words is specified 
+- in ignore, the debias method will perform the debias in all words except those 
+- specified in this set, by default `None`.
+- `copy`: If `True`, the debias will be performed on a copy of the model.
+  If `False`, the debias will be applied on the same model delivered, causing
+  its vectors to mutate.
+
+.. code:: python
+
+    @abstractmethod
+    def transform(
+        self,
+        model: WordEmbeddingModel,
+        target: Optional[List[str]] = None,
+        ignore: Optional[List[str]] = None,
+        copy: bool = True,
+    ) -> WordEmbeddingModel:
+        """Perform the debiasing method over the model provided.
+
+        Parameters
+        ----------
+        model : WordEmbeddingModel
+            The word embedding model to debias.
+        target : Optional[List[str]], optional
+            If a set of words is specified in target, the debias method will be performed
+            only on the word embeddings of this set. In the case of provide `None`, the
+            debias will be performed on all words (except those specified in ignore).
+            by default `None`.
+        ignore : Optional[List[str]], optional
+            If target is `None` and a set of words is specified in ignore, the debias
+            method will perform the debias in all words except those specified in this
+            set, by default `None`.
+        copy : bool, optional
+            If `True`, the debias will be performed on a copy of the model.
+            If `False`, the debias will be applied on the same model delivered, causing
+            its vectors to mutate.
+            **WARNING:** Setting copy with `True` requires at least 2x RAM of the size
+            of the model. Otherwise the execution of the debias may rise
+            `MemoryError`, by default True.
+
+        Returns
+        -------
+        WordEmbeddingModel
+            The debiased word embedding model.
+        """
+        raise NotImplementedError()
+
+As can be seen, the embeddings that will be modified by the transformation will 
+be determined by the words delivered in the `target` and `ignore` sets or the 
+absence of both (apply on all words).
+The idea is that this convention is maintained during the creation of a new debias 
+method.
+
+Some useful initial checks and operations for this method:
+
+- The arguments can be checked through the `_check_transform_args` `BaseDebias` method.
+- You can also check whether the method is trained or not using the `check_is_fitted` 
+  method. This is a wrapper of the original scikit-learn that can be imported from the 
+  utils module.
+- In case `copy` argument is `True`, you must duplicate the model and work on the 
+  replica. It is recommended to use `deepcopy` of the `copy` module for such purposes.
+
+The following code segment (obtained from `HardDebias`) shows an example of how to 
+execute the points mentioned above:
+
+.. code:: python
+
+    def transform(
+        self,
+        model: WordEmbeddingModel,
+        target: Optional[List[str]] = None,
+        ignore: Optional[List[str]] = None,
+        copy: bool = True,
+        ) -> WordEmbeddingModel:
+        """Execute hard debias over the provided model.
+
+        Parameters
+        ----------
+        model : WordEmbeddingModel
+            The word embedding model to debias.
+        target : Optional[List[str]], optional
+            If a set of words is specified in target, the debias method will be performed
+            only on the word embeddings of this set. In the case of provide `None`, the
+            debias will be performed on all words (except those specified in ignore).
+            by default `None`.
+        ignore : Optional[List[str]], optional
+            If target is `None` and a set of words is specified in ignore, the debias
+            method will perform the debias in all words except those specified in this
+            set, by default `None`.
+        copy : bool, optional
+            If `True`, the debias will be performed on a copy of the model.
+            If `False`, the debias will be applied on the same model delivered, causing
+            its vectors to mutate.
+            **WARNING:** Setting copy with `True` requires at least 2x RAM of the size
+            of the model. Otherwise the execution of the debias may rise
+            `MemoryError`, by default True.
+
+        Returns
+        -------
+        WordEmbeddingModel
+            The debiased embedding model.
+        """
+        # ------------------------------------------------------------------------------
+        # Check types and if the method is fitted
+
+        self._check_transform_args(
+            model=model, target=target, ignore=ignore, copy=copy,
+        )
+
+        # check if the following attributes exists in the object.
+        check_is_fitted(
+            self,
+            [
+                "definitional_pairs_",
+                "definitional_pairs_embeddings_",
+                "pca_",
+                "bias_direction_",
+            ],
+        )
+
+        # Copy
+        if copy:
+            print(
+                "Copy argument is True. Transform will attempt to create a copy "
+                "of the original model. This may fail due to lack of memory."
+            )
+            model = deepcopy(model)
+            print("Model copy created successfully.")
+
+        else:
+            print(
+                "copy argument is False. The execution of this method will mutate "
+                "the original model."
+            )
+
+Unfortunately it is impossible to cover much more without losing generality.
+However, we recommend to check the code structure shown in HardDebias or 
+MulticlassHardDebias to guide you through the process of implementing a new 
+mitigation and use these classes as a reference to implement a new debias method. 
+You can also open an issue in the repository to comment on any questions you may have
+in the implementation.

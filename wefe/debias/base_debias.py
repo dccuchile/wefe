@@ -14,7 +14,6 @@ class BaseDebias(BaseEstimator):
         self,
         model: WordEmbeddingModel,
         debias_criterion_name: Optional[str] = None,
-        verbose: bool = True,  # TODO: Cambiar a False para el deploy,
         **fit_params,
     ) -> "BaseDebias":
         """Fit the transformation.
@@ -41,8 +40,6 @@ class BaseDebias(BaseEstimator):
         target: Optional[List[str]] = None,
         ignore: Optional[List[str]] = None,
         copy: bool = True,
-        verbose: bool = True,
-        **transform_params,
     ) -> WordEmbeddingModel:
         """Perform the debiasing method over the model provided.
 
@@ -66,9 +63,6 @@ class BaseDebias(BaseEstimator):
             **WARNING:** Setting copy with `True` requires at least 2x RAM of the size
             of the model. Otherwise the execution of the debias may rise
             `MemoryError`, by default True.
-        verbose : bool, optional
-            `True` will print informative messages about the debiasing process,
-            by default False.
 
         Returns
         -------

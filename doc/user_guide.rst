@@ -1722,7 +1722,7 @@ The main idea of this method is:
     e.g. \ ``{'woman', 'man'}, {'she', 'he'}, ...``
 
 2. **Neutralize the bias subspace on the embeddings that should not be
-    biased.**
+   biased.**
 
     First, it is defined a set of words that are correct to be related to
     the bias criterion: the *criterion specific gender words*. For

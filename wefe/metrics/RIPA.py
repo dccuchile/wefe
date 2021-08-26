@@ -9,18 +9,43 @@ try:
 except ImportError:
     from typing_extensions import Literal
 
-def b_vec(word1, word2): 
+def b_vec(word1, word2):
+    #calculating the relation vector 
     vec = np.array(word1) - np.array(word2)
     norm = np.linalg.norm(vec)
     return vec/norm
 
-def ripa1(word_vec, bvec):
+def ripa_calc(word_vec, bvec):
+    #calculating the dot product of the relation vector with the attribute word vector
     return np.dot(word_vec, bvec)
 
 
 PreprocessorArgs = Dict[str, Union[bool, str, Callable, None]]
 
 class RIPA(BaseMetric):
+
+    """
+    An implementation of the Relational Inner Product Association Test, proposed by [1][2]. RIPA is most interpretable 
+    with a single pair of target words, although this function returns the values for every attribute averaged across 
+    all base pairs. 
+    
+    NOTE: As the variance tends to be high depending on the base pair chosen, it is recommended that only a 
+    single pair of target words is used as input to the function.
+
+    This metric follows the following steps:
+    1. The input is the word vectors for a pair of target word sets, and an attribute set.
+    Example:
+        Target Set A (Masculine), Target Set B (Feminine), Attribute Set (Career)
+    2. Calculate the difference between the word vector of a pair of target set words.
+    3. Calculate the dot product between this difference and the attribute word vector.
+    4. Return the average RIPA score across all attribute words, and the average RIPA score for each target pair for an attribute set.
+
+
+    References:
+    |[1] Ethayarajh, K., & Duvenaud, D., & Hirst, G. (2019, July). Understanding Undesirable Word Embedding Associations.
+    |[2] https://kawine.github.io/assets/acl2019_bias_slides.pdf
+    |[3] https://kawine.github.io/blog/nlp/2019/09/23/bias.html
+    """
 
     # replace with the parameters of your metric
     metric_template = (2, 1)  # cardinalities of the targets and attributes sets that your metric will accept.
@@ -42,36 +67,49 @@ class RIPA(BaseMetric):
          Returns
          -------
          np.float
-             The value of the calculated metric.
+             The value of the calculated metric, averaged across all the RIPA scores of the attributes.
+         dict
+             The mean value ± the standard deviation (across all target pairs) of the attribute word's RIPA score 
          """
 
+        #word vectors from the embedding model for all the words in each of the target sets
         target_embeddings_0 = list(target_embeddings[0].values())
         target_embeddings_1 = list(target_embeddings[1].values())
 
+        #word vectors from the embedding model for all the words in the attribute set
         attribute_embeddings_0 = np.array(list(attribute_embeddings[0].values()))
 
-        target_length=len(target_embeddings_0)
-        attributes=list(attribute_embeddings[0].keys())
-        # calculate the average embedding by target and attribute set.
+
+        target_length=len(target_embeddings_0) #length of the target set
+        attributes=list(attribute_embeddings[0].keys()) #list of all the attribute words
+
         ripa_scores = {}
         ripa_oa_mean=[]
         ripa_oa_std=[]
         
+        #calculating the ripa score for each attribute word with each target pair
         for word in range(len(attribute_embeddings_0)):
             ripa_scores[attributes[word]] = []
             for index in range(target_length-1):
                 bvec = b_vec(target_embeddings_0[index],target_embeddings_1[index])
-                score = ripa1(attribute_embeddings_0[word], bvec)
+                score = ripa_calc(attribute_embeddings_0[word], bvec)
                 ripa_scores[attributes[word]].append(score)
 
+        #calculating the mean of the ripa score across all target pairs for every attribute word
         for rip in attributes:        
           ripa_oa_mean.append(np.mean(ripa_scores[rip]))
           ripa_oa_std.append(np.std(ripa_scores[rip]))
         
+        #creating a dictionary with the direction of the RIPA scores for every corresponding attribute word
         word_values={}
         for i in range(len(ripa_oa_mean)):
           word_values[attributes[i]]=str(ripa_oa_mean[i])+" ± "+str(ripa_oa_std[i])
     
+        """
+        Returning the mean of the RIPA scores for every attribute word, and the dictionary with the 
+        RIPA scores for every corresponding attribute word
+        """
+        
         return np.mean(ripa_oa_mean), word_values
         
     def run_query(

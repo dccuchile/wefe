@@ -7,7 +7,7 @@ from ..utils import load_weat_w2v
 from ..word_embedding_model import WordEmbeddingModel
 from ..datasets.datasets import load_weat
 from ..query import Query
-from ..metrics import WEAT, RND, RNSB, MAC, ECT
+from ..metrics import WEAT, RND, RNSB, MAC, ECT, RIPA
 
 LOGGER = logging.getLogger(__name__)
 

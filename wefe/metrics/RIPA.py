@@ -177,4 +177,4 @@ class RIPA(BaseMetric):
         result, word_values= self._calc_metric(target_embeddings, attribute_embeddings)
 
         # return the results.
-        return {"query_name": query.query_name, "result": result, "ripa": result, "word values": word_values }
+        return {"query_name": query.query_name, "result": result, "word values": word_values }

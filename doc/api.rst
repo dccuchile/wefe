@@ -70,6 +70,15 @@ ECT
 
    ECT
 
+RIPA
+=====
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   RIPA
+
 
 Dataloaders
 ===========

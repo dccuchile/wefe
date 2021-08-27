@@ -261,6 +261,17 @@ calculates the average target group vectors, measures the cosine similarity of e
 to a list of attribute words and calculates the correlation of the resulting
 similarity lists.
 
+RIPA
+---
+
+The Relational Inner Product Association, presented in the paper "Understanding 
+Undesirable Word Embedding Associations", calculates bias by measuring the bias of a term
+by using the relation vector (i.e the first principal component of a pair of words that define
+the association) and calculating the dot product of this vector with the attribute word vector.
+RIPA's advantages are its interpretability, and its relative robustness compared to WEAT 
+with regard to how the relation vector is defined.
+
+
 Changelog
 =========
 
@@ -294,7 +305,7 @@ Measurements and Case Studies
 - `Garg, N., Schiebinger, L., Jurafsky, D., & Zou, J. (2018). Word embeddings quantify 100 years of gender and ethnic stereotypes. Proceedings of the National Academy of Sciences, 115(16), E3635-E3644. <https://www.pnas.org/content/pnas/115/16/E3635.full.pdf>`_.
 - `Sweeney, C., & Najafian, M. (2019, July). A Transparent Framework for Evaluating Unintended Demographic Bias in Word Embeddings. In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (pp. 1662-1667). <https://www.aclweb.org/anthology/P19-1162.pdf>`_.
 - `Dev, S., & Phillips, J. (2019, April). Attenuating Bias in Word vectors. In Proceedings of the 22nd International Conference on Artificial Intelligence and Statistics (pp. 879-887). <http://proceedings.mlr.press/v89/dev19a.html>`_.
-
+- `Ethayarajh, K., & Duvenaud, D., & Hirst, G. (2019, July). Understanding Undesirable Word Embedding Associations. Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (pp. 1696-1705). <https://aclanthology.org/P19-1166>`_.
 
 Bias Mitigation
 ---------------

@@ -1,8 +1,11 @@
 import logging
-from typing import Any, Dict, List, Literal, Set, Tuple, Union
 import random
 import math
-
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
+from typing import Any, Dict, List, Set, Tuple, Union
 import numpy as np
 
 from .base_metric import BaseMetric

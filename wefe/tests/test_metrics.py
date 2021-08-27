@@ -7,7 +7,7 @@ from ..utils import load_weat_w2v
 from ..word_embedding_model import WordEmbeddingModel
 from ..datasets.datasets import load_weat
 from ..query import Query
-from ..metrics import WEAT, RND, RNSB, MAC, ECT
+from ..metrics import WEAT, RND, RNSB, MAC, ECT, RIPA
 
 LOGGER = logging.getLogger(__name__)
 
@@ -163,3 +163,16 @@ def test_ECT():
 
     assert results['query_name'] == 'Flowers and Insects wrt Pleasant'
     assert isinstance(results['result'], (np.float32, np.float64, float))
+
+def test_RIPA():
+    weat_word_set = load_weat()
+    model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
+
+    ripa =RIPA()
+    query = Query([weat_word_set['flowers'], weat_word_set['insects']],
+                  [weat_word_set['pleasant_5']], ['Flowers', 'Insects'], ['Pleasant'])
+    results = ripa.run_query(query, model)
+
+    assert results['query_name'] == 'Flowers and Insects wrt Pleasant'
+    assert isinstance(results['result'], (np.float32, np.float64, float))
+    assert isinstance(results['word values'], (dict))

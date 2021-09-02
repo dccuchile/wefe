@@ -58,14 +58,14 @@ time, the embedding model could be changed to :code:`glove-twitter-25'`.
 
 >>> # import the modules
 >>> from wefe.query import Query
->>> from wefe.word_embedding import 
+>>> from wefe.word_embedding_model import WordEmbeddingModel
 >>> from wefe.metrics.WEAT import WEAT
 >>> import gensim.downloader as api
 >>>
->>> # load word2vec 
->>> # it can be changed to 'glove-twitter-25' to speed up the loading time.
->>> twitter_25 = api.load('word2vec-google-news-300')
->>> model = (twitter_25, 'glove twitter dim=25')
+>>> # load word2vec word2vec-google-news-300
+>>> # it can be changed to 'word2vec-google-news-300' to speed use word2vec.
+>>> twitter_25 = api.load('glove-twitter-25')
+>>> model = WordEmbeddingModel(twitter_25, 'glove-twitter dim=25')
 
 2. Create the Query with a loaded, fetched or custom target and attribute 
 word sets. In this case, we will manually set both target words and attribute
@@ -93,6 +93,6 @@ with the parameters created in the past steps. In this case we will use
 {'query_name': 'Male Terms and Female Terms wrt Arts and Science',
  'result': -0.010003209}
 
-With this, we close the basic tutorial on the use of the WEFE package. 
+We close the basic tutorial on the use of the WEFE package. 
 For more advanced examples, visit user the `User Guide <user_guide.html>`_ 
 section.

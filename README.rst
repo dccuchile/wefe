@@ -75,7 +75,7 @@ These package will be installed along with the package, in case these have not a
 4. pandas
 5. gensim
 6. plotly
-
+7. semantic_version
 
 Contributing
 ------------
@@ -122,6 +122,12 @@ To compile the documentation, run it::
 
 Changelog
 =========
+
+Version 0.2.1
+-------------
+
+- Added RIPA metrics (thanks @stolenpyjak for your contribution!).
+- Fix WEAT type errors.
 
 Version 0.2.0
 --------------

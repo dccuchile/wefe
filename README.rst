@@ -123,11 +123,16 @@ To compile the documentation, run it::
 Changelog
 =========
 
-Version 0.2.1
+Version 0.2.2
 -------------
 
 - Added RIPA metrics (thanks @stolenpyjak for your contribution!).
 - Fix WEAT type errors.
+
+Version 0.2.1
+-------------
+
+- Compatibility fixes.
 
 Version 0.2.0
 --------------
@@ -145,7 +150,6 @@ Version 0.2.0
 - run_query now returns as a result the default metric requested in the parameters and all calculated values that may be useful in the other variables of the dictionary.
 - Fixed problem with api documentation: now it shows methods of the classes.
 - Implemented p-value for WEAT
-
 
 Citation
 =========

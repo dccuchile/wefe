@@ -132,7 +132,19 @@ Version 0.3.0
 - Enhanced the preprocessor_args and secondary_preprocessor_args metric preprocessing parameters to an list of preprocessors `preprocessors` together with the parameter `strategy` indicating whether to consider all the transformed words (`'all'`) or only the first one encountered (`'first'`).
 - Renamed WordEmbeddingModel attributes ```model``` and ```model_name```  to ```wv``` and ```name``` respectively.
 - Renamed every run_query ```word_embedding``` argument to ```model``` in every metric.
+
+
+Version 0.2.2
+-------------
+
+- Added RIPA metrics (thanks @stolenpyjak for your contribution!).
 - Fixed Literal typing bug to make WEFE compatible with python 3.7.
+
+Version 0.2.1
+-------------
+
+- Compatibility fixes.
+
 
 Version 0.2.0
 --------------

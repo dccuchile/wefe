@@ -64,6 +64,14 @@ This list contains the metrics implemented in WEFE.
 
    ECT
 
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   RIPA
+
+
 Debias
 ======
 
@@ -80,6 +88,7 @@ This list contains the debiasing methods implemented so far in WEFE.
    :template: class.rst
 
    MulticlassHardDebias
+
 
 Dataloaders
 ===========

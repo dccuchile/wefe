@@ -1,6 +1,6 @@
-from .WEAT import WEAT
+from .ECT import ECT
+from .MAC import MAC, BaseMetric
+from .RIPA import RIPA
 from .RND import RND
 from .RNSB import RNSB
-from .MAC import MAC
-from .MAC import BaseMetric
-from .ECT import ECT
+from .WEAT import WEAT

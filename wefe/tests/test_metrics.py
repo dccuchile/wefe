@@ -2,11 +2,10 @@
 import numpy as np
 import pytest
 from gensim.models.keyedvectors import KeyedVectors
-
-from wefe.word_embedding_model import WordEmbeddingModel
 from wefe.datasets.datasets import load_weat
+from wefe.metrics import ECT, MAC, RIPA, RND, RNSB, WEAT
 from wefe.query import Query
-from wefe.metrics import WEAT, RND, RNSB, MAC, ECT
+from wefe.word_embedding_model import WordEmbeddingModel
 
 
 @pytest.fixture
@@ -305,3 +304,25 @@ def test_ECT(model, weat_wordsets):
     assert np.isnan(results["ect"])
     assert np.isnan(results["result"])
 
+
+def test_RIPA(model, weat_wordsets):
+
+    ripa = RIPA()
+    query = Query(
+        [weat_wordsets["flowers"], weat_wordsets["insects"]],
+        [weat_wordsets["pleasant_5"]],
+        ["Flowers", "Insects"],
+        ["Pleasant"],
+    )
+    results = ripa.run_query(query, model)
+
+    assert results["query_name"] == "Flowers and Insects wrt Pleasant"
+    assert isinstance(results["result"], (np.float32, np.float64, float))
+    assert isinstance(results["ripa"], (np.float32, np.float64, float))
+    assert isinstance(results["word_values"], dict)
+
+    for word, word_value in results["word_values"].items():
+        assert isinstance(word, str)
+        assert isinstance(word_value, dict)
+        assert isinstance(word_value["mean"], (np.float32, np.float64, float))
+        assert isinstance(word_value["std"], (np.float32, np.float64, float))

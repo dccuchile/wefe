@@ -1,8 +1,8 @@
 """A Word Embedding contanier based on gensim BaseKeyedVectors."""
 from typing import Callable, Dict, Sequence, Union
 
-import numpy as np
 import gensim
+import numpy as np
 import semantic_version
 
 gensim_version = semantic_version.Version.coerce(gensim.__version__)

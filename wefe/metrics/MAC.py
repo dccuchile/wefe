@@ -1,11 +1,11 @@
 """Mean Average Cosine Similarity (MAC) implementation."""
 from typing import Any, Callable, Dict, List, Union
+
 import numpy as np
 from scipy.spatial import distance
-
 from wefe.metrics.base_metric import BaseMetric
-from wefe.query import Query
 from wefe.preprocessing import get_embeddings_from_query
+from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
@@ -14,7 +14,7 @@ class MAC(BaseMetric):
 
     The general steps of the test are as follows [1]:
 
-    1. Embedd all target and attribute words.
+    1. Embed all target and attribute words.
     2. For each target set:
         * For each word embedding in the target set:
             * For each attribute set:
@@ -113,17 +113,11 @@ class MAC(BaseMetric):
         model : WordEmbeddingModel
             A word embedding model.
 
-        lost_vocabulary_threshold : float, optional
-            Specifies the proportional limit of words that any set of the query is
-            allowed to lose when transforming its words into embeddings.
-            In the case that any set of the query loses proportionally more words
-            than this limit, the result values will be np.nan, by default 0.2
-
         preprocessors : List[Dict[str, Union[str, bool, Callable]]]
             A list with preprocessor options.
 
             A ``preprocessor`` is a dictionary that specifies what processing(s) are
-            performed on each word before its looked up in the model vocabulary.
+            performed on each word before it is looked up in the model vocabulary.
             For example, the ``preprocessor``
             ``{'lowecase': True, 'strip_accents': True}`` allows you to lowercase
             and remove the accent from each word before searching for them in the
@@ -145,12 +139,13 @@ class MAC(BaseMetric):
                 on each word. In the case of specifying a function, it overrides the
                 default preprocessor (i.e., the previous options stop working).
 
-            A list of preprocessor options allows to search for several
+            A list of preprocessor options allows you to search for several
             variants of the words into the model. For example, the preprocessors
             ``[{}, {"lowercase": True, "strip_accents": True}]``
-            ``{}`` allows first to search for the original words in the vocabulary of the model. 
-            In case some of them are not found, ``{"lowercase": True, "strip_accents": True}`` 
-            is executed on these words and then they are searched in the model vocabulary.
+            ``{}`` allows first to search for the original words in the vocabulary of
+            the model. In case some of them are not found,
+            ``{"lowercase": True, "strip_accents": True}`` is executed on these words
+            and then they are searched in the model vocabulary.
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
@@ -162,8 +157,7 @@ class MAC(BaseMetric):
 
         warn_not_found_words : bool, optional
             Specifies if the function will warn (in the logger)
-            the words that were not found in the model's vocabulary
-            , by default False.
+            the words that were not found in the model's vocabulary, by default False.
 
         Returns
         -------

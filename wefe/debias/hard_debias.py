@@ -1,16 +1,15 @@
 """Hard Debias WEFE implementation."""
 import logging
 from copy import deepcopy
-from typing import Dict, List, Any, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
 from sklearn.decomposition import PCA
 from tqdm import tqdm
-
-from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 from wefe.debias.base_debias import BaseDebias
-from wefe.utils import check_is_fitted
 from wefe.preprocessing import get_embeddings_from_sets
+from wefe.utils import check_is_fitted
+from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 class HardDebias(BaseDebias):
     """Hard Debias debiasing method.
 
-    This method allows to reduce the bias of an embedding model through geometric
+    This method allow reducing the bias of an embedding model through geometric
     operations between embeddings.
     This method is binary because it only allows 2 classes of the same bias criterion,
     such as male or female.
@@ -89,7 +88,7 @@ class HardDebias(BaseDebias):
             by default False.
         criterion_name : Optional[str], optional
             The name of the criterion for which the debias is being executed,
-            e.g. 'Gender'. This will indicate the name of the model returning transform,
+            e.g., 'Gender'. This will indicate the name of the model returning transform,
             by default None
         """
         # check verbose
@@ -243,7 +242,7 @@ class HardDebias(BaseDebias):
             For example, for the case of gender debias, this list could be [['woman',
             'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
         equalize_pairs : Optional[Sequence[Sequence[str]]], optional
-            A list with pairs of strings which will be equalized.
+            A list with pairs of strings, which will be equalized.
             In the case of passing None, the equalization will be done over the word
             pairs passed in definitional_pairs,
             by default None.
@@ -335,7 +334,7 @@ class HardDebias(BaseDebias):
             The word embedding model to debias.
         target : Optional[List[str]], optional
             If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. In the case of provide `None`, the
+            only on the word embeddings of this set. If `None` is provided, the
             debias will be performed on all words (except those specified in ignore).
             by default `None`.
         ignore : Optional[List[str]], optional
@@ -346,10 +345,10 @@ class HardDebias(BaseDebias):
             If `True`, the debias will be performed on a copy of the model.
             If `False`, the debias will be applied on the same model delivered, causing
             its vectors to mutate.
-            **WARNING:** Setting copy with `True` requires at least 2x RAM of the size
-            of the model. Otherwise the execution of the debias may rise
+            **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
+            of the model, otherwise the execution of the debias may give rise to
             `MemoryError`, by default True.
-
+            
         Returns
         -------
         WordEmbeddingModel
@@ -362,7 +361,7 @@ class HardDebias(BaseDebias):
             model=model, target=target, ignore=ignore, copy=copy,
         )
 
-        # check if the following attributes exists in the object.
+        # check if the following attributes exist in the object.
         check_is_fitted(
             self,
             [

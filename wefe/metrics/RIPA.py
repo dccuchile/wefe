@@ -158,7 +158,7 @@ class RIPA(BaseMetric):
             A list with preprocessor options.
 
             A ``preprocessor`` is a dictionary that specifies what processing(s) are
-            performed on each word before its looked up in the model vocabulary.
+            performed on each word before it is looked up in the model vocabulary.
             For example, the ``preprocessor``
             ``{'lowecase': True, 'strip_accents': True}`` allows you to lowercase
             and remove the accent from each word before searching for them in the
@@ -180,12 +180,13 @@ class RIPA(BaseMetric):
                 on each word. In the case of specifying a function, it overrides the
                 default preprocessor (i.e., the previous options stop working).
 
-            A list of preprocessor options allows to search for several
+            A list of preprocessor options allows you to search for several
             variants of the words into the model. For example, the preprocessors
             ``[{}, {"lowercase": True, "strip_accents": True}]``
-            ``{}`` allows first to search for the original words in the vocabulary of the model. 
-            In case some of them are not found, ``{"lowercase": True, "strip_accents": True}`` 
-            is executed on these words and then they are searched in the model vocabulary.
+            ``{}`` allows first to search for the original words in the vocabulary of
+            the model. In case some of them are not found,
+            ``{"lowercase": True, "strip_accents": True}`` is executed on these words
+            and then they are searched in the model vocabulary.
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
@@ -195,11 +196,9 @@ class RIPA(BaseMetric):
         normalize : bool, optional
             True indicates that embeddings will be normalized, by default False
 
-
         warn_not_found_words : bool, optional
             Specifies if the function will warn (in the logger)
-            the words that were not found in the model's vocabulary
-            , by default False.
+            the words that were not found in the model's vocabulary, by default False.
 
         Returns
         -------

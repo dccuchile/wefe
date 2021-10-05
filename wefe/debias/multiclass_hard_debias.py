@@ -1,16 +1,15 @@
 """Manzini et al. Multiclass Hard Debias WEFE implementation."""
 import logging
 from copy import deepcopy
-from typing import List, Optional, Sequence, Dict, Any
-from wefe.utils import check_is_fitted
+from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
-from tqdm import tqdm
 from sklearn.decomposition import PCA
-
-from wefe.preprocessing import get_embeddings_from_sets
+from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
-from wefe.word_embedding_model import WordEmbeddingModel, EmbeddingDict
+from wefe.preprocessing import get_embeddings_from_sets
+from wefe.utils import check_is_fitted
+from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
 logger = logging.getLogger(__name__)
 
@@ -201,7 +200,7 @@ class MulticlassHardDebias(BaseDebias):
             For example, for the case of gender debias, this list could be [['woman',
             'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
         equalize_pairs : Optional[Sequence[Sequence[str]]], optional
-            A list with pairs of strings which will be equalized.
+            A list with pairs of strings, which will be equalized.
             In the case of passing None, the equalization will be done over the word
             pairs passed in definitional_sets,
             by default None.
@@ -265,9 +264,8 @@ class MulticlassHardDebias(BaseDebias):
             The word embedding model to debias.
         target : Optional[List[str]], optional
             If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. If target is `None`, the
-            debias will be performed over all vocab (except those specified in ignore
-            and the definitional_sets).
+            only on the word embeddings of this set. If `None` is provided, the
+            debias will be performed on all words (except those specified in ignore).
             by default `None`.
         ignore : Optional[List[str]], optional
             If target is `None` and a set of words is specified in ignore, the debias
@@ -277,10 +275,10 @@ class MulticlassHardDebias(BaseDebias):
             If `True`, the debias will be performed on a copy of the model.
             If `False`, the debias will be applied on the same model delivered, causing
             its vectors to mutate.
-            **WARNING:** Setting copy with `True` requires at least 2x RAM of the size
-            of the model. Otherwise the execution of the debias may rise
+            **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
+            of the model, otherwise the execution of the debias may give rise to
             `MemoryError`, by default True.
-
+            
         Returns
         -------
         WordEmbeddingModel

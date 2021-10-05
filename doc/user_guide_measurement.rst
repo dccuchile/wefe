@@ -18,18 +18,17 @@ using the package to measure bias. The following sections show:
     To accurately study and reduce biases contained in word embeddings, queries may
     contain words that could be offensive to certain groups or individuals.
     The relationships studied between these words DO NOT represent the
-    ideas, thoughts or beliefs of the authors of this library. This applies
-    to this and all pages of the documentation.
-
-
+    ideas, thoughts or beliefs of the authors of this library. 
+    This warning applies to all documentation.
 
 .. note::
 
   If you are not familiar with the concepts of query, target and attribute
   set, please visit the `the framework
   section <https://wefe.readthedocs.io/en/latest/about.html#the-framework>`__
-  on the library’s about page. These concepts will be widely used in the
+  on the library’s about page. These concepts are widely used in the
   following sections.
+
 
 A jupyter notebook with this code is located in the following link: `WEFE User
 Guide <https://github.com/dccuchile/wefe/blob/master/examples/User_Guide.ipynb>`__.
@@ -87,7 +86,7 @@ twitter dataset loaded using `gensim-data <https://github.com/RaRe-Technologies/
 Create the query using a ``Query`` object
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Define the target and attribute words sets and create a Query object
+Define the target and attribute word sets and create a Query object
 that contains them.
 
 For this initial example, a query is used to study the association
@@ -156,7 +155,7 @@ Any bias measurement process at WEFE consists of the following steps:
 2. Transform the word sets into word embeddings.
 3. Calculate the metric.
 
-In this case we are going to use the ``WEAT`` metric (proposed in the
+In this case we use the ``WEAT`` metric (proposed in the
 same paper of the set of words used in the query).
 
 .. code:: python
@@ -183,9 +182,9 @@ the calculated metric (which is duplicated in the “results” key).
 Depending on the metric class used, the result ``dict`` can also return
 more metrics, detailed word-by-word values or other statistics like
 p-values. Also some metrics allow you to change the default value in
-results, which will have implications a little further down the line.
+results.
 
-Details of all the metrics implemented, their references, parameters and
+Details of all the metrics implemented, their parameters and
 examples of execution can be found at `API
 documentation <https://wefe.readthedocs.io/en/latest/api.html>`__.
 
@@ -193,7 +192,7 @@ documentation <https://wefe.readthedocs.io/en/latest/api.html>`__.
 Run Query Arguments
 -------------------
 
-Each metric allows to vary the behavior of ``run_query`` according to
+Each metric allows varying the behavior of ``run_query`` according to
 different parameters. There are parameters to customize the
 transformation of the sets of words to sets of embeddings, others to
 warn errors or modify which calculation method the metric use.
@@ -259,7 +258,7 @@ to find the names in the model vocabulary.
 
     Some well-known word sets are already provided by the package and can be
     easily loaded by the user through the ``datasets`` module. From here on,
-    the tutorial will use the words defined in the study *Semantics derived
+    the tutorial use the words defined in the study *Semantics derived
     automatically from language corpora contain human-like biases*, the same
     that proposed the WEAT metric.
 
@@ -330,7 +329,7 @@ names with respect to pleasant and unpleasant attributes.
 Word Preprocessors
 ------------------
 
-``run_queries`` allows to preprocess each word before they are searched in the model's 
+``run_queries`` allows preprocessing each word before they are searched in the model's 
 vocabulary.through the parameter ``preprocessors``. (list of one or more preprocessor).
 This parameter accepts a list of individual preprocessors, which are defined below:
 
@@ -351,7 +350,7 @@ The possible options for a preprocessor are:
 *  ``preprocessor``: ``Callable``. It receives a function that operates on each word. In the case of specifying a function, it overrides the default preprocessor (i.e., the previous options stop working).
 
 
-A list of preprocessor options allows to search for several
+A list of preprocessor options allows searching for several
 variants of the words into the model. For example, the preprocessors
 ``[{}, {"lowercase": True, "strip_accents": True}]``
 ``{}`` allows first to search for the original words in the vocabulary of the model. 
@@ -359,10 +358,10 @@ In case some of them are not found, ``{"lowercase": True, "strip_accents": True}
 is executed on these words and then they are searched in the model vocabulary.
 
 By default (in case there is more than one preprocessor in the list) the first 
-preprocessed word found in the embeddings model will be used. 
+preprocessed word found in the embeddings model is used. 
 This behavior can be controlled by the ``strategy`` parameter of ``run_query``.
 
-In the following example, we will provide a list with only one
+In the following example, we provide a list with only one
 preprocessor that instructs ``run_query`` to lowercase and remove all
 accents from every word before they are searched in the embeddings
 model.
@@ -519,7 +518,7 @@ Running multiple Queries
 It is usual to want to test many queries of some bias criterion (gender,
 ethnicity, religion, politics, socioeconomic, among others) on several
 models at the same time. Trying to use ``run_query`` on each pair
-embedding-query can be a bit complex and will require extra work to
+embedding-query can be a bit complex and could require extra work to
 implement.
 
 This is why the library also implements a function to test multiple
@@ -563,7 +562,7 @@ dimensions.
 Load the word sets and create the queries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now, we will load the ``WEAT`` word set and create three queries. The
+Now, we load the ``WEAT`` word set and create three queries. The
 three queries are intended to measure gender bias.
 
 .. code:: python
@@ -804,7 +803,7 @@ absolute values. When running ``run_queries``, it is possible to specify
 that the results be aggregated by model by setting ``aggregate_results``
 as ``True``
 
-The aggregation function can be especified through the
+The aggregation function can be specified through the
 ``aggregation_function`` parameter. This parameter accepts a list of
 predefined aggregations as well as a custom function that operates on
 the results dataframe. The aggregation functions available are:
@@ -818,7 +817,7 @@ the results dataframe. The aggregation functions available are:
 
     Notice that some functions are more appropriate for certain metrics. For
     metrics returning only positive numbers, all the previous aggregation
-    functions would be OK. In contrast, metrics that returns real values
+    functions would be OK. In contrast, metrics that return real values
     (e.g., ``WEAT``, ``RND``, etc…), aggregation functions such as sum would
     make positive and negative outputs to cancel each other.
 
@@ -990,11 +989,11 @@ compared directly, two problems are likely to be encountered:
 2.  Different metrics can operate on different scales, which makes them
     difficult to compare.
 
-To show these problems, suppose:
+To show these problems, suppose we have:
 
--   We have two sets of queries: one that explores gender biases and
+-   Two sets of queries: one that explores gender biases and
     another that explores ethnicity biases.
--   3 ``Glove`` models of 25, 50 and 100 dimensions trained on the same
+-   Three ``Glove`` models of 25, 50 and 100 dimensions trained on the same
     twitter dataset.
 
 Then we run ``run_queries`` on this set of model-queries using WEAT, and
@@ -1199,11 +1198,11 @@ follows:
 We can see differences between the results of both metrics of an order
 of magnitude.
 
-One solution to this problem is to create rankings. Rankings allow to
-focus on the relative differences reported by the metrics (for different
-models) instead of focusing on the absolute values.
+One solution to this problem is to create rankings. Rankings focus on the relative
+differences reported by the metrics (for different models) instead of focusing on the
+absolute values.
 
-The following guide will show how to create rankings that evaluate
+The following guide show how to create rankings that evaluate
 gender bias and ethnicity.
 
 .. code:: python
@@ -1521,12 +1520,11 @@ Correlating Rankings
 Having obtained rankings by metric for each embeddings, it would be
 ideal to see and analyze the degree of agreement between them.
 
-A high concordance between rankings allows to establish with some
-certainty that all metrics evaluated the embedding models in a similar
-way. Therefore, the results obtained allow to establish an order for the
-embedding models. On the other hand, a low degree of agreement shows the
-opposite: the rankings do not allow to clearly establish which embedding
-is less biased than another.
+A high concordance between the rankings allows us to state with some certainty that 
+all metrics evaluated the embedding models in a similar way and therefore, 
+that the ordering of embeddings by bias calculated makes sense.
+On the other hand, a low degree of agreement shows the opposite: the rankings do not 
+allow to clearly establish which embedding is less biased than another.
 
 The level of concordance of the rankings can be evaluated by calculating
 correlations.WEFE provides ``calculate_ranking_correlations`` to
@@ -1592,9 +1590,9 @@ calculate the correlations between rankings.
 .. note::
 
     ``calculate_ranking_correlations`` uses the ``corr()`` ``pandas``
-    dataframe method. It is allowed to provide the method parameter that
-    allows to change the type of correlation calculated. The options are:
-    ``'pearson'``, ``'spearman'``, ``'kendall'``. By default, the pearson
+    dataframe method. The type of correlation that is calculated can be changed 
+    through the method parameter. The available options are:
+    ``'pearson'``, ``'spearman'``, ``'kendall'``. By default, the spearman
     correlation is calculated.
 
 In this example, Kendall’s correlation is used.
@@ -1653,7 +1651,7 @@ In this example, Kendall’s correlation is used.
 
 
 
-WEFE also provides a function for graph the correlations:
+WEFE also provides a function for graphing the correlations:
 
 .. code:: python
 

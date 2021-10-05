@@ -4,10 +4,10 @@ Contributing
 
 There are many ways to contribute to the library: 
 
-- Implementing new metrics. 
-- Implementing new mitigation methods.
+- Implement new metrics. 
+- Implement new mitigation methods.
 - Create more examples and use cases.
-- Help to improve the documentation.
+- Help improve the documentation.
 - Create more tests.
 
 All contributions are welcome!
@@ -23,7 +23,7 @@ You can download the library by running the following command ::
 
 To contribute, simply create a pull request.
 Verify that your code is well documented, to implement unit tests and 
-follows the PEP8 coding style.
+follow the PEP8 coding style.
 
 Testing
 =======
@@ -80,7 +80,7 @@ In the new class you must specify the template (explained below), the
 name and an abbreviated name or acronym for the metric as class
 variables.
 
-A **template** is a tuple that defines the cardinality of the tagret and
+A **template** is a tuple that defines the cardinality of the target and
 attribute sets of a query that can be accepted by the metric. It can
 take integer values, which require that the target or attribute sets
 have that cardinality or ‘n’ in case the metric can operate with 1 or
@@ -95,7 +95,7 @@ Below are some examples of templates:
     # two target sets and one attribute set required to execute this metric.
     template_1 = (2, 1)
     
-    # two target sets and two attribute set required to execute this metric.
+    # two target sets and two attribute sets required to execute this metric.
     template_2 = (2, 2)
     
     # one or more (unlimited) target sets and one attribute set required to execute this metric.
@@ -117,7 +117,7 @@ Implement ``run_query`` method
 ------------------------------
 
 The second step is to implement ``run_query`` method. This method is in
-charge of coordinate all the operations to calculate the scores from a
+charge of coordinating all the operations to calculate the scores from a
 ``query`` and the ``word_embedding`` model. It must perform 2 basic
 operations before executing the mathematical calculations:
 
@@ -292,20 +292,20 @@ Using the steps previously seen, a sample metric is implemented:
                 allowed to lose when transforming its words into embeddings.
                 In the case that any set of the query loses proportionally more words
                 than this limit, the result values will be np.nan, by default 0.2
-    
+
             preprocessors : List[Dict[str, Union[str, bool, Callable]]]
                 A list with preprocessor options.
-    
+
                 A ``preprocessor`` is a dictionary that specifies what processing(s) are
-                performed on each word before its looked up in the model vocabulary.
+                performed on each word before it is looked up in the model vocabulary.
                 For example, the ``preprocessor``
                 ``{'lowecase': True, 'strip_accents': True}`` allows you to lowercase
                 and remove the accent from each word before searching for them in the
                 model vocabulary. Note that an empty dictionary ``{}`` indicates that no
                 preprocessing is done.
-    
+
                 The possible options for a preprocessor are:
-    
+
                 *   ``lowercase``: ``bool``. Indicates that the words are transformed to
                     lowercase.
                 *   ``uppercase``: ``bool``. Indicates that the words are transformed to
@@ -318,22 +318,23 @@ Using the steps previously seen, a sample metric is implemented:
                 *   ``preprocessor``: ``Callable``. It receives a function that operates
                     on each word. In the case of specifying a function, it overrides the
                     default preprocessor (i.e., the previous options stop working).
-    
-                A list of preprocessor options allows to search for several
+
+                A list of preprocessor options allows searching for several
                 variants of the words into the model. For example, the preprocessors
                 ``[{}, {"lowercase": True, "strip_accents": True}]``
-                ``{}`` allows first to search for the original words in the vocabulary of the model. 
-                In case some of them are not found, ``{"lowercase": True, "strip_accents": True}`` 
-                is executed on these words and then they are searched in the model vocabulary.
-    
+                ``{}`` allows first to search for the original words in the vocabulary of
+                the model. In case some of them are not found,
+                ``{"lowercase": True, "strip_accents": True}`` is executed on these words
+                and then they are searched in the model vocabulary.
+
             strategy : str, optional
                 The strategy indicates how it will use the preprocessed words: 'first' will
                 include only the first transformed word found. all' will include all
                 transformed words found, by default "first".
-    
+
             normalize : bool, optional
                 True indicates that embeddings will be normalized, by default False
-    
+        
             warn_not_found_words : bool, optional
                 Specifies if the function will warn (in the logger)
                 the words that were not found in the model's vocabulary
@@ -531,7 +532,7 @@ the above.
                     on each word. In the case of specifying a function, it overrides the
                     default preprocessor (i.e., the previous options stop working).
     
-                A list of preprocessor options allows to search for several
+                A list of preprocessor options allows searching for several
                 variants of the words into the model. For example, the preprocessors
                 ``[{}, {"lowercase": True, "strip_accents": True}]``
                 ``{}`` allows first to search for the original words in the vocabulary of the model. 
@@ -596,7 +597,7 @@ the above.
             # return the results.
             return {"query_name": query.query_name, "result": result, 'em': result}
 
-Now, let’s try it out:
+Now, let us try it out:
 
 .. code:: python3
 
@@ -763,7 +764,7 @@ Note that `get_embeddings_from_sets` is used to transform word sets to embedding
 This function, as well as the one to transform queries to embeddings, are available 
 in the `preprocessing` module.
 
-Once fit has calculated the transformation, the method should return self.
+Once `fit` has calculated the transformation, the method should return `self`.
 
 
 
@@ -771,11 +772,11 @@ Transform
 ---------
 
 This method is intended to implement the application of the transformation calculated
-in `fit` on the embedding model.It must always receive the same 4 arguments:
+in `fit` on the embedding model. It must always receive the same 4 arguments:
 
 - `model`: The model on which the transformation will be applied
 - `target`: A set of words or None. If it is specified, the debias method will be performed
-  only on the word embeddings of this set. In the case of provide `None`, the
+  only on the word embeddings of this set. If `None` is provided, the
   debias will be performed on all words (except those specified in ignore).
   by default `None`.
 - `ignore`: A set of words or None. If target is `None` and a set of words is specified 
@@ -803,7 +804,7 @@ in `fit` on the embedding model.It must always receive the same 4 arguments:
             The word embedding model to debias.
         target : Optional[List[str]], optional
             If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. In the case of provide `None`, the
+            only on the word embeddings of this set. If `None` is provided, the
             debias will be performed on all words (except those specified in ignore).
             by default `None`.
         ignore : Optional[List[str]], optional
@@ -825,10 +826,10 @@ in `fit` on the embedding model.It must always receive the same 4 arguments:
         """
         raise NotImplementedError()
 
-As can be seen, the embeddings that will be modified by the transformation will 
-be determined by the words delivered in the `target` and `ignore` sets or the 
-absence of both (apply on all words).
-The idea is that this convention is maintained during the creation of a new debias 
+As can be seen, the embeddings that will be modified by the transformation are
+determined by the words delivered in the `target` and `ignore` sets or the absence of
+both (apply on all words).
+The idea is that this convention is maintained during the creation of a new debias
 method.
 
 Some useful initial checks and operations for this method:
@@ -860,7 +861,7 @@ execute the points mentioned above:
             The word embedding model to debias.
         target : Optional[List[str]], optional
             If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. In the case of provide `None`, the
+            only on the word embeddings of this set. If `None` is provided, the
             debias will be performed on all words (except those specified in ignore).
             by default `None`.
         ignore : Optional[List[str]], optional
@@ -871,8 +872,8 @@ execute the points mentioned above:
             If `True`, the debias will be performed on a copy of the model.
             If `False`, the debias will be applied on the same model delivered, causing
             its vectors to mutate.
-            **WARNING:** Setting copy with `True` requires at least 2x RAM of the size
-            of the model. Otherwise the execution of the debias may rise
+            **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
+            of the model, otherwise the execution of the debias may give rise to
             `MemoryError`, by default True.
 
         Returns
@@ -887,7 +888,7 @@ execute the points mentioned above:
             model=model, target=target, ignore=ignore, copy=copy,
         )
 
-        # check if the following attributes exists in the object.
+        # check if the following attributes exist in the object.
         check_is_fitted(
             self,
             [
@@ -914,8 +915,8 @@ execute the points mentioned above:
             )
 
 Unfortunately it is impossible to cover much more without losing generality.
-However, we recommend to check the code structure shown in HardDebias or 
-MulticlassHardDebias to guide you through the process of implementing a new 
-mitigation and use these classes as a reference to implement a new debias method. 
+However, we recommend checking the code structure shown in `HardDebias` or 
+`MulticlassHardDebias` classes to guide you through the process of implementing a new 
+mitigation method.
 You can also open an issue in the repository to comment on any questions you may have
 in the implementation.

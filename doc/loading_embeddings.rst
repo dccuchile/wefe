@@ -21,7 +21,7 @@ to be used in the following sections.
 
 >>> # Load the query
 >>> from wefe.query import Query
->>> from wefe.word_embedding import 
+>>> from wefe.word_embedding_model import WordEmbeddingModel
 >>> from wefe.metrics.WEAT import WEAT
 >>> from wefe.datasets.datasets import load_weat
 >>> 
@@ -51,7 +51,7 @@ that can be used directly. Below we show an example of use.
 >>> 
 >>> # The resulting object is already a BaseKeyedVectors subclass object.
 >>> # so we can wrap directly using .
->>> glove_25_model = (glove_25_keyed_vectors, 'glove-25')
+>>> glove_25_model = WordEmbeddingModel(glove_25_keyed_vectors, 'glove-25')
 >>> 
 >>> # Execute the query
 >>> result = weat.run_query(query, glove_25_model)
@@ -76,14 +76,14 @@ In this section we will see how to load a word2vec model and Fasttext.
 Loading Word2vec
 ----------------
 
-For example, let's load word2vec from a .bin file
+For example, let us load word2vec from a .bin file
 The procedure is quite simple: first we download word2vec binary file from its source
 and then we load it using the :code:`KeyedVectors.load_word2vec_format` function.
 
 >>> from gensim.models import KeyedVectors
 >>> 
 >>> w2v_embeddings = KeyedVectors.load_word2vec_format("/path/to/your/embeddings/model", binary=True)
->>> word2vec = (w2v_embeddings, 'word2vec')
+>>> word2vec = WordEmbeddingModel(w2v_embeddings, 'word2vec')
 >>> 
 >>> result = weat.run_query(query, word2vec)
 >>> result
@@ -99,14 +99,14 @@ The same method works for :code:`Fasttext`.
 >>> from gensim.models import KeyedVectors
 >>> fast_embeddings = KeyedVectors.load_word2vec_format('path/to/fast/embeddings.vec')
 >>> 
->>> fast = (fast_embeddings, 'fast')
+>>> fast = WordEmbeddingModel(fast_embeddings, 'fast')
 >>> result = weat.run_query(query, fast)
 >>> 
 >>> result
 {'query_name': 'Male terms and Female terms wrt Career and Family',
  'result': 0.34870023}
 
-While we load FastText here as :code:`KeyedVectors` (i.e. in word2vec format), 
+While we load FastText here as :code:`KeyedVectors` (i.e., in word2vec format), 
 it can also be used via :code:`FastTextKeyedVectors`.
 
 
@@ -126,7 +126,7 @@ The following code is an example of this:
 >>> 
 >>> # extract KeyedVectors object
 >>> glove_keyed_vectors = glove_embedding.precomputed_word_embeddings 
->>> glove_100 = (glove_keyed_vectors, 'glove-100')
+>>> glove_100 = WordEmbeddingModel(glove_keyed_vectors, 'glove-100')
 >>> 
 >>> result = weat.run_query(query, glove_100)
 >>> print(result)

@@ -1,9 +1,10 @@
 """Module with functions to load datasets and sets of words related to bias."""
-from typing import Dict, List, Union
-import pandas as pd
-import urllib.request
 import json
+import urllib.request
+from typing import Dict, List, Union
+
 import numpy as np
+import pandas as pd
 import pkg_resources
 
 
@@ -14,7 +15,7 @@ def fetch_eds(
     *Quantify 100 Years Of Gender And Ethnic Stereotypes*.
 
     This dataset includes gender (male, female), ethnicity (asian, black, white) and
-    religion(christianity and islam) and adjetives (appearence, intelligence,
+    religion (christianity and islam) and adjetives (appearence, intelligence,
     otherization, sensitive) word sets.
 
     Reference:
@@ -216,7 +217,7 @@ def fetch_debiaswe() -> Dict[str, Union[List[str], list]]:
 
 
 def load_bingliu() -> Dict[str, List[str]]:
-    """Load the bing-liu sentiment lexicon.
+    """Load the Bing-Liu sentiment lexicon.
 
     References
     ----------
@@ -260,12 +261,12 @@ def load_bingliu() -> Dict[str, List[str]]:
 
 
 def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
-    """Fetch the word sets used in the paper Black Is To Criminals Caucasian
+    """Fetch the word sets used in the paper Black Is To Criminals as Caucasian
     Is To Police: Detecting And Removing Multiclass Bias In Word Embeddings.
 
-    This dataset contains gender (male, female), ethnicity(asian, black, white) and
+    This dataset contains gender (male, female), ethnicity (asian, black, white) and
     religion (christianity, judaism and islam) word sets.
-    This helper allows to access independently to each of the word sets (to be used
+    This helper allow accessing independently to each of the word sets (to be used
     as target or attribute sets in metrics) as well as to access them in the original
     format (to be used in debiasing methods).
     The dictionary keys whose names contain definitional sets and analogies
@@ -274,8 +275,8 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
     References
     ----------
     | [1]: Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
-    | Black is to criminalas caucasian is to police: Detecting and removing multiclass
-    | bias in word embeddings.
+    | Black is to Criminal as Caucasian is to Police: Detecting and Removing Multiclass
+    | Bias in Word Embeddings.
     | In Proceedings of the 2019 Conference of the North American Chapter of the
     | Association for Computational Linguistics:
     | Human Language Technologies, Volume 1 (Long and Short Papers), pages 615–621,
@@ -422,7 +423,7 @@ def fetch_gn_glove() -> Dict[str, List[str]]:
 def load_weat() -> Dict[str, List[str]]:
     """Load the word sets used in the paper *Semantics Derived Automatically*
     *From Language Corpora Contain Human-Like Biases*.
-    It includes gender (male, female), ethnicity(black, white)
+    It includes gender (male, female), ethnicity (black, white)
     and pleasant, unpleasant word sets, among others.
 
     Reference:

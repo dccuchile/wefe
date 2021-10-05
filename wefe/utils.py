@@ -5,21 +5,20 @@ This file contains functions for to process to massively execute queries, aggreg
 through rankings and graph these results.
 """
 
-import logging
-import pkg_resources
 import copy
-from typing import Dict, Union, Callable, List, Type
+import logging
+from typing import Callable, Dict, List, Type, Union
 
-import pandas as pd
 import numpy as np
+import pandas as pd
+import pkg_resources
 import plotly.express as px
 import plotly.graph_objects as go
-
 from sklearn.utils.validation import check_is_fitted as _check_is_fitted
 
-from wefe.word_embedding_model import WordEmbeddingModel
-from wefe.query import Query
 from wefe.metrics.base_metric import BaseMetric
+from wefe.query import Query
+from wefe.word_embedding_model import WordEmbeddingModel
 
 
 def check_is_fitted(estimator, attributes):
@@ -418,8 +417,7 @@ def create_ranking(
         A list or array of dataframes returned by the run_queries function.
 
     method : str, optional
-        How to rank the group of records that have the same value (i.e. ties)
-        , by default 'first'.
+        How to rank the group of records that have the same value, by default 'first'.
         The options are:
         - average: average rank of the group
         - min: lowest rank in the group
@@ -528,7 +526,7 @@ def plot_ranking(
 
 
 def calculate_ranking_correlations(
-    rankings: pd.DataFrame, method="pearson"
+    rankings: pd.DataFrame, method="spearman"
 ) -> pd.DataFrame:
     """Calculate the correlation between the calculated rankings.
 

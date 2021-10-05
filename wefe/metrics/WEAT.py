@@ -205,12 +205,12 @@ class WEAT(BaseMetric):
             Warning: This can increase the computing time quite a lot, by default False.
 
         p_value_test_type : {'left-sided', 'right-sided', 'two-sided}, optional
-            In case of calculating the p-value, specify the type of test to be performed.
+            When calculating the p-value, specify the type of test to be performed.
             The options are 'left-sided', 'right-sided' and 'two-sided
             , by default 'right-sided'
 
         p_value_method : {'exact', 'approximate'}, optional
-            In case of calculating the p-value, specify the method for calculating the
+            When calculating the p-value, specify the method for calculating the
             p-value. This can be 'exact 'and 'approximate'.
             by default 'approximate'.
 
@@ -233,7 +233,7 @@ class WEAT(BaseMetric):
             A list with preprocessor options.
 
             A ``preprocessor`` is a dictionary that specifies what processing(s) are
-            performed on each word before its looked up in the model vocabulary.
+            performed on each word before it is looked up in the model vocabulary.
             For example, the ``preprocessor``
             ``{'lowecase': True, 'strip_accents': True}`` allows you to lowercase
             and remove the accent from each word before searching for them in the
@@ -255,12 +255,13 @@ class WEAT(BaseMetric):
                 on each word. In the case of specifying a function, it overrides the
                 default preprocessor (i.e., the previous options stop working).
 
-            A list of preprocessor options allows to search for several
+            A list of preprocessor options allows you to search for several
             variants of the words into the model. For example, the preprocessors
             ``[{}, {"lowercase": True, "strip_accents": True}]``
-            ``{}`` allows first to search for the original words in the vocabulary of the model. 
-            In case some of them are not found, ``{"lowercase": True, "strip_accents": True}`` 
-            is executed on these words and then they are searched in the model vocabulary.
+            ``{}`` allows first to search for the original words in the vocabulary of
+            the model. In case some of them are not found,
+            ``{"lowercase": True, "strip_accents": True}`` is executed on these words
+            and then they are searched in the model vocabulary.
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
@@ -272,8 +273,7 @@ class WEAT(BaseMetric):
 
         warn_not_found_words : bool, optional
             Specifies if the function will warn (in the logger)
-            the words that were not found in the model's vocabulary
-            , by default False.
+            the words that were not found in the model's vocabulary, by default False.
 
         Returns
         -------

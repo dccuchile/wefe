@@ -27,16 +27,16 @@ models. In the following section:
 Hard Debias
 -----------
 
-This method allows to reduce the bias of an embedding model through
+This method allow reducing the bias of an embedding model through
 geometric operations between embeddings. This method is binary because
-it only allows 2 classes of the same bias criterion, such as male or
+it only allows two classes of the same bias criterion, such as male or
 female.
 
 The main idea of this method is:
 
 1. **Identify a bias subspace through the defining sets.** In the case
     of gender, these could be
-    e.g. \ ``{'woman', 'man'}, {'she', 'he'}, ...``
+    e.g., \ ``{'woman', 'man'}, {'she', 'he'}, ...``
 
 2. **Neutralize the bias subspace on the embeddings that should not be
    biased.**
@@ -133,7 +133,7 @@ described below:
     the size of the model. Otherwise the execution of the debias may rise
     ``MemoryError``.
 
-Next, the transformation is executed using a copy of the model and
+Next, the transformation is executed using a copy of the model,
 ignoring the words contained in ``gender_specific``.
 
 .. code:: python

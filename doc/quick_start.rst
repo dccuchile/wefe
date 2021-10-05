@@ -2,7 +2,7 @@
 Quick Start
 ===========
 
-In this tutorial we will show you how to install WEFE and then how to run a 
+In this tutorial we show you how to install WEFE and then how to run a 
 basic query.
 
 
@@ -28,10 +28,10 @@ Run your first Query
   If you are not familiar with the concepts of query, target and attribute 
   set, please visit the `the framework section <about.html#the-framework>`_ 
   on the library's about page. 
-  These concepts will be widely used in the following sections.
+  These concepts be widely used in the following sections.
 
 
-In the following code we will show how to implement the example query presented 
+In the following code we show how to implement the example query presented 
 in WEFE's home page: A gender Query using WEAT metrics on the glove-twitter Word 
 Embedding model. 
 
@@ -46,13 +46,13 @@ The programming of the previous flow can be separated into three steps:
 - Create the Query. 
 - Run the Query using the WEAT metric over the Word Embedding Model.
 
-These stages will be implemented next:
+These stages be implemented next:
 
 1. Load the Word Embedding pretrained model from :code:`gensim` and then, 
 create a :code:`` instance with it.
 This object took a gensim's :code:`KeyedVectors` object and a model name as 
 parameters.
-As we said previously, for this example, we will use :code:`glove-twitter-25'` embedding model.
+As we said previously, for this example, we use :code:`glove-twitter-25'` embedding model.
 
 >>> # import the modules
 >>> from wefe.query import Query
@@ -65,7 +65,7 @@ As we said previously, for this example, we will use :code:`glove-twitter-25'` e
 >>> model = WordEmbeddingModel(twitter_25, 'glove twitter dim=25')
 
 2. Create the Query with a loaded, fetched or custom target and attribute 
-word sets. In this case, we will manually set both target words and attribute
+word sets. In this case, we manually set both target words and attribute
 words.
 
 >>> # create the word sets
@@ -80,7 +80,7 @@ words.
 >>>               attribute_sets_names)
 
 3. Instantiate the metric to be used and then, execute :code:`run_query` 
-with the parameters created in the past steps. In this case we will use the
+with the parameters created in the past steps. In this case we use the
 `WEAT <about.html#weat>`_ metric. 
 
 >>> # instance a WEAT metric

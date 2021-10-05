@@ -150,9 +150,9 @@ Version 0.2.0
 --------------
 
 - Renamed optional ```run_query``` parameter  ```warn_filtered_words``` to `warn_not_found_words`.
-- Added ```word_preprocessor_args``` parameter to ```run_query``` that allows to specify transformations prior to searching for words in word embeddings.
-- Added ```secondary_preprocessor_args``` parameter to ```run_query``` which allows to specify a second pre-processor transformation to words before searching them in word embeddings. It is not necessary to specify the first preprocessor to use this one.
-- Implemented ```__getitem__``` function in ```WordEmbeddingModel```. This method allows to obtain an embedding from a word from the model stored in the instance using indexers. 
+- Added ```word_preprocessor_args``` parameter to ```run_query``` that allow specifying transformations prior to searching for words in word embeddings.
+- Added ```secondary_preprocessor_args``` parameter to ```run_query``` which allows specifying a second pre-processor transformation to words before searching them in word embeddings. It is not necessary to specify the first preprocessor to use this one.
+- Implemented ```__getitem__``` function in ```WordEmbeddingModel```. This method allows obtaining an embedding from a word from the model stored in the instance using indexers. 
 - Removed underscore from class and instance variable names.
 - Improved type and verification exception messages when creating objects and executing methods.
 - Fix an error that appeared when calculating rankings with two columns of aggregations with the same name.

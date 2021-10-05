@@ -152,7 +152,7 @@ class ECT(BaseMetric):
         'ect': 0.7619047619047621}
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, model)
+        self._check_input(query, model, locals())
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(

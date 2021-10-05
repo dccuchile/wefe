@@ -141,12 +141,10 @@ class RIPA(BaseMetric):
         Parameters
         ----------
         query : Query
-            A Query object that contains the target and attribute word sets to
-            be tested.
+            A Query object that contains the target and attribute sets to be tested.
 
-        word_embedding : WordEmbeddingModel
-            A WordEmbeddingModel object that contains certain word embedding
-            pretrained model.
+        model : WordEmbeddingModel
+            A word embedding model.
 
         lost_vocabulary_threshold : float, optional
             Specifies the proportional limit of words that any set of the query is
@@ -207,7 +205,7 @@ class RIPA(BaseMetric):
             and other scores.
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, model)
+        self._check_input(query, model, locals())
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(

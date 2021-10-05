@@ -218,7 +218,7 @@ class MAC(BaseMetric):
             'son': {'Family': 0.5764635019004345, 'Careers': 0.9220191016211174}}}}
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, model)
+        self._check_input(query, model, locals())
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(

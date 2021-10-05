@@ -22,7 +22,7 @@ class WEAT(BaseMetric):
     References
     ----------
     | [1]: Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan. Semantics derived
-    | automatically from language corpora contain human-like biases. 
+    | automatically from language corpora contain human-like biases.
     | Science, 356(6334):183–186, 2017.
     """
 
@@ -340,7 +340,7 @@ class WEAT(BaseMetric):
 
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, model)
+        self._check_input(query, model, locals())
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(

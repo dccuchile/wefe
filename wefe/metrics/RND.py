@@ -233,7 +233,7 @@ class RND(BaseMetric):
                                'wedding': 0.104610026}}
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, model)
+        self._check_input(query, model, locals())
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(

@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Union, Tuple
+from typing import Any, Callable, Dict, List, Tuple, Union
+
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class BaseMetric(ABC):
-    """ A base class to implement any metric following the framework described by WEFE.
+    """A base class to implement any metric following the framework described by WEFE.
 
     It contains the name of the metric, the templates (cardinalities) that it supports
     and the abstract function run_query, which must be implemented by any metric that
@@ -21,7 +22,9 @@ class BaseMetric(ABC):
     # The initials or short name of the metric
     metric_short_name: str
 
-    def _check_input(self, query: Query, model: WordEmbeddingModel) -> None:
+    def _check_input(
+        self, query: Query, model: WordEmbeddingModel, locals: Dict[str, Any]
+    ) -> None:
         """Check if Query and WordEmbeddingModel parameters are valid.
 
         Parameters
@@ -93,6 +96,33 @@ class BaseMetric(ABC):
                 )
             )
 
+        preprocessor_in_args = "preprocessor_args" in locals
+        secondary_preprocessor_in_args = "secondary_preprocessor_args" in locals
+
+        if preprocessor_in_args and secondary_preprocessor_in_args:
+            raise DeprecationWarning(
+                "preprocessor_args and secondary_preprocessor_args arguments are "
+                "deprecated. Use "
+                f'preprocessors=[{locals["preprocessor_args"]}, '
+                f'{locals["secondary_preprocessor_args"]}] '
+                "instead.\n\nSee https://wefe.readthedocs.io/en/latest/user_guide_"
+                "measurement.html#word-preprocessors for more information."
+            )
+        if preprocessor_in_args:
+            raise DeprecationWarning(
+                "preprocessor_args argument is deprecated. Use "
+                f'preprocessors=[{locals["preprocessor_args"]}] '
+                "instead.\n\nSee https://wefe.readthedocs.io/en/latest/user_guide_"
+                "measurement.html#word-preprocessors for more information."
+            )
+        if secondary_preprocessor_in_args:
+            raise DeprecationWarning(
+                "secondary_preprocessor_args is deprecated. Use "
+                f'preprocessors=[{{}}, {locals["secondary_preprocessor_args"]}] '
+                "instead.\n\nSee https://wefe.readthedocs.io/en/latest/user_guide_"
+                "measurement.html#word-preprocessors for more information."
+            )
+
     @abstractmethod
     def run_query(
         self,
@@ -104,6 +134,6 @@ class BaseMetric(ABC):
         normalize: bool = False,
         warn_not_found_words: bool = False,
         *args: Any,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         raise NotImplementedError()

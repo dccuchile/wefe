@@ -59,8 +59,8 @@ class HardDebias(BaseDebias):
     distance from the bias direction, such that neither is closer to the bias direction
     than the other.
 
-    Reference
-    ---------
+    References
+    ----------
     | [1]: Bolukbasi, T., Chang, K. W., Zou, J. Y., Saligrama, V., & Kalai, A. T. (2016).
     | Man is to computer programmer as woman is to homemaker? debiasing word embeddings.
     | Advances in Neural Information Processing Systems.
@@ -348,7 +348,7 @@ class HardDebias(BaseDebias):
             **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
             of the model, otherwise the execution of the debias may give rise to
             `MemoryError`, by default True.
-            
+
         Returns
         -------
         WordEmbeddingModel

@@ -7,8 +7,6 @@ from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
-PreprocessorArgs = Dict[str, Union[bool, str, Callable, None]]
-
 
 class RIPA(BaseMetric):
     """An implementation of the Relational Inner Product Association Test, proposed by [1][2].
@@ -21,6 +19,7 @@ class RIPA(BaseMetric):
     function.
 
     This metric follows the following steps:
+    
     1. The input is the word vectors for a pair of target word sets, and an attribute set.
        Example: Target Set A (Masculine), Target Set B (Feminine), Attribute Set
        (Career).
@@ -31,7 +30,6 @@ class RIPA(BaseMetric):
 
     References
     ----------
-
     | [1]: Ethayarajh, K., & Duvenaud, D., & Hirst, G. (2019, July). Understanding Undesirable Word Embedding Associations.
     | [2]: https://kawine.github.io/assets/acl2019_bias_slides.pdf
     | [3]: https://kawine.github.io/blog/nlp/2019/09/23/bias.html

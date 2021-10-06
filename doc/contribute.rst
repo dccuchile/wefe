@@ -253,7 +253,7 @@ Using the steps previously seen, a sample metric is implemented:
     
     from wefe.metrics.base_metric import BaseMetric
     from wefe.query import Query
-    from wefe.word_embedding_model import WordEmbeddingModel, PreprocessorArgs
+    from wefe.word_embedding_model import WordEmbeddingModel
     
     
     class ExampleMetric(BaseMetric):
@@ -760,9 +760,9 @@ specific to `HardDebias`:
 
 .. note::
 
-Note that `get_embeddings_from_sets` is used to transform word sets to embeddings sets. 
-This function, as well as the one to transform queries to embeddings, are available 
-in the `preprocessing` module.
+    Note that `get_embeddings_from_sets` is used to transform word sets to embeddings
+    sets. This function, as well as the one to transform queries to embeddings, are
+    available in the `preprocessing` module.
 
 Once `fit` has calculated the transformation, the method should return `self`.
 

@@ -22,8 +22,8 @@ class MulticlassHardDebias(BaseDebias):
     For example, for the case of religion bias, it supports a debias using words
     associated with Christianity, Islam and Judaism.
 
-    Reference
-    ---------
+    References
+    ----------
     | [1]: Manzini, T., Chong, L. Y., Black, A. W., & Tsvetkov, Y. (2019, June).
     | Black is to Criminal as Caucasian is to Police: Detecting and Removing Multiclass
     | Bias in Word Embeddings.

@@ -11,7 +11,6 @@ if gensim_version.major >= 4:
 else:
     from gensim.models.keyedvectors import BaseKeyedVectors
 
-PreprocessorArgs = Dict[str, Union[bool, str, Callable, None]]
 
 EmbeddingDict = Dict[str, np.ndarray]
 EmbeddingSets = Dict[str, EmbeddingDict]

@@ -326,9 +326,10 @@ P. Badilla, F. Bravo-Marquez, and J. Pérez
 29th International Joint Conference on Artificial Intelligence and the 17th 
 Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. <https://www.ijcai.org/Proceedings/2020/60>`_
 
-The author's version can be found at the following `link <https://felipebravom.com/publications/ijcai2020.pdf>`_.
+The author's version can be found at the following `link <https://felipebravom.com/publications/ijcai2020.pdf>`__.
 
 Bibtex:
+
 ::
     @InProceedings{wefe2020,
         title     = {WEFE: The Word Embeddings Fairness Evaluation Framework},
@@ -342,6 +343,7 @@ Bibtex:
         doi       = {10.24963/ijcai.2020/60},
         url       = {https://doi.org/10.24963/ijcai.2020/60},
         }
+
 
 Roadmap
 =======
@@ -360,7 +362,7 @@ License
 
 WEFE is licensed under the BSD 3-Clause License.
 
-Details of the license on this `link <https://github.com/dccuchile/wefe/blob/master/LICENSE>`_.
+Details of the license on this `link <https://github.com/dccuchile/wefe/blob/master/LICENSE>`__.
 
 Team
 ====

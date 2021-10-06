@@ -330,7 +330,8 @@ The author's version can be found at the following `link <https://felipebravom.c
 
 Bibtex:
 
-::
+.. code-block:: latex 
+
     @InProceedings{wefe2020,
         title     = {WEFE: The Word Embeddings Fairness Evaluation Framework},
         author    = {Badilla, Pablo and Bravo-Marquez, Felipe and Pérez, Jorge},
@@ -367,14 +368,21 @@ Details of the license on this `link <https://github.com/dccuchile/wefe/blob/mas
 Team
 ====
 
-- Pablo Badilla
+- `Pablo Badilla <https://github.com/pbadillatorrealba/>`_.
 - `Felipe Bravo-Marquez <https://felipebravom.com/>`_.
 - `Jorge Pérez <https://users.dcc.uchile.cl/~jperez/>`_.
 
-Thank you very much to all our contributors!
+Contributors
+------------
+
+We thank all our contributors who have allowed WEFE to grow, especially 
+`stolenpyjak <https://github.com/stolenpyjak/>`_ and 
+`mspl13 <https://github.com/mspl13/>`_ for implementing new metrics.
+
+Thank you very much 😊!
 
 Contact
-=======
+-------
 
 Please write to pablo.badilla at ug.chile.cl for inquiries about the software. 
 You are also welcome to do a pull request or publish an issue in the 

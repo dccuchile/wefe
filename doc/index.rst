@@ -32,8 +32,8 @@ the detailed API documentation and extensive examples.
    :maxdepth: 2
    :caption: Examples
 
+   wefe_case_study
    replications
-   rank
 
 Repository
 ==========

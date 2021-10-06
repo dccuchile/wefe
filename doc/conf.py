@@ -38,7 +38,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
-    "sphinx_gallery.gen_gallery",
+    # "sphinx_gallery.gen_gallery",
     "sphinx.ext.todo",
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
@@ -82,14 +82,14 @@ source_suffix = ".rst"
 # source_encoding = 'utf-8-sig'
 
 # Generate the plots for the gallery
-plot_gallery = "False"
+plot_gallery = False
 
 # The master toctree document.
 master_doc = "index"
 
 # General information about the project.
 project = "WEFE"
-copyright = "Pablo Badilla"
+copyright = "The WEFE Team"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -179,9 +179,9 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-html_context = {
-    "css_files": ["_static/theme_overrides.css",],  # override wide tables in RTD theme
-}
+# html_context = {
+#     "css_files": ["_static/theme_overrides.css",],  # override wide tables in RTD theme
+# }
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -256,7 +256,7 @@ latex_documents = [
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
-latex_use_parts = True
+# latex_use_parts = True
 
 # If true, show page references after internal links.
 # latex_show_pagerefs = False
@@ -274,7 +274,7 @@ latex_use_parts = True
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "WEFE", u"WEFE Documentation", [u"Pablo Badilla"], 1)]
+man_pages = [("index", "WEFE", u"WEFE Documentation", [u"The WEFE Team"], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -289,10 +289,10 @@ texinfo_documents = [
         "index",
         "WEFE",
         u"WEFE Documentation",
-        u"Pablo Badilla",
+        u"The WEFE Team",
         "WEFE",
         "Word Embedding Fairness Evaluation (WEFE) is an open source library for\
-          measuring bias in word embedding models.",
+          measuring and mitigating bias in word embedding models.",
         "Word Embeddings, Fairness",
     ),
 ]

@@ -29,19 +29,24 @@ WEFE: The Word Embedding Fairness Evaluation Framework
 ======================================================
 
 
-Word Embedding Fairness Evaluation (WEFE) is an open source library for measuring bias in word embedding models. It generalizes many existing fairness metrics into a unified framework and provides a standard interface for:
+*Word Embedding Fairness Evaluation* (WEFE) is an open source library for 
+measuring an mitigating bias in word embedding models. 
+It generalizes many existing fairness metrics into a unified framework and 
+provides a standard interface for:
 
-* Encapsulating existing fairness metrics from previous work and designing new ones.
-* Encapsulating the test words used by fairness metrics into standard objects called queries.
-* Computing a fairness metric on a given pre-trained word embedding model using user-given queries.
+- Encapsulating existing fairness metrics from previous work and designing
+  new ones.
+- Encapsulating the test words used by fairness metrics into standard
+  objects called queries.
+- Computing a fairness metric on a given pre-trained word embedding model 
+  using user-given queries.
 
-It also provides more advanced features for:
+WEFE also standardizes the process of mitigating bias through an interface similar 
+to the ``scikit-learn`` ``fit-transform``.
+This standardization separates the mitigation process into two stages:
 
-* Running several queries on multiple embedding models and return a DataFrame with the results.
-* Plotting those results on a barplot.
-* Based on the above results, calculating a bias ranking for all embedding models. This allows the user to evaluate the fairness of the embedding models according to the bias criterion (defined by the query) and the metric used.
-* Plotting the ranking on a barplot.
-* Correlating the rankings. This allows the user to see how the rankings of the different metrics or evaluation criteria are correlated with respect to the bias presented by the models.
+- The logic of calculating the transformation to be performed on the model (``fit``).
+- The execution of the mitigation transformation on the model (``transform``).
 
 
 The official documentation can be found at this `link <https://wefe.readthedocs.io/>`_.
@@ -70,12 +75,14 @@ Requirements
 These package will be installed along with the package, in case these have not already been installed:
 
 1. numpy
-2. scikit-learn
-3. scipy
-4. pandas
-5. gensim
-6. plotly
-
+2. scipy
+3. scikit-learn
+4. scipy
+5. pandas
+6. gensim
+7. plotly
+8. semantic_version
+9. tqdm
 
 Contributing
 ------------
@@ -113,12 +120,15 @@ And then::
 Build the documentation
 -----------------------
 
-The documentation is created using sphinx. It can be found in the doc folder at the root of the project.
-Here, the API is described as well as quick start and use cases.
-To compile the documentation, run it::
+The documentation is created using sphinx. 
+It can be found in the doc folder at the root of the project.
+To compile the documentation, run:
+
+.. code-block:: bash
 
     cd doc
     make html 
+
 
 Changelog
 =========
@@ -176,13 +186,14 @@ P. Badilla, F. Bravo-Marquez, and J. Pérez
 Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. <https://www.ijcai.org/Proceedings/2020/60>`_
 
 Bibtex:
-::
+
+.. code-block:: latex 
 
     @InProceedings{wefe2020,
         title     = {WEFE: The Word Embeddings Fairness Evaluation Framework},
         author    = {Badilla, Pablo and Bravo-Marquez, Felipe and Pérez, Jorge},
         booktitle = {Proceedings of the Twenty-Ninth International Joint Conference on
-                    Artificial Intelligence, {IJCAI-20}},
+                   Artificial Intelligence, {IJCAI-20}},
         publisher = {International Joint Conferences on Artificial Intelligence Organization},             
         pages     = {430--436},
         year      = {2020},
@@ -195,8 +206,15 @@ Bibtex:
 Team
 ====
 
-- Pablo Badilla
+- `Pablo Badilla <https://github.com/pbadillatorrealba/>`_.
 - `Felipe Bravo-Marquez <https://felipebravom.com/>`_.
 - `Jorge Pérez <https://users.dcc.uchile.cl/~jperez/>`_.
 
+Contributors
+------------
 
+We thank all our contributors who have allowed WEFE to grow, especially 
+`stolenpyjak <https://github.com/stolenpyjak/>`_ and 
+`mspl13 <https://github.com/mspl13/>`_ for implementing new metrics.
+
+Thank you very much 😊!

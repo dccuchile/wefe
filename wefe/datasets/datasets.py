@@ -9,7 +9,7 @@ import pkg_resources
 
 
 def fetch_eds(
-    occupations_year: int = 2015, top_n_race_occupations: int = 15
+    occupations_year: int = 2015, top_n_race_occupations: int = 10
 ) -> Dict[str, List[str]]:
     """Fetch the word sets used in the experiments of the work *Word Embeddings
     *Quantify 100 Years Of Gender And Ethnic Stereotypes*.

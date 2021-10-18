@@ -133,6 +133,13 @@ To compile the documentation, run:
 Changelog
 =========
 
+Version 0.3.1
+-------------
+- Update WEFE original case study
+- Hotfix: Several bug fixes for execute WEFE original Case Study.
+- fetch_eds top_n_race_occupations argument set to 10.
+- Preprocessing: get_embeddings_from_set now returns a list with the lost preprocessed words instead of the original ones.
+
 Version 0.3.0
 -------------
 - Implemented Bolukbasi et al. 2016 Hard Debias.

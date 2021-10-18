@@ -210,7 +210,7 @@ def get_embeddings_from_set(
                 if strategy == "first":
                     break
             else:
-                not_found_words.append(word)
+                not_found_words.append(preprocessed_word)
 
     # if requested, normalize embeddings.
     if normalize:

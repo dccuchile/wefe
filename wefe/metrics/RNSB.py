@@ -14,8 +14,6 @@ from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
-logging.basicConfig(level=logging.DEBUG)
-
 
 class RNSB(BaseMetric):
     """Relative Relative Negative Sentiment Bias (RNSB).
@@ -423,26 +421,30 @@ class RNSB(BaseMetric):
         # calculate the scores for each iteration
         for _ in range(num_iterations):
 
-            # train the logit with the train data.
-            trained_classifier, score = self._train_classifier(
-                attribute_embeddings_dict=attribute_embeddings,
-                random_state=random_state,
-                estimator=estimator,
-                estimator_params=estimator_params,
-                print_model_evaluation=print_model_evaluation,
-            )
+            try:
 
-            scores.append(score)
+                # train the logit with the train data.
+                trained_classifier, score = self._train_classifier(
+                    attribute_embeddings_dict=attribute_embeddings,
+                    random_state=random_state,
+                    estimator=estimator,
+                    estimator_params=estimator_params,
+                    print_model_evaluation=print_model_evaluation,
+                )
 
-            # get the scores
-            divergence, negative_sentiment_probabilities = self._calc_rnsb(
-                target_embeddings, trained_classifier
-            )
+                scores.append(score)
 
-            calculated_divergences.append(divergence)
-            calculated_negative_sentiment_probabilities.append(
-                negative_sentiment_probabilities
-            )
+                # get the scores
+                divergence, negative_sentiment_probabilities = self._calc_rnsb(
+                    target_embeddings, trained_classifier
+                )
+
+                calculated_divergences.append(divergence)
+                calculated_negative_sentiment_probabilities.append(
+                    negative_sentiment_probabilities
+                )
+            except Exception as e:
+                logging.exception("RNSB Iteration omitted: " + str(e))
 
         # aggregate results
         divergence = np.mean(np.array(calculated_divergences))

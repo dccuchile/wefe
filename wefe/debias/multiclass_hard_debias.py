@@ -276,7 +276,7 @@ class MulticlassHardDebias(BaseDebias):
             If `False`, the debias will be applied on the same model delivered, causing
             its vectors to mutate.
             **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
-            of the model, otherwise the execution of the debias may give rise to
+            of the model, otherwise the execution of the debias may raise to
             `MemoryError`, by default True.
             
         Returns

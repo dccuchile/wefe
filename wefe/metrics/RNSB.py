@@ -18,6 +18,10 @@ from wefe.word_embedding_model import WordEmbeddingModel
 class RNSB(BaseMetric):
     """Relative Relative Negative Sentiment Bias (RNSB).
 
+    The metric was originally proposed in [1].
+    Visit `RNSB in Metrics Section <https://wefe.readthedocs.io/en/latest/about.html#rnsb>`_
+    for further information.
+
     References
     ----------
     | [1]: Chris Sweeney and Maryam Najafian. A transparent framework for evaluating

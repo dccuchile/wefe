@@ -15,9 +15,8 @@ class WEAT(BaseMetric):
     """Word Embedding Association Test (WEAT).
 
     The metric was originally proposed in [1].
-    It measures the degree of association between two sets of target words and
-    two sets of attribute words through a permutation test.
-
+    Visit `WEAT in Metrics Section <https://wefe.readthedocs.io/en/latest/about.html#weat>`_
+    for further information.
 
     References
     ----------

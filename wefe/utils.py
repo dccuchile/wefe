@@ -16,15 +16,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.utils.validation import check_is_fitted as _check_is_fitted
 
-<<<<<<< HEAD
-from wefe.models.base_model import BaseModel
-from wefe.models import WordEmbeddingModel
-from wefe.query import Query
-=======
->>>>>>> 3daebeaba79d15ebcabb18c823bacd0c90b9a9a4
 from wefe.metrics.base_metric import BaseMetric
 from wefe.query import Query
-from wefe.word_embedding_model import WordEmbeddingModel
+from wefe.models.base_model import BaseModel
 
 
 def check_is_fitted(estimator, attributes):

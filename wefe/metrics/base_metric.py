@@ -22,15 +22,10 @@ class BaseMetric(ABC):
     # The initials or short name of the metric
     metric_short_name: str
 
-<<<<<<< HEAD
-    def _check_input(self, query: Query, word_embedding: BaseModel,) -> None:
-        """Check if Query and BaseModel parameters are valid.
-=======
     def _check_input(
-        self, query: Query, model: WordEmbeddingModel, locals: Dict[str, Any]
+        self, query: Query, model: BaseModel, locals: Dict[str, Any]
     ) -> None:
-        """Check if Query and WordEmbeddingModel parameters are valid.
->>>>>>> 3daebeaba79d15ebcabb18c823bacd0c90b9a9a4
+        """Check if Query and BaseModel parameters are valid.
 
         Parameters
         ----------
@@ -61,17 +56,10 @@ class BaseMetric(ABC):
             raise TypeError("query should be a Query instance, got {}".format(query))
 
         # check if the word_embedding is a instance of
-<<<<<<< HEAD
-        if not isinstance(word_embedding, BaseModel):
+        if not isinstance(model, BaseModel):
             raise TypeError(
                 "word_embedding should be a BaseModel instance, "
-                "got: {}".format(word_embedding)
-=======
-        if not isinstance(model, WordEmbeddingModel):
-            raise TypeError(
-                "word_embedding should be a WordEmbeddingModel instance, "
                 "got: {}".format(model)
->>>>>>> 3daebeaba79d15ebcabb18c823bacd0c90b9a9a4
             )
 
         # templates:
@@ -139,11 +127,7 @@ class BaseMetric(ABC):
     def run_query(
         self,
         query: Query,
-<<<<<<< HEAD
         word_embedding: BaseModel,
-=======
-        model: WordEmbeddingModel,
->>>>>>> 3daebeaba79d15ebcabb18c823bacd0c90b9a9a4
         lost_vocabulary_threshold: float = 0.2,
         preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",

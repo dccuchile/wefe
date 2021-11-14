@@ -17,7 +17,8 @@ import plotly.graph_objects as go
 
 from sklearn.utils.validation import check_is_fitted as _check_is_fitted
 
-from wefe.word_embedding_model import WordEmbeddingModel
+from wefe.models.base_model import BaseModel
+from wefe.models import WordEmbeddingModel
 from wefe.query import Query
 from wefe.metrics.base_metric import BaseMetric
 
@@ -145,7 +146,7 @@ def generate_subqueries_from_queries_list(
 def run_queries(
     metric: Type[BaseMetric],
     queries: List[Query],
-    models: List[WordEmbeddingModel],
+    models: List[BaseModel],
     queries_set_name: str = "Unnamed queries set",
     lost_vocabulary_threshold: float = 0.2,
     metric_params: dict = {},
@@ -246,9 +247,9 @@ def run_queries(
         )
 
     for idx, model in enumerate(models):
-        if model is None or not isinstance(model, WordEmbeddingModel):
+        if model is None or not isinstance(model, BaseModel):
             raise TypeError(
-                "item on index {} must be a WordEmbeddingModel instance. "
+                "item on index {} must be a BaseModel instance. "
                 "given: {}".format(idx, model)
             )
 

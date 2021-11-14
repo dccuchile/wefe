@@ -12,7 +12,7 @@ from sklearn.metrics import classification_report
 from sklearn.base import BaseEstimator
 
 from wefe.query import Query
-from wefe.word_embedding_model import WordEmbeddingModel
+from wefe.models.base_model import BaseModel
 from wefe.metrics.base_metric import BaseMetric
 
 logging.basicConfig(level=logging.DEBUG)
@@ -210,7 +210,7 @@ class RNSB(BaseMetric):
     def run_query(
         self,
         query: Query,
-        word_embedding: WordEmbeddingModel,
+        word_embedding: BaseModel,
         estimator: BaseEstimator = LogisticRegression,
         estimator_params: Dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},
         num_iterations: int = 1,
@@ -239,7 +239,7 @@ class RNSB(BaseMetric):
             A Query object that contains the target and attribute word sets to
             be tested.
 
-        word_embedding_model : WordEmbeddingModel
+        word_embedding_model : BaseModel
             An object containing a word embeddings model.
 
         estimator : BaseEstimator, optional

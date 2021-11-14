@@ -6,10 +6,7 @@ from typing import Any, Callable, Dict, List, Set, Tuple, Union
 import numpy as np
 
 from wefe.metrics.base_metric import BaseMetric
-from wefe.word_embedding_model import (
-    EmbeddingDict,
-    WordEmbeddingModel,
-)
+from wefe.models.base_model import (EmbeddingDict, BaseModel)
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.utils import cosine_similarity
 from wefe.query import Query
@@ -174,7 +171,7 @@ class WEAT(BaseMetric):
     def run_query(
         self,
         query: Query,
-        word_embedding: WordEmbeddingModel,
+        word_embedding: BaseModel,
         return_effect_size: bool = False,
         calculate_p_value: bool = False,
         p_value_test_type: str = "right-sided",
@@ -194,7 +191,7 @@ class WEAT(BaseMetric):
         query : Query
             A Query object that contains the target and attribute sets to be tested.
 
-        word_embedding_model : WordEmbeddingModel
+        word_embedding_model : BaseModel
             An object containing a word embedding model.
 
         return_effect_size : bool, optional

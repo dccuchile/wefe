@@ -5,14 +5,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from wefe.metrics.base_metric import BaseMetric
 from wefe.query import Query
-from wefe.word_embedding_model import WordEmbeddingModel
+from wefe.models.base_model import BaseModel
 
 
 class DirectBias(BaseMetric):
     def run_query(
         self,
         query: Query,
-        word_embedding: WordEmbeddingModel,
+        word_embedding: BaseModel,
         lost_vocabulary_threshold: float,
         preprocessor_options: Dict[str, Union[bool, str, Callable, None]],
         secondary_preprocessor_options: Union[

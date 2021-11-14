@@ -7,7 +7,7 @@ from scipy.stats import spearmanr
 
 from wefe.metrics.base_metric import BaseMetric
 from wefe.query import Query
-from wefe.word_embedding_model import WordEmbeddingModel
+from wefe.models.base_model import BaseModel
 
 
 class ECT(BaseMetric):
@@ -42,7 +42,7 @@ class ECT(BaseMetric):
     def run_query(
         self,
         query: Query,
-        word_embedding: WordEmbeddingModel,
+        word_embedding: BaseModel,
         lost_vocabulary_threshold: float = 0.2,
         preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
@@ -59,7 +59,7 @@ class ECT(BaseMetric):
             A Query object that contains the target and attribute word sets to be
             tested.
 
-        word_embedding_model : WordEmbeddingModel
+        word_embedding_model : BaseModel
             An object containing a word embeddings model.
 
         lost_vocabulary_threshold : float, optional

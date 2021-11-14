@@ -25,17 +25,10 @@ Query
    Query
 
 
-BaseMetric
+Metrics
 ==========
 
-.. autosummary::
-   :toctree: generated/
-   :template: class.rst
-
-   metrics.BaseMetric
-
-WEAT
-=====
+This list contains the metrics implemented in WEFE.
 
 .. autosummary::
    :toctree: generated/
@@ -43,8 +36,6 @@ WEAT
 
    WEAT
 
-RND
-====
 
 .. autosummary::
    :toctree: generated/
@@ -52,8 +43,6 @@ RND
 
    RND
 
-RNSB
-=====
 
 .. autosummary::
    :toctree: generated/
@@ -61,8 +50,13 @@ RNSB
 
    RNSB
 
-ECT
-=====
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   MAC
+
 
 .. autosummary::
    :toctree: generated/
@@ -71,13 +65,36 @@ ECT
    ECT
 
 
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   RIPA
+
+
+Debias
+======
+
+This list contains the debiasing methods implemented so far in WEFE.
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   HardDebias
+
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   MulticlassHardDebias
+
+
 Dataloaders
 ===========
 
-The following functions allow us to load word sets used in previous works. 
+The following functions allow one to load word sets used in previous works. 
 
-Load BingLiu
--------------
 
 .. autosummary::
    :toctree: generated/dataloaders/
@@ -86,9 +103,6 @@ Load BingLiu
    load_bingliu
 
 
-Fetch Debias Multiclass Word sets
----------------------------------
-
 .. autosummary::
    :toctree: generated/dataloaders/
    :template: function.rst
@@ -96,8 +110,6 @@ Fetch Debias Multiclass Word sets
    fetch_debias_multiclass
 
 
-Fetch Debias Word Embedding Word Sets
--------------------------------------
 
 .. autosummary::
    :toctree: generated/dataloaders/
@@ -106,18 +118,12 @@ Fetch Debias Word Embedding Word Sets
    fetch_debiaswe
 
 
-
-Fetch Embedding Dynamic Stereotypes Word Sets
----------------------------------------------
-
 .. autosummary::
    :toctree: generated/dataloaders/
    :template: function.rst
 
    fetch_eds
 
-Load Word Embedding Association Test Word Sets
-----------------------------------------------
 
 .. autosummary::
    :toctree: generated/dataloaders/

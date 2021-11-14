@@ -2,7 +2,6 @@
 from typing import Callable, Dict, Sequence, Union
 
 import numpy as np
-import semantic_version
 
 EmbeddingDict = Dict[str, np.ndarray]
 EmbeddingSets = Dict[str, EmbeddingDict]

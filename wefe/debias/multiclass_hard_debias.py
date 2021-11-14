@@ -1,16 +1,15 @@
 """Manzini et al. Multiclass Hard Debias WEFE implementation."""
 import logging
 from copy import deepcopy
-from typing import List, Optional, Sequence, Dict, Any
-from wefe.utils import check_is_fitted
+from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
-from tqdm import tqdm
 from sklearn.decomposition import PCA
-
-from wefe.preprocessing import get_embeddings_from_sets
+from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
-from wefe.word_embedding_model import WordEmbeddingModel, EmbeddingDict
+from wefe.preprocessing import get_embeddings_from_sets
+from wefe.utils import check_is_fitted
+from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
 logger = logging.getLogger(__name__)
 
@@ -18,23 +17,43 @@ logger = logging.getLogger(__name__)
 class MulticlassHardDebias(BaseDebias):
     """Generalized version of Hard Debias that enables multiclass debiasing.
 
+    Generalized refers to the fact that this method extends Hard Debias in order to
+    support more than two types of social target sets within the definitional set.
+    For example, for the case of religion bias, it supports a debias using words
+    associated with Christianity, Islam and Judaism.
+
     Reference
     ---------
-    Manzini, T., Chong, L. Y., Black, A. W., & Tsvetkov, Y. (2019, June).
-    Black is to Criminal as Caucasian is to Police: Detecting and Removing Multiclass
-    Bias in Word Embeddings.
-    In Proceedings of the 2019 Conference of the North American Chapter of the
-    Association for Computational Linguistics: Human Language Technologies,
-    Volume 1 (Long and Short Papers) (pp. 615-621).
-
-    https://github.com/TManzini/DebiasMulticlassWordEmbedding
-
+    | [1]: Manzini, T., Chong, L. Y., Black, A. W., & Tsvetkov, Y. (2019, June).
+    | Black is to Criminal as Caucasian is to Police: Detecting and Removing Multiclass
+    | Bias in Word Embeddings.
+    | In Proceedings of the 2019 Conference of the North American Chapter of the
+    | Association for Computational Linguistics: Human Language Technologies,
+    | Volume 1 (Long and Short Papers) (pp. 615-621).
+    | [2]: https://github.com/TManzini/DebiasMulticlassWordEmbedding
     """
 
     def __init__(
-        self, pca_args: Dict[str, Any] = {"n_components": 10}, verbose: bool = False,
+        self,
+        pca_args: Dict[str, Any] = {"n_components": 10},
+        verbose: bool = False,
+        criterion_name: Optional[str] = None,
     ) -> None:
+        """Initialize a Multiclass Hard Debias instance.
 
+        Parameters
+        ----------
+        pca_args : Dict[str, Any], optional
+            Arguments for the PCA that is calculated internally in the identification
+            of the bias subspace, by default {"n_components": 10}
+        verbose : bool, optional
+            True will print informative messages about the debiasing process,
+            by default False.
+        criterion_name : Optional[str], optional
+            The name of the criterion for which the debias is being executed,
+            e.g. 'Gender'. This will indicate the name of the model returning transform,
+            by default None
+        """
         # check pca args
         if not isinstance(pca_args, dict):
             raise TypeError(f"pca_args should be a dict, got {pca_args}.")
@@ -49,6 +68,13 @@ class MulticlassHardDebias(BaseDebias):
             self.pca_num_components_ = pca_args["n_components"]
         else:
             self.pca_num_components_ = 10
+
+        if criterion_name is None or isinstance(criterion_name, str):
+            self.criterion_name_ = criterion_name
+        else:
+            raise ValueError(
+                f"debias_criterion_name should be str, got: {criterion_name}"
+            )
 
     def _identify_bias_subspace(
         self, definning_sets_embeddings: List[EmbeddingDict],
@@ -162,7 +188,6 @@ class MulticlassHardDebias(BaseDebias):
         model: WordEmbeddingModel,
         definitional_sets: Sequence[Sequence[str]],
         equalize_sets: Sequence[Sequence[str]],
-        criterion_name: Optional[str] = None,
     ) -> BaseDebias:
         """Compute the bias direction and obtains the equalize embedding pairs.
 
@@ -175,24 +200,16 @@ class MulticlassHardDebias(BaseDebias):
             For example, for the case of gender debias, this list could be [['woman',
             'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
         equalize_pairs : Optional[Sequence[Sequence[str]]], optional
-            A list with pairs of strings which will be equalized.
+            A list with pairs of strings, which will be equalized.
             In the case of passing None, the equalization will be done over the word
             pairs passed in definitional_sets,
             by default None.
-        criterion_name : Optional[str], optional
-            The name of the criterion for which the debias is being executed,
-            e.g. 'Gender'. This will indicate the name of the model returning transform,
-            by default None
-        verbose : bool, optional
-            True will print informative messages about the debiasing process,
-            by default False.
 
         Returns
         -------
         BaseDebias
             The debias method fitted.
         """
-        self.criterion_name_ = criterion_name
         # ------------------------------------------------------------------------------:
         # Obtain the embedding of the definitional sets.
 
@@ -247,9 +264,8 @@ class MulticlassHardDebias(BaseDebias):
             The word embedding model to debias.
         target : Optional[List[str]], optional
             If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. If target is `None`, the
-            debias will be performed over all vocab (except those specified in ignore
-            and the definitional_sets).
+            only on the word embeddings of this set. If `None` is provided, the
+            debias will be performed on all words (except those specified in ignore).
             by default `None`.
         ignore : Optional[List[str]], optional
             If target is `None` and a set of words is specified in ignore, the debias
@@ -259,10 +275,10 @@ class MulticlassHardDebias(BaseDebias):
             If `True`, the debias will be performed on a copy of the model.
             If `False`, the debias will be applied on the same model delivered, causing
             its vectors to mutate.
-            **WARNING:** Setting copy with `True` requires at least 2x RAM of the size
-            of the model. Otherwise the execution of the debias may rise
+            **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
+            of the model, otherwise the execution of the debias may give rise to
             `MemoryError`, by default True.
-
+            
         Returns
         -------
         WordEmbeddingModel
@@ -298,7 +314,7 @@ class MulticlassHardDebias(BaseDebias):
         else:
             print(
                 "copy argument is False. The execution of this method will mutate "
-                "the embeddings of the provided model."
+                "the original model."
             )
 
         # ------------------------------------------------------------------------------
@@ -343,8 +359,8 @@ class MulticlassHardDebias(BaseDebias):
 
         # ------------------------------------------------------------------------------
         # # Generate the new KeyedVectors
-        if self.criterion_name_ is not None:
-            new_model_name = f"{model.name}_{self.criterion_name_}_debiased"
+        if self.criterion_name_ is None:
+            new_model_name = f"{model.name}_debiased"
         else:
             new_model_name = f"{model.name}_{self.criterion_name_}_debiased"
         model.name = new_model_name

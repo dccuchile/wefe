@@ -4,26 +4,26 @@ import math
 from typing import Any, Callable, Dict, List, Set, Tuple, Union
 
 import numpy as np
-
+from sklearn.metrics.pairwise import cosine_similarity
 from wefe.metrics.base_metric import BaseMetric
-from wefe.models.base_model import (EmbeddingDict, BaseModel)
 from wefe.preprocessing import get_embeddings_from_query
-from wefe.utils import cosine_similarity
 from wefe.query import Query
+from wefe.models.base_model import EmbeddingDict, BaseModel
 
 
 class WEAT(BaseMetric):
-    """A implementation of Word Embedding Association Test (WEAT).
+    """Word Embedding Association Test (WEAT).
 
+    The metric was originally proposed in [1].
     It measures the degree of association between two sets of target words and
     two sets of attribute words through a permutation test.
 
 
     References
     ----------
-    Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan.
-    Semantics derived automatically from language corpora contain human-like biases.
-    Science,356(6334):183–186, 2017.
+    | [1]: Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan. Semantics derived
+    | automatically from language corpora contain human-like biases.
+    | Science, 356(6334):183–186, 2017.
     """
 
     metric_template = (2, 2)
@@ -32,8 +32,8 @@ class WEAT(BaseMetric):
 
     def _calc_s(self, w, A, B) -> np.number:
 
-        A_mean_sim = np.mean([cosine_similarity(w, a) for a in A], dtype=np.float64)
-        B_mean_sim = np.mean([cosine_similarity(w, b) for b in B], dtype=np.float64)
+        A_mean_sim = np.mean(cosine_similarity([w], A), dtype=np.float64)
+        B_mean_sim = np.mean(cosine_similarity([w], B), dtype=np.float64)
         return A_mean_sim - B_mean_sim
 
     def _calc_weat(self, X, Y, A, B) -> np.number:
@@ -183,6 +183,8 @@ class WEAT(BaseMetric):
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
+        *args: Any,
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         """Calculate the WEAT metric over the provided parameters.
 
@@ -203,12 +205,12 @@ class WEAT(BaseMetric):
             Warning: This can increase the computing time quite a lot, by default False.
 
         p_value_test_type : {'left-sided', 'right-sided', 'two-sided}, optional
-            In case of calculating the p-value, specify the type of test to be performed.
+            When calculating the p-value, specify the type of test to be performed.
             The options are 'left-sided', 'right-sided' and 'two-sided
             , by default 'right-sided'
 
         p_value_method : {'exact', 'approximate'}, optional
-            In case of calculating the p-value, specify the method for calculating the
+            When calculating the p-value, specify the method for calculating the
             p-value. This can be 'exact 'and 'approximate'.
             by default 'approximate'.
 
@@ -230,35 +232,36 @@ class WEAT(BaseMetric):
         preprocessors : List[Dict[str, Union[str, bool, Callable]]]
             A list with preprocessor options.
 
-            A dictionary of preprocessing options is a dictionary that specifies what
-            transformations will be made to each word prior to being searched in the
-            word embedding model vocabulary.
-            For example, `{'lowecase': True, 'strip_accents': True}` allows you to
-            transform the words to lowercase and remove the accents and then search
-            for them in the model.
-            Note that an empty dictionary `{}` indicates that no transformation
-            will be made to any word.
+            A ``preprocessor`` is a dictionary that specifies what processing(s) are
+            performed on each word before it is looked up in the model vocabulary.
+            For example, the ``preprocessor``
+            ``{'lowecase': True, 'strip_accents': True}`` allows you to lowercase
+            and remove the accent from each word before searching for them in the
+            model vocabulary. Note that an empty dictionary ``{}`` indicates that no
+            preprocessing is done.
 
-            A list of these preprocessor options will allow you to search for several
-            variants of the words (depending on the search strategy) into the model.
-            For example `[{}, {'lowecase': True, 'strip_accents': True}]` allows you
-            to search for each word, first, without any transformation and then,
-            transformed to lowercase and without accents.
+            The possible options for a preprocessor are:
 
-            The available word preprocessing options are as follows (it is not necessary
-            to put them all):
+            *   ``lowercase``: ``bool``. Indicates that the words are transformed to
+                lowercase.
+            *   ``uppercase``: ``bool``. Indicates that the words are transformed to
+                uppercase.
+            *   ``titlecase``: ``bool``. Indicates that the words are transformed to
+                titlecase.
+            *   ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that
+                the accents of the words are eliminated. The stripping type can be
+                specified. True uses ‘unicode’ by default.
+            *   ``preprocessor``: ``Callable``. It receives a function that operates
+                on each word. In the case of specifying a function, it overrides the
+                default preprocessor (i.e., the previous options stop working).
 
-            - `lowercase`: `bool`. Indicates if the words are transformed to lowercase.
-            - `uppercase`: `bool`. Indicates if the words are transformed to uppercase.
-            - `titlecase`: `bool`. Indicates if the words are transformed to titlecase.
-            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents
-                                of the words are eliminated. The stripping type can be
-                                specified. True uses 'unicode' by default.
-            - `preprocessor`: `Callable`. It receives a function that operates on each
-                            word. In the case of specifying a function, it overrides
-                            the default preprocessor (i.e., the previous options
-                            stop working).
-            by default [{}].
+            A list of preprocessor options allows you to search for several
+            variants of the words into the model. For example, the preprocessors
+            ``[{}, {"lowercase": True, "strip_accents": True}]``
+            ``{}`` allows first to search for the original words in the vocabulary of
+            the model. In case some of them are not found,
+            ``{"lowercase": True, "strip_accents": True}`` is executed on these words
+            and then they are searched in the model vocabulary.
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
@@ -270,8 +273,7 @@ class WEAT(BaseMetric):
 
         warn_not_found_words : bool, optional
             Specifies if the function will warn (in the logger)
-            the words that were not found in the model's vocabulary
-            , by default False.
+            the words that were not found in the model's vocabulary, by default False.
 
         Returns
         -------
@@ -338,11 +340,11 @@ class WEAT(BaseMetric):
 
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, word_embedding)
+        self._check_input(query, model, locals())
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
-            model=word_embedding,
+            model=model,
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessors=preprocessors,

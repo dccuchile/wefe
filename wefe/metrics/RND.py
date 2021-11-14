@@ -1,25 +1,26 @@
 """Relative Norm Distance (RND) metric implementation."""
-import numpy as np
 from typing import Any, Callable, Dict, List, Tuple, Union
 
-from wefe.utils import cosine_similarity
-from wefe.query import Query
-from wefe.models.base_model import BaseModel
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
+from wefe.query import Query
+from wefe.models.base_model import BaseModel
 
 
 class RND(BaseMetric):
-    """A implementation of Relative Norm Distance (RND).
+    """Relative Norm Distance (RND).
 
     It measures the relative strength of association of a set of neutral words
     with respect to two groups.
 
     References
     ----------
-    Nikhil Garg, Londa Schiebinger, Dan Jurafsky, and James Zou.
-    Word embeddings quantify 100 years of gender and ethnic stereotypes.
-    Proceedings of the National Academy of Sciences, 115(16):E3635–E3644,2018.
+    | [1]: Nikhil Garg, Londa Schiebinger, Dan Jurafsky, and James Zou.
+    | Word embeddings quantify 100 years of gender and ethnic stereotypes.
+    | Proceedings of the National Academy of Sciences, 115(16):E3635–E3644,2018.
+    | [2]: https://github.com/nikhgarg/EmbeddingDynamicStereotypes
     """
 
     metric_template = (2, 1)
@@ -33,12 +34,12 @@ class RND(BaseMetric):
             return np.linalg.norm(np.subtract(vec1, vec2))
         elif distance_type == "cos":
             # c = np.dot(vec1, vec2) / np.linalg.norm(vec1) / np.linalg.norm(vec2)
-            c = cosine_similarity(vec1, vec2)
-            return abs(c)
+            c = cosine_similarity([vec1], [vec2]).flatten()
+            return c[0]
         else:
-            raise Exception(
-                'Parameter distance_type can be either "norm" or "cos". '
-                "Given: {} ".format(distance_type)
+            raise ValueError(
+                'distance_type can be either "norm" or "cos", '
+                "got: {} ".format(distance_type)
             )
 
     def __calc_rnd(
@@ -48,7 +49,6 @@ class RND(BaseMetric):
         attribute: np.ndarray,
         attribute_words: list,
         distance_type: str,
-        average_distances: bool,
     ) -> Tuple[float, Dict[str, float]]:
 
         # calculates the average wv for the group words.
@@ -78,19 +78,15 @@ class RND(BaseMetric):
             k: v for k, v in sorted(distance_by_words.items(), key=lambda item: item[1])
         }
 
-        if average_distances:
-            # calculate the average of the distances and return
-            mean_distance = sum_of_distances / len(distance_by_words)
-            return mean_distance, sorted_distances_by_word
-
-        return sum_of_distances, sorted_distances_by_word
+        # calculate the average of the distances and return
+        mean_distance = sum_of_distances / len(distance_by_words)
+        return mean_distance, sorted_distances_by_word
 
     def run_query(
         self,
         query: Query,
         word_embedding: BaseModel,
         distance: str = "norm",
-        average_distances: bool = True,
         lost_vocabulary_threshold: float = 0.2,
         preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
@@ -113,48 +109,39 @@ class RND(BaseMetric):
             Specifies which type of distance will be calculated. It could be:
             {norm, cos} , by default 'norm'.
 
-        average_distances : bool, optional
-            Specifies wheter the function averages the distances at the end of
-            the calculations, by default True
-
-        lost_vocabulary_threshold : float, optional
-            Specifies the proportional limit of words that any set of the query is
-            allowed to lose when transforming its words into embeddings.
-            In the case that any set of the query loses proportionally more words
-            than this limit, the result values will be np.nan, by default 0.2
-
         preprocessors : List[Dict[str, Union[str, bool, Callable]]]
             A list with preprocessor options.
 
-            A dictionary of preprocessing options is a dictionary that specifies what
-            transformations will be made to each word prior to being searched in the
-            word embedding model vocabulary.
-            For example, `{'lowecase': True, 'strip_accents': True}` allows you to
-            transform the words to lowercase and remove the accents and then search
-            for them in the model.
-            Note that an empty dictionary `{}` indicates that no transformation
-            will be made to any word.
+            A ``preprocessor`` is a dictionary that specifies what processing(s) are
+            performed on each word before it is looked up in the model vocabulary.
+            For example, the ``preprocessor``
+            ``{'lowecase': True, 'strip_accents': True}`` allows you to lowercase
+            and remove the accent from each word before searching for them in the
+            model vocabulary. Note that an empty dictionary ``{}`` indicates that no
+            preprocessing is done.
 
-            A list of these preprocessor options will allow you to search for several
-            variants of the words (depending on the search strategy) into the model.
-            For example `[{}, {'lowecase': True, 'strip_accents': True}]` allows you
-            to search for each word, first, without any transformation and then,
-            transformed to lowercase and without accents.
+            The possible options for a preprocessor are:
 
-            The available word preprocessing options are as follows (it is not necessary
-            to put them all):
+            *   ``lowercase``: ``bool``. Indicates that the words are transformed to
+                lowercase.
+            *   ``uppercase``: ``bool``. Indicates that the words are transformed to
+                uppercase.
+            *   ``titlecase``: ``bool``. Indicates that the words are transformed to
+                titlecase.
+            *   ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that
+                the accents of the words are eliminated. The stripping type can be
+                specified. True uses ‘unicode’ by default.
+            *   ``preprocessor``: ``Callable``. It receives a function that operates
+                on each word. In the case of specifying a function, it overrides the
+                default preprocessor (i.e., the previous options stop working).
 
-            - `lowercase`: `bool`. Indicates if the words are transformed to lowercase.
-            - `uppercase`: `bool`. Indicates if the words are transformed to uppercase.
-            - `titlecase`: `bool`. Indicates if the words are transformed to titlecase.
-            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents
-                                of the words are eliminated. The stripping type can be
-                                specified. True uses 'unicode' by default.
-            - `preprocessor`: `Callable`. It receives a function that operates on each
-                            word. In the case of specifying a function, it overrides
-                            the default preprocessor (i.e., the previous options
-                            stop working).
-            by default [{}].
+            A list of preprocessor options allows you to search for several
+            variants of the words into the model. For example, the preprocessors
+            ``[{}, {"lowercase": True, "strip_accents": True}]``
+            ``{}`` allows first to search for the original words in the vocabulary of
+            the model. In case some of them are not found,
+            ``{"lowercase": True, "strip_accents": True}`` is executed on these words
+            and then they are searched in the model vocabulary.
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
@@ -166,8 +153,7 @@ class RND(BaseMetric):
 
         warn_not_found_words : bool, optional
             Specifies if the function will warn (in the logger)
-            the words that were not found in the model's vocabulary
-            , by default False.
+            the words that were not found in the model's vocabulary, by default False.
 
         Returns
         -------
@@ -247,11 +233,11 @@ class RND(BaseMetric):
                                'wedding': 0.104610026}}
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, word_embedding)
+        self._check_input(query, model, locals())
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
-            model=word_embedding,
+            model=model,
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessors=preprocessors,
@@ -290,7 +276,6 @@ class RND(BaseMetric):
             attribute_0_embeddings,
             attribute_0_words,
             distance,
-            average_distances,
         )
 
         return {

@@ -4,11 +4,10 @@ from typing import Any, Callable, Dict, List, Union
 
 import numpy as np
 from scipy.spatial import distance
-
 from wefe.metrics.base_metric import BaseMetric
-from wefe.query import Query
-from wefe.models.base_model import (EmbeddingDict, BaseModel)
 from wefe.preprocessing import get_embeddings_from_query
+from wefe.query import Query
+from wefe.models.base_model import EmbeddingDict, BaseModel
 
 
 class ExampleMetric(BaseMetric):
@@ -149,11 +148,11 @@ class ExampleMetric(BaseMetric):
             and other scores.
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, word_embedding)
+        self._check_input(query, model, kwargs)
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
-            model=word_embedding,
+            model=model,
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessors=preprocessors,

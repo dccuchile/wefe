@@ -1,33 +1,32 @@
 """Relative Negative Sentiment Bias (RNSB) metric implementation."""
-from typing import Any, Callable, Dict, Tuple, List, Union
 import logging
-from wefe.preprocessing import get_embeddings_from_query
+from typing import Any, Callable, Dict, List, Tuple, Union
 
 import numpy as np
 import pandas as pd
 from scipy.stats import entropy
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
 from sklearn.base import BaseEstimator
-
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+from wefe.metrics.base_metric import BaseMetric
+from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
 from wefe.models.base_model import BaseModel
-from wefe.metrics.base_metric import BaseMetric
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 class RNSB(BaseMetric):
-    """A implementation of Relative Relative Negative Sentiment Bias (RNSB).
+    """Relative Relative Negative Sentiment Bias (RNSB).
 
     References
     ----------
-    [1] Chris Sweeney and Maryam Najafian.
-        A transparent framework for evaluating unintended demographic bias in word
-        embeddings.
-        In Proceedings of the 57th Annual Meeting of the Association for
-        Computational Linguistics, pages 1662–1667, 2019.
+    | [1]: Chris Sweeney and Maryam Najafian. A transparent framework for evaluating
+    |      unintended demographic bias in word embeddings.
+    |      In Proceedings of the 57th Annual Meeting of the Association for
+    |      Computational Linguistics, pages 1662–1667, 2019.
+    | [2]: https://github.com/ChristopherSweeney/AIFairness/blob/master/python_notebooks/Measuring_and_Mitigating_Word_Embedding_Bias.ipynb
     """
 
     metric_template = ("n", 2)
@@ -58,12 +57,12 @@ class RNSB(BaseMetric):
             'max_iter': 10000, }
 
         random_state : Union[int, None], optional
-            Seed that allows to make the execution of the query reproducible.
-            by default None
+            A seed that allows making the execution of the query reproducible, by
+            default None
 
         print_model_evaluation : bool, optional
             Indicates whether the classifier evaluation is printed after the
-            training process is completed., by default False
+            training process is completed, by default False
 
         Returns
         -------
@@ -89,7 +88,7 @@ class RNSB(BaseMetric):
             attributes_labels,
             shuffle=True,
             random_state=random_state,
-            test_size=0.33,
+            test_size=0.1,
             stratify=attributes_labels,
         )
         X_embeddings_train, X_embeddings_test, y_train, y_test = split
@@ -100,14 +99,16 @@ class RNSB(BaseMetric):
         # Check the number of train and test examples.
         if num_train_positive_examples == 1:
             raise Exception(
-                "After dividing the datset using stratified train_test_split, "
-                "the attribute 0 has 0 training examples."
+                "After splitting the dataset using train_test_split "
+                "(with test_size=0.1), the first attribute remained with 0 training "
+                "examples."
             )
 
         if num_train_negative_examples < 1:
             raise Exception(
-                "After dividing the datset using stratified train_test_split, "
-                "the attribute 1 has 0 training examples."
+                "After splitting the dataset using train_test_split "
+                "(with test_size=0.1), the second attribute remained with 0 training "
+                "examples."
             )
 
         # when random_state is not none, set it on classifier params.
@@ -159,30 +160,19 @@ class RNSB(BaseMetric):
         ]
 
         # get the probabilities associated with each target word vector
-        probabilities = np.array(
-            [
-                classifier.predict_proba(target_embeddings)
-                for target_embeddings in target_embeddings_sets
-            ]
-        )
+        probabilities = [
+            classifier.predict_proba(target_embeddings)
+            for target_embeddings in target_embeddings_sets
+        ]
 
         # extract only the negative sentiment probability for each word
-        negative_probabilities = np.array(
-            [probability[:, 1] for probability in probabilities]
-        )
-
-        # flatten the array
         negative_probabilities = np.concatenate(
-            [
-                negative_probabilities_arr.flatten()
-                for negative_probabilities_arr in negative_probabilities
-            ]
+            [probability[:, 1].flatten() for probability in probabilities]
         )
 
         # normalization of the probabilities
-        sum_of_negative_probabilities = np.sum(negative_probabilities)
         normalized_negative_probabilities = np.array(
-            negative_probabilities / sum_of_negative_probabilities
+            negative_probabilities / np.sum(negative_probabilities)
         )
 
         # get the uniform dist
@@ -221,6 +211,8 @@ class RNSB(BaseMetric):
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
+        *args: Any,
+        **kwargs: Any
     ) -> Dict[str, Any]:
         """Calculate the RNSB metric over the provided parameters.
 
@@ -256,7 +248,7 @@ class RNSB(BaseMetric):
             strengthen the results obtained, by default 1.
 
         random_state : Union[int, None], optional
-            Seed that allows to make the execution of the query reproducible.
+            Seed that allow making the execution of the query reproducible.
             Warning: if a random_state other than None is provided along with
             num_iterations, each iteration will split the dataset and train a
             classifier associated to the same seed, so the results of each iteration
@@ -266,44 +258,39 @@ class RNSB(BaseMetric):
             Indicates whether the classifier evaluation is printed after the
             training process is completed., by default False
 
-        lost_vocabulary_threshold : float, optional
-            Specifies the proportional limit of words that any set of the query is
-            allowed to lose when transforming its words into embeddings.
-            In the case that any set of the query loses proportionally more words
-            than this limit, the result values will be np.nan, by default 0.2
-
         preprocessors : List[Dict[str, Union[str, bool, Callable]]]
             A list with preprocessor options.
 
-            A dictionary of preprocessing options is a dictionary that specifies what
-            transformations will be made to each word prior to being searched in the
-            word embedding model vocabulary.
-            For example, `{'lowecase': True, 'strip_accents': True}` allows you to
-            transform the words to lowercase and remove the accents and then search
-            for them in the model.
-            Note that an empty dictionary `{}` indicates that no transformation
-            will be made to any word.
+            A ``preprocessor`` is a dictionary that specifies what processing(s) are
+            performed on each word before it is looked up in the model vocabulary.
+            For example, the ``preprocessor``
+            ``{'lowecase': True, 'strip_accents': True}`` allows you to lowercase
+            and remove the accent from each word before searching for them in the
+            model vocabulary. Note that an empty dictionary ``{}`` indicates that no
+            preprocessing is done.
 
-            A list of these preprocessor options will allow you to search for several
-            variants of the words (depending on the search strategy) into the model.
-            For example `[{}, {'lowecase': True, 'strip_accents': True}]` allows you
-            to search for each word, first, without any transformation and then,
-            transformed to lowercase and without accents.
+            The possible options for a preprocessor are:
 
-            The available word preprocessing options are as follows (it is not necessary
-            to put them all):
+            *   ``lowercase``: ``bool``. Indicates that the words are transformed to
+                lowercase.
+            *   ``uppercase``: ``bool``. Indicates that the words are transformed to
+                uppercase.
+            *   ``titlecase``: ``bool``. Indicates that the words are transformed to
+                titlecase.
+            *   ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that
+                the accents of the words are eliminated. The stripping type can be
+                specified. True uses ‘unicode’ by default.
+            *   ``preprocessor``: ``Callable``. It receives a function that operates
+                on each word. In the case of specifying a function, it overrides the
+                default preprocessor (i.e., the previous options stop working).
 
-            - `lowercase`: `bool`. Indicates if the words are transformed to lowercase.
-            - `uppercase`: `bool`. Indicates if the words are transformed to uppercase.
-            - `titlecase`: `bool`. Indicates if the words are transformed to titlecase.
-            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents
-                                of the words are eliminated. The stripping type can be
-                                specified. True uses 'unicode' by default.
-            - `preprocessor`: `Callable`. It receives a function that operates on each
-                            word. In the case of specifying a function, it overrides
-                            the default preprocessor (i.e., the previous options
-                            stop working).
-            by default [{}].
+            A list of preprocessor options allows you to search for several
+            variants of the words into the model. For example, the preprocessors
+            ``[{}, {"lowercase": True, "strip_accents": True}]``
+            ``{}`` allows first to search for the original words in the vocabulary of
+            the model. In case some of them are not found,
+            ``{"lowercase": True, "strip_accents": True}`` is executed on these words
+            and then they are searched in the model vocabulary.
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
@@ -315,9 +302,7 @@ class RNSB(BaseMetric):
 
         warn_not_found_words : bool, optional
             Specifies if the function will warn (in the logger)
-            the words that were not found in the model's vocabulary
-            , by default False.
-
+            the words that were not found in the model's vocabulary, by default False.
 
         Returns
         -------
@@ -331,7 +316,7 @@ class RNSB(BaseMetric):
         >>> from wefe.query import Query
         >>> from wefe.utils import load_test_model
         >>> from wefe.metrics import RNSB
-        >>> 
+        >>>
         >>> # define the query
         >>> query = Query(
         ...     target_sets=[
@@ -348,10 +333,10 @@ class RNSB(BaseMetric):
         ...     target_sets_names=["Female terms", "Male Terms"],
         ...     attribute_sets_names=["Family", "Careers"],
         ... )
-        >>> 
+        >>>
         >>> # load the model (in this case, the test model included in wefe)
         >>> model = load_test_model()
-        >>> 
+        >>>
         >>> # instance the metric and run the query
         >>> RNSB().run_query(query, model) # doctest: +SKIP
         {
@@ -398,11 +383,11 @@ class RNSB(BaseMetric):
         }
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, word_embedding)
+        self._check_input(query, model, locals())
 
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
-            model=word_embedding,
+            model=model,
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessors=preprocessors,
@@ -417,7 +402,7 @@ class RNSB(BaseMetric):
             return {
                 "query_name": query.query_name,
                 "result": np.nan,
-                "kl-divergence": np.nan,
+                "rnsb": np.nan,
                 "score": np.nan,
                 "negative_sentiment_probabilities": {},
                 "negative_sentiment_distribution": {},
@@ -473,7 +458,7 @@ class RNSB(BaseMetric):
         return {
             "query_name": query.query_name,
             "result": divergence,
-            "kl-divergence": divergence,
+            "rnsb": divergence,
             "clf_accuracy": np.mean(scores),
             "negative_sentiment_probabilities": negative_sentiment_probabilities,
             "negative_sentiment_distribution": negative_sentiment_distribution,

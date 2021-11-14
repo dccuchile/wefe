@@ -29,7 +29,7 @@ The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/
 
     Chris Sweeney and Maryam Najafian.
     A transparent framework for evaluating unintended demographic bias in word embeddings.
-    In Proceedings of the 57th Annual Meeting of the Associationfor Computational Linguistics, pages 1662–1667, 2019.
+    In Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics, pages 1662–1667, 2019.
 
 .. note:: 
 
@@ -123,4 +123,4 @@ The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/
   This code is not executed when compiling the documentation due to the long 
   processing time. 
   Instead, the tables and plots of these results were embedded.
-  The code is available for execution in .
+  The code is available for execution in the following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/RNSB_experiments.ipynb>`_.

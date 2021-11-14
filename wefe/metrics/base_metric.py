@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Union, Tuple
+from typing import Any, Callable, Dict, List, Tuple, Union
+
 from wefe.query import Query
 from wefe.models.base_model import BaseModel
 
 
 class BaseMetric(ABC):
-    """ A base class to implement any metric following the framework described by WEFE.
+    """A base class to implement any metric following the framework described by WEFE.
 
     It contains the name of the metric, the templates (cardinalities) that it supports
     and the abstract function run_query, which must be implemented by any metric that
@@ -21,14 +22,21 @@ class BaseMetric(ABC):
     # The initials or short name of the metric
     metric_short_name: str
 
+<<<<<<< HEAD
     def _check_input(self, query: Query, word_embedding: BaseModel,) -> None:
         """Check if Query and BaseModel parameters are valid.
+=======
+    def _check_input(
+        self, query: Query, model: WordEmbeddingModel, locals: Dict[str, Any]
+    ) -> None:
+        """Check if Query and WordEmbeddingModel parameters are valid.
+>>>>>>> 3daebeaba79d15ebcabb18c823bacd0c90b9a9a4
 
         Parameters
         ----------
         query : Query
             The query that the method will execute.
-        word_embedding :
+        model : WordEmbeddingModel
             A word embedding model.
 
         Raises
@@ -53,10 +61,17 @@ class BaseMetric(ABC):
             raise TypeError("query should be a Query instance, got {}".format(query))
 
         # check if the word_embedding is a instance of
+<<<<<<< HEAD
         if not isinstance(word_embedding, BaseModel):
             raise TypeError(
                 "word_embedding should be a BaseModel instance, "
                 "got: {}".format(word_embedding)
+=======
+        if not isinstance(model, WordEmbeddingModel):
+            raise TypeError(
+                "word_embedding should be a WordEmbeddingModel instance, "
+                "got: {}".format(model)
+>>>>>>> 3daebeaba79d15ebcabb18c823bacd0c90b9a9a4
             )
 
         # templates:
@@ -71,7 +86,7 @@ class BaseMetric(ABC):
                 "query does not match with the cardinality required by {}. "
                 "Provided query: {}, metric: {}.".format(
                     query.query_name,
-                    self.metric_name,
+                    self.metric_short_name,
                     query.template[0],
                     self.metric_template[0],
                 )
@@ -87,23 +102,54 @@ class BaseMetric(ABC):
                 "'{}' query does not match with the cardinality "
                 "required by {}. Provided query: {}, metric: {}.".format(
                     query.query_name,
-                    self.metric_name,
+                    self.metric_short_name,
                     query.template[1],
                     self.metric_template[1],
                 )
+            )
+
+        preprocessor_in_args = "preprocessor_args" in locals
+        secondary_preprocessor_in_args = "secondary_preprocessor_args" in locals
+
+        if preprocessor_in_args and secondary_preprocessor_in_args:
+            raise DeprecationWarning(
+                "preprocessor_args and secondary_preprocessor_args arguments are "
+                "deprecated. Use "
+                f'preprocessors=[{locals["preprocessor_args"]}, '
+                f'{locals["secondary_preprocessor_args"]}] '
+                "instead.\n\nSee https://wefe.readthedocs.io/en/latest/user_guide_"
+                "measurement.html#word-preprocessors for more information."
+            )
+        if preprocessor_in_args:
+            raise DeprecationWarning(
+                "preprocessor_args argument is deprecated. Use "
+                f'preprocessors=[{locals["preprocessor_args"]}] '
+                "instead.\n\nSee https://wefe.readthedocs.io/en/latest/user_guide_"
+                "measurement.html#word-preprocessors for more information."
+            )
+        if secondary_preprocessor_in_args:
+            raise DeprecationWarning(
+                "secondary_preprocessor_args is deprecated. Use "
+                f'preprocessors=[{{}}, {locals["secondary_preprocessor_args"]}] '
+                "instead.\n\nSee https://wefe.readthedocs.io/en/latest/user_guide_"
+                "measurement.html#word-preprocessors for more information."
             )
 
     @abstractmethod
     def run_query(
         self,
         query: Query,
+<<<<<<< HEAD
         word_embedding: BaseModel,
+=======
+        model: WordEmbeddingModel,
+>>>>>>> 3daebeaba79d15ebcabb18c823bacd0c90b9a9a4
         lost_vocabulary_threshold: float = 0.2,
         preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
         *args: Any,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> Dict[str, Any]:
         raise NotImplementedError()

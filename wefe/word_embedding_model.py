@@ -1,8 +1,8 @@
 """A Word Embedding contanier based on gensim BaseKeyedVectors."""
 from typing import Callable, Dict, Sequence, Union
 
-import numpy as np
 import gensim
+import numpy as np
 import semantic_version
 
 gensim_version = semantic_version.Version.coerce(gensim.__version__)
@@ -45,9 +45,10 @@ class WordEmbeddingModel:
         TypeError
             if word_embedding is not a KeyedVectors instance.
         TypeError
-            if model_name is not None and not instance of str.
+            if model_name is not None and not an instance of str.
         TypeError
-            if vocab_prefix is not None and not instance of str.
+            if vocab_prefix is not None and not an instance of str.
+
 
         Examples
         --------
@@ -153,6 +154,21 @@ class WordEmbeddingModel:
         else:
             return None
 
+    def __contains__(self, key):
+        """Check if a word exists in the model's vocabulary.
+
+        Parameters
+        ----------
+        key : str
+            Some word.
+
+        Returns
+        -------
+        bool
+            True if the word exists in the model's vocabulary.
+        """
+        return key in self.vocab
+
     def normalize(self):
         """Normalize word embeddings in the model by using the L2 norm.
 
@@ -184,15 +200,15 @@ class WordEmbeddingModel:
         Raises
         ------
         TypeError
-            if word is not a string.
+            if word is not a1 string.
         TypeError
-            if embedding is not a np.array.
+            if embedding is not an np.array.
         ValueError
             if word is not in the model's vocabulary.
         ValueError
             if the embedding is not the same size as the size of the model's embeddings.
         ValueError
-            if the dtype of the embedding values is not the same of the model's
+            if the dtype of the embedding values is not the same as the model's
             embeddings.
         """
         if not isinstance(word, str):
@@ -200,7 +216,7 @@ class WordEmbeddingModel:
                 f"word should be a string, got {word} with type {type(word)}."
             )
 
-        if word not in self.wv.key_to_index:
+        if word not in self:
             raise ValueError(f"word '{word}' not in model vocab.")
 
         if not isinstance(embedding, np.ndarray):
@@ -237,7 +253,7 @@ class WordEmbeddingModel:
         This method calls `update_embedding` method with each of the word-embedding
         pairs.
         All words must be in the vocabulary, otherwise an exception will be thrown.
-        Note that both `words` and `embeddings`must have the same number of elements,
+        Note that both `words` and `embeddings` must have the same number of elements,
         otherwise the method will raise an exception.
 
         Parameters
@@ -256,7 +272,7 @@ class WordEmbeddingModel:
         TypeError
             if words is not a list
         TypeError
-            if embeddings is not a np.ndarray
+            if embeddings is not an np.ndarray
         Exception
             if words collection has not the same size of the embedding array.
         """

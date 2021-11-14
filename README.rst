@@ -125,21 +125,34 @@ Changelog
 
 Version 0.3.0
 -------------
-- Implemented Bolukbasi et al. Hard Debias.
-- Implemented  Thomas Manzini et al. Multiclass Hard Debias.
-- Implemented Direct Bias metric.
+- Implemented Bolukbasi et al. 2016 Hard Debias.
+- Implemented  Thomas Manzini et al. 2019 Multiclass Hard Debias.
 - Implemented a fetch function to retrieve gn-glove female-male word sets.
 - Moved the transformation logic of words, sets and queries to embeddings to its own module: preprocessing
 - Enhanced the preprocessor_args and secondary_preprocessor_args metric preprocessing parameters to an list of preprocessors `preprocessors` together with the parameter `strategy` indicating whether to consider all the transformed words (`'all'`) or only the first one encountered (`'first'`).
-- Renamed WordEmbeddingModel attributes ```model``` and ```model_name```  to `wv` and ```name``` respectively.
+- Renamed WordEmbeddingModel attributes ```model``` and ```model_name```  to ```wv``` and ```name``` respectively.
+- Renamed every run_query ```word_embedding``` argument to ```model``` in every metric.
+
+
+Version 0.2.2
+-------------
+
+- Added RIPA metrics (thanks @stolenpyjak for your contribution!).
+- Fixed Literal typing bug to make WEFE compatible with python 3.7.
+
+Version 0.2.1
+-------------
+
+- Compatibility fixes.
+
 
 Version 0.2.0
 --------------
 
 - Renamed optional ```run_query``` parameter  ```warn_filtered_words``` to `warn_not_found_words`.
-- Added ```word_preprocessor_args``` parameter to ```run_query``` that allows to specify transformations prior to searching for words in word embeddings.
-- Added ```secondary_preprocessor_args``` parameter to ```run_query``` which allows to specify a second pre-processor transformation to words before searching them in word embeddings. It is not necessary to specify the first preprocessor to use this one.
-- Implemented ```__getitem__``` function in ```WordEmbeddingModel```. This method allows to obtain an embedding from a word from the model stored in the instance using indexers. 
+- Added ```word_preprocessor_args``` parameter to ```run_query``` that allow specifying transformations prior to searching for words in word embeddings.
+- Added ```secondary_preprocessor_args``` parameter to ```run_query``` which allows specifying a second pre-processor transformation to words before searching them in word embeddings. It is not necessary to specify the first preprocessor to use this one.
+- Implemented ```__getitem__``` function in ```WordEmbeddingModel```. This method allows obtaining an embedding from a word from the model stored in the instance using indexers. 
 - Removed underscore from class and instance variable names.
 - Improved type and verification exception messages when creating objects and executing methods.
 - Fix an error that appeared when calculating rankings with two columns of aggregations with the same name.

@@ -103,14 +103,17 @@ def test_fetch_debias_multiclass():
         "conservative",
         "terrorism",
         "gender_definitional_sets",
-        "race_definitional_sets",
+        "ethnicity_definitional_sets",
         "religion_definitional_sets",
         "gender_analogy_templates",
-        "race_analogy_templates",
+        "ethnicity_analogy_templates",
         "religion_analogy_templates",
+        "gender_eval_target",
+        "ethnicity_eval_target",
+        "religion_eval_target",
     ]
 
-    assert len(list(debias_multiclass_dataset.keys())) == 22
+    assert len(list(debias_multiclass_dataset.keys())) == 25
 
     for set_name, set_ in debias_multiclass_dataset.items():
         assert isinstance(set_name, str)
@@ -166,7 +169,7 @@ def test_load_weat():
             assert len(word) > 0
 
 
-def test_load_weat():
+def test_load_gn_glove():
     gn_glove_words = fetch_gn_glove()
     assert isinstance(gn_glove_words, dict)
     assert list(gn_glove_words.keys()) == ["male_terms", "female_terms"]

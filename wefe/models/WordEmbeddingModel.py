@@ -1,6 +1,10 @@
 """A Word Embedding contanier based on gensim BaseKeyedVectors."""
 import gensim
+import numpy as np
+import semantic_version
 from wefe.models.base_model import BaseModel
+from typing import Callable, Dict, Sequence, Union
+
 
 gensim_version = semantic_version.Version.coerce(gensim.__version__)
 if gensim_version.major >= 4:

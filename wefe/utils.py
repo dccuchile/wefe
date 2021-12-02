@@ -19,6 +19,7 @@ from sklearn.utils.validation import check_is_fitted as _check_is_fitted
 from wefe.metrics.base_metric import BaseMetric
 from wefe.query import Query
 from wefe.models.base_model import BaseModel
+from wefe.models import WordEmbeddingModel
 
 
 def check_is_fitted(estimator, attributes):

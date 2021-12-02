@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.feature_extraction.text import strip_accents_ascii, strip_accents_unicode
 
 from wefe.query import Query
-from wefe.models.base_model import BaseModel
+from wefe.models.base_model import BaseModel, EmbeddingMultiSet
 
 
 PreprocessorArgs = Dict[str, Union[bool, str, Callable, None]]
@@ -618,3 +618,57 @@ def get_embeddings_from_query(
         return None
 
     return target_embeddings, attribute_embeddings
+
+########################################################################
+# Alan Implementation
+########################################################################
+
+def get_related_embeddings(model: BaseModel,
+                           target: str,
+                           attribute: str,
+                           sentence_template: str):
+    if sentence_template == None:
+        return model[target], model[attribute]
+    else:
+        return model.getWordEmbeddings(target, attribute, sentence_template)
+
+def get_related_embeddings_from_query(
+    model: BaseModel,
+    query: Query,
+    lost_vocabulary_threshold: float = 0.2,
+    preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+    strategy: str = "first",
+    normalize: bool = False,
+    warn_not_found_words: bool = False,
+    verbose: bool = False,
+) -> Union[EmbeddingMultiSet, None]:
+    # Type Checking
+    if not isinstance(query, Query):
+        raise TypeError("query should be an instance of Query, got {}.".format(query))
+    
+    if not isinstance(model, BaseModel):
+        raise TypeError("model should be an instance of BaseModel, got {}.".format(query))
+    
+    multi = EmbeddingMultiSet()
+    ####################################################################
+    # Get the related word embeddings target-attribute
+    ####################################################################
+    tclass = 1
+    for target_set, target_set_name in query.get_targets():
+        aclass = 1
+        for attribute_set, attribute_set_name in query.get_attributes():
+            for target in target_set:
+                for attribute in attribute_set:
+                    embeddings = get_related_embeddings(model,
+                                                        target,
+                                                        attribute, 
+                                                        query.sentence_template)
+                    multi.add(target    = target,
+                              attribute = attribute,
+                              tclass    = tclass,
+                              aclass    = aclass,
+                              tvector   = embeddings[0],
+                              avector   = embeddings[1])
+            aclass += 1
+        tclass += 1
+    return multi

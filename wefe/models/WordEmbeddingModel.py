@@ -41,7 +41,7 @@ class WordEmbeddingModel(BaseModel):
         TypeError
             if word_embedding is not a KeyedVectors instance.
         TypeError
-            if model_name is not None and not an instance of str.
+            if name is not None and not an instance of str.
         TypeError
             if vocab_prefix is not None and not an instance of str.
 
@@ -70,7 +70,7 @@ class WordEmbeddingModel(BaseModel):
         vocab :
             The vocabulary of the model (a dict with the words that have an associated
             embedding in the model).
-        model_name : str
+        name : str
             The name of the model.
         vocab_prefix : str
             A prefix that will be concatenated with each word of the vocab
@@ -112,7 +112,7 @@ class WordEmbeddingModel(BaseModel):
         Returns
         -------
         bool
-            True if other is a WordEmbeddingModel that have the same model, model_name
+            True if other is a WordEmbeddingModel that have the same model, name
             and vocab_prefix . False in any other case
         """
         if not isinstance(other, WordEmbeddingModel):

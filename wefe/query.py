@@ -277,7 +277,7 @@ class Query:
                     attribute_subset,
                     target_subset_name,
                     attribute_subset_name,
-                    self.sentece_template
+                    self.sentence_template
                 )
                 for attribute_subset, attribute_subset_name in zip(
                     attribute_subsets, attribute_subsets_names

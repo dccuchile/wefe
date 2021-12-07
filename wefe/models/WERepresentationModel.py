@@ -37,8 +37,11 @@ class WERepresentationModel(BaseModel):
     #
     #
     def __getitem__(self, key: str) -> Union[np.ndarray, None]:
-        embedding = self.wv.encode_sentences([key], combine_strategy='mean')
-        return embedding[0]
+        embedding = self.wv.encode_sentences([key], combine_strategy=None)
+        embedding = embedding[0]
+        embedding = embedding[1:(len(embedding) - 1)]
+        embedding = np.mean(embedding, dtype=np.float64, axis=0)
+        return embedding
     
     #
     #

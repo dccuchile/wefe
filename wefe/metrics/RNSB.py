@@ -625,6 +625,8 @@ class RNSB(BaseMetric):
         normalize: bool = False,
         warn_not_found_words: bool = False):
         
+        print('Running Contextual Query RNSB')
+        
         # transform query word sets into embeddings
         embeddings = get_related_embeddings_from_query(
             model=word_embedding,

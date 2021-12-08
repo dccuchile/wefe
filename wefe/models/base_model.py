@@ -92,22 +92,7 @@ class EmbeddingMultiSet():
             vals[key] = np.mean(vals[key], dtype=np.float64, axis=0)
         return list(vals.values())
     
-    def getAllTargets2(self, tclass):
-        res = []
-        for row in self.rows:
-            if row['tclass'] == tclass:
-                res.append( row['tvector'] )
-        return res
-        #return list(vals.values()), list(vals.keys())
-    
-    def getTargetWords2(self, tclass):
-        res = []
-        for row in self.rows:
-            if row['tclass'] == tclass:
-                res.append( row['target'] )
-        return res
-    
-    def getAllTargets3(self, target_template):
+    def getAllTargets(self, target_template):
         vals    = []
         classes = list(range(1, target_template + 1))
         for c in classes:

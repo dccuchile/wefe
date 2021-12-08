@@ -353,8 +353,6 @@ class RND(BaseMetric):
         warn_not_found_words: bool = False
     ) -> Dict[str, Any]:
         
-        print('Running Contextual Query RND')
-        
         # transform query word sets into embeddings
         embeddings = get_related_embeddings_from_query(
             model=word_embedding,
@@ -382,7 +380,7 @@ class RND(BaseMetric):
         attr2      = embeddings.getAttributesMean(2, 1)
         attr_words = embeddings.getAttributeWords(1)
         # get the metric
-        rnd, distances_by_word = self.__calc_rnd(
+        rnd, distances_by_word = self.__calc_rnd2(
             target1,
             target2,
             attr1,

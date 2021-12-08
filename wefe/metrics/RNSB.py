@@ -625,8 +625,6 @@ class RNSB(BaseMetric):
         normalize: bool = False,
         warn_not_found_words: bool = False):
         
-        print('Running Contextual Query RNSB')
-        
         # transform query word sets into embeddings
         embeddings = get_related_embeddings_from_query(
             model=word_embedding,
@@ -649,7 +647,7 @@ class RNSB(BaseMetric):
                     "negative_sentiment_distribution": {}}
         
         # get the targets sets transformed into embeddings.
-        target_embeddings, target_words = embeddings.getAllTargets3(query.template[0])
+        target_embeddings, target_words = embeddings.getAllTargets(query.template[0])
         # get the attribute sets transformed into embeddings.
         attribute_0_embeddings = embeddings.getAllAttributes(1)
         attribute_1_embeddings = embeddings.getAllAttributes(2)

@@ -10,7 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from wefe.metrics.base_metric import BaseMetric
-from wefe.preprocessing import get_embeddings_from_query
+from wefe.preprocessing import get_embeddings_from_query, get_related_embeddings_from_query
 from wefe.query import Query
 from wefe.models.base_model import BaseModel
 

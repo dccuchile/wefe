@@ -285,6 +285,7 @@ class RND(BaseMetric):
         if word_embedding.context == True and query.sentence_template != None:
             return self.run_contextual_query(query,
                 word_embedding,
+                distance,
                 lost_vocabulary_threshold,
                 preprocessors,
                 strategy,

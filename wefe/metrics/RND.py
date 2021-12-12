@@ -374,8 +374,8 @@ class RND(BaseMetric):
                     "distances_by_word": {}}
         
         # get the targets sets transformed into embeddings.
-        target1 = embeddings.getTargets(1, 1)
-        target2 = embeddings.getTargets(2, 1)
+        target1 = embeddings.getTargetsMean(1, 1)
+        target2 = embeddings.getTargetsMean(2, 1)
         # get the attribute sets transformed into embeddings.
         attr1      = embeddings.getAttributesMean(1, 1)
         attr2      = embeddings.getAttributesMean(2, 1)

@@ -201,6 +201,51 @@ class RIPA(BaseMetric):
         Dict[str, Any]
             A dictionary with the query name, the resulting score of the metric,
             and other scores.
+
+        Examples
+        --------
+        >>> from wefe.metrics import RIPA
+        >>> from wefe.query import Query
+        >>> from wefe.utils import load_test_model
+        >>> 
+        >>> # define the query
+        ... query = Query(
+        ...     target_sets=[
+        ...         ["female", "woman", "girl", "sister", "she", "her", "hers",
+        ...         "daughter"],
+        ...         ["male", "man", "boy", "brother", "he", "him", "his", "son"],
+        ...     ],
+        ...     attribute_sets=[
+        ...         [
+        ...             "home", "parents", "children", "family", "cousins", "marriage",
+        ...             "wedding", "relatives",
+        ...         ],
+        ...     ],
+        ...     target_sets_names=["Female terms", "Male Terms"],
+        ...     attribute_sets_names=["Family"],
+        ... )
+        >>>
+        >>> # load the model (in this case, the test model included in wefe)
+        >>> model = load_test_model()
+        >>> 
+        >>> # instance the metric and run the query
+        >>> RIPA().run_query(query, model) # doctest: +SKIP
+        {
+            'query_name': 'Female terms and Male Terms wrt Family',
+            'result': 0.18600442,
+            'ripa': 0.18600442,
+            'word_values': {
+                'home': {'mean': 0.008022693, 'std': 0.07485135},
+                'parents': {'mean': 0.2038254, 'std': 0.30801567},
+                'children': {'mean': 0.30370313, 'std': 0.2787335},
+                'family': {'mean': 0.07277942, 'std': 0.20808344},
+                'cousins': {'mean': -0.040398445, 'std': 0.27916202},
+                'marriage': {'mean': 0.37971354, 'std': 0.31494072},
+                'wedding': {'mean': 0.39682359, 'std': 0.28507116},
+                'relatives': {'mean': 0.16356598, 'std': 0.21053126}
+            }
+        }
+
         """
         # check the types of the provided arguments (only the defaults).
         self._check_input(query, model, locals())

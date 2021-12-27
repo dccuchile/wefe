@@ -213,7 +213,7 @@ class DoubleHardDebias(BaseDebias):
     def fit(
         self,
         model:WordEmbeddingModel,
-        defnitional_pairs: Sequence[Sequence[str]],
+        definitional_pairs: Sequence[Sequence[str]],
         incremental_pca:bool = True
         )->BaseDebias:
 
@@ -241,7 +241,7 @@ class DoubleHardDebias(BaseDebias):
             The debias method fitted.
         """
         
-        self.definitional_pairs = defnitional_pairs
+        self.definitional_pairs = definitional_pairs
         
         # ------------------------------------------------------------------------------
         # Obtain the embedding of each definitional pairs.
@@ -249,7 +249,7 @@ class DoubleHardDebias(BaseDebias):
             print("Obtaining definitional pairs.")
         
         self.definitional_pairs_embeddings = get_embeddings_from_sets(
-            model=model, sets=defnitional_pairs,sets_name="definitional",
+            model=model, sets=definitional_pairs,sets_name="definitional",
             warn_lost_sets=self.verbose,
             normalize=True,
             verbose=self.verbose,)

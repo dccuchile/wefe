@@ -9,7 +9,7 @@ Below we list some examples:
 WEAT Replication
 ================
 
-The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/WEAT_experiments.ipynb>`_ reproduces the experiments performed in the following paper:
+The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/WEAT_experiments.ipynb>`__ reproduces the experiments performed in the following paper:
 
     Semantics derived automatically from language corpora contain human-like biases.
     Aylin Caliskan, Joanna J. Bryson, Arvind Narayanan
@@ -25,7 +25,7 @@ The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/
 RNSB Replication
 ================
 
-The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/RNSB_experiments.ipynb>`_ replicates the experiments carried out in the following paper:
+The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/RNSB_experiments.ipynb>`__ replicates the experiments carried out in the following paper:
 
     Chris Sweeney and Maryam Najafian.
     A transparent framework for evaluating unintended demographic bias in word embeddings.
@@ -123,4 +123,4 @@ The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/
   This code is not executed when compiling the documentation due to the long 
   processing time. 
   Instead, the tables and plots of these results were embedded.
-  The code is available for execution in the following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/RNSB_experiments.ipynb>`_.
+  The code is available for execution in the following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/RNSB_experiments.ipynb>`__.

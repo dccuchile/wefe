@@ -14,11 +14,13 @@ from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
-logging.basicConfig(level=logging.DEBUG)
-
 
 class RNSB(BaseMetric):
     """Relative Relative Negative Sentiment Bias (RNSB).
+
+    The metric was originally proposed in [1].
+    Visit `RNSB in Metrics Section <https://wefe.readthedocs.io/en/latest/about.html#rnsb>`_
+    for further information.
 
     References
     ----------
@@ -39,6 +41,7 @@ class RNSB(BaseMetric):
         estimator: BaseEstimator = LogisticRegression,
         estimator_params: Dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},
         random_state: Union[int, None] = None,
+        holdout: bool = True,
         print_model_evaluation: bool = False,
     ) -> Tuple[BaseEstimator, float]:
         """Train the sentiment classifier from the provided attribute embeddings.
@@ -69,65 +72,72 @@ class RNSB(BaseMetric):
         Tuple[BaseEstimator, float]
             The trained classifier and the accuracy obtained by the model.
         """
-        attribute_0_embeddings = np.array(list(attribute_embeddings_dict[0].values()))
-        attribute_1_embeddings = np.array(list(attribute_embeddings_dict[1].values()))
-
-        # generate the labels (1, -1) for each embedding
-        positive_attribute_labels = np.ones(attribute_0_embeddings.shape[0])
-        negative_attribute_labels = -np.ones(attribute_1_embeddings.shape[0])
-
-        attributes_embeddings = np.concatenate(
-            (attribute_0_embeddings, attribute_1_embeddings)
-        )
-        attributes_labels = np.concatenate(
-            (negative_attribute_labels, positive_attribute_labels)
-        )
-
-        split = train_test_split(
-            attributes_embeddings,
-            attributes_labels,
-            shuffle=True,
-            random_state=random_state,
-            test_size=0.1,
-            stratify=attributes_labels,
-        )
-        X_embeddings_train, X_embeddings_test, y_train, y_test = split
-
-        num_train_negative_examples = np.count_nonzero((y_train == -1))
-        num_train_positive_examples = np.count_nonzero((y_train == 1))
-
-        # Check the number of train and test examples.
-        if num_train_positive_examples == 1:
-            raise Exception(
-                "After splitting the dataset using train_test_split "
-                "(with test_size=0.1), the first attribute remained with 0 training "
-                "examples."
-            )
-
-        if num_train_negative_examples < 1:
-            raise Exception(
-                "After splitting the dataset using train_test_split "
-                "(with test_size=0.1), the second attribute remained with 0 training "
-                "examples."
-            )
-
         # when random_state is not none, set it on classifier params.
         if random_state is not None:
             estimator_params["random_state"] = random_state
 
-        estimator = estimator(**estimator_params)
-        estimator.fit(X_embeddings_train, y_train)
+        # the attribute 0 words are treated as positive words.
+        positive_embeddings = np.array(list(attribute_embeddings_dict[0].values()))
+        # the attribute 1 words are treated as negative words.
+        negative_embeddings = np.array(list(attribute_embeddings_dict[1].values()))
 
-        # evaluate
-        y_pred = estimator.predict(X_embeddings_test)
-        score = estimator.score(X_embeddings_test, y_test)
+        # generate the labels (1, -1) for each embedding
+        positive_labels = np.ones(positive_embeddings.shape[0])
+        negative_labels = -np.ones(negative_embeddings.shape[0])
 
-        if print_model_evaluation:
-            print(
-                "Classification Report:\n{}".format(
-                    classification_report(y_test, y_pred, labels=estimator.classes_)
-                )
+        attributes_embeddings = np.concatenate(
+            (positive_embeddings, negative_embeddings)
+        )
+        attributes_labels = np.concatenate((positive_labels, negative_labels))
+
+        if holdout:
+            split = train_test_split(
+                attributes_embeddings,
+                attributes_labels,
+                shuffle=True,
+                random_state=random_state,
+                test_size=0.2,
+                stratify=attributes_labels,
             )
+            X_embeddings_train, X_embeddings_test, y_train, y_test = split
+
+            num_train_negative_examples = np.count_nonzero((y_train == -1))
+            num_train_positive_examples = np.count_nonzero((y_train == 1))
+
+            # Check the number of train and test examples.
+            if num_train_positive_examples == 1:
+                raise Exception(
+                    "After splitting the dataset using train_test_split "
+                    "(with test_size=0.1), the first attribute remained with 0 training "
+                    "examples."
+                )
+
+            if num_train_negative_examples < 1:
+                raise Exception(
+                    "After splitting the dataset using train_test_split "
+                    "(with test_size=0.1), the second attribute remained with 0 training "
+                    "examples."
+                )
+
+            estimator = estimator(**estimator_params)
+            estimator.fit(X_embeddings_train, y_train)
+
+            # evaluate
+            y_pred = estimator.predict(X_embeddings_test)
+            score = estimator.score(X_embeddings_test, y_test)
+
+            if print_model_evaluation:
+                print(
+                    "Classification Report:\n{}".format(
+                        classification_report(y_test, y_pred, labels=estimator.classes_)
+                    )
+                )
+        else:
+            estimator = estimator(**estimator_params)
+            estimator.fit(attributes_embeddings, attributes_labels)
+            score = estimator.score(attributes_embeddings, attributes_labels)
+            if print_model_evaluation:
+                print("Holdout is disabled. No evaluation was performed.")
 
         return estimator, score
 
@@ -164,10 +174,15 @@ class RNSB(BaseMetric):
             classifier.predict_proba(target_embeddings)
             for target_embeddings in target_embeddings_sets
         ]
+        # row where the negative probabilities are located
+        negative_class_clf_row = np.where(classifier.classes_ == -1)[0][0]
 
         # extract only the negative sentiment probability for each word
         negative_probabilities = np.concatenate(
-            [probability[:, 1].flatten() for probability in probabilities]
+            [
+                probability[:, negative_class_clf_row].flatten()
+                for probability in probabilities
+            ]
         )
 
         # normalization of the probabilities
@@ -203,8 +218,9 @@ class RNSB(BaseMetric):
         model: WordEmbeddingModel,
         estimator: BaseEstimator = LogisticRegression,
         estimator_params: Dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},
-        num_iterations: int = 1,
+        n_iterations: int = 1,
         random_state: Union[int, None] = None,
+        holdout: bool = True,
         print_model_evaluation: bool = False,
         lost_vocabulary_threshold: float = 0.2,
         preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
@@ -223,7 +239,7 @@ class RNSB(BaseMetric):
         of classifier training. For this reason, the robustness of these scores
         can be improved by repeating the test several times and returning the
         average of the scores obtained. This can be indicated in the
-        num_iterations parameter.
+        n_iterations parameter.
 
         Parameters
         ----------
@@ -242,7 +258,7 @@ class RNSB(BaseMetric):
             Parameters that will use the classifier, by default { 'solver': 'liblinear',
             'max_iter': 10000, }
 
-        num_iterations : int, optional
+        n_iterations : int, optional
             When provided, it tells the metric to run the specified number of times
             and then average its results. This functionality is indicated to
             strengthen the results obtained, by default 1.
@@ -250,13 +266,23 @@ class RNSB(BaseMetric):
         random_state : Union[int, None], optional
             Seed that allow making the execution of the query reproducible.
             Warning: if a random_state other than None is provided along with
-            num_iterations, each iteration will split the dataset and train a
+            n_iterations, each iteration will split the dataset and train a
             classifier associated to the same seed, so the results of each iteration
             will always be the same , by default None.
 
+        holdout: bool, optional
+            True indicates that a holdout (split attributes in train/test sets) will
+            be executed before running the model training.
+            This option allows to evaluate the performance of the classifier
+            (can be printed using print_model_evaluation=True) at the cost of training
+            the classifier with fewer examples. False disables this functionality.
+            Note that holdout divides into 80%train and 20% test, performs a shuffle
+            and tries to maintain the original ratio of the classes via stratify param.
+            by default True
+
         print_model_evaluation : bool, optional
             Indicates whether the classifier evaluation is printed after the
-            training process is completed., by default False
+            training process is completed, by default False
 
         preprocessors : List[Dict[str, Union[str, bool, Callable]]]
             A list with preprocessor options.
@@ -313,6 +339,9 @@ class RNSB(BaseMetric):
 
         Examples
         --------
+        The following example shows how to run a query that measures gender
+        bias using RNSB:
+
         >>> from wefe.query import Query
         >>> from wefe.utils import load_test_model
         >>> from wefe.metrics import RNSB
@@ -340,46 +369,156 @@ class RNSB(BaseMetric):
         >>> # instance the metric and run the query
         >>> RNSB().run_query(query, model) # doctest: +SKIP
         {
-            "query_name": "Female terms and Male Terms wrt Family and Careers",
-            "result": 0.09223875552506647,
-            "kl-divergence": 0.09223875552506647,
-            "clf_accuracy": 1.0,
-            "negative_sentiment_probabilities": {
-                "female": 0.5543954373912665,
-                "woman": 0.3107589242224508,
-                "girl": 0.18710587484907013,
-                "sister": 0.1787081823837198,
-                "she": 0.4172419154977331,
-                "her": 0.4030950036121549,
-                "hers": 0.3126640373120572,
-                "daughter": 0.14249529344431694,
-                "male": 0.4422224610164615,
-                "man": 0.4194123616222211,
-                "boy": 0.20556697141459176,
-                "brother": 0.19801831727151584,
-                "he": 0.5577524826493919,
-                "him": 0.514179075019818,
-                "his": 0.5544435993736733,
-                "son": 0.18711536982098712,
+            'query_name': 'Female terms and Male Terms wrt Family and Careers',
+            'result': 0.02899395368025491,
+            'rnsb': 0.02899395368025491,
+            'negative_sentiment_probabilities': {
+                'female': 0.43272977959940667,
+                'woman': 0.6951544646603257,
+                'girl': 0.8141335128074891,
+                'sister': 0.8472896023561901,
+                'she': 0.5718048693637721,
+                'her': 0.5977365245684795,
+                'hers': 0.6939932357393684,
+                'daughter': 0.8887895021296551,
+                'male': 0.5511334216620132,
+                'man': 0.584603563015763,
+                'boy': 0.8129431089763982,
+                'brother': 0.8331301278277582,
+                'he': 0.4420145415672582,
+                'him': 0.5139776652415698,
+                'his': 0.44459083129125154,
+                'son': 0.8483699001061482
             },
-            "negative_sentiment_distribution": {
-                "female": 0.09926195811727109,
-                "woman": 0.05563995884577796,
-                "girl": 0.0335004479837668,
-                "sister": 0.0319968796973831,
-                "she": 0.0747052496243332,
-                "her": 0.07217230999250153,
-                "hers": 0.05598106059906622,
-                "daughter": 0.02551312816774791,
-                "male": 0.07917790162647549,
-                "man": 0.07509385803950792,
-                "boy": 0.03680582257831352,
-                "brother": 0.0354542707060297,
-                "he": 0.09986302166025017,
-                "him": 0.09206140304753956,
-                "his": 0.09927058129913385,
-                "son": 0.03350214801490194,
+            'negative_sentiment_distribution': {
+                'female': 0.04093015763103808,
+                'woman': 0.06575184597373163,
+                'girl': 0.07700559236475293,
+                'sister': 0.08014169261861909,
+                'she': 0.05408470722518866,
+                'her': 0.05653747748783378,
+                'hers': 0.0656420100321782,
+                'daughter': 0.0840670000956609,
+                'male': 0.052129478690471215,
+                'man': 0.055295283832909777,
+                'boy': 0.07689299688658582,
+                'brother': 0.07880240525790659,
+                'he': 0.04180836566946482,
+                'him': 0.04861506614276754,
+                'his': 0.04205204648247447,
+                'son': 0.0802438736084164
+            }
+        }
+
+        If you want to perform a holdout to evaluate (defualt option) the model
+        and print the evaluation, use the params `holdout=True` and
+        `print_model_evaluation=True`
+
+        >>> RNSB().run_query(
+        ...     query,
+        ...     model,
+        ...     holdout=True,
+        ...     print_model_evaluation=True) # doctest: +SKIP
+        "Classification Report:"
+        "              precision    recall  f1-score   support"
+        "                                                     "
+        "        -1.0       1.00      1.00      1.00         2"
+        "         1.0       1.00      1.00      1.00         2"
+        "                                                     "
+        "    accuracy                           1.00         4"
+        "   macro avg       1.00      1.00      1.00         4"
+        "weighted avg       1.00      1.00      1.00         4"
+        {
+            'query_name': 'Female terms and Male Terms wrt Family and Careers',
+            'result': 0.028622532697549753,
+            'rnsb': 0.028622532697549753,
+            'negative_sentiment_probabilities': {
+                'female': 0.4253580834091863,
+                'woman': 0.7001106999668327,
+                'girl': 0.8332271657179001,
+                'sister': 0.8396986674252397,
+                'she': 0.603565156083575,
+                'her': 0.6155296658190583,
+                'hers': 0.7147102319731146,
+                'daughter': 0.884829695542309,
+                'male': 0.5368167185683463,
+                'man': 0.5884385611055519,
+                'boy': 0.8132056992854114,
+                'brother': 0.8270792128939456,
+                'he': 0.4500708786239489,
+                'him': 0.49965355723589994,
+                'his': 0.45394634194580535,
+                'son': 0.8450690196299462
             },
+            'negative_sentiment_distribution': {
+                'female': 0.04000994319670431,
+                'woman': 0.0658536664275202,
+                'girl': 0.07837483962483958,
+                'sister': 0.07898356066672689,
+                'she': 0.05677241964432896,
+                'her': 0.057897822860029945,
+                'hers': 0.06722692455767754,
+                'daughter': 0.08322866600691568,
+                'male': 0.05049394205657851,
+                'man': 0.055349585027011844,
+                'boy': 0.07649158463116877,
+                'brother': 0.07779655217044128,
+                'he': 0.04233447297841125,
+                'him': 0.04699830853762932,
+                'his': 0.04269900599992016,
+                'son': 0.07948870561409564
+                }
+            }
+
+        If you want to disable the holdout, use the param `holdout=False`.
+
+        >>> # instance the metric and run the query
+        >>> RNSB().run_query(
+        ...     query,
+        ...     model,
+        ...     holdout=False,
+        ...     print_model_evaluation=True) # doctest: +SKIP
+        "Holdout is disabled. No evaluation was performed."
+        {
+            'query_name': 'Female terms and Male Terms wrt Family and Careers',
+            'result': 0.03171747070323668,
+            'rnsb': 0.03171747070323668,
+            'negative_sentiment_probabilities': {
+                'female': 0.41846552820545985,
+                'woman': 0.7104860753714863,
+                'girl': 0.8325507470146775,
+                'sister': 0.8634309153859019,
+                'she': 0.593223646607777,
+                'her': 0.6138756234516175,
+                'hers': 0.7205687956033292,
+                'daughter': 0.8964129106245865,
+                'male': 0.545075356696542,
+                'man': 0.5856674025396198,
+                'boy': 0.8184955986780176,
+                'brother': 0.8392921127806534,
+                'he': 0.43437306199747594,
+                'him': 0.4974336520424158,
+                'his': 0.4342254305877148,
+                'son': 0.851969666735826
+            },
+            'negative_sentiment_distribution': {
+                'female': 0.03927208494188834,
+                'woman': 0.0666775818349327,
+                'girl': 0.07813308731881921,
+                'sister': 0.0810311243458957,
+                'she': 0.055672756461026464,
+                'her': 0.05761089983046311,
+                'hers': 0.06762382332604978,
+                'daughter': 0.08412641327954143,
+                'male': 0.05115414356760721,
+                'man': 0.05496361929467757,
+                'boy': 0.07681404203995185,
+                'brother': 0.07876574991858241,
+                'he': 0.04076497259018534,
+                'him': 0.04668307260513937,
+                'his': 0.04075111770161401,
+                'son': 0.07995551094362546
+            }
         }
         """
         # check the types of the provided arguments (only the defaults).
@@ -421,28 +560,38 @@ class RNSB(BaseMetric):
         scores = []
 
         # calculate the scores for each iteration
-        for _ in range(num_iterations):
+        for i in range(n_iterations):
+            try:
 
-            # train the logit with the train data.
-            trained_classifier, score = self._train_classifier(
-                attribute_embeddings_dict=attribute_embeddings,
-                random_state=random_state,
-                estimator=estimator,
-                estimator_params=estimator_params,
-                print_model_evaluation=print_model_evaluation,
-            )
+                if print_model_evaluation and (i > 0 and i < 2):
+                    print(
+                        "When n_iterations > 1, only the first evaluation is printed."
+                    )
+                    print_model_evaluation = False
 
-            scores.append(score)
+                # train the logit with the train data.
+                trained_classifier, score = self._train_classifier(
+                    attribute_embeddings_dict=attribute_embeddings,
+                    random_state=random_state,
+                    estimator=estimator,
+                    estimator_params=estimator_params,
+                    holdout=holdout,
+                    print_model_evaluation=print_model_evaluation,
+                )
 
-            # get the scores
-            divergence, negative_sentiment_probabilities = self._calc_rnsb(
-                target_embeddings, trained_classifier
-            )
+                scores.append(score)
 
-            calculated_divergences.append(divergence)
-            calculated_negative_sentiment_probabilities.append(
-                negative_sentiment_probabilities
-            )
+                # get the scores
+                divergence, negative_sentiment_probabilities = self._calc_rnsb(
+                    target_embeddings, trained_classifier
+                )
+
+                calculated_divergences.append(divergence)
+                calculated_negative_sentiment_probabilities.append(
+                    negative_sentiment_probabilities
+                )
+            except Exception as e:
+                logging.exception("RNSB Iteration omitted: " + str(e))
 
         # aggregate results
         divergence = np.mean(np.array(calculated_divergences))
@@ -459,7 +608,6 @@ class RNSB(BaseMetric):
             "query_name": query.query_name,
             "result": divergence,
             "rnsb": divergence,
-            "clf_accuracy": np.mean(scores),
             "negative_sentiment_probabilities": negative_sentiment_probabilities,
             "negative_sentiment_distribution": negative_sentiment_distribution,
         }

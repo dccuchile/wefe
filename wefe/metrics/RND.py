@@ -164,6 +164,9 @@ class RND(BaseMetric):
 
         Examples
         --------
+        The following example shows how to run a query that measures gender
+        bias using RND:
+
         >>> from wefe.metrics import RND
         >>> from wefe.query import Query
         >>> from wefe.utils import load_test_model
@@ -202,8 +205,10 @@ class RND(BaseMetric):
                                'cousins': 0.17195654,
                                'home': 0.1733501}}
         >>>
-        >>> # if you want the embeddings to be normalized before calculating the metrics
-        >>> # use the normalize parameter as True before executing the query.
+
+        If you want the embeddings to be normalized before calculating the metrics
+        use the normalize parameter as True before executing the query.
+
         >>> RND().run_query(query, model, normalize=True) # doctest: +SKIP
         {'query_name': 'Female terms and Male Terms wrt Family',
          'result': -0.006278775632381439,
@@ -216,9 +221,11 @@ class RND(BaseMetric):
                                'family': 0.023389697,
                                'home': 0.04009247,
                                'cousins': 0.044702888}}
-        >>>
-        >>> # if you want to use cosine distance instead of euclidean norm
-        >>> # use the distance parameter as 'cos' before executing the query.
+        
+        
+        If you want to use cosine distance instead of euclidean norm
+        use the distance parameter as 'cos' before executing the query.
+
         >>> RND().run_query(query, model, normalize=True, distance='cos') # doctest: +SKIP
         {'query_name': 'Female terms and Male Terms wrt Family',
          'result': 0.03643466345965862,

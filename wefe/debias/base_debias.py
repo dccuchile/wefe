@@ -61,7 +61,7 @@ class BaseDebias(BaseEstimator):
             If `False`, the debias will be applied on the same model delivered, causing
             its vectors to mutate.
             **WARNING:** Setting copy with `True` requires at least 2x RAM of the size
-            of the model. Otherwise the execution of the debias may rise
+            of the model. Otherwise the execution of the debias may raise
             `MemoryError`, by default True.
 
         Returns
@@ -97,7 +97,7 @@ class BaseDebias(BaseEstimator):
             If False, the debias will be applied on the same model delivered, causing
             its vectors to mutate.
             **WARNING:** Setting copy with True requires at least 2x RAM of the size
-            of the model. Otherwise the execution of the debias may rise
+            of the model. Otherwise the execution of the debias may raise
             `MemoryError`, by default True.
         verbose : bool, optional
             True will print informative messages about the debiasing process,

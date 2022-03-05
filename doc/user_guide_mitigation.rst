@@ -130,7 +130,7 @@ described below:
     applied on the original model, causing the vectors to mutate.
 
     **WARNING:** Setting copy with ``True`` requires at least 2x RAM of
-    the size of the model. Otherwise the execution of the debias may rise
+    the size of the model. Otherwise the execution of the debias may raise
     ``MemoryError``.
 
 Next, the transformation is executed using a copy of the model,

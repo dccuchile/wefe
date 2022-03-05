@@ -22,8 +22,8 @@ class MulticlassHardDebias(BaseDebias):
     For example, for the case of religion bias, it supports a debias using words
     associated with Christianity, Islam and Judaism.
 
-    Reference
-    ---------
+    References
+    ----------
     | [1]: Manzini, T., Chong, L. Y., Black, A. W., & Tsvetkov, Y. (2019, June).
     | Black is to Criminal as Caucasian is to Police: Detecting and Removing Multiclass
     | Bias in Word Embeddings.
@@ -276,7 +276,7 @@ class MulticlassHardDebias(BaseDebias):
             If `False`, the debias will be applied on the same model delivered, causing
             its vectors to mutate.
             **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
-            of the model, otherwise the execution of the debias may give rise to
+            of the model, otherwise the execution of the debias may raise to
             `MemoryError`, by default True.
             
         Returns

@@ -3,17 +3,16 @@ import logging
 import numpy as np
 import pytest
 from gensim.models.keyedvectors import KeyedVectors
-
-from wefe.word_embedding_model import WordEmbeddingModel
 from wefe.datasets.datasets import load_weat
 from wefe.preprocessing import (
     _warn_not_found_words,
     get_embeddings_from_query,
-    get_embeddings_from_sets,
     get_embeddings_from_set,
+    get_embeddings_from_sets,
     preprocess_word,
 )
 from wefe.query import Query
+from wefe.word_embedding_model import WordEmbeddingModel
 
 
 @pytest.fixture
@@ -243,7 +242,7 @@ def test_get_embeddings_from_word_set(model):
     assert len(not_found_words) == 1
 
     assert list(embeddings.keys()) == ["man", "woman"]
-    assert not_found_words == ["WöMàn"]
+    assert not_found_words == ["WoMan"]
 
     assert np.array_equal(model["man"], embeddings["man"])
     assert np.array_equal(model["woman"], embeddings["woman"])
@@ -267,7 +266,7 @@ def test_get_embeddings_from_word_set(model):
     )
 
     assert list(embeddings.keys()) == ["man", "MAN", "Man", "woman", "WOMAN", "Woman"]
-    assert not_found_words == ["WöMàn"]
+    assert not_found_words == ["WoMan"]
 
     assert [np.array_equal(model[k], embeddings[k]) for k in embeddings.keys()]
 
@@ -572,7 +571,7 @@ def test_threshold_param_on_get_embeddings_from_query(caplog, simple_query, mode
     with pytest.raises(
         TypeError, match=r"lost_vocabulary_threshold should be float, .*"
     ):
-        get_embeddings_from_query(model, query, lost_vocabulary_threshold='')
+        get_embeddings_from_query(model, query, lost_vocabulary_threshold="")
 
     # with lost vocabulary threshold.
     flowers_ = flowers + ["aaa", "aab", "aac", "aad", "aaf", "aag", "aah", "aai", "aaj"]

@@ -1,6 +1,6 @@
-===============================================================
-Rank Word Embeddings Fairness using several Metrics and Queries
-===============================================================
+===========================
+WEFE Case Study Replication
+===========================
 
 The following code replicates the case study presented in our paper: 
 

@@ -253,7 +253,7 @@ Using the steps previously seen, a sample metric is implemented:
     
     from wefe.metrics.base_metric import BaseMetric
     from wefe.query import Query
-    from wefe.word_embedding_model import WordEmbeddingModel, PreprocessorArgs
+    from wefe.word_embedding_model import WordEmbeddingModel
     
     
     class ExampleMetric(BaseMetric):
@@ -760,9 +760,9 @@ specific to `HardDebias`:
 
 .. note::
 
-Note that `get_embeddings_from_sets` is used to transform word sets to embeddings sets. 
-This function, as well as the one to transform queries to embeddings, are available 
-in the `preprocessing` module.
+    Note that `get_embeddings_from_sets` is used to transform word sets to embeddings
+    sets. This function, as well as the one to transform queries to embeddings, are
+    available in the `preprocessing` module.
 
 Once `fit` has calculated the transformation, the method should return `self`.
 
@@ -816,7 +816,7 @@ in `fit` on the embedding model. It must always receive the same 4 arguments:
             If `False`, the debias will be applied on the same model delivered, causing
             its vectors to mutate.
             **WARNING:** Setting copy with `True` requires at least 2x RAM of the size
-            of the model. Otherwise the execution of the debias may rise
+            of the model. Otherwise the execution of the debias may raise
             `MemoryError`, by default True.
 
         Returns
@@ -873,7 +873,7 @@ execute the points mentioned above:
             If `False`, the debias will be applied on the same model delivered, causing
             its vectors to mutate.
             **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
-            of the model, otherwise the execution of the debias may give rise to
+            of the model, otherwise the execution of the debias may raise to
             `MemoryError`, by default True.
 
         Returns

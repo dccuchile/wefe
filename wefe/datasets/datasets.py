@@ -9,7 +9,7 @@ import pkg_resources
 
 
 def fetch_eds(
-    occupations_year: int = 2015, top_n_race_occupations: int = 15
+    occupations_year: int = 2015, top_n_race_occupations: int = 10
 ) -> Dict[str, List[str]]:
     """Fetch the word sets used in the experiments of the work *Word Embeddings
     *Quantify 100 Years Of Gender And Ethnic Stereotypes*.
@@ -18,7 +18,7 @@ def fetch_eds(
     religion (christianity and islam) and adjetives (appearence, intelligence,
     otherization, sensitive) word sets.
 
-    Reference:
+    References
     ----------
     Word Embeddings quantify 100 years of gender and ethnic stereotypes.
     Garg, N., Schiebinger, L., Jurafsky, D., & Zou, J. (2018). Proceedings of
@@ -65,9 +65,6 @@ def fetch_eds(
         "words_islam.txt",
         "words_terrorism.txt",
     ]
-
-    # ---- Word sets ----
-
     # read the word sets from the source.
     word_sets = []
     for EDS_words_set_name in EDS_WORD_SETS_NAMES:
@@ -158,7 +155,7 @@ def fetch_debiaswe() -> Dict[str, Union[List[str], list]]:
     Woman is to Homemaker? from the source. It includes gender (male, female)
     terms and related word sets.
 
-    Reference:
+    References
     ----------
 
     Man is to Computer Programmer as Woman is to Homemaker?
@@ -246,11 +243,11 @@ def load_bingliu() -> Dict[str, List[str]]:
     negative = pd.read_csv(
         bingliu_neg_bytes, sep="\n", header=None, names=["word"], encoding="latin-1"
     )
-    negative_cleaned = negative.loc[30:,].values.flatten().tolist()
+    negative_cleaned = negative.loc[30:].values.flatten().tolist()
     positive = pd.read_csv(
         bingliu_pos_bytes, sep="\n", header=None, names=["word"], encoding="latin-1"
     )
-    positive_cleaned = positive.loc[29:,].values.flatten().tolist()
+    positive_cleaned = positive.loc[29:].values.flatten().tolist()
 
     bingliu_lexicon = {
         "positive_words": positive_cleaned,
@@ -426,7 +423,7 @@ def load_weat() -> Dict[str, List[str]]:
     It includes gender (male, female), ethnicity (black, white)
     and pleasant, unpleasant word sets, among others.
 
-    Reference:
+    References
     ----------
 
     Semantics derived automatically from language corpora contain human-like

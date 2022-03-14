@@ -1,5 +1,6 @@
 import operator
 from copy import deepcopy
+from tabnanny import verbose
 from typing import Dict, Any, Optional, List, Sequence
 from wefe import debias
 from wefe.debias.base_debias import BaseDebias
@@ -258,7 +259,7 @@ class DoubleHardDebias(BaseDebias):
         # Identify the bias subspace using the definning pairs.
         if self.verbose:
             print("Identifying the bias subspace.")
-        self.bias_direction = self._identify_bias_subspace(self.definitional_pairs_embeddings).components_[0]
+        self.bias_direction = self._identify_bias_subspace(self.definitional_pairs_embeddings,verbose=self.verbose).components_[0]
         
         # ------------------------------------------------------------------------------:
         # Identify the bias subspace using the definning pairs.

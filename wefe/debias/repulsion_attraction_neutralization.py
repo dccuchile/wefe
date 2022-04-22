@@ -16,7 +16,7 @@ import torch
 from copy import deepcopy
 
 
-class RepulsionattractionNeutralization(BaseDebias):
+class RepulsionAttractionNeutralization(BaseDebias):
     """Repulsion attraction Neutralization method.
 
 
@@ -37,7 +37,7 @@ class RepulsionattractionNeutralization(BaseDebias):
         verbose: bool = False,
         criterion_name: Optional[str] = None,
         ) -> None:
-        """Initialize a Half Sibling Regression Debias instance.
+        """Initialize a Repulsion Attraction Neutralization Debias instance.
 
         Parameters
         ----------

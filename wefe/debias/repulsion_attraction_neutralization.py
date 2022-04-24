@@ -1,4 +1,5 @@
 from codecs import ignore_errors
+from ctypes import Union
 import operator
 from copy import deepcopy
 from tabnanny import verbose
@@ -111,7 +112,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         bias = (wv - cos_wv_orth) / wv
         return bias 
     
-    def get_neighbours(self, model: WordEmbeddingModel, word: str, n_neighbours: int):   
+    def get_neighbours(self, model: WordEmbeddingModel, word: str, n_neighbours: int) -> List[str]:   
         similar_words = model.wv.most_similar(positive=word,topn=n_neighbours)
         similar_words = list(list(zip(*similar_words))[0])
         return similar_words
@@ -123,7 +124,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         bias_direction: np.ndarray,
         theta: float,
         n_neighbours: int
-        ):   
+        ) -> List[np.ndarray]:   
         neighbours = self.get_neighbours(model, word, n_neighbours)
         repulsion_set = []
         for neighbour in neighbours:
@@ -144,10 +145,10 @@ class RepulsionAttractionNeutralization(BaseDebias):
         return all_repulsion
         '''
             
-    def cosine_similarity(self, w: np.ndarray, set_vectors):
+    def cosine_similarity(self, w: torch.Tensor, set_vectors: torch.Tensor) -> torch.Tensor:
         return torch.matmul(set_vectors, w) / (set_vectors.norm(dim=1) * w.norm(dim=0))
     
-    def repulsion(self, w_b: np.ndarray, repulsion_set):
+    def repulsion(self, w_b: torch.Tensor, repulsion_set: torch.Tensor) -> Union[torch.Tensor,0]:
         if not isinstance(repulsion_set, bool):
             cos_similarity = self.cosine_similarity(w_b, repulsion_set)
             repulsion = torch.abs(cos_similarity).mean(dim=0)
@@ -155,11 +156,11 @@ class RepulsionAttractionNeutralization(BaseDebias):
             repulsion = 0
         return repulsion
     
-    def attraction(self,w_b: np.ndarray, w: np.ndarray):
+    def attraction(self,w_b: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
         attraction = torch.abs(torch.cosine_similarity(w_b[None,:],w[None,:]) - 1)[0]/2 
         return attraction
     
-    def neutralization(self,w_b: np.ndarray, bias_direction: np.ndarray):
+    def neutralization(self,w_b: torch.Tensor, bias_direction: torch.Tensor) -> torch.Tensor:
         neutralization = torch.abs(w_b.dot(bias_direction)).mean(dim=0)
         return neutralization 
     
@@ -168,9 +169,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
         self,w_b: np.ndarray,
         w: np.ndarray,
         bias_direction: np.ndarray,
-        repulsion_set,
+        repulsion_set: torch.Tensor,
         weights: List[float]
-        ):
+        ) -> torch.Tensor:
         w1,w2,w3 = weights
         return self.repulsion(w_b,repulsion_set)*w1 + self.attraction(w_b,w)*w2 + self.neutralization(w_b,bias_direction)*w3 #W3????**
     
@@ -185,9 +186,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
         learning_rate: float, 
         epochs: int,
         weights: List[float]
-        ):
+        ) -> torch.Tensor:
         
-        ran = RAN( model, word,w_b, w, repulsion_set, bias_direction, self.objective_function, weights)
+        ran = RAN(model, word,w_b, w, repulsion_set, bias_direction, self.objective_function, weights)
         optimizer = torch.optim.Adam(ran.parameters(), lr=learning_rate) ##dejar el optimizador como parametro?
         for epoch in range(epochs):
             optimizer.zero_grad()
@@ -197,7 +198,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         debiased_vector = ran.w_b
         return debiased_vector #normalizar????
     
-    def init_vector(self,model, word):
+    def init_vector(self,model: WordEmbeddingModel, word:str) -> torch.Tensor:
         v = deepcopy(model[word]) 
         return torch.FloatTensor(np.array(v))
     
@@ -367,7 +368,6 @@ class RAN(nn.Module):
         self.model = model
         self.word = word
         self.w =  torch.FloatTensor(np.array(w)).requires_grad_(True)    
-        #print(repulsion_set)     
         if len(repulsion_set) == 0:
             self.repulsion_set = False 
         else:

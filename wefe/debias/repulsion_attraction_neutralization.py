@@ -2,6 +2,7 @@ from codecs import ignore_errors
 import operator
 from copy import deepcopy
 from tabnanny import verbose
+from tokenize import String
 from typing import Dict, Any, Optional, List, Sequence
 from wefe import debias
 from wefe.debias.base_debias import BaseDebias
@@ -41,6 +42,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
         Parameters
         ----------
+        pca_args : Dict[str, Any], optional
+            Arguments for the PCA that is calculated internally in the identification
+            of the bias subspace, by default {"n_components": 10}
         verbose : bool, optional
             True will print informative messages about the debiasing process,
             by default False.
@@ -85,10 +89,21 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
         return pca
     
-    def indirect_bias(self, w, v, bias_direction):
-        """
-        computes indirect bias
-        """        
+    def _check_sets_size(
+        self, sets: Sequence[Sequence[str]], set_name: str,
+    ):
+
+        for idx, set_ in enumerate(sets):
+            if len(set_) != 2:
+                adverb = "less" if len(set_) < 2 else "more"
+
+                raise ValueError(
+                    f"The {set_name} pair at position {idx} ({set_}) has {adverb} "
+                    f"words than allowed by {self.name}: "
+                    f"got {len(set_)} words, expected 2."
+                )
+                
+    def indirect_bias(self, w: np.ndarray, v: np.ndarray, bias_direction: np.ndarray) -> float:      
         wv = np.dot(w,v) ##NORMALIZAR LOS VECTORS???
         w_orth = w - np.dot(w,bias_direction)*bias_direction
         v_orth = v - np.dot(v,bias_direction)*bias_direction
@@ -96,19 +111,19 @@ class RepulsionAttractionNeutralization(BaseDebias):
         bias = (wv - cos_wv_orth) / wv
         return bias 
     
-    def get_neighbours(self, model, word, n_neighbours = 100):
-        """
-        returns the n words closer to a given word
-        """        
+    def get_neighbours(self, model: WordEmbeddingModel, word: str, n_neighbours: int):   
         similar_words = model.wv.most_similar(positive=word,topn=n_neighbours)
         similar_words = list(list(zip(*similar_words))[0])
         return similar_words
     
-    def get_repulsion_set(self, model, word, bias_direction, theta, n_neighbours):
-        """
-
-        Repulsion set for given word. Dictionary with words in set and their vectors
-        """        
+    def get_repulsion_set(
+        self, 
+        model: WordEmbeddingModel,
+        word: str, 
+        bias_direction: np.ndarray,
+        theta: float,
+        n_neighbours: int
+        ):   
         neighbours = self.get_neighbours(model, word, n_neighbours)
         repulsion_set = []
         for neighbour in neighbours:
@@ -116,6 +131,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
                 repulsion_set.append(model[neighbour])
         return repulsion_set
     
+    '''
     def get_all_repulsion(self, model, target_words, n_neighbours, bias_direction, theta):
         """
         gets repulsions sets and non repulsion sets for all target words
@@ -126,11 +142,12 @@ class RepulsionAttractionNeutralization(BaseDebias):
             repulsion = self.get_repulsion_set(model, word, neighbours, bias_direction, theta)
             all_repulsion[word] = repulsion 
         return all_repulsion
+        '''
             
-    def cosine_similarity(self, w_b, set_vectors):
-        return torch.matmul(set_vectors, w_b) / (set_vectors.norm(dim=1) * w_b.norm(dim=0))
+    def cosine_similarity(self, w: np.ndarray, set_vectors):
+        return torch.matmul(set_vectors, w) / (set_vectors.norm(dim=1) * w.norm(dim=0))
     
-    def repulsion(self, w_b, repulsion_set):
+    def repulsion(self, w_b: np.ndarray, repulsion_set):
         if not isinstance(repulsion_set, bool):
             cos_similarity = self.cosine_similarity(w_b, repulsion_set)
             repulsion = torch.abs(cos_similarity).mean(dim=0)
@@ -138,23 +155,39 @@ class RepulsionAttractionNeutralization(BaseDebias):
             repulsion = 0
         return repulsion
     
-    def attraction(self,w_b,w):
+    def attraction(self,w_b: np.ndarray, w: np.ndarray):
         attraction = torch.abs(torch.cosine_similarity(w_b[None,:],w[None,:]) - 1)[0]/2 
         return attraction
     
-    def neutralization(self,w_b,bias_direction):
+    def neutralization(self,w_b: np.ndarray, bias_direction: np.ndarray):
         neutralization = torch.abs(w_b.dot(bias_direction)).mean(dim=0)
         return neutralization 
     
     
-    def objective_function(self,w_b,w,bias_direction,repulsion_set,weights):
+    def objective_function(
+        self,w_b: np.ndarray,
+        w: np.ndarray,
+        bias_direction: np.ndarray,
+        repulsion_set,
+        weights: List[float]
+        ):
         w1,w2,w3 = weights
         return self.repulsion(w_b,repulsion_set)*w1 + self.attraction(w_b,w)*w2 + self.neutralization(w_b,bias_direction)*w3 #W3????**
     
-  
-   
-    def debias(self, model, word, w, w_b, bias_direction, repulsion_set, learning_rate, epochs):
-        ran = RAN( model, word,w_b, w, repulsion_set, bias_direction, self.objective_function, weights=[0.33, 0.33, 0.33])
+    def debias(
+        self, 
+        model: WordEmbeddingModel, 
+        word: str, 
+        w: np.ndarray, 
+        w_b: np.ndarray, 
+        bias_direction: np.ndarray, 
+        repulsion_set, 
+        learning_rate: float, 
+        epochs: int,
+        weights: List[float]
+        ):
+        
+        ran = RAN( model, word,w_b, w, repulsion_set, bias_direction, self.objective_function, weights)
         optimizer = torch.optim.Adam(ran.parameters(), lr=learning_rate) ##dejar el optimizador como parametro?
         for epoch in range(epochs):
             optimizer.zero_grad()
@@ -172,25 +205,18 @@ class RepulsionAttractionNeutralization(BaseDebias):
         self,
         model:WordEmbeddingModel,
         definitional_pairs: Sequence[Sequence[str]],
-        alpha: float = 60,
-        theta: float = 0.04
         )-> BaseDebias:
-        """
-        Computes the weight matrix and the gender information
+        """ 
+        Compute the bias direction.
         
         Parameters
         ----------
-    
-        model: WordEmbeddingModel
-            The word embedding model to debias. 
-            
-        gender_definition: Sequence[str]
-            List of strings. This list contains words that embody gender information by definition.
-            
-        alpha: float
-            Ridge Regression constant. By default 60,
-            numner
-
+        model : WordEmbeddingModel
+            The word embedding model to debias.
+        definitional_pairs : Sequence[Sequence[str]]
+            A sequence of string pairs that will be used to define the bias direction.
+            For example, for the case of gender debias, this list could be [['woman',
+            'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
         Returns
         -------
         BaseDebias
@@ -198,13 +224,14 @@ class RepulsionAttractionNeutralization(BaseDebias):
         """            
         
         # Check arguments types
-        #self._check_sets_size(definitional_pairs, "definitional")
+        self._check_sets_size(definitional_pairs, "definitional")
         self.definitional_pairs_ = definitional_pairs
 
         # ------------------------------------------------------------------------------
         # Obtain the embedding of each definitional pairs.
         if self.verbose:
             print("Obtaining definitional pairs.")
+            
         self.definitional_pairs_embeddings_ = get_embeddings_from_sets(
             model=model,
             sets=definitional_pairs,
@@ -222,10 +249,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         self.pca_ = self._identify_bias_subspace(
             self.definitional_pairs_embeddings_, self.verbose,
         )
-        self.bias_direction_ = self.pca_.components_[0]
-
-        #self.repulsion = self.get_all_repulsion(model, list(model.vocab.keys()), 100, self.bias_direction_, theta )
-        
+        self.bias_direction_ = self.pca_.components_[0]      
         return self
     
     
@@ -235,39 +259,57 @@ class RepulsionAttractionNeutralization(BaseDebias):
         target: Optional[List[str]],
         ignore: Optional[List[str]] = [],
         learning_rate: float = 0.01, 
-        epochs: int = 300,
         copy: bool = True,
+        epochs: int = 300,
         theta: float = 0.05,
-        n_neighbours: int = 100
+        n_neighbours: int = 100,
+        weights: List[float] = [0.33,0.33,0.33]
         )-> WordEmbeddingModel:
         
         """
-        Substracts the gender information from vectors.
+        Executes Repulsion Attraction Neutralization Debias over the provided model.
         
         Args:
-            model: WordEmbeddingModel
-                The word embedding model to debias.
-                
-            ignore (List[str], optional): _description_. Defaults to [].
-            
-            copy : bool, optional
-                If `True`, the debias will be performed on a copy of the model.
-                If `False`, the debias will be applied on the same model delivered, causing
-                its vectors to mutate.
-                **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
-                of the model, otherwise the execution of the debias may raise to
-                `MemoryError`, by default True.
+            model : WordEmbeddingModel
+            The word embedding model to debias.
+        target : Optional[List[str]], optional
+            If a set of words is specified in target, the debias method will be performed
+            only on the word embeddings of this set. If `None` is provided, the
+            debias will be performed on all words (except those specified in ignore).
+            by default `None`.
+        ignore : Optional[List[str]], optional
+            If target is `None` and a set of words is specified in ignore, the debias
+            method will perform the debias in all words except those specified in this
+            set, by default `None`.
+        copy : bool, optional
+            If `True`, the debias will be performed on a copy of the model.
+            If `False`, the debias will be applied on the same model delivered, causing
+            its vectors to mutate.
+            **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
+            of the model, otherwise the execution of the debias may raise to
+            `MemoryError`, by default True.
+        epochs : int, optional
+            number of times that the minimization is done. By default 300
+         theta: float, optional
+            Inderect bias threshold to select neighbours for the repulsion set. By default 0.05
+        n_neighbours: int, optinal
+            Number of neighbours to be consider for the repulsion set. By default 100
+        weights: 
+            List of the 3 initial weights to be used. By default [0.33,0.33,0.33]
 
         WordEmbeddingModel
             The debiased embedding model.
         """    
         # check if the following attributes exist in the object.
-       # check_is_fitted(
-       #     self,
-       #     [
-       #     "*"
-       #     ],
-       # )
+        check_is_fitted(
+            self,
+            [
+            "bias_direction_",
+            "pca_",
+            "definitional_pairs_embeddings_",
+            "definitional_pairs_"           
+            ],
+        )
         
         # ------------------------------------------------------------------------------
         # Copy
@@ -288,6 +330,10 @@ class RepulsionAttractionNeutralization(BaseDebias):
         if self.verbose:
             print(f"Executing Repulsion attraction Neutralization Debias on {model.name}")
             
+        #If none target words are provided the debias procces is executed over the entire vocabulary
+        if not target:
+            target = list(model.vocab.keys())   
+            
         debiased = {}
         for word in target:
             if word in ignore or word not in model:
@@ -295,9 +341,8 @@ class RepulsionAttractionNeutralization(BaseDebias):
             w = model[word]
             w_b = self.init_vector(model, word) 
             repulsion = self.get_repulsion_set(model, word, self.bias_direction_, theta, n_neighbours)
-            new_embedding = self.debias(model, word, w, w_b, self.bias_direction_, repulsion, learning_rate, epochs)
+            new_embedding = self.debias(model, word, w, w_b, self.bias_direction_, repulsion, learning_rate, epochs, weights)
             debiased[word] = new_embedding.detach().numpy()
-            #model.update(word,new_embedding.astype(model.wv.vectors.dtype))
 
         for word in debiased:
             model.update(word,debiased[word].astype(model.wv.vectors.dtype))

@@ -13,14 +13,38 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 class HalfSiblingRegression(BaseDebias):
     """Half Sibling Debias method.
+    
+    This method allow reducing the bias of an embedding model by learning the gender information
+    contain in the vectors by perfoming a regression.
+    This method is binary because it only allows 2 classes of the same bias criterion,
+    such as male or female.
+    For a multiclass debias (such as for Latinos, Asians and Whites), it is recommended
+    to visit MulticlassHardDebias class.
 
+    This method is based in a npise elimination method. [3] 
+    
+    The main idea of this method is:
 
+    1. Compute the weight matrix of a Ridge Regression using two sets of words
+    Gender Definition (Vd) and Non gender definition (Vn):
+    W = ((Vd)^T Vd +  αI)^-1 (Vd)^TVn
+
+    2. Compute the gender information:
+    G = Vd W
+    
+    3. Substract gender information from non gender definition words:
+    Vn' = Vn - G  
+    
     References
     ----------
     | [1]: Yang, Zekun y Juan Feng: A causal inference method for reducing gender bias in word
     | embedding relations. En Proceedings of the AAAI Conference on Artificial Intelligence,
     | volumen 34, páginas 9434–9441, 2020
     | [2]: https://github.com/KunkunYang/GenderBiasHSR
+    | [3]: Bernhard Sch ̈olkopf, David W. Hogg, Dun Wang, Daniel Foreman-Mackey, Dominik Jan-
+    | zing, Carl-Johann Simon-Gabriel, and Jonas Peters. Modeling confounding by half-sibling
+    | regression. Proceedings of the National Academy of Sciences, 113(27):7391–7398, 2016
+
     """    
     name = "Half Sibling Regression"
     short_name = "HSR"

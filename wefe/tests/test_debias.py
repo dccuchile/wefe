@@ -22,7 +22,7 @@ def model() -> WordEmbeddingModel:
     WordEmbeddingModel
         The loaded testing model.
     """
-    w2v = KeyedVectors.load("w2v_test.kv") #KeyedVectors.load("./wefe/tests/w2v_test.kv")
+    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
     return WordEmbeddingModel(w2v, "word2vec")
 
 
@@ -396,8 +396,6 @@ def test_multiclass_hard_debias_class(model):
     assert model.name == gender_debiased_w2v.name
 
 
-
-#################DPUBLE HARD DEBIAS#################################
 def test_double_hard_debias_checks(model):
     debiaswe_wordsets = fetch_debiaswe()
 
@@ -408,18 +406,18 @@ def test_double_hard_debias_checks(model):
     ):
         DoubleHardDebias(verbose=1)
 
-    with pytest.raises( ## esto no lo tengo
+    with pytest.raises( 
         ValueError,
-        match=r"The definitional pair at position 10 \(\['word1', 'word2', 'word3'\]\) has more words than allowed by Hard Debias: got 3 words, expected 2\.",
+        match=r"The definitional pair at position 10 \(\['word1', 'word2', 'word3'\]\) has more words than allowed by Double Hard Debias: got 3 words, expected 2\.",
     ):
-        HardDebias().fit(
-            model, definitional_pairs + [["word1", "word2", "word3"]],
+        DoubleHardDebias().fit(
+            model,definitional_pairs= definitional_pairs + [["word1", "word2", "word3"]],
         )
     with pytest.raises(
         ValueError,
-        match=r"The definitional pair at position 10 \(\['word1'\]\) has less words than allowed by Hard Debias: got 1 words, expected 2\.",
+        match=r"The definitional pair at position 10 \(\['word1'\]\) has less words than allowed by Double Hard Debias: got 1 words, expected 2\.",
     ):
-        HardDebias().fit(
+        DoubleHardDebias().fit(
             model, definitional_pairs + [["word1"]],
         )
 

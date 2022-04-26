@@ -148,7 +148,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
     def cosine_similarity(self, w: torch.Tensor, set_vectors: torch.Tensor) -> torch.Tensor:
         return torch.matmul(set_vectors, w) / (set_vectors.norm(dim=1) * w.norm(dim=0))
     
-    def repulsion(self, w_b: torch.Tensor, repulsion_set: torch.Tensor) -> Union[torch.Tensor,0]:
+    def repulsion(self, w_b: torch.Tensor, repulsion_set: torch.Tensor) :
         if not isinstance(repulsion_set, bool):
             cos_similarity = self.cosine_similarity(w_b, repulsion_set)
             repulsion = torch.abs(cos_similarity).mean(dim=0)
@@ -257,7 +257,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
     def transform(
         self,
         model:WordEmbeddingModel, 
-        target: Optional[List[str]],
+        target: Optional[List[str]] = None,
         ignore: Optional[List[str]] = [],
         learning_rate: float = 0.01, 
         copy: bool = True,
@@ -345,6 +345,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
             new_embedding = self.debias(model, word, w, w_b, self.bias_direction_, repulsion, learning_rate, epochs, weights)
             debiased[word] = new_embedding.detach().numpy()
 
+        if self.verbose:
+            print('Updating debiased vectors')
+            
         for word in debiased:
             model.update(word,debiased[word].astype(model.wv.vectors.dtype))
 

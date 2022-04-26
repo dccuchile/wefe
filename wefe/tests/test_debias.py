@@ -6,6 +6,7 @@ from gensim.models.keyedvectors import KeyedVectors
 from wefe.datasets import fetch_debiaswe, load_weat, fetch_debias_multiclass
 from wefe.debias.base_debias import BaseDebias
 from wefe.debias.hard_debias import HardDebias
+from wefe.debias.repulsion_attraction_neutralization import RepulsionAttractionNeutralization
 from wefe.debias.multiclass_hard_debias import MulticlassHardDebias
 from wefe.word_embedding_model import WordEmbeddingModel
 from wefe.metrics import WEAT, MAC
@@ -390,6 +391,145 @@ def test_multiclass_hard_debias_class(model):
 
     gender_debiased_w2v = mhd.transform(model, copy=False)
 
+    assert model == gender_debiased_w2v
+    assert model.wv == gender_debiased_w2v.wv
+    assert model.name == gender_debiased_w2v.name
+
+
+
+def test_ran_checks(model):
+    debiaswe_wordsets = fetch_debiaswe()
+
+    definitional_pairs = debiaswe_wordsets["definitional_pairs"]
+
+    with pytest.raises(
+        TypeError, match=r"verbose should be a bool, got .*",
+    ):
+        RepulsionAttractionNeutralization(verbose=1)
+
+    with pytest.raises(
+        ValueError,
+        match=r"The definitional pair at position 10 \(\['word1', 'word2', 'word3'\]\) has more words than allowed by Repulsion attraction Neutralization: got 3 words, expected 2\.",
+    ):
+        RepulsionAttractionNeutralization().fit(
+            model, definitional_pairs + [["word1", "word2", "word3"]],
+        )
+    with pytest.raises(
+        ValueError,
+        match=r"The definitional pair at position 10 \(\['word1'\]\) has less words than allowed by Repulsion attraction Neutralization: got 1 words, expected 2\.",
+    ):
+        RepulsionAttractionNeutralization().fit(
+            model, definitional_pairs + [["word1"]],
+        )
+
+
+def test_ran_debias_class(model, capsys):
+
+    # -----------------------------------------------------------------
+    # Queries
+    weat_wordset = load_weat()
+    weat = WEAT()
+    query_1 = Query(
+        [weat_wordset["male_names"], weat_wordset["female_names"]],
+        [weat_wordset["pleasant_5"], weat_wordset["unpleasant_5"]],
+        ["Male Names", "Female Names"],
+        ["Pleasant", "Unpleasant"],
+    )
+    query_2 = Query(
+        [weat_wordset["male_names"], weat_wordset["female_names"]],
+        [weat_wordset["career"], weat_wordset["family"]],
+        ["Male Names", "Female Names"],
+        ["Pleasant", "Unpleasant"],
+    )
+
+    debiaswe_wordsets = fetch_debiaswe()
+
+    definitional_pairs = debiaswe_wordsets["definitional_pairs"]
+    equalize_pairs = debiaswe_wordsets["equalize_pairs"]
+    gender_specific = debiaswe_wordsets["gender_specific"]
+   
+    # -----------------------------------------------------------------
+    # Gender Debias
+    ran = RepulsionAttractionNeutralization(criterion_name="gender",)
+    ran.fit(
+        model, definitional_pairs=definitional_pairs
+    )
+    gender_debiased_w2v = ran.transform(model, ignore=gender_specific, copy=True)
+    assert model.name == "word2vec"
+    assert gender_debiased_w2v.name == "word2vec_gender_debiased"
+
+    biased_results = weat.run_query(query_1, model, normalize=True)
+    debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
+    assert debiased_results["weat"] < biased_results["weat"]
+
+    biased_results = weat.run_query(query_2, model, normalize=True)
+    debiased_results = weat.run_query(query_2, gender_debiased_w2v, normalize=True)
+    assert debiased_results["weat"] < biased_results["weat"]
+ 
+    # -----------------------------------------------------------------
+    # Test target param
+    ran = RepulsionAttractionNeutralization(verbose=True, criterion_name="gender",)
+
+    attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
+
+    gender_debiased_w2v = ran.fit(
+        model, definitional_pairs=definitional_pairs
+    ).transform(model, target=attributes, copy=True)
+
+    biased_results = weat.run_query(query_1, model, normalize=True)
+    debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
+    #assert debiased_results["weat"] < biased_results["weat"] este se caeee
+
+    biased_results = weat.run_query(query_2, model, normalize=True)
+    debiased_results = weat.run_query(query_2, gender_debiased_w2v, normalize=True)
+    assert debiased_results["weat"] - biased_results["weat"] < 0.000000
+  
+    
+    # -----------------------------------------------------------------
+    # Test ignore param
+    ran = RepulsionAttractionNeutralization(verbose=True, criterion_name="gender",)
+
+    # in this test, the targets and attributes are included in the ignore list.
+    # this implies that neither of these words should be subjected to debias and
+    # therefore, both queries when executed with weat should return the same score.
+    targets = weat_wordset["male_names"] + weat_wordset["female_names"]
+    attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
+    gender_debiased_w2v = ran.fit(
+        model, definitional_pairs
+    ).transform(model, target= attributes, ignore=gender_specific + targets + attributes, copy=True)
+
+    biased_results = weat.run_query(query_1, model, normalize=True)
+    debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
+
+    assert debiased_results["weat"] - biased_results["weat"] < 0.0000001
+
+    # -----------------------------------------------------------------
+    # Test verbose
+    ran = RepulsionAttractionNeutralization(verbose=True)
+    gender_debiased_w2v = ran.fit(
+        model, definitional_pairs
+    ).transform(model, target= attributes, ignore=gender_specific, copy=True)
+
+    out = capsys.readouterr().out
+    assert "Obtaining definitional pairs." in out
+    assert "PCA variance explained:" in out
+    assert "Identifying the bias subspace" in out
+    assert f"Executing Repulsion attraction Neutralization Debias on {model.name}" in out
+    assert "Copy argument is True. Transform will attempt to create a copy" in out
+    assert 'Updating debiased vectors' in out
+    assert "Done!" in out
+
+    assert model.name == "word2vec"
+    assert gender_debiased_w2v.name == "word2vec_debiased"
+  
+    # -----------------------------------------------------------------
+    # Test inplace (copy = False)
+    ran = RepulsionAttractionNeutralization(criterion_name="gender",)
+    ran.fit(
+        model, definitional_pairs=definitional_pairs,
+    )
+
+    gender_debiased_w2v = ran.transform(model, target= attributes, ignore=gender_specific, copy=False)
     assert model == gender_debiased_w2v
     assert model.wv == gender_debiased_w2v.wv
     assert model.name == gender_debiased_w2v.name

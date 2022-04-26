@@ -9,6 +9,7 @@ from sklearn.cluster import KMeans
 from wefe.preprocessing import get_embeddings_from_sets
 import numpy as np
 from scipy.spatial import distance
+from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import WordEmbeddingModel
 
 class DoubleHardDebias(BaseDebias):
@@ -320,6 +321,21 @@ class DoubleHardDebias(BaseDebias):
         WordEmbeddingModel
             The debiased embedding model.
         """
+        
+        # check if the following attributes exist in the object.
+        check_is_fitted(
+            self,
+            [
+                "definitional_pairs",
+                "definitional_pairs_embeddings",
+                "bias_direction_",
+                "self.bias_direction",
+                "self.embeddings_mean",
+                "pca"
+                
+            ],
+        )
+        
         if self.verbose:
             print(f"Executing Double Hard Debias on {model.name}")
             

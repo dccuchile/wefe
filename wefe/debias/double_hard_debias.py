@@ -79,6 +79,20 @@ class DoubleHardDebias(BaseDebias):
         else:
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
+    def _check_sets_size(
+        self, sets: Sequence[Sequence[str]], set_name: str,
+    ):
+
+        for idx, set_ in enumerate(sets):
+            if len(set_) != 2:
+                adverb = "less" if len(set_) < 2 else "more"
+
+                raise ValueError(
+                    f"The {set_name} pair at position {idx} ({set_}) has {adverb} "
+                    f"words than allowed by {self.name}: "
+                    f"got {len(set_)} words, expected 2."
+                )
+                
         
     def similarity(self, u:np.ndarray, v:np.ndarray)->float:
         return 1-distance.cosine(u,v)
@@ -245,6 +259,8 @@ class DoubleHardDebias(BaseDebias):
         
         self.definitional_pairs = definitional_pairs
         
+        self._check_sets_size(self.definitional_pairs, "definitional")
+        
         # ------------------------------------------------------------------------------
         # Obtain the embedding of each definitional pairs.
         if self.verbose:
@@ -323,7 +339,9 @@ class DoubleHardDebias(BaseDebias):
         """
         
         # check if the following attributes exist in the object.
-        
+        self._check_transform_args(
+            model=model, ignore=ignore, copy=copy,
+        )
         check_is_fitted(
             self,
             [

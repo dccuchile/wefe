@@ -89,10 +89,10 @@ class DoubleHardDebias(BaseDebias):
                     f"got {len(set_)} words, expected 2."
                 )
 
-    def similarity(self, u: np.ndarray, v: np.ndarray) -> float:
+    def _similarity(self, u: np.ndarray, v: np.ndarray) -> float:
         return 1 - distance.cosine(u, v)
 
-    def bias_by_projection(
+    def _bias_by_projection(
         self,
         model: WordEmbeddingModel,
         exclude: List[str],
@@ -123,7 +123,7 @@ class DoubleHardDebias(BaseDebias):
         male_words = [pair[0] for pair in sorted_words[-n_words:]]
         return female_words, male_words
 
-    def principal_components(
+    def _principal_components(
         self, model: WordEmbeddingModel, incremental_pca: bool
     ) -> np.ndarray:
         if incremental_pca:
@@ -133,10 +133,10 @@ class DoubleHardDebias(BaseDebias):
         pca.fit(model.wv.vectors - self.embeddings_mean)
         return pca.components_
 
-    def calculate_embeddings_mean(self, model: WordEmbeddingModel) -> float:
+    def _calculate_embeddings_mean(self, model: WordEmbeddingModel) -> float:
         return np.mean(model.wv.vectors)
 
-    def drop_frecuency_features(
+    def _drop_frecuency_features(
         self, components: int, model: WordEmbeddingModel
     ) -> Dict[str, np.ndarray]:
 
@@ -182,10 +182,10 @@ class DoubleHardDebias(BaseDebias):
 
         return pca
 
-    def drop(self, u: np.ndarray, v: np.ndarray) -> np.ndarray:
+    def _drop(self, u: np.ndarray, v: np.ndarray) -> np.ndarray:
         return u - v * u.dot(v) / v.dot(v)
 
-    def debias(self, words_dict: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
+    def _debias(self, words_dict: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
 
         for word in words_dict:
             embedding = words_dict[word]
@@ -193,7 +193,7 @@ class DoubleHardDebias(BaseDebias):
             words_dict.update({word: debias_embedding})
         return words_dict
 
-    def get_optimal_dimension(
+    def _get_optimal_dimension(
         self, model: WordEmbeddingModel, n_words: int, n_components: int
     ) -> int:
         n_components = n_components
@@ -207,7 +207,7 @@ class DoubleHardDebias(BaseDebias):
 
         return scores.index(min_alignment)
 
-    def kmeans_eval(
+    def _kmeans_eval(
         self,
         embeddings_dict: Dict[str, np.ndarray],
         y_true: List[int],

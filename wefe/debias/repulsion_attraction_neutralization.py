@@ -1,14 +1,8 @@
-from codecs import ignore_errors
-from ctypes import Union
-import operator
+
 from copy import deepcopy
-from tabnanny import verbose
-from tokenize import String
 from typing import Dict, Any, Optional, List, Sequence
-from wefe import debias
 from wefe.debias.base_debias import BaseDebias
-from sklearn.decomposition import PCA, IncrementalPCA
-from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
 from wefe.preprocessing import EmbeddingDict, get_embeddings_from_sets
 import numpy as np
 from wefe.utils import check_is_fitted
@@ -34,42 +28,42 @@ class RepulsionAttractionNeutralization(BaseDebias):
     1. **Identify a bias subspace through the defining sets.** In the case of gender,
     these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
 
-    2. A multiobjective optimization is performed. For each vector w in the target set 
+    2. A multiobjective optimization is performed. For each vector w in the target set
     it is found its debias counterpart wd by solving:
-    
+
     argmin(Fr(wd),Fa(wd),Fn(wd))
 
     where Fr, Fa, Fn are repulsion, attraction and neutralization functions defined as the following:
-    
+
     Fr(wd) =  Σ |cos(wd,ni)| / |S|
     Repulsion repels w from the repulsion (S) set defined as the n words closer to w whose indirect bias is grater thar a threshold.
-    
+
     Fa(wd) = |cos(wd,w)-1|/2
     Attraction atracts wd to the original vector w to minimize the loss of semantic
-    
+
     Fn(wd) = |cos(wd,g)|
-    Neutralization minimize the bias to a particular gender. With g being de bias direction. 
-   
+    Neutralization minimize the bias to a particular gender. With g being de bias direction.
+
     The optimization is performed by formulating a single objective:
-    F(wd) =  λ1Fr(wd) + λ2Fa(wd) + λ3Fn(wd) 
-    
+    F(wd) =  λ1Fr(wd) + λ2Fa(wd) + λ3Fn(wd)
+
     References
     ----------
     | [1]: Kumar, Vaibhav, Tenzin Singhay Bhotia y Tanmoy Chakraborty: Nurse is Closer to Wo-
         man than Surgeon? Mitigating Gender-Biased Proximities in Word Embeddings. CoRR,
         abs/2006.01938, 2020. https://arxiv.org/abs/2006.01938
     | [2]: https://github.com/TimeTraveller-San/RAN-Debias
-    """    
+    """
+
     name = "Repulsion attraction Neutralization"
     short_name = "RAN"
-    
-    
+
     def __init__(
         self,
         pca_args: Dict[str, Any] = {"n_components": 10},
         verbose: bool = False,
         criterion_name: Optional[str] = None,
-        ) -> None:
+    ) -> None:
         """Initialize a Repulsion Attraction Neutralization Debias instance.
 
         Parameters
@@ -90,14 +84,16 @@ class RepulsionAttractionNeutralization(BaseDebias):
             raise TypeError(f"verbose should be a bool, got {verbose}.")
         self.pca_args = pca_args
         self.verbose = verbose
-        
+
         if criterion_name is None or isinstance(criterion_name, str):
             self.criterion_name_ = criterion_name
         else:
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
     def _identify_bias_subspace(
-        self, definning_pairs_embeddings: List[EmbeddingDict], verbose: bool = False,
+        self,
+        definning_pairs_embeddings: List[EmbeddingDict],
+        verbose: bool = False,
     ) -> PCA:
 
         matrix = []
@@ -120,9 +116,11 @@ class RepulsionAttractionNeutralization(BaseDebias):
             print(f"PCA variance explained: {explained_variance[0:pca.n_components_]}")
 
         return pca
-    
+
     def _check_sets_size(
-        self, sets: Sequence[Sequence[str]], set_name: str,
+        self,
+        sets: Sequence[Sequence[str]],
+        set_name: str,
     ):
 
         for idx, set_ in enumerate(sets):
@@ -134,113 +132,143 @@ class RepulsionAttractionNeutralization(BaseDebias):
                     f"words than allowed by {self.name}: "
                     f"got {len(set_)} words, expected 2."
                 )
-                
-    def indirect_bias(self, w: np.ndarray, v: np.ndarray, bias_direction: np.ndarray) -> float:      
-        wv = np.dot(w,v) ##NORMALIZAR LOS VECTORS???
-        w_orth = w - np.dot(w,bias_direction)*bias_direction
-        v_orth = v - np.dot(v,bias_direction)*bias_direction
-        cos_wv_orth = np.dot(w_orth,v_orth) / (np.linalg.norm(w_orth) * np.linalg.norm(v_orth))
+
+    def indirect_bias(
+        self, w: np.ndarray, v: np.ndarray, bias_direction: np.ndarray
+    ) -> float:
+        wv = np.dot(w, v)  ##NORMALIZAR LOS VECTORS???
+        w_orth = w - np.dot(w, bias_direction) * bias_direction
+        v_orth = v - np.dot(v, bias_direction) * bias_direction
+        cos_wv_orth = np.dot(w_orth, v_orth) / (
+            np.linalg.norm(w_orth) * np.linalg.norm(v_orth)
+        )
         bias = (wv - cos_wv_orth) / wv
-        return bias 
-    
-    def get_neighbours(self, model: WordEmbeddingModel, word: str, n_neighbours: int) -> List[str]:   
-        similar_words = model.wv.most_similar(positive=word,topn=n_neighbours)
+        return bias
+
+    def get_neighbours(
+        self, model: WordEmbeddingModel, word: str, n_neighbours: int
+    ) -> List[str]:
+        similar_words = model.wv.most_similar(positive=word, topn=n_neighbours)
         similar_words = list(list(zip(*similar_words))[0])
         return similar_words
-    
+
     def get_repulsion_set(
-        self, 
+        self,
         model: WordEmbeddingModel,
-        word: str, 
+        word: str,
         bias_direction: np.ndarray,
         theta: float,
-        n_neighbours: int
-        ) -> List[np.ndarray]:   
+        n_neighbours: int,
+    ) -> List[np.ndarray]:
         neighbours = self.get_neighbours(model, word, n_neighbours)
         repulsion_set = []
         for neighbour in neighbours:
-            if self.indirect_bias(model[neighbour], model[word], bias_direction) > theta:
+            if (
+                self.indirect_bias(model[neighbour], model[word], bias_direction)
+                > theta
+            ):
                 repulsion_set.append(model[neighbour])
         return repulsion_set
-    
+
     '''
     def get_all_repulsion(self, model, target_words, n_neighbours, bias_direction, theta):
         """
         gets repulsions sets and non repulsion sets for all target words
-        """        
+        """
         all_repulsion = {}
         for word in target_words:
             neighbours = self.get_neighbours(model, word, n_neighbours)
             repulsion = self.get_repulsion_set(model, word, neighbours, bias_direction, theta)
-            all_repulsion[word] = repulsion 
+            all_repulsion[word] = repulsion
         return all_repulsion
         '''
-            
-    def cosine_similarity(self, w: torch.Tensor, set_vectors: torch.Tensor) -> torch.Tensor:
+
+    def cosine_similarity(
+        self, w: torch.Tensor, set_vectors: torch.Tensor
+    ) -> torch.Tensor:
         return torch.matmul(set_vectors, w) / (set_vectors.norm(dim=1) * w.norm(dim=0))
-    
-    def repulsion(self, w_b: torch.Tensor, repulsion_set: torch.Tensor) :
+
+    def repulsion(self, w_b: torch.Tensor, repulsion_set: torch.Tensor):
         if not isinstance(repulsion_set, bool):
             cos_similarity = self.cosine_similarity(w_b, repulsion_set)
             repulsion = torch.abs(cos_similarity).mean(dim=0)
         else:
             repulsion = 0
         return repulsion
-    
-    def attraction(self,w_b: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
-        attraction = torch.abs(torch.cosine_similarity(w_b[None,:],w[None,:]) - 1)[0]/2 
+
+    def attraction(self, w_b: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
+        attraction = (
+            torch.abs(torch.cosine_similarity(w_b[None, :], w[None, :]) - 1)[0] / 2
+        )
         return attraction
-    
-    def neutralization(self,w_b: torch.Tensor, bias_direction: torch.Tensor) -> torch.Tensor:
+
+    def neutralization(
+        self, w_b: torch.Tensor, bias_direction: torch.Tensor
+    ) -> torch.Tensor:
         neutralization = torch.abs(w_b.dot(bias_direction)).mean(dim=0)
-        return neutralization 
-    
-    
+        return neutralization
+
     def objective_function(
-        self,w_b: np.ndarray,
+        self,
+        w_b: np.ndarray,
         w: np.ndarray,
         bias_direction: np.ndarray,
         repulsion_set: torch.Tensor,
-        weights: List[float]
-        ) -> torch.Tensor:
-        w1,w2,w3 = weights
-        return self.repulsion(w_b,repulsion_set)*w1 + self.attraction(w_b,w)*w2 + self.neutralization(w_b,bias_direction)*w3 #W3????**
-    
+        weights: List[float],
+    ) -> torch.Tensor:
+        w1, w2, w3 = weights
+        return (
+            self.repulsion(w_b, repulsion_set) * w1
+            + self.attraction(w_b, w) * w2
+            + self.neutralization(w_b, bias_direction) * w3
+        )  # W3????**
+
     def debias(
-        self, 
-        model: WordEmbeddingModel, 
-        word: str, 
-        w: np.ndarray, 
-        w_b: np.ndarray, 
-        bias_direction: np.ndarray, 
-        repulsion_set, 
-        learning_rate: float, 
+        self,
+        model: WordEmbeddingModel,
+        word: str,
+        w: np.ndarray,
+        w_b: np.ndarray,
+        bias_direction: np.ndarray,
+        repulsion_set,
+        learning_rate: float,
         epochs: int,
-        weights: List[float]
-        ) -> torch.Tensor:
-        
-        ran = RAN(model, word,w_b, w, repulsion_set, bias_direction, self.objective_function, weights)
-        optimizer = torch.optim.Adam(ran.parameters(), lr=learning_rate) ##dejar el optimizador como parametro?
+        weights: List[float],
+    ) -> torch.Tensor:
+
+        ran = RAN(
+            model,
+            word,
+            w_b,
+            w,
+            repulsion_set,
+            bias_direction,
+            self.objective_function,
+            weights,
+        )
+        optimizer = torch.optim.Adam(
+            ran.parameters(), lr=learning_rate
+        )  ## dejar el optimizador como parametro?
         for epoch in range(epochs):
             optimizer.zero_grad()
             out = ran.forward()
             out.backward()
             optimizer.step()
         debiased_vector = ran.w_b
-        return debiased_vector #normalizar????
-    
-    def init_vector(self,model: WordEmbeddingModel, word:str) -> torch.Tensor:
-        v = deepcopy(model[word]) 
+        return debiased_vector  # normalizar????
+
+    def init_vector(self, model: WordEmbeddingModel, word: str) -> torch.Tensor:
+        v = deepcopy(model[word])
         return torch.FloatTensor(np.array(v))
-    
+
     def fit(
         self,
-        model:WordEmbeddingModel,
+        model: WordEmbeddingModel,
         definitional_pairs: Sequence[Sequence[str]],
-        )-> BaseDebias:
-        """ 
+    ) -> BaseDebias:
+        """
         Compute the bias direction.
-        
+
         Parameters
         ----------
         model : WordEmbeddingModel
@@ -253,8 +281,8 @@ class RepulsionAttractionNeutralization(BaseDebias):
         -------
         BaseDebias
             The debias method fitted.
-        """            
-        
+        """
+
         # Check arguments types
         self._check_sets_size(definitional_pairs, "definitional")
         self.definitional_pairs_ = definitional_pairs
@@ -263,7 +291,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         # Obtain the embedding of each definitional pairs.
         if self.verbose:
             print("Obtaining definitional pairs.")
-            
+
         self.definitional_pairs_embeddings_ = get_embeddings_from_sets(
             model=model,
             sets=definitional_pairs,
@@ -279,28 +307,28 @@ class RepulsionAttractionNeutralization(BaseDebias):
             print("Identifying the bias subspace.")
 
         self.pca_ = self._identify_bias_subspace(
-            self.definitional_pairs_embeddings_, self.verbose,
+            self.definitional_pairs_embeddings_,
+            self.verbose,
         )
-        self.bias_direction_ = self.pca_.components_[0]      
+        self.bias_direction_ = self.pca_.components_[0]
         return self
-    
-    
+
     def transform(
         self,
-        model:WordEmbeddingModel, 
+        model: WordEmbeddingModel,
         target: Optional[List[str]] = None,
         ignore: Optional[List[str]] = [],
-        learning_rate: float = 0.01, 
+        learning_rate: float = 0.01,
         copy: bool = True,
         epochs: int = 300,
         theta: float = 0.05,
         n_neighbours: int = 100,
-        weights: List[float] = [0.33,0.33,0.33]
-        )-> WordEmbeddingModel:
-        
+        weights: List[float] = [0.33, 0.33, 0.33],
+    ) -> WordEmbeddingModel:
+
         """
         Executes Repulsion Attraction Neutralization Debias over the provided model.
-        
+
         Args:
             model : WordEmbeddingModel
             The word embedding model to debias.
@@ -326,23 +354,23 @@ class RepulsionAttractionNeutralization(BaseDebias):
             Inderect bias threshold to select neighbours for the repulsion set. By default 0.05
         n_neighbours: int, optinal
             Number of neighbours to be consider for the repulsion set. By default 100
-        weights: 
+        weights:
             List of the 3 initial weights to be used. By default [0.33,0.33,0.33]
 
         WordEmbeddingModel
             The debiased embedding model.
-        """    
+        """
         # check if the following attributes exist in the object.
         check_is_fitted(
             self,
             [
-            "bias_direction_",
-            "pca_",
-            "definitional_pairs_embeddings_",
-            "definitional_pairs_"           
+                "bias_direction_",
+                "pca_",
+                "definitional_pairs_embeddings_",
+                "definitional_pairs_",
             ],
         )
-        
+
         # ------------------------------------------------------------------------------
         # Copy
         if copy:
@@ -358,29 +386,43 @@ class RepulsionAttractionNeutralization(BaseDebias):
                 "copy argument is False. The execution of this method will mutate "
                 "the original model."
             )
-        
+
         if self.verbose:
-            print(f"Executing Repulsion attraction Neutralization Debias on {model.name}")
-            
-        #If none target words are provided the debias procces is executed over the entire vocabulary
+            print(
+                f"Executing Repulsion attraction Neutralization Debias on {model.name}"
+            )
+
+        # If none target words are provided the debias procces is executed over the entire vocabulary
         if not target:
-            target = list(model.vocab.keys())   
-            
+            target = list(model.vocab.keys())
+
         debiased = {}
         for word in target:
             if word in ignore or word not in model:
                 continue
             w = model[word]
-            w_b = self.init_vector(model, word) 
-            repulsion = self.get_repulsion_set(model, word, self.bias_direction_, theta, n_neighbours)
-            new_embedding = self.debias(model, word, w, w_b, self.bias_direction_, repulsion, learning_rate, epochs, weights)
+            w_b = self.init_vector(model, word)
+            repulsion = self.get_repulsion_set(
+                model, word, self.bias_direction_, theta, n_neighbours
+            )
+            new_embedding = self.debias(
+                model,
+                word,
+                w,
+                w_b,
+                self.bias_direction_,
+                repulsion,
+                learning_rate,
+                epochs,
+                weights,
+            )
             debiased[word] = new_embedding.detach().numpy()
 
         if self.verbose:
-            print('Updating debiased vectors')
-            
+            print("Updating debiased vectors")
+
         for word in debiased:
-            model.update(word,debiased[word].astype(model.wv.vectors.dtype))
+            model.update(word, debiased[word].astype(model.wv.vectors.dtype))
 
         # ------------------------------------------------------------------------------
         # # Generate the new KeyedVectors
@@ -392,30 +434,43 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
         if self.verbose:
             print("Done!")
-            
+
         return model
-    
+
+
 class RAN(nn.Module):
-    def __init__(self, model, word,w_b, w, repulsion_set, bias_direction, objective_function, weights=[0.33, 0.33, 0.33]):
+    def __init__(
+        self,
+        model,
+        word,
+        w_b,
+        w,
+        repulsion_set,
+        bias_direction,
+        objective_function,
+        weights=[0.33, 0.33, 0.33],
+    ):
         super(RAN, self).__init__()
 
         self.model = model
         self.word = word
-        self.w =  torch.FloatTensor(np.array(w)).requires_grad_(True)    
+        self.w = torch.FloatTensor(np.array(w)).requires_grad_(True)
         if len(repulsion_set) == 0:
-            self.repulsion_set = False 
+            self.repulsion_set = False
         else:
-            self.repulsion_set = torch.FloatTensor(np.array(repulsion_set)).requires_grad_(True)
-                
-        self.w_b= nn.Parameter(w_b)
-            
+            self.repulsion_set = torch.FloatTensor(
+                np.array(repulsion_set)
+            ).requires_grad_(True)
+
+        self.w_b = nn.Parameter(w_b)
+
         self.bias_direction = torch.FloatTensor(np.array(bias_direction))
-            
+
         self.weights = weights
-            
+
         self.objective_function = objective_function
 
-    def forward(self): 
-        return  self.objective_function(self.w_b, self.w, self.bias_direction, self.repulsion_set, self.weights) #tiene que ir el repulsion set aca
-        
-      
+    def forward(self):
+        return self.objective_function(
+            self.w_b, self.w, self.bias_direction, self.repulsion_set, self.weights
+        )  # tiene que ir el repulsion set aca

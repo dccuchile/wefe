@@ -143,17 +143,17 @@ class HalfSiblingRegression(BaseDebias):
         self.non_gender = list(set(model.vocab.keys()) - set(self.gender_definition))
         self.alpha = alpha
 
-        gender_definition_vectors = self.get_gender_vectors(
+        gender_definition_vectors = self._get_gender_vectors(
             model, self.gender_definition
         ).T
 
-        self.non_gender_dict = self.get_non_gender_dict(model, self.non_gender)
+        self.non_gender_dict = self._get_non_gender_dict(model, self.non_gender)
 
         # ------------------------------------------------------------------------------
         # Compute the weight matrix .
         if self.verbose:
             print("Computing the weight matrix.")
-        weigth_matrix = self.compute_weigth_matrix(
+        weigth_matrix = self._compute_weigth_matrix(
             gender_definition_vectors,
             np.asarray(list(self.non_gender_dict.values())).T,
             alpha=self.alpha,
@@ -163,7 +163,7 @@ class HalfSiblingRegression(BaseDebias):
         # Compute the approximated gender information
         if self.verbose:
             print("Computing gender information")
-        self.gender_information = self.compute_gender_information(
+        self.gender_information = self._compute_gender_information(
             gender_definition_vectors, weigth_matrix
         )
 
@@ -232,7 +232,7 @@ class HalfSiblingRegression(BaseDebias):
         if self.verbose:
             print("Substracting gender information.")
 
-        debiased_vectors = self.substract_gender_information(
+        debiased_vectors = self._substract_gender_information(
             np.asarray(list(self.non_gender_dict.values())).T, self.gender_information
         )  # o restarle a los target
         debiased_vectors = debiased_vectors.T

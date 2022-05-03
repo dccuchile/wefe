@@ -23,10 +23,13 @@ class DoubleHardDebias(BaseDebias):
     The main idea of this method is:
     1. **Identify a bias subspace through the defining sets.** In the case of gender,
     these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
+    
     2. Find the dominant directions of the entire set of vectors by doing a Principal components
     analysis over it.
+    
     3. Try removing each component resulting of PCA and remove also the bias direction to every vector
     in the target set and find wich component reduces bias the most.
+    
     4. Remove the dominant direction that most reduces bias and remove also de bias direction of the
     vectores in the target set.
     References
@@ -105,7 +108,7 @@ class DoubleHardDebias(BaseDebias):
             if word in exclude:
                 continue
             embedding = model[word]
-            similarities[word] = self.similarity(embedding, word1) - self.similarity(
+            similarities[word] = self._similarity(embedding, word1) - self._similarity(
                 embedding, word2
             )
         return similarities
@@ -117,7 +120,7 @@ class DoubleHardDebias(BaseDebias):
         n_words: int,
         bias_representation: Sequence[str],
     ):
-        similarities = self.bias_by_projection(model, exclude, bias_representation)
+        similarities = self._bias_by_projection(model, exclude, bias_representation)
         sorted_words = sorted(similarities.items(), key=operator.itemgetter(1))
         female_words = [pair[0] for pair in sorted_words[:n_words]]
         male_words = [pair[0] for pair in sorted_words[-n_words:]]
@@ -189,7 +192,7 @@ class DoubleHardDebias(BaseDebias):
 
         for word in words_dict:
             embedding = words_dict[word]
-            debias_embedding = self.drop(embedding, self.bias_direction)
+            debias_embedding = self._drop(embedding, self.bias_direction)
             words_dict.update({word: debias_embedding})
         return words_dict
 
@@ -199,10 +202,10 @@ class DoubleHardDebias(BaseDebias):
         n_components = n_components
         scores = []
         for d in range(n_components):
-            result_embeddings = self.drop_frecuency_features(d, model)
-            result_embeddings = self.debias(result_embeddings)
+            result_embeddings = self._drop_frecuency_features(d, model)
+            result_embeddings = self._debias(result_embeddings)
             y_true = [0] * n_words + [1] * n_words
-            scores.append(self.kmeans_eval(result_embeddings, y_true, n_words))
+            scores.append(self._kmeans_eval(result_embeddings, y_true, n_words))
         min_alignment = min(scores)
 
         return scores.index(min_alignment)
@@ -282,13 +285,13 @@ class DoubleHardDebias(BaseDebias):
 
         # ------------------------------------------------------------------------------:
         # Identify the bias subspace using the definning pairs.
-        self.embeddings_mean = self.calculate_embeddings_mean(model)
+        self.embeddings_mean = self._calculate_embeddings_mean(model)
 
         # ------------------------------------------------------------------------------:
         # Obtain the principal components of all vector in the model.
         if self.verbose:
             print("Obtaining principal components")
-        self.pca = self.principal_components(model, incremental_pca)
+        self.pca = self._principal_components(model, incremental_pca)
 
         return self
 
@@ -382,14 +385,14 @@ class DoubleHardDebias(BaseDebias):
         # Searching best component of pca to debias
         if self.verbose:
             print("Searching component to debias")
-        optimal_dimensions = self.get_optimal_dimension(model, n_words, n_components)
+        optimal_dimensions = self._get_optimal_dimension(model, n_words, n_components)
 
         # ------------------------------------------------------------------------------
         # Execute debias
         if self.verbose:
             print("Executing debias")
-        debiased_embeddings = self.drop_frecuency_features(optimal_dimensions, model)
-        debiased_embeddings = self.debias(debiased_embeddings)
+        debiased_embeddings = self._drop_frecuency_features(optimal_dimensions, model)
+        debiased_embeddings = self._debias(debiased_embeddings)
 
         # ------------------------------------------------------------------------------
         # Update vectors

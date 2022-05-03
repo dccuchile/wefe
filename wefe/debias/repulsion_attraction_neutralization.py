@@ -1,4 +1,3 @@
-
 from copy import deepcopy
 from typing import Dict, Any, Optional, List, Sequence
 from wefe.debias.base_debias import BaseDebias
@@ -133,7 +132,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
                     f"got {len(set_)} words, expected 2."
                 )
 
-    def indirect_bias(
+    def _indirect_bias(
         self, w: np.ndarray, v: np.ndarray, bias_direction: np.ndarray
     ) -> float:
         wv = np.dot(w, v)  ##NORMALIZAR LOS VECTORS???
@@ -145,14 +144,14 @@ class RepulsionAttractionNeutralization(BaseDebias):
         bias = (wv - cos_wv_orth) / wv
         return bias
 
-    def get_neighbours(
+    def _get_neighbours(
         self, model: WordEmbeddingModel, word: str, n_neighbours: int
     ) -> List[str]:
         similar_words = model.wv.most_similar(positive=word, topn=n_neighbours)
         similar_words = list(list(zip(*similar_words))[0])
         return similar_words
 
-    def get_repulsion_set(
+    def _get_repulsion_set(
         self,
         model: WordEmbeddingModel,
         word: str,
@@ -160,11 +159,11 @@ class RepulsionAttractionNeutralization(BaseDebias):
         theta: float,
         n_neighbours: int,
     ) -> List[np.ndarray]:
-        neighbours = self.get_neighbours(model, word, n_neighbours)
+        neighbours = self._get_neighbours(model, word, n_neighbours)
         repulsion_set = []
         for neighbour in neighbours:
             if (
-                self.indirect_bias(model[neighbour], model[word], bias_direction)
+                self._indirect_bias(model[neighbour], model[word], bias_direction)
                 > theta
             ):
                 repulsion_set.append(model[neighbour])
@@ -177,38 +176,38 @@ class RepulsionAttractionNeutralization(BaseDebias):
         """
         all_repulsion = {}
         for word in target_words:
-            neighbours = self.get_neighbours(model, word, n_neighbours)
-            repulsion = self.get_repulsion_set(model, word, neighbours, bias_direction, theta)
+            neighbours = self._get_neighbours(model, word, n_neighbours)
+            repulsion = self._get_repulsion_set(model, word, neighbours, bias_direction, theta)
             all_repulsion[word] = repulsion
         return all_repulsion
         '''
 
-    def cosine_similarity(
+    def _cosine_similarity(
         self, w: torch.Tensor, set_vectors: torch.Tensor
     ) -> torch.Tensor:
         return torch.matmul(set_vectors, w) / (set_vectors.norm(dim=1) * w.norm(dim=0))
 
-    def repulsion(self, w_b: torch.Tensor, repulsion_set: torch.Tensor):
+    def _repulsion(self, w_b: torch.Tensor, repulsion_set: torch.Tensor):
         if not isinstance(repulsion_set, bool):
-            cos_similarity = self.cosine_similarity(w_b, repulsion_set)
+            cos_similarity = self._cosine_similarity(w_b, repulsion_set)
             repulsion = torch.abs(cos_similarity).mean(dim=0)
         else:
             repulsion = 0
         return repulsion
 
-    def attraction(self, w_b: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
+    def _attraction(self, w_b: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
         attraction = (
             torch.abs(torch.cosine_similarity(w_b[None, :], w[None, :]) - 1)[0] / 2
         )
         return attraction
 
-    def neutralization(
+    def _neutralization(
         self, w_b: torch.Tensor, bias_direction: torch.Tensor
     ) -> torch.Tensor:
         neutralization = torch.abs(w_b.dot(bias_direction)).mean(dim=0)
         return neutralization
 
-    def objective_function(
+    def _objective_function(
         self,
         w_b: np.ndarray,
         w: np.ndarray,
@@ -218,12 +217,12 @@ class RepulsionAttractionNeutralization(BaseDebias):
     ) -> torch.Tensor:
         w1, w2, w3 = weights
         return (
-            self.repulsion(w_b, repulsion_set) * w1
-            + self.attraction(w_b, w) * w2
-            + self.neutralization(w_b, bias_direction) * w3
+            self._repulsion(w_b, repulsion_set) * w1
+            + self._attraction(w_b, w) * w2
+            + self._neutralization(w_b, bias_direction) * w3
         )  # W3????**
 
-    def debias(
+    def _debias(
         self,
         model: WordEmbeddingModel,
         word: str,
@@ -243,7 +242,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             w,
             repulsion_set,
             bias_direction,
-            self.objective_function,
+            self._objective_function,
             weights,
         )
         optimizer = torch.optim.Adam(
@@ -257,7 +256,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         debiased_vector = ran.w_b
         return debiased_vector  # normalizar????
 
-    def init_vector(self, model: WordEmbeddingModel, word: str) -> torch.Tensor:
+    def _init_vector(self, model: WordEmbeddingModel, word: str) -> torch.Tensor:
         v = deepcopy(model[word])
         return torch.FloatTensor(np.array(v))
 
@@ -401,11 +400,11 @@ class RepulsionAttractionNeutralization(BaseDebias):
             if word in ignore or word not in model:
                 continue
             w = model[word]
-            w_b = self.init_vector(model, word)
-            repulsion = self.get_repulsion_set(
+            w_b = self._init_vector(model, word)
+            repulsion = self._get_repulsion_set(
                 model, word, self.bias_direction_, theta, n_neighbours
             )
-            new_embedding = self.debias(
+            new_embedding = self._debias(
                 model,
                 word,
                 w,
@@ -473,4 +472,4 @@ class RAN(nn.Module):
     def forward(self):
         return self.objective_function(
             self.w_b, self.w, self.bias_direction, self.repulsion_set, self.weights
-        )  # tiene que ir el repulsion set aca
+        )

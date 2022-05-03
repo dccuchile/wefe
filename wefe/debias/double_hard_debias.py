@@ -23,15 +23,40 @@ class DoubleHardDebias(BaseDebias):
     The main idea of this method is:
     1. **Identify a bias subspace through the defining sets.** In the case of gender,
     these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
-    
+
     2. Find the dominant directions of the entire set of vectors by doing a Principal components
     analysis over it.
-    
+
     3. Try removing each component resulting of PCA and remove also the bias direction to every vector
     in the target set and find wich component reduces bias the most.
-    
+
     4. Remove the dominant direction that most reduces bias and remove also de bias direction of the
     vectores in the target set.
+
+    Examples
+        --------
+        The following example shows how to execute Double Hard Debias method that reduces bias in a word embedding model:
+
+        >>> from wefe.debias.double_hard_debias import DoubleHardDebias
+        >>> from wefe.utils import load_test_model
+        >>> from wefe.datasets import fetch_debiaswe
+        >>>
+        >>> # load the model (in this case, the test model included in wefe)
+        >>> model = load_test_model()
+        >>> # load definitional pairs, in this case definitinal pairs included in wefe
+        >>> debiaswe_wordsets = fetch_debiaswe()
+        >>> definitional_pairs = debiaswe_wordsets["definitional_pairs"]
+        >>
+        >>> # instance and fit the method
+        >>> dhd = DoubleHardDebias().fit(model = model, definitional_pairs= definitional_pairs)
+        >>> # execute the debias passing words that represent the bias groups
+        >>> debiased_model = dhd.transform(model = model, bias_representation = ['he','she'] )
+        >>>
+        >>>
+        >>> # if you don't want a set of words to be debiased include them in the ignore set
+        >>> gender_specific = debiaswe_wordsets["gender_specific"]
+        >>> debiased_model = dhd.transform(model = model, bias_representation = ['he','she], ignore= gender_specific)
+
     References
     ----------
     | [1]: Wang, Tianlu, Xi Victoria Lin, Nazneen Fatema Rajani, Bryan McCann, Vicente Or-donez y Caiming Xiong:

@@ -46,6 +46,31 @@ class RepulsionAttractionNeutralization(BaseDebias):
     The optimization is performed by formulating a single objective:
     F(wd) =  λ1Fr(wd) + λ2Fa(wd) + λ3Fn(wd)
 
+
+        Examples
+        --------
+        The following example shows how to execute Double Hard Debias method that reduces bias in a word embedding model:
+
+        >>> from wefe.debias.repulsion_attraction_neutralization import RepulsionAttractionNeutralization
+        >>> from wefe.utils import load_test_model
+        >>> from wefe.datasets import fetch_debiaswe
+        >>>
+        >>> # load the model (in this case, the test model included in wefe)
+        >>> model = load_test_model()
+        >>> # load definitional pairs, in this case definitinal pairs included in wefe
+        >>> debiaswe_wordsets = fetch_debiaswe()
+        >>> definitional_pairs = debiaswe_wordsets["definitional_pairs"]
+        >>
+        >>> # instance and fit the method
+        >>> ran = RepulsionAttractionNeutralization().fit(model = model, definitional_pairs= definitional_pairs)
+        >>> # execute the debias passing words over a set of target words
+        >>> debiased_model = ran.transform(model = model, target = ['doctor','nurse','programmer'])
+        >>>
+        >>>
+        >>> # if you don't want a set of words to be debiased include them in the ignore set
+        >>> gender_specific = debiaswe_wordsets["gender_specific"]
+        >>> debiased_model = ran.transform(model = model, ignore= gender_specific)
+
     References
     ----------
     | [1]: Kumar, Vaibhav, Tenzin Singhay Bhotia y Tanmoy Chakraborty: Nurse is Closer to Wo-

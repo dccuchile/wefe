@@ -449,6 +449,7 @@ Team
 - `Pablo Badilla <https://github.com/pbadillatorrealba/>`_.
 - `Felipe Bravo-Marquez <https://felipebravom.com/>`_.
 - `Jorge Pérez <https://users.dcc.uchile.cl/~jperez/>`_.
+- `María José Zambrano  <https://github.com/mzambrano1/>`_.
 
 Contributors
 ------------

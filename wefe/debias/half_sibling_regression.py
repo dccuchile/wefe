@@ -74,14 +74,14 @@ class HalfSiblingRegression(BaseDebias):
         else:
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
-    def get_gender_vectors(
+    def _get_gender_vectors(
         self, model: WordEmbeddingModel, gender_definition: List[str]
     ) -> np.ndarray:
 
         vectors = [model[word] for word in gender_definition if word in model]
         return np.asarray(vectors)
 
-    def get_non_gender_dict(
+    def _get_non_gender_dict(
         self, model: WordEmbeddingModel, non_gender: List[str]
     ) -> Dict[str, float]:
 
@@ -90,7 +90,7 @@ class HalfSiblingRegression(BaseDebias):
         )
         return dictionary[0]
 
-    def compute_weigth_matrix(
+    def _compute_weigth_matrix(
         self, gender_vectors: np.ndarray, non_gender_vectors: np.ndarray, alpha: float
     ) -> np.ndarray:
 
@@ -99,13 +99,13 @@ class HalfSiblingRegression(BaseDebias):
         weight_matrix = np.linalg.inv(a) @ b
         return weight_matrix
 
-    def compute_gender_information(
+    def _compute_gender_information(
         self, gender_vectors: np.ndarray, weight_matrix: np.ndarray
     ) -> np.ndarray:
         gender_information = gender_vectors @ weight_matrix
         return gender_information
 
-    def substract_gender_information(
+    def _substract_gender_information(
         self, non_gender_vectors: np.ndarray, gender_information: np.ndarray
     ) -> np.ndarray:
         debiased_vectors = non_gender_vectors - gender_information

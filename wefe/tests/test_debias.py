@@ -452,7 +452,7 @@ def test_half_sibling_regression_class(model, capsys):
     biased_results = weat.run_query(query_2, model, normalize=True)
     debiased_results = weat.run_query(query_2, gender_debiased_w2v, normalize=True)
     assert debiased_results["weat"] < biased_results["weat"]
-    '''
+    
     # -----------------------------------------------------------------
     # Test target param
     hsr = HalfSiblingRegression(verbose=True, criterion_name="gender",)
@@ -460,7 +460,7 @@ def test_half_sibling_regression_class(model, capsys):
     attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
 
     gender_debiased_w2v = hsr.fit(
-        model, definitional_pairs=definitional_pairs
+        model, gender_definition= gender_specific
     ).transform(model, target=attributes, copy=True)
 
     biased_results = weat.run_query(query_1, model, normalize=True)
@@ -473,22 +473,22 @@ def test_half_sibling_regression_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Test ignore param
-    hd = HardDebias(verbose=True, criterion_name="gender",)
+    hd = HalfSiblingRegression(verbose=True, criterion_name="gender",)
 
     # in this test, the targets and attributes are included in the ignore list.
     # this implies that neither of these words should be subjected to debias and
     # therefore, both queries when executed with weat should return the same score.
     targets = weat_wordset["male_names"] + weat_wordset["female_names"]
     attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
-    gender_debiased_w2v = hd.fit(
-        model, definitional_pairs, equalize_pairs=equalize_pairs,
+    gender_debiased_w2v = hsr.fit(
+        model, gender_definition=gender_specific
     ).transform(model, ignore=gender_specific + targets + attributes, copy=True)
 
     biased_results = weat.run_query(query_1, model, normalize=True)
     debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
 
-    assert debiased_results["weat"] - biased_results["weat"] < 0.000000
-    '''
+    assert debiased_results["weat"] - biased_results["weat"] < 0.0000001
+    
     # -----------------------------------------------------------------
     # Test verbose
     hsr = HalfSiblingRegression(verbose=True)

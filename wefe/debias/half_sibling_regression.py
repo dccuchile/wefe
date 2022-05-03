@@ -86,7 +86,7 @@ class HalfSiblingRegression(BaseDebias):
     ) -> Dict[str, float]:
 
         dictionary = get_embeddings_from_sets(
-            model=model, sets=[non_gender], sets_name="definitional", normalize=True
+            model=model, sets=[non_gender], sets_name="non_gender", normalize=False
         )
         return dictionary[0]
 
@@ -110,6 +110,12 @@ class HalfSiblingRegression(BaseDebias):
     ) -> np.ndarray:
         debiased_vectors = non_gender_vectors - gender_information
         return debiased_vectors
+
+    def _get_indexes(self, target: List[str], non_gender: List[str]) -> List[int]:
+        indexes = []
+        for word in target:
+            indexes.append(non_gender.index(word))
+        return indexes
 
     def fit(
         self,
@@ -172,6 +178,7 @@ class HalfSiblingRegression(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
+        target: List[str] = None,
         ignore: List[str] = [],
         copy: bool = True,
     ) -> WordEmbeddingModel:
@@ -232,9 +239,23 @@ class HalfSiblingRegression(BaseDebias):
         if self.verbose:
             print("Substracting gender information.")
 
-        debiased_vectors = self._substract_gender_information(
-            np.asarray(list(self.non_gender_dict.values())).T, self.gender_information
-        )  # o restarle a los target
+        if target:
+            target = list(set(target) - set(ignore))
+            indexes = self._get_indexes(target, list(self.non_gender_dict.keys()))
+            gender_info = self.gender_information[:, indexes]
+            vectors = np.asarray(list(self.non_gender_dict.values())).T[:, indexes]
+            debiased_vectors = self._substract_gender_information(vectors, gender_info)
+
+        else:
+            target = list(set(list(self.non_gender_dict.keys())) - set(ignore))
+            indexes = self._get_indexes(target, list(self.non_gender_dict.keys()))
+            gender_info = self.gender_information[:, indexes]
+            vectors = np.asarray(list(self.non_gender_dict.values())).T[:, indexes]
+            debiased_vectors = self._substract_gender_information(vectors, gender_info)
+        # debiased_vectors = self._substract_gender_information(
+        #    np.asarray(list(self.non_gender_dict.values())).T, self.gender_information
+        # )  # o restarle a los target
+
         debiased_vectors = debiased_vectors.T
 
         keys = list(self.non_gender_dict.keys())

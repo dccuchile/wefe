@@ -281,32 +281,28 @@ class HalfSiblingRegression(BaseDebias):
 
         if target:
             target = list(set(target) - set(ignore))
-            indexes = self._get_indexes(
-                model, target, list(self.non_gender_dict.keys())
-            )
-            gender_info = self.gender_information[:, indexes]
-            vectors = np.asarray(list(self.non_gender_dict.values())).T[:, indexes]
-            debiased_vectors = self._substract_gender_information(vectors, gender_info)
 
         else:
             target = list(set(list(self.non_gender_dict.keys())) - set(ignore))
-            indexes = self._get_indexes(
-                model, target, list(self.non_gender_dict.keys())
-            )
-            gender_info = self.gender_information[:, indexes]
-            vectors = np.asarray(list(self.non_gender_dict.values())).T[:, indexes]
-            debiased_vectors = self._substract_gender_information(vectors, gender_info)
+
+        indexes = self._get_indexes(model, target, list(self.non_gender_dict.keys()))
+        gender_info = self.gender_information[:, indexes]
+        vectors = np.asarray(list(self.non_gender_dict.values())).T[:, indexes]
+
+        debiased_vectors = self._substract_gender_information(vectors, gender_info)
 
         debiased_vectors = debiased_vectors.T
+        # ------------------------------------------------------------------------------
+        # update the debiased vectors
 
         for i in range(len(target)):
-            self.non_gender_dict[target[i]] = debiased_vectors[
-                i
-            ]  # update the modified non-stop words
+            self.non_gender_dict[target[i]] = debiased_vectors[i]
 
         if self.verbose:
             print("Updating debiased vectors")
 
+        # -------------------------------------------------------------------------------
+        # update the model with new vectors
         for word in target:
             model.update(
                 word, self.non_gender_dict[word].astype(model.wv.vectors.dtype)

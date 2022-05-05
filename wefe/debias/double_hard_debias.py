@@ -1,12 +1,14 @@
+from ast import Tuple
+from ctypes import Union
 import operator
 from copy import deepcopy
 from typing import Dict, Any, Optional, List, Sequence
 from wefe.debias.base_debias import BaseDebias
 from sklearn.decomposition import PCA, IncrementalPCA
+from sklearn.metrics import pairwise_distances
 from sklearn.cluster import KMeans
 from wefe.preprocessing import get_embeddings_from_sets
 import numpy as np
-from scipy.spatial import distance
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import WordEmbeddingModel
 
@@ -27,10 +29,14 @@ class DoubleHardDebias(BaseDebias):
     2. Find the dominant directions of the entire set of vectors by doing a Principal components
     analysis over it.
 
+    3. Get the taget words by finding the most biased words, this is
+    the words tha are closests to the representation of each bias group. In
+    case of gender 'he' and 'she'.
+
     3. Try removing each component resulting of PCA and remove also the bias direction to every vector
     in the target set and find wich component reduces bias the most.
 
-    4. Remove the dominant direction that most reduces bias and remove also de bias direction of the
+    4. Remove the dominant direction that most reduces bias and remove also the bias direction of the
     vectores in the target set.
 
     Examples
@@ -73,6 +79,7 @@ class DoubleHardDebias(BaseDebias):
         pca_args: Dict[str, Any] = {"n_components": 10},
         verbose: bool = False,
         criterion_name: Optional[str] = None,
+        incremental_pca: bool = True,
     ) -> None:
         """Initialize a Double Hard Debias instance.
 
@@ -88,10 +95,24 @@ class DoubleHardDebias(BaseDebias):
             The name of the criterion for which the debias is being executed,
             e.g., 'Gender'. This will indicate the name of the model returning transform,
             by default None
+        incremental_pca: bool, optional
+            If `True`, incremental pca will be used over the entire set of vectors.
+            If `False`, pca will be used over the entire set of vectors.
+            **WARNING:** Running pca over the entire set of vectors may raise to
+            `MemoryError`,  by default True.
         """
         # check verbose
         if not isinstance(verbose, bool):
             raise TypeError(f"verbose should be a bool, got {verbose}.")
+
+        # check incremental pca
+        if not isinstance(incremental_pca, bool):
+            raise TypeError(f"incremental_pca should be a bool, got {verbose}.")
+
+        if incremental_pca:
+            self.pca_type = IncrementalPCA()
+        else:
+            self.pca_type = PCA(svd_solver="randomized")
 
         self.pca_args = pca_args
         self.verbose = verbose
@@ -117,49 +138,65 @@ class DoubleHardDebias(BaseDebias):
                     f"got {len(set_)} words, expected 2."
                 )
 
-    def _similarity(self, u: np.ndarray, v: np.ndarray) -> float:
-        return 1 - distance.cosine(u, v)
+    def _similarity(self, u: List[np.ndarray], v: List[np.ndarray]) -> float:
+        return 1 - pairwise_distances(u, v)
 
     def _bias_by_projection(
         self,
         model: WordEmbeddingModel,
-        exclude: List[str],
+        ignore: List[str],
         bias_representation: Sequence[str],
     ) -> Dict[str, float]:
         word1 = model[bias_representation[0]]
         word2 = model[bias_representation[1]]
-        similarities = {}
-        for word in model.vocab:
-            if word in exclude:
-                continue
-            embedding = model[word]
-            similarities[word] = self._similarity(embedding, word1) - self._similarity(
-                embedding, word2
-            )
+
+        vectors = model.wv.vectors
+        similarities_vectors = (
+            self._similarity([word1], vectors)[0]
+            - self._similarity([word2], vectors)[0]
+        )
+
+        words = list(model.vocab.keys())
+        similarities = dict(zip(words, similarities_vectors))
+        for word in ignore:
+            similarities.pop(word)
         return similarities
 
     def get_target_words(
         self,
         model: WordEmbeddingModel,
-        exclude: List[str],
+        ignore: List[str],
         n_words: int,
         bias_representation: Sequence[str],
-    ):
-        similarities = self._bias_by_projection(model, exclude, bias_representation)
+    ) -> List[str]:
+        """Obtains target words to be debiased. This is done by searching the
+        "n_words" most biased words by obtaining the words closest to each
+        word in the bias_representation set (in case of gender "he" and "she").
+
+        Parameters
+        ----------
+        model: WordEmbeddingModel
+            The word embedding model to debias.
+        ignore: List[str]
+            Set of words to be ignored from the debias process.
+        n_words: int
+            number of target words to use.
+        bias_representation: Sequence[str]
+            Two words thar represents de bias groups.
+
+        Returns:
+            List[str]
+            List of target words for each bias group
+        """
+        similarities = self._bias_by_projection(model, ignore, bias_representation)
         sorted_words = sorted(similarities.items(), key=operator.itemgetter(1))
         female_words = [pair[0] for pair in sorted_words[:n_words]]
         male_words = [pair[0] for pair in sorted_words[-n_words:]]
-        return female_words, male_words
+        return female_words + male_words
 
-    def _principal_components(
-        self, model: WordEmbeddingModel, incremental_pca: bool
-    ) -> np.ndarray:
-        if incremental_pca:
-            pca = IncrementalPCA()
-        else:
-            pca = PCA(svd_solver="randomized")
-        pca.fit(model.wv.vectors - self.embeddings_mean)
-        return pca.components_
+    def _principal_components(self, model: WordEmbeddingModel) -> np.ndarray:
+        self.pca_type.fit(model.wv.vectors - self.embeddings_mean)
+        return self.pca_type.components_
 
     def _calculate_embeddings_mean(self, model: WordEmbeddingModel) -> float:
         return np.mean(model.wv.vectors)
@@ -167,7 +204,19 @@ class DoubleHardDebias(BaseDebias):
     def _drop_frecuency_features(
         self, components: int, model: WordEmbeddingModel
     ) -> Dict[str, np.ndarray]:
+        """Removes from the embeddings the frecuency features. This is done by removing a
+        component from the ones obtain by the pca over the set of embeddings. The component to
+        remove is indicated by parameter "components" and it is removed from the target words' embeddings.
 
+        Parameters
+        ----------
+            components: int
+            component number to be removed
+
+        Returns:
+            Dict[str, np.ndarray]
+            the new embeddings for the target words.
+        """
         droped_frecuencies = {}
 
         for word in self.target_words:
@@ -244,7 +293,7 @@ class DoubleHardDebias(BaseDebias):
     ) -> float:
 
         embeddings = [
-            embeddings_dict[word] for word in self.target_words[0: 2 * n_words]
+            embeddings_dict[word] for word in self.target_words[0 : 2 * n_words]
         ]
         kmeans = KMeans(n_cluster).fit(embeddings)
         y_pred = kmeans.predict(embeddings)
@@ -257,7 +306,6 @@ class DoubleHardDebias(BaseDebias):
         self,
         model: WordEmbeddingModel,
         definitional_pairs: Sequence[Sequence[str]],
-        incremental_pca: bool = True,
     ) -> BaseDebias:
 
         """Compute the bias direction and obtains principals components of the entire set of vectors.
@@ -270,12 +318,6 @@ class DoubleHardDebias(BaseDebias):
             A sequence of string pairs that will be used to define the bias direction.
             For example, for the case of gender debias, this list could be [['woman',
             'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
-        incremental_pca: bool, optional
-            If `True`, incremental pca will be used over the entire set of vectors.
-            If `False`, pca will be used over the entire set of vectors.
-            **WARNING:** Running pca over the entire set of vectors may raise to
-            `MemoryError`,  by default True.
-
         Returns
         -------
         BaseDebias
@@ -309,14 +351,14 @@ class DoubleHardDebias(BaseDebias):
         ).components_[0]
 
         # ------------------------------------------------------------------------------:
-        # Identify the bias subspace using the definning pairs.
+        # Obtain embeddings' mean
         self.embeddings_mean = self._calculate_embeddings_mean(model)
 
         # ------------------------------------------------------------------------------:
         # Obtain the principal components of all vector in the model.
         if self.verbose:
             print("Obtaining principal components")
-        self.pca = self._principal_components(model, incremental_pca)
+        self.pca = self._principal_components(model)
 
         return self
 
@@ -398,13 +440,9 @@ class DoubleHardDebias(BaseDebias):
         # Obtain words to apply debias
         if self.verbose:
             print("Obtaining words to apply debias")
-        female, male = self.get_target_words(
+        self.target_words = self.get_target_words(
             model, ignore, n_words, bias_representation
         )
-
-        target = female + male + sum(self.definitional_pairs, [])
-
-        self.target_words = target
 
         # ------------------------------------------------------------------------------
         # Searching best component of pca to debias

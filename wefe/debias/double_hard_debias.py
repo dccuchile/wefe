@@ -159,7 +159,8 @@ class DoubleHardDebias(BaseDebias):
         words = list(model.vocab.keys())
         similarities = dict(zip(words, similarities_vectors))
         for word in ignore:
-            similarities.pop(word)
+            if word in similarities:
+                similarities.pop(word)
         return similarities
 
     def get_target_words(

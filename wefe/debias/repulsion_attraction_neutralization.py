@@ -160,7 +160,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
     def _indirect_bias(
         self, w: np.ndarray, v: np.ndarray, bias_direction: np.ndarray
     ) -> float:
-        wv = np.dot(w, v)  ##NORMALIZAR LOS VECTORS???
+        wv = np.dot(w, v)  
         w_orth = w - np.dot(w, bias_direction) * bias_direction
         v_orth = v - np.dot(v, bias_direction) * bias_direction
         cos_wv_orth = np.dot(w_orth, v_orth) / (
@@ -267,7 +267,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             out.backward()
             optimizer.step()
         debiased_vector = ran.w_b
-        return debiased_vector  # normalizar????
+        return debiased_vector/torch.norm(debiased_vector)
 
     def _init_vector(self, model: WordEmbeddingModel, word: str) -> torch.Tensor:
         v = deepcopy(model[word])

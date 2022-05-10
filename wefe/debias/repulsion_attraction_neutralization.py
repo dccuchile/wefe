@@ -194,18 +194,6 @@ class RepulsionAttractionNeutralization(BaseDebias):
                 repulsion_set.append(model[neighbour])
         return repulsion_set
 
-    '''
-    def get_all_repulsion(self, model, target_words, n_neighbours, bias_direction, theta):
-        """
-        gets repulsions sets and non repulsion sets for all target words
-        """
-        all_repulsion = {}
-        for word in target_words:
-            neighbours = self._get_neighbours(model, word, n_neighbours)
-            repulsion = self._get_repulsion_set(model, word, neighbours, bias_direction, theta)
-            all_repulsion[word] = repulsion
-        return all_repulsion
-        '''
 
     def _cosine_similarity(
         self, w: torch.Tensor, set_vectors: torch.Tensor

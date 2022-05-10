@@ -399,6 +399,11 @@ class RepulsionAttractionNeutralization(BaseDebias):
                 "the original model."
             )
 
+        # Normalize embeddings
+        if self.verbose:
+            print("Normalizing embeddings.")
+        model.normalize()
+        
         if self.verbose:
             print(
                 f"Executing Repulsion attraction Neutralization Debias on {model.name}"

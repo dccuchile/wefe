@@ -440,7 +440,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         if self.verbose:
             print("Updating debiased vectors")
 
-        for word in debiased:
+        for word in tqdm(debiased):
             model.update(word, debiased[word].astype(model.wv.vectors.dtype))
 
         # ------------------------------------------------------------------------------

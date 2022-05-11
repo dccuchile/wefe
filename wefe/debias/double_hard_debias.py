@@ -3,6 +3,8 @@ from ctypes import Union
 import operator
 from copy import deepcopy
 from typing import Dict, Any, Optional, List, Sequence
+
+from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
 from sklearn.decomposition import PCA, IncrementalPCA
 from sklearn.metrics import pairwise_distances
@@ -265,7 +267,7 @@ class DoubleHardDebias(BaseDebias):
 
     def _debias(self, words_dict: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
 
-        for word in words_dict:
+        for word in tqdm(words_dict):
             embedding = words_dict[word]
             debias_embedding = self._drop(embedding, self.bias_direction)
             words_dict.update({word: debias_embedding})
@@ -462,7 +464,7 @@ class DoubleHardDebias(BaseDebias):
         # Update vectors
         if self.verbose:
             print("Updating debiased vectors")
-        for word in debiased_embeddings:
+        for word in tqdm(debiased_embeddings):
             model.update(word, debiased_embeddings[word].astype(model.wv.vectors.dtype))
         # ------------------------------------------------------------------------------
         # # Generate the new KeyedVectors

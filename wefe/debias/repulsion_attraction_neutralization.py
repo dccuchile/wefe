@@ -1,5 +1,7 @@
 from copy import deepcopy
 from typing import Dict, Any, Optional, List, Sequence
+
+from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
 from sklearn.decomposition import PCA
 from wefe.preprocessing import EmbeddingDict, get_embeddings_from_sets
@@ -414,7 +416,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             target = list(model.vocab.keys())
 
         debiased = {}
-        for word in target:
+        for word in tqdm(target):
             if word in ignore or word not in model:
                 continue
             w = model[word]

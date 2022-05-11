@@ -1,5 +1,7 @@
 from copy import deepcopy
 from typing import Dict, Optional, List, Sequence
+
+from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
 from wefe.preprocessing import get_embeddings_from_sets
 import numpy as np
@@ -140,12 +142,7 @@ class HalfSiblingRegression(BaseDebias):
     def _get_indexes(
         self, model, target: List[str], non_gender: List[str]
     ) -> List[int]:
-        indexes = []
-        for word in target:
-            if word not in model:
-                continue
-            indexes.append(non_gender.index(word))
-        return indexes
+        return [non_gender.index(word) for word in target if word in model]
 
     def fit(
         self,
@@ -278,35 +275,45 @@ class HalfSiblingRegression(BaseDebias):
 
         if self.verbose:
             print("Substracting gender information.")
+        # if target or ignore are specified the debias is applied only in the columns corresponding to
+        # those words embeddings
+        if target or ignore:
+            if target:
+                target = list(set(target) - set(ignore))
+            else:
+                target = list(set(list(self.non_gender_dict.keys())) - set(ignore))
+            indexes = self._get_indexes(
+                model, target, list(self.non_gender_dict.keys())
+            )
 
-        if target:
-            target = list(set(target) - set(ignore))
+            gender_info = self.gender_information[:, indexes]
+            vectors = np.asarray(list(self.non_gender_dict.values())).T[:, indexes]
+            debiased_vectors = self._substract_gender_information(
+                vectors, gender_info
+            ).T
+            self.non_gender_dict = dict(zip(target, debiased_vectors))
 
+        # if not target or ignores is provided the debias is applied to all non gender vectors
         else:
-            target = list(set(list(self.non_gender_dict.keys())) - set(ignore))
-
-        indexes = self._get_indexes(model, target, list(self.non_gender_dict.keys()))
-        gender_info = self.gender_information[:, indexes]
-        vectors = np.asarray(list(self.non_gender_dict.values())).T[:, indexes]
-
-        debiased_vectors = self._substract_gender_information(vectors, gender_info)
-
-        debiased_vectors = debiased_vectors.T
-        # ------------------------------------------------------------------------------
-        # update the debiased vectors
-
-        for i in range(len(target)):
-            self.non_gender_dict[target[i]] = debiased_vectors[i]
+            vectors = np.asarray(list(self.non_gender_dict.values())).T
+            debiased_vectors = self._substract_gender_information(
+                vectors, self.gender_information
+            ).T
+            self.non_gender_dict = dict(
+                zip(self.non_gender_dict.keys(), debiased_vectors)
+            )
 
         if self.verbose:
             print("Updating debiased vectors")
 
         # -------------------------------------------------------------------------------
         # update the model with new vectors
-        for word in target:
+        [
             model.update(
                 word, self.non_gender_dict[word].astype(model.wv.vectors.dtype)
             )
+            for word in tqdm(self.non_gender_dict.keys())
+        ]
 
         # ------------------------------------------------------------------------------
         # # Generate the new KeyedVectors

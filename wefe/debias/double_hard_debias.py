@@ -202,7 +202,7 @@ class DoubleHardDebias(BaseDebias):
         return self.pca_type.components_
 
     def _calculate_embeddings_mean(self, model: WordEmbeddingModel) -> float:
-        return np.mean(model.wv.vectors)
+        return np.mean(model.wv.vectors, axis=0)
 
     def _drop_frecuency_features(
         self, components: int, model: WordEmbeddingModel

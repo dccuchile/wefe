@@ -141,7 +141,7 @@ class DoubleHardDebias(BaseDebias):
                 )
 
     def _similarity(self, u: List[np.ndarray], v: List[np.ndarray]) -> float:
-        return 1 - pairwise_distances(u, v)
+        return 1 - pairwise_distances(u, v, metric='cosine')
 
     def _bias_by_projection(
         self,

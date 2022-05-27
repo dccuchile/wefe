@@ -265,7 +265,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         )
         optimizer = torch.optim.Adam(
             ran.parameters(), lr=learning_rate
-        )  ## dejar el optimizador como parametro?
+        )  
         for epoch in range(epochs):
             optimizer.zero_grad()
             out = ran.forward()

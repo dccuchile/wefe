@@ -54,7 +54,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
         Examples
         --------
-        The following example shows how to execute Double Hard Debias method that reduces bias in a word embedding model:
+        The following example shows how to execute Repulsion Attraction Neutralization method that reduces bias in a word embedding model:
 
         >>> from wefe.debias.repulsion_attraction_neutralization import RepulsionAttractionNeutralization
         >>> from wefe.utils import load_test_model

@@ -17,7 +17,7 @@ from copy import deepcopy
 
 
 class RepulsionAttractionNeutralization(BaseDebias):
-    """Repulsion attraction Neutralization method.
+    """Repulsion Attraction Neutralization method.
 
     This method allow reducing the bias of an embedding model creating a transformation
     such that the stereotypical gender information are minimized with minimal semantic offset

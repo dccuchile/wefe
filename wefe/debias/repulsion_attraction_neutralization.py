@@ -8,8 +8,11 @@ from wefe.preprocessing import EmbeddingDict, get_embeddings_from_sets
 import numpy as np
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import WordEmbeddingModel
-import torch.nn as nn
-import torch
+try:
+    import torch.nn as nn
+    import torch
+except ModuleNotFoundError as e:
+    raise ModuleNotFoundError('PyTorch is required to run RepulsionAttractionNeutralization method. Visit https://pytorch.org/ to install it.') 
 from copy import deepcopy
 
 

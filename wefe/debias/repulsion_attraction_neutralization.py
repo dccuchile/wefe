@@ -114,7 +114,12 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     The optimization is performed by formulating a single objective:
     F(wd) =  λ1Fr(wd) + λ2Fa(wd) + λ3Fn(wd)
-
+    
+    In the original implementation is define a preserve set (Vp) corresponding to words for which 
+    gender carries semantic importance, this words are not included in the debias process. In WEFE this words
+    would be the ones included in the ignore parameter of the transform method. The words that are not present
+    in Vp are the ones to be included in the debias process and form part of the debias set (Vd), in WEFE this
+    words can be specified in the target parameter of the transform method.
 
         Examples
         --------

@@ -16,6 +16,44 @@ except ModuleNotFoundError as e:
 from copy import deepcopy
 
 
+class RAN(nn.Module):
+    def __init__(
+        self,
+        model,
+        word,
+        w_b,
+        w,
+        repulsion_set,
+        bias_direction,
+        objective_function,
+        weights=[0.33, 0.33, 0.33],
+    ):
+        super(RAN, self).__init__()
+
+        self.model = model
+        self.word = word
+        self.w = torch.FloatTensor(np.array(w)).requires_grad_(True)
+        if len(repulsion_set) == 0:
+            self.repulsion_set = False
+        else:
+            self.repulsion_set = torch.FloatTensor(
+                np.array(repulsion_set)
+            ).requires_grad_(True)
+
+        self.w_b = nn.Parameter(w_b)
+
+        self.bias_direction = torch.FloatTensor(np.array(bias_direction))
+
+        self.weights = weights
+
+        self.objective_function = objective_function
+
+    def forward(self):
+        return self.objective_function(
+            self.w_b, self.w, self.bias_direction, self.repulsion_set, self.weights
+        )
+
+
 class RepulsionAttractionNeutralization(BaseDebias):
     """Repulsion Attraction Neutralization method.
 
@@ -458,41 +496,3 @@ class RepulsionAttractionNeutralization(BaseDebias):
             print("Done!")
 
         return model
-
-
-class RAN(nn.Module):
-    def __init__(
-        self,
-        model,
-        word,
-        w_b,
-        w,
-        repulsion_set,
-        bias_direction,
-        objective_function,
-        weights=[0.33, 0.33, 0.33],
-    ):
-        super(RAN, self).__init__()
-
-        self.model = model
-        self.word = word
-        self.w = torch.FloatTensor(np.array(w)).requires_grad_(True)
-        if len(repulsion_set) == 0:
-            self.repulsion_set = False
-        else:
-            self.repulsion_set = torch.FloatTensor(
-                np.array(repulsion_set)
-            ).requires_grad_(True)
-
-        self.w_b = nn.Parameter(w_b)
-
-        self.bias_direction = torch.FloatTensor(np.array(bias_direction))
-
-        self.weights = weights
-
-        self.objective_function = objective_function
-
-    def forward(self):
-        return self.objective_function(
-            self.w_b, self.w, self.bias_direction, self.repulsion_set, self.weights
-        )

@@ -258,6 +258,27 @@ class RepulsionAttractionNeutralization(BaseDebias):
         theta: float,
         n_neighbours: int,
     ) -> List[np.ndarray]:
+        """Obtain the embeddings of the words that should be repeled from "word". These are
+        the n_neighbours more similar to "word" whose indirect bias is greater than theta.
+
+        Parameters
+        ----------
+            model: WordEmbeddingModel
+                The word embedding model to debias.
+            word: str
+                Word to debias.
+            bias_direction: np.ndarray
+                The bias subspace
+            theta: float
+                Threshold to include neighbours in repulsion set.
+            n_neighbours: int
+                Number of neighbours to be considered.
+
+        Returns
+        --------
+            List[np.ndarray]
+                The embeddings list conforming the repulsion set.
+        """        
         neighbours = self._get_neighbours(model, word, n_neighbours)
         repulsion_set = []
         for neighbour in neighbours:

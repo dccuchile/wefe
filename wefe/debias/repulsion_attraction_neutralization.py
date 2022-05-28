@@ -1,4 +1,5 @@
 from copy import deepcopy
+import types
 from typing import Dict, Any, Optional, List, Sequence
 
 from tqdm import tqdm
@@ -17,17 +18,42 @@ from copy import deepcopy
 
 
 class RAN(nn.Module):
+    """Class to perfomr the optimization by gradient descent of the 
+        objective function.
+    """    
     def __init__(
         self,
-        model,
-        word,
-        w_b,
-        w,
-        repulsion_set,
-        bias_direction,
-        objective_function,
+        model: WordEmbeddingModel,
+        word: str,
+        w_b: np.array,
+        w: np.array,
+        repulsion_set: List[np.ndarray],
+        bias_direction: np.array,
+        objective_function: types.FunctionType,
         weights=[0.33, 0.33, 0.33],
     ):
+        """Initialize a RAN instance
+        Parameters
+        ----------
+            model: WordEmbeddingModel
+                The word embedding model to debias.
+            word: str
+                Word to be debiased
+            w_b: np.array
+                Debiased embedding of word
+            w: np.array
+                Original embedding of word
+            repulsion_set: List[np.ndarray]
+                Set of embeddings to be repeled from word
+            bias_direction: np.array
+
+            objective_function: types.FunctionType
+                Function to be minimized to obtain the debiased embedding
+            weights: list, optional
+                weights λi that determine the relative importance of one 
+                objective function (repulsion, attarction, neutralization) over another.
+                by Defaults [0.33, 0.33, 0.33].
+        """                
         super(RAN, self).__init__()
 
         self.model = model
@@ -285,7 +311,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         w: np.ndarray,
         w_b: np.ndarray,
         bias_direction: np.ndarray,
-        repulsion_set,
+        repulsion_set: List[np.ndarray],
         learning_rate: float,
         epochs: int,
         weights: List[float],

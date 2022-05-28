@@ -328,7 +328,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             self._repulsion(w_b, repulsion_set) * w1
             + self._attraction(w_b, w) * w2
             + self._neutralization(w_b, bias_direction) * w3
-        )  # W3????**
+        ) 
 
     def _debias(
         self,

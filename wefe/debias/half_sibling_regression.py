@@ -11,27 +11,37 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 class HalfSiblingRegression(BaseDebias):
     """Half Sibling Debias method.
+    This method proposes to learn spurious gender information via causal
+    inference by utilizing the statistical dependency between gender-biased 
+    word vectors and gender definition word vectors. The learned spurious 
+    gender information is then subtracted from the gender-biased word 
+    vecors to achieve gender-debiasing as the following where Vn' are the debiased
+    word vectors, Vn are non gender definition and G is the approximated gender information:
 
-    This method allow reducing the bias of an embedding model by learning the gender information
-    contain in the vectors by perfoming a regression.
+    Vn' := Vn - G
+
+    G is obtained by predicting Non gender definition word vectors (Vn) using the gender-definition word vectors (Vd):
+
+    G := E[Vn|Vd]
+
+   The Prediction is done by a Ridge Regression following the next steps:
+
+    1. Compute the weight matrix of a Ridge Regression using two sets of words
+
+    W = ((Vd)^T Vd +  αI)^-1 (Vd)^TVn
+
+    2. Compute the gender information:
+
+    G = Vd W
+
+    3. Substract gender information from non gender definition words:
+
+    Vn' = Vn - G
+
     This method is binary because it only allows 2 classes of the same bias criterion,
     such as male or female.
     For a multiclass debias (such as for Latinos, Asians and Whites), it is recommended
     to visit MulticlassHardDebias class.
-
-    This method is based in a npise elimination method. [3]
-
-    The main idea of this method is:
-
-    1. Compute the weight matrix of a Ridge Regression using two sets of words
-    Gender Definition (Vd) and Non gender definition (Vn):
-    W = ((Vd)^T Vd +  αI)^-1 (Vd)^TVn
-
-    2. Compute the gender information:
-    G = Vd W
-
-    3. Substract gender information from non gender definition words:
-    Vn' = Vn - G
 
     Examples
         --------

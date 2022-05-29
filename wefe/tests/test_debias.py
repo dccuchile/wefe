@@ -22,7 +22,7 @@ def model() -> WordEmbeddingModel:
     WordEmbeddingModel
         The loaded testing model.
     """
-    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
+    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv") 
     return WordEmbeddingModel(w2v, "word2vec")
 
 
@@ -447,7 +447,7 @@ def test_ran_debias_class(model, capsys):
     definitional_pairs = debiaswe_wordsets["definitional_pairs"]
     equalize_pairs = debiaswe_wordsets["equalize_pairs"]
     gender_specific = debiaswe_wordsets["gender_specific"]
-   
+
     # -----------------------------------------------------------------
     # Gender Debias
     ran = RepulsionAttractionNeutralization(criterion_name="gender",)
@@ -465,7 +465,7 @@ def test_ran_debias_class(model, capsys):
     biased_results = weat.run_query(query_2, model, normalize=True)
     debiased_results = weat.run_query(query_2, gender_debiased_w2v, normalize=True)
     assert debiased_results["weat"] < biased_results["weat"]
- 
+
     # -----------------------------------------------------------------
     # Test target param
     ran = RepulsionAttractionNeutralization(verbose=True, criterion_name="gender",)
@@ -478,7 +478,7 @@ def test_ran_debias_class(model, capsys):
 
     biased_results = weat.run_query(query_1, model, normalize=True)
     debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
-    #assert debiased_results["weat"] < biased_results["weat"] este se caeee
+    assert debiased_results["weat"] < biased_results["weat"] 
 
     biased_results = weat.run_query(query_2, model, normalize=True)
     debiased_results = weat.run_query(query_2, gender_debiased_w2v, normalize=True)

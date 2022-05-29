@@ -22,7 +22,7 @@ def model() -> WordEmbeddingModel:
     WordEmbeddingModel
         The loaded testing model.
     """
-    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
+    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv") 
     return WordEmbeddingModel(w2v, "word2vec")
 
 
@@ -469,8 +469,6 @@ def test_double_hard_debias_class(model, capsys):
     # -----------------------------------------------------------------
     # Test target param
     dhd = DoubleHardDebias(verbose=True, criterion_name="gender",)  
-
-    attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
   
     gender_debiased_w2v = dhd.fit(
         model, definitional_pairs=definitional_pairs,
@@ -478,11 +476,11 @@ def test_double_hard_debias_class(model, capsys):
 
     biased_results = weat.run_query(query_1, model, normalize=True)
     debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
-    assert debiased_results["weat"] < biased_results["weat"]
+    assert debiased_results["weat"] - biased_results["weat"] < 0.0000001
 
     biased_results = weat.run_query(query_2, model, normalize=True)
     debiased_results = weat.run_query(query_2, gender_debiased_w2v, normalize=True)
-    assert debiased_results["weat"] - biased_results["weat"] < 0.000000
+    assert debiased_results["weat"] - biased_results["weat"] < 0.0000001
 
     # -----------------------------------------------------------------
     # Test verbose

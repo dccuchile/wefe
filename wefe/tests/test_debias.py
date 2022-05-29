@@ -22,7 +22,7 @@ def model() -> WordEmbeddingModel:
     WordEmbeddingModel
         The loaded testing model.
     """
-    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
+    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv") 
     return WordEmbeddingModel(w2v, "word2vec")
 
 
@@ -473,7 +473,7 @@ def test_half_sibling_regression_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Test ignore param
-    hd = HalfSiblingRegression(verbose=True, criterion_name="gender",)
+    hsr = HalfSiblingRegression(verbose=True, criterion_name="gender",)
 
     # in this test, the targets and attributes are included in the ignore list.
     # this implies that neither of these words should be subjected to debias and

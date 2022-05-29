@@ -50,10 +50,10 @@ class RAN(nn.Module):
             objective_function: types.FunctionType
                 Function to be minimized to obtain the debiased embedding
             weights: list, optional
-                weights λi that determine the relative importance of one 
+                weights λi that determine the relative importance of one
                 objective function (repulsion, attarction, neutralization) over another.
                 by Defaults [0.33, 0.33, 0.33].
-        """                
+        """
         super(RAN, self).__init__()
 
         self.model = model
@@ -84,19 +84,24 @@ class RepulsionAttractionNeutralization(BaseDebias):
     """Repulsion Attraction Neutralization method.
 
     This method allow reducing the bias of an embedding model creating a transformation
-    such that the stereotypical gender information are minimized with minimal semantic offset
+    such that the stereotypical gender information are minimized with minimal semantic offset.
+    This transformation bases its operations on:
+    1. Repelling embeddings from neighbours with a high value of indirect bias (indicating a 
+    strong association due to gender), to minimize the gender bias based illicit associations.
+    2. Attracting debiased embeddings to the original represention, to minimize the loss of semantic meaning
+    3. Neutralizing the gender direction of each word, minimizing its bias to any particular gender.
 
     This method is binary because it only allows 2 classes of the same bias criterion,
     such as male or female.
     For a multiclass debias (such as for Latinos, Asians and Whites), it is recommended
     to visit MulticlassHardDebias class.
 
-    The main idea of this method is:
+    The steps followed to perform the debias are:
 
     1. **Identify a bias subspace through the defining sets.** In the case of gender,
     these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
 
-    2. A multiobjective optimization is performed. For each vector w in the target set
+    2. A multi-objective optimization is performed. For each vector w in the target set
     it is found its debias counterpart wd by solving:
 
     argmin(Fr(wd),Fa(wd),Fn(wd))
@@ -104,13 +109,8 @@ class RepulsionAttractionNeutralization(BaseDebias):
     where Fr, Fa, Fn are repulsion, attraction and neutralization functions defined as the following:
 
     Fr(wd) =  Σ |cos(wd,ni)| / |S|
-    Repulsion repels w from the repulsion (S) set defined as the n words closer to w whose indirect bias is grater thar a threshold.
-
     Fa(wd) = |cos(wd,w)-1|/2
-    Attraction atracts wd to the original vector w to minimize the loss of semantic
-
     Fn(wd) = |cos(wd,g)|
-    Neutralization minimize the bias to a particular gender. With g being de bias direction.
 
     The optimization is performed by formulating a single objective:
     F(wd) =  λ1Fr(wd) + λ2Fa(wd) + λ3Fn(wd)

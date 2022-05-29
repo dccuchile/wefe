@@ -9,18 +9,21 @@ from wefe.preprocessing import EmbeddingDict, get_embeddings_from_sets
 import numpy as np
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import WordEmbeddingModel
+
 try:
     import torch.nn as nn
     import torch
 except ModuleNotFoundError as e:
-    raise ModuleNotFoundError('PyTorch is required to run RepulsionAttractionNeutralization method. Visit https://pytorch.org/ to install it.') 
-from copy import deepcopy
+    raise ModuleNotFoundError(
+        "PyTorch is required to run RepulsionAttractionNeutralization method. Visit https://pytorch.org/ to install it."
+    )
 
 
 class RAN(nn.Module):
-    """Class to perfomr the optimization by gradient descent of the 
-        objective function.
-    """    
+    """Class to perfomr the optimization by gradient descent of the
+    objective function.
+    """
+
     def __init__(
         self,
         model: WordEmbeddingModel,
@@ -86,7 +89,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
     This method allow reducing the bias of an embedding model creating a transformation
     such that the stereotypical gender information are minimized with minimal semantic offset.
     This transformation bases its operations on:
-    1. Repelling embeddings from neighbours with a high value of indirect bias (indicating a 
+    1. Repelling embeddings from neighbours with a high value of indirect bias (indicating a
     strong association due to gender), to minimize the gender bias based illicit associations.
     2. Attracting debiased embeddings to the original represention, to minimize the loss of semantic meaning
     3. Neutralizing the gender direction of each word, minimizing its bias to any particular gender.
@@ -114,8 +117,8 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     The optimization is performed by formulating a single objective:
     F(wd) =  λ1Fr(wd) + λ2Fa(wd) + λ3Fn(wd)
-    
-    In the original implementation is define a preserve set (Vp) corresponding to words for which 
+
+    In the original implementation is define a preserve set (Vp) corresponding to words for which
     gender carries semantic importance, this words are not included in the debias process. In WEFE this words
     would be the ones included in the ignore parameter of the transform method. The words that are not present
     in Vp are the ones to be included in the debias process and form part of the debias set (Vd), in WEFE this
@@ -234,7 +237,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
     def _indirect_bias(
         self, w: np.ndarray, v: np.ndarray, bias_direction: np.ndarray
     ) -> float:
-        wv = np.dot(w, v)  
+        wv = np.dot(w, v)
         w_orth = w - np.dot(w, bias_direction) * bias_direction
         v_orth = v - np.dot(v, bias_direction) * bias_direction
         cos_wv_orth = np.dot(w_orth, v_orth) / (
@@ -278,7 +281,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         --------
             List[np.ndarray]
                 The embeddings list conforming the repulsion set.
-        """        
+        """
         neighbours = self._get_neighbours(model, word, n_neighbours)
         repulsion_set = []
         for neighbour in neighbours:
@@ -288,7 +291,6 @@ class RepulsionAttractionNeutralization(BaseDebias):
             ):
                 repulsion_set.append(model[neighbour])
         return repulsion_set
-
 
     def _cosine_similarity(
         self, w: torch.Tensor, set_vectors: torch.Tensor
@@ -328,7 +330,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             self._repulsion(w_b, repulsion_set) * w1
             + self._attraction(w_b, w) * w2
             + self._neutralization(w_b, bias_direction) * w3
-        ) 
+        )
 
     def _debias(
         self,
@@ -353,16 +355,14 @@ class RepulsionAttractionNeutralization(BaseDebias):
             self._objective_function,
             weights,
         )
-        optimizer = torch.optim.Adam(
-            ran.parameters(), lr=learning_rate
-        )  
+        optimizer = torch.optim.Adam(ran.parameters(), lr=learning_rate)
         for epoch in range(epochs):
             optimizer.zero_grad()
             out = ran.forward()
             out.backward()
             optimizer.step()
         debiased_vector = ran.w_b
-        return debiased_vector/torch.norm(debiased_vector)
+        return debiased_vector / torch.norm(debiased_vector)
 
     def _init_vector(self, model: WordEmbeddingModel, word: str) -> torch.Tensor:
         v = deepcopy(model[word])
@@ -498,7 +498,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         if self.verbose:
             print("Normalizing embeddings.")
         model.normalize()
-        
+
         if self.verbose:
             print(
                 f"Executing Repulsion attraction Neutralization Debias on {model.name}"

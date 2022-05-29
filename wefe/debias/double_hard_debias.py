@@ -19,31 +19,33 @@ class DoubleHardDebias(BaseDebias):
     """Double Hard Debias Method.
     This method allow reducing the bias of an embedding model through geometric
     operations between embeddings.
-    This method is binary because it only allows 2 classes of the same bias criterion,
-    such as male or female.
-    For a multiclass debias (such as for Latinos, Asians and Whites), it is recommended
-    to visit MulticlassHardDebias class.
+    This method is binary because it only allows 2 classes of the same bias
+    criterion, such as male or female.
+    For a multiclass debias (such as for Latinos, Asians and Whites),
+    it is recommended to visit MulticlassHardDebias class.
 
     The main idea of this method is:
-    1. **Identify a bias subspace through the defining sets.** In the case of gender,
-    these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
+    1. **Identify a bias subspace through the defining sets.** In the case
+    of gender, these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
 
-    2. Find the dominant directions of the entire set of vectors by doing a Principal components
-    analysis over it.
+    2. Find the dominant directions of the entire set of vectors by doing a
+    Principal components analysis over it.
 
     3. Get the taget words by finding the most biased words, this is
     the words tha are closests to the representation of each bias group. In
     case of gender 'he' and 'she'.
 
-    3. Try removing each component resulting of PCA and remove also the bias direction to every vector
-    in the target set and find wich component reduces bias the most.
+    3. Try removing each component resulting of PCA and remove also the bias
+    direction to every vector in the target set and find wich component
+    reduces bias the most.
 
-    4. Remove the dominant direction that most reduces bias and remove also the bias direction of the
-    vectores in the target set.
+    4. Remove the dominant direction that most reduces bias and remove also
+    the bias direction of the vectors in the target set.
 
     Examples
         --------
-        The following example shows how to execute Double Hard Debias method that reduces bias in a word embedding model:
+        The following example shows how to execute Double Hard Debias method
+        that reduces bias in a word embedding model:
 
         >>> from wefe.debias.double_hard_debias import DoubleHardDebias
         >>> from wefe.utils import load_test_model
@@ -67,8 +69,9 @@ class DoubleHardDebias(BaseDebias):
 
     References
     ----------
-    | [1]: Wang, Tianlu, Xi Victoria Lin, Nazneen Fatema Rajani, Bryan McCann, Vicente Or-donez y Caiming Xiong:
-    | Double-Hard Debias: Tailoring Word Embeddings for GenderBias Mitigation. CoRR, abs/2005.00965,
+    | [1]: Wang, Tianlu, Xi Victoria Lin, Nazneen Fatema Rajani, Bryan McCann,
+    | Vicente Or-donez y Caiming Xiong: Double-Hard Debias: Tailoring Word
+    | Embeddings for GenderBias Mitigation. CoRR, abs/2005.00965,
     | 2020.https://arxiv.org/abs/2005.00965.
     | [2]: https://github.com/uvavision/Double-Hard-Debias
     """
@@ -95,13 +98,14 @@ class DoubleHardDebias(BaseDebias):
             by default False.
         criterion_name : Optional[str], optional
             The name of the criterion for which the debias is being executed,
-            e.g., 'Gender'. This will indicate the name of the model returning transform,
-            by default None
+            e.g., 'Gender'. This will indicate the name of the model
+            returning transform, by default None
         incremental_pca: bool, optional
-            If `True`, incremental pca will be used over the entire set of vectors.
+            If `True`, incremental pca will be used over the entire set of
+            vectors.
             If `False`, pca will be used over the entire set of vectors.
-            **WARNING:** Running pca over the entire set of vectors may raise to
-            `MemoryError`,  by default True.
+            **WARNING:** Running pca over the entire set of vectors may
+            raise to `MemoryError`,  by default True.
         """
         # check verbose
         if not isinstance(verbose, bool):
@@ -141,7 +145,7 @@ class DoubleHardDebias(BaseDebias):
                 )
 
     def _similarity(self, u: List[np.ndarray], v: List[np.ndarray]) -> float:
-        return 1 - pairwise_distances(u, v, metric='cosine')
+        return 1 - pairwise_distances(u, v, metric="cosine")
 
     def _bias_by_projection(
         self,
@@ -207,9 +211,10 @@ class DoubleHardDebias(BaseDebias):
     def _drop_frecuency_features(
         self, components: int, model: WordEmbeddingModel
     ) -> Dict[str, np.ndarray]:
-        """Removes from the embeddings the frecuency features. This is done by removing a
-        component from the ones obtain by the pca over the set of embeddings. The component to
-        remove is indicated by parameter "components" and it is removed from the target words' embeddings.
+        """Removes from the embeddings the frecuency features. This is done
+        by removing a component from the ones obtain by the pca over the set
+        of embeddings. The component to remove is indicated by parameter
+        "components" and it is removed from the target words' embeddings.
 
         Parameters
         ----------
@@ -296,7 +301,7 @@ class DoubleHardDebias(BaseDebias):
     ) -> float:
 
         embeddings = [
-            embeddings_dict[word] for word in self.target_words[0 : 2 * n_words]
+            embeddings_dict[word] for word in self.target_words[0: 2 * n_words]
         ]
         kmeans = KMeans(n_cluster).fit(embeddings)
         y_pred = kmeans.predict(embeddings)
@@ -311,16 +316,18 @@ class DoubleHardDebias(BaseDebias):
         definitional_pairs: Sequence[Sequence[str]],
     ) -> BaseDebias:
 
-        """Compute the bias direction and obtains principals components of the entire set of vectors.
+        """Compute the bias direction and obtains principals components of the
+        entire set of vectors.
 
         Parameters
         ----------
         model : WordEmbeddingModel
             The word embedding model to debias.
-        definitional_pairs : Sequence[Sequence[str]] ****
-            A sequence of string pairs that will be used to define the bias direction.
-            For example, for the case of gender debias, this list could be [['woman',
-            'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
+        definitional_pairs : Sequence[Sequence[str]]
+            A sequence of string pairs that will be used to define the bias
+            direction. For example, for the case of gender debias, this list
+            could be [['woman', 'man'], ['girl', 'boy'], ['she', 'he'],
+            ['mother', 'father'], ...].
         Returns
         -------
         BaseDebias
@@ -331,7 +338,7 @@ class DoubleHardDebias(BaseDebias):
 
         self._check_sets_size(self.definitional_pairs, "definitional")
 
-        # ------------------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # Obtain the embedding of each definitional pairs.
         if self.verbose:
             print("Obtaining definitional pairs.")
@@ -345,7 +352,7 @@ class DoubleHardDebias(BaseDebias):
             verbose=self.verbose,
         )
 
-        # ------------------------------------------------------------------------------:
+        # -------------------------------------------------------------------
         # Identify the bias subspace using the definning pairs.
         if self.verbose:
             print("Identifying the bias subspace.")
@@ -353,11 +360,11 @@ class DoubleHardDebias(BaseDebias):
             self.definitional_pairs_embeddings, verbose=self.verbose
         ).components_[0]
 
-        # ------------------------------------------------------------------------------:
+        # -------------------------------------------------------------------
         # Obtain embeddings' mean
         self.embeddings_mean = self._calculate_embeddings_mean(model)
 
-        # ------------------------------------------------------------------------------:
+        # -------------------------------------------------------------------
         # Obtain the principal components of all vector in the model.
         if self.verbose:
             print("Obtaining principal components")
@@ -382,25 +389,27 @@ class DoubleHardDebias(BaseDebias):
         model : WordEmbeddingModel
             The word embedding model to debias.
         bias_representation: Sequence[str]
-            Two words that represents each bias group. In case of gender "he" and "she".
+            Two words that represents each bias group. In case of gender
+            "he" and "she".
         ignore :  List[str], optional
             If set of words is specified in ignore, the debias
-            method will perform the debias in all target words except those specified in this
-            set, by default [].
+            method will perform the debias in all target words except
+            those specified in this set, by default [].
         copy : bool, optional
-            If `True`, the debias will be performed on a copy of the model.
-            If `False`, the debias will be applied on the same model delivered, causing
-            its vectors to mutate.
-            **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
-            of the model, otherwise the execution of the debias may raise to
-            `MemoryError`, by default True.
-
+            If `True`, the debias will be performed on a copy of the
+            model.
+            If `False`, the debias will be applied on the same model delivered,
+            causing its vectors to mutate.
+            **WARNING:** Setting copy with `True` requires RAM at least 2x of
+            the size of the model, otherwise the execution of the debias may
+            raise to `MemoryError`, by default True.
         n_words: int, optional
-            Number of target words to be used for each bias group. By deafualt 1000
-
+            Number of target words to be used for each bias group.
+            By deafualt 1000
         n_components: int, optional
-            Numbers of components of PCA to be used to explore the one that reduces bias the most.
-            Usually the best one is close to embedding dimension/100. By deafualt 4.
+            Numbers of components of PCA to be used to explore the one that
+            reduces bias the most. Usually the best one is close to embedding
+            dimension/100. By deafualt 4.
         Returns
         -------
         WordEmbeddingModel
@@ -424,7 +433,7 @@ class DoubleHardDebias(BaseDebias):
         )
         if self.verbose:
             print(f"Executing Double Hard Debias on {model.name}")
-        # ------------------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # Copy
         if copy:
             print(
@@ -439,7 +448,7 @@ class DoubleHardDebias(BaseDebias):
                 "copy argument is False. The execution of this method will mutate "
                 "the original model."
             )
-        # ------------------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # Obtain words to apply debias
         if self.verbose:
             print("Obtaining words to apply debias")
@@ -447,26 +456,26 @@ class DoubleHardDebias(BaseDebias):
             model, ignore, n_words, bias_representation
         )
 
-        # ------------------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # Searching best component of pca to debias
         if self.verbose:
             print("Searching component to debias")
         optimal_dimensions = self._get_optimal_dimension(model, n_words, n_components)
 
-        # ------------------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # Execute debias
         if self.verbose:
             print("Executing debias")
         debiased_embeddings = self._drop_frecuency_features(optimal_dimensions, model)
         debiased_embeddings = self._debias(debiased_embeddings)
 
-        # ------------------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # Update vectors
         if self.verbose:
             print("Updating debiased vectors")
         for word in tqdm(debiased_embeddings):
             model.update(word, debiased_embeddings[word].astype(model.wv.vectors.dtype))
-        # ------------------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # # Generate the new KeyedVectors
         if self.criterion_name_ is None:
             new_model_name = f"{model.name}_debiased"

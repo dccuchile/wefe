@@ -15,7 +15,8 @@ try:
     import torch
 except ModuleNotFoundError as e:
     raise ModuleNotFoundError(
-        "PyTorch is required to run RepulsionAttractionNeutralization method. Visit https://pytorch.org/ to install it."
+        "PyTorch is required to run RepulsionAttractionNeutralization method.\
+        Visit https://pytorch.org/ to install it."
     )
 
 
@@ -54,8 +55,8 @@ class RAN(nn.Module):
                 Function to be minimized to obtain the debiased embedding
             weights: list, optional
                 weights λi that determine the relative importance of one
-                objective function (repulsion, attarction, neutralization) over another.
-                by Defaults [0.33, 0.33, 0.33].
+                objective function (repulsion, attarction, neutralization)
+                over another. by Defaults [0.33, 0.33, 0.33].
         """
         super(RAN, self).__init__()
 
@@ -86,30 +87,36 @@ class RAN(nn.Module):
 class RepulsionAttractionNeutralization(BaseDebias):
     """Repulsion Attraction Neutralization method.
 
-    This method allow reducing the bias of an embedding model creating a transformation
-    such that the stereotypical gender information are minimized with minimal semantic offset.
-    This transformation bases its operations on:
-    1. Repelling embeddings from neighbours with a high value of indirect bias (indicating a
-    strong association due to gender), to minimize the gender bias based illicit associations.
-    2. Attracting debiased embeddings to the original represention, to minimize the loss of semantic meaning
-    3. Neutralizing the gender direction of each word, minimizing its bias to any particular gender.
+    This method allow reducing the bias of an embedding model creating a
+    transformation such that the stereotypical gender information are
+    minimized with minimal semantic offset. This transformation bases
+    its operations on:
 
-    This method is binary because it only allows 2 classes of the same bias criterion,
-    such as male or female.
-    For a multiclass debias (such as for Latinos, Asians and Whites), it is recommended
-    to visit MulticlassHardDebias class.
+    1. Repelling embeddings from neighbours with a high value of indirect
+    bias (indicating a strong association due to gender), to minimize the
+    gender bias based illicit associations.
+    2. Attracting debiased embeddings to the original represention, to
+    minimize the loss of semantic meaning
+    3. Neutralizing the gender direction of each word, minimizing its
+    bias to any particular gender.
+
+    This method is binary because it only allows 2 classes of the same bias
+    criterion,such as male or female.
+    For a multiclass debias (such as for Latinos, Asians and Whites), it
+    is recommended to visit MulticlassHardDebias class.
 
     The steps followed to perform the debias are:
 
-    1. **Identify a bias subspace through the defining sets.** In the case of gender,
-    these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
+    1. **Identify a bias subspace through the defining sets.** In the case of
+    gender, these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
 
-    2. A multi-objective optimization is performed. For each vector w in the target set
-    it is found its debias counterpart wd by solving:
+    2. A multi-objective optimization is performed. For each vector w in the
+    target set it is found its debias counterpart wd by solving:
 
     argmin(Fr(wd),Fa(wd),Fn(wd))
 
-    where Fr, Fa, Fn are repulsion, attraction and neutralization functions defined as the following:
+    where Fr, Fa, Fn are repulsion, attraction and neutralization functions
+    defined as the following:
 
     Fr(wd) =  Σ |cos(wd,ni)| / |S|
     Fa(wd) = |cos(wd,w)-1|/2
@@ -118,15 +125,18 @@ class RepulsionAttractionNeutralization(BaseDebias):
     The optimization is performed by formulating a single objective:
     F(wd) =  λ1Fr(wd) + λ2Fa(wd) + λ3Fn(wd)
 
-    In the original implementation is define a preserve set (Vp) corresponding to words for which
-    gender carries semantic importance, this words are not included in the debias process. In WEFE this words
-    would be the ones included in the ignore parameter of the transform method. The words that are not present
-    in Vp are the ones to be included in the debias process and form part of the debias set (Vd), in WEFE this
-    words can be specified in the target parameter of the transform method.
+    In the original implementation is define a preserve set (Vp) corresponding
+    to words for which gender carries semantic importance, this words are not
+    included in the debias process. In WEFE this words would be the ones
+    included in the ignore parameter of the transform method. The words
+    that are not present in Vp are the ones to be included in the debias
+    process and form part of the debias set (Vd), in WEFE this words can
+    be specified in the target parameter of the transform method.
 
         Examples
         --------
-        The following example shows how to execute Repulsion Attraction Neutralization method that reduces bias in a word embedding model:
+        The following example shows how to execute Repulsion Attraction
+        Neutralization method that reduces bias in a word embedding model:
 
         >>> from wefe.debias.repulsion_attraction_neutralization import RepulsionAttractionNeutralization
         >>> from wefe.utils import load_test_model
@@ -150,9 +160,10 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     References
     ----------
-    | [1]: Kumar, Vaibhav, Tenzin Singhay Bhotia y Tanmoy Chakraborty: Nurse is Closer to Wo-
-        man than Surgeon? Mitigating Gender-Biased Proximities in Word Embeddings. CoRR,
-        abs/2006.01938, 2020. https://arxiv.org/abs/2006.01938
+    | [1]: Kumar, Vaibhav, Tenzin Singhay Bhotia y Tanmoy Chakraborty: Nurse
+        is Closer to Woman than Surgeon? Mitigating Gender-Biased Proximities
+        in Word Embeddings. CoRR,abs/2006.01938, 2020.
+        https://arxiv.org/abs/2006.01938
     | [2]: https://github.com/TimeTraveller-San/RAN-Debias
     """
 
@@ -170,15 +181,16 @@ class RepulsionAttractionNeutralization(BaseDebias):
         Parameters
         ----------
         pca_args : Dict[str, Any], optional
-            Arguments for the PCA that is calculated internally in the identification
-            of the bias subspace, by default {"n_components": 10}
+            Arguments for the PCA that is calculated internally in the
+            identification of the bias subspace,
+            by default {"n_components": 10}
         verbose : bool, optional
             True will print informative messages about the debiasing process,
             by default False.
         criterion_name : Optional[str], optional
             The name of the criterion for which the debias is being executed,
-            e.g., 'Gender'. This will indicate the name of the model returning transform,
-            by default None
+            e.g., 'Gender'. This will indicate the name of the model returning
+            transform, by default None
         """
         # check verbose
         if not isinstance(verbose, bool):
@@ -261,8 +273,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
         theta: float,
         n_neighbours: int,
     ) -> List[np.ndarray]:
-        """Obtain the embeddings of the words that should be repeled from "word". These are
-        the n_neighbours more similar to "word" whose indirect bias is greater than theta.
+        """Obtain the embeddings of the words that should be repeled from
+        "word". These are the n_neighbours more similar to "word" whose
+        indirect bias is greater than theta.
 
         Parameters
         ----------
@@ -381,9 +394,10 @@ class RepulsionAttractionNeutralization(BaseDebias):
         model : WordEmbeddingModel
             The word embedding model to debias.
         definitional_pairs : Sequence[Sequence[str]]
-            A sequence of string pairs that will be used to define the bias direction.
-            For example, for the case of gender debias, this list could be [['woman',
-            'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
+            A sequence of string pairs that will be used to define the bias
+            direction. For example, for the case of gender debias, this list
+            could be [['woman', 'man'], ['girl', 'boy'], ['she', 'he'],
+            ['mother', 'father'], ...].
         Returns
         -------
         BaseDebias
@@ -434,33 +448,36 @@ class RepulsionAttractionNeutralization(BaseDebias):
     ) -> WordEmbeddingModel:
 
         """
-        Executes Repulsion Attraction Neutralization Debias over the provided model.
+        Executes Repulsion Attraction Neutralization Debias over the
+        provided model.
 
         Args:
             model : WordEmbeddingModel
             The word embedding model to debias.
         target : Optional[List[str]], optional
-            If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. If `None` is provided, the
-            debias will be performed on all words (except those specified in ignore).
-            by default `None`.
+            If a set of words is specified in target, the debias method will
+            be performed only on the word embeddings of this set. If `None`
+            is provided, the debias will be performed on all words (except
+            those specified in ignore). by default `None`.
         ignore : Optional[List[str]], optional
-            If target is `None` and a set of words is specified in ignore, the debias
-            method will perform the debias in all words except those specified in this
-            set, by default `None`.
+            If target is `None` and a set of words is specified in ignore,
+            the debiasmethod will perform the debias in all words except
+            those specified in this set, by default `None`.
         copy : bool, optional
             If `True`, the debias will be performed on a copy of the model.
-            If `False`, the debias will be applied on the same model delivered, causing
-            its vectors to mutate.
-            **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
-            of the model, otherwise the execution of the debias may raise to
-            `MemoryError`, by default True.
+            If `False`, the debias will be applied on the same model delivered,
+            causing its vectors to mutate.
+            **WARNING:** Setting copy with `True` requires RAM at least 2x of
+            the size of the model, otherwise the execution of the debias may
+            raise to `MemoryError`, by default True.
         epochs : int, optional
             number of times that the minimization is done. By default 300
          theta: float, optional
-            Inderect bias threshold to select neighbours for the repulsion set. By default 0.05
+            Inderect bias threshold to select neighbours for the repulsion set.
+            By default 0.05
         n_neighbours: int, optinal
-            Number of neighbours to be consider for the repulsion set. By default 100
+            Number of neighbours to be consider for the repulsion set.
+            By default 100
         weights:
             List of the 3 initial weights to be used. By default [0.33,0.33,0.33]
 
@@ -482,7 +499,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         # Copy
         if copy:
             print(
-                "Copy argument is True. Transform will attempt to create a copy "
+                "Copy argument is True. Transform will attempt to create a copy"
                 "of the original model. This may fail due to lack of memory."
             )
             model = deepcopy(model)
@@ -490,7 +507,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
         else:
             print(
-                "copy argument is False. The execution of this method will mutate "
+                "copy argument is False. The execution of this method will mutate"
                 "the original model."
             )
 
@@ -504,7 +521,8 @@ class RepulsionAttractionNeutralization(BaseDebias):
                 f"Executing Repulsion attraction Neutralization Debias on {model.name}"
             )
 
-        # If none target words are provided the debias procces is executed over the entire vocabulary
+        # If none target words are provided the debias procces is executed
+        # over the entire vocabulary
         if not target:
             target = list(model.vocab.keys())
 

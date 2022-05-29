@@ -11,73 +11,80 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 class HalfSiblingRegression(BaseDebias):
     """Half Sibling Debias method.
-    This method proposes to learn spurious gender information via causal
-    inference by utilizing the statistical dependency between gender-biased 
-    word vectors and gender definition word vectors. The learned spurious 
-    gender information is then subtracted from the gender-biased word 
-    vecors to achieve gender-debiasing as the following where Vn' are the debiased
-    word vectors, Vn are non gender definition and G is the approximated gender information:
+     This method proposes to learn spurious gender information via causal
+     inference by utilizing the statistical dependency between gender-biased
+     word vectors and gender definition word vectors. The learned spurious
+     gender information is then subtracted from the gender-biased word
+     vecors to achieve gender-debiasing as the following where Vn' are
+     the debiased word vectors, Vn are non gender definition and G is
+     the approximated gender information:
 
-    Vn' := Vn - G
+     Vn' := Vn - G
 
-    G is obtained by predicting Non gender definition word vectors (Vn) using the gender-definition word vectors (Vd):
+     G is obtained by predicting Non gender definition word vectors (Vn)
+     using the gender-definition word vectors (Vd):
 
-    G := E[Vn|Vd]
+     G := E[Vn|Vd]
 
-   The Prediction is done by a Ridge Regression following the next steps:
+    The Prediction is done by a Ridge Regression following the next steps:
 
-    1. Compute the weight matrix of a Ridge Regression using two sets of words
+     1. Compute the weight matrix of a Ridge Regression using two sets of words
 
-    W = ((Vd)^T Vd +  αI)^-1 (Vd)^TVn
+     W = ((Vd)^T Vd +  αI)^-1 (Vd)^TVn
 
-    2. Compute the gender information:
+     2. Compute the gender information:
 
-    G = Vd W
+     G = Vd W
 
-    3. Substract gender information from non gender definition words:
+     3. Substract gender information from non gender definition words:
 
-    Vn' = Vn - G
+     Vn' = Vn - G
 
-    This method is binary because it only allows 2 classes of the same bias criterion,
-    such as male or female.
-    For a multiclass debias (such as for Latinos, Asians and Whites), it is recommended
-    to visit MulticlassHardDebias class.
+     This method is binary because it only allows 2 classes of the same bias
+     criterion, such as male or female.
+     For a multiclass debias (such as for Latinos, Asians and Whites), it
+     is recommended to visit MulticlassHardDebias class.
 
-    Examples
-        --------
-        The following example shows how to execute Half Sibling Regression Debias method that reduces bias in a word embedding model:
+     Examples
+         --------
+         The following example shows how to execute Half Sibling Regression
+         Debias method that reduces bias in a word embedding model:
 
-        >>> from wefe.debias.half_sibling_regression import HalfSiblingRegression
-        >>> from wefe.utils import load_test_model
-        >>> from wefe.datasets import fetch_debiaswe
-        >>>
-        >>> # load the model (in this case, the test model included in wefe)
-        >>> model = load_test_model()
-        >>> # load definitional pairs, in this case definitinal pairs included in wefe
-        >>> debiaswe_wordsets = fetch_debiaswe()
-        >>> gender_specific = debiaswe_wordsets["gender_specific"]
-        >>
-        >>> # instance and fit the method
-        >>> hsr = HalfSiblingRegression().fit(model = model, gender_definition_definition = gender_specific)
-        >>> # execute the debias on the words not included in the gender definition set
-        >>> debiased_model = hsr.transform(model = model)
-        >>>
-        >>>
-        >>> # if you want the debias over a specific set of words  you can include them in the target parameter
-        >>> debiased_model = hsr.transform(model = model, target= ['doctor','nurse','programmer'])
-        >>>
-        >>> # if you want to excluede a set of words from the debias process you can inlcude them in the ignore parameter
-        >>> debiased_model = hsr.transform(model = model, ignore= ['dress','beard','niece','nephew'])
+         >>> from wefe.debias.half_sibling_regression import HalfSiblingRegression
+         >>> from wefe.utils import load_test_model
+         >>> from wefe.datasets import fetch_debiaswe
+         >>>
+         >>> # load the model (in this case, the test model included in wefe)
+         >>> model = load_test_model()
+         >>> # load definitional pairs, in this case definitinal pairs included in wefe
+         >>> debiaswe_wordsets = fetch_debiaswe()
+         >>> gender_specific = debiaswe_wordsets["gender_specific"]
+         >>
+         >>> # instance and fit the method
+         >>> hsr = HalfSiblingRegression().fit(model = model, gender_definition_definition = gender_specific)
+         >>> # execute the debias on the words not included in the gender definition set
+         >>> debiased_model = hsr.transform(model = model)
+         >>>
+         >>>
+         >>> # if you want the debias over a specific set of words  you can
+         >>> #include them in the target parameter
+         >>> debiased_model = hsr.transform(model = model, target= ['doctor','nurse','programmer'])
+         >>>
+         >>> # if you want to excluede a set of words from the debias process
+         >>> # you can inlcude them in the ignore parameter
+         >>> debiased_model = hsr.transform(model = model, ignore= ['dress','beard','niece','nephew'])
 
-    References
-    ----------
-    | [1]: Yang, Zekun y Juan Feng: A causal inference method for reducing gender bias in word
-    | embedding relations. En Proceedings of the AAAI Conference on Artificial Intelligence,
-    | volumen 34, páginas 9434–9441, 2020
-    | [2]: https://github.com/KunkunYang/GenderBiasHSR
-    | [3]: Bernhard Sch ̈olkopf, David W. Hogg, Dun Wang, Daniel Foreman-Mackey, Dominik Jan-
-    | zing, Carl-Johann Simon-Gabriel, and Jonas Peters. Modeling confounding by half-sibling
-    | regression. Proceedings of the National Academy of Sciences, 113(27):7391–7398, 2016
+     References
+     ----------
+     | [1]: Yang, Zekun y Juan Feng: A causal inference method for reducing
+     | gender bias in word embedding relations. En Proceedings of the AAAI
+     | Conference on Artificial Intelligence,
+     | volumen 34, páginas 9434–9441, 2020
+     | [2]: https://github.com/KunkunYang/GenderBiasHSR
+     | [3]: Bernhard Sch ̈olkopf, David W. Hogg, Dun Wang,
+     | Daniel Foreman-Mackey, Dominik Jan-zing, Carl-Johann Simon-Gabriel,
+     | and Jonas Peters. Modeling confounding by half-sibling regression.
+     | Proceedings of the National Academy of Sciences, 113(27):7391–7398, 2016
 
     """
 
@@ -98,8 +105,8 @@ class HalfSiblingRegression(BaseDebias):
             by default False.
         criterion_name : Optional[str], optional
             The name of the criterion for which the debias is being executed,
-            e.g., 'Gender'. This will indicate the name of the model returning transform,
-            by default None
+            e.g., 'Gender'. This will indicate the name of the model returning
+            transform, by default None
         """
         # check verbose
         if not isinstance(verbose, bool):
@@ -170,7 +177,8 @@ class HalfSiblingRegression(BaseDebias):
             The word embedding model to debias.
 
         gender_definition: Sequence[str]
-            List of strings. This list contains words that embody gender information by definition.
+            List of strings. This list contains words that embody gender
+            information by definition.
 
         alpha: float
             Ridge Regression constant. By default 60,
@@ -228,24 +236,27 @@ class HalfSiblingRegression(BaseDebias):
                 The word embedding model to debias.
 
             target : Optional[List[str]], optional
-            If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. If `None` is provided, the
-            debias will be performed on all non gender specific words (except those specified in ignore).
+            If a set of words is specified in target, the debias method
+            will be performed only on the word embeddings of this set.
+            If `None` is provided, the debias will be performed on all
+            non gender specific words (except those specified in ignore).
             Target words must not be included in the gender specific set.
             by default `None`.
 
             ignore : Optional[List[str]], optional
-            If target is `None` and a set of words is specified in ignore, the debias
-            method will perform the debias in all non gender specific words except those specified in this
+            If target is `None` and a set of words is specified in ignore,
+            the debias method will perform the debias in all non gender
+            specific words except those specified in this
             set, by default `[]`.
 
             copy : bool, optional
-                If `True`, the debias will be performed on a copy of the model.
-                If `False`, the debias will be applied on the same model delivered, causing
-                its vectors to mutate.
-                **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
-                of the model, otherwise the execution of the debias may raise to
-                `MemoryError`, by default True.
+                If `True`, the debias will be performed on a copy of the
+                model.
+                If `False`, the debias will be applied on the same model
+                delivered, causing its vectors to mutate.
+                **WARNING:** Setting copy with `True` requires RAM at least
+                2x of the size of the model, otherwise the execution of the
+                debias may raise to `MemoryError`, by default True.
 
         WordEmbeddingModel
             The debiased embedding model.
@@ -264,7 +275,7 @@ class HalfSiblingRegression(BaseDebias):
         if self.verbose:
             print(f"Executing Half Sibling Debias on {model.name}")
 
-        # ------------------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # Copy
         if copy:
             print(
@@ -280,13 +291,13 @@ class HalfSiblingRegression(BaseDebias):
                 "the original model."
             )
 
-        # ------------------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # Substract gender information from vectors:
 
         if self.verbose:
             print("Substracting gender information.")
-        # if target or ignore are specified the debias is applied only in the columns corresponding to
-        # those words embeddings
+        # if target or ignore are specified the debias is applied only in the
+        # columns corresponding to those words embeddings
         if target or ignore:
             if target:
                 target = list(set(target) - set(ignore))
@@ -303,7 +314,8 @@ class HalfSiblingRegression(BaseDebias):
             ).T
             self.non_gender_dict = dict(zip(target, debiased_vectors))
 
-        # if not target or ignores is provided the debias is applied to all non gender vectors
+        # if not target or ignores is provided the debias is applied to
+        # all non gender vectors
         else:
             vectors = np.asarray(list(self.non_gender_dict.values())).T
             debiased_vectors = self._substract_gender_information(
@@ -316,7 +328,7 @@ class HalfSiblingRegression(BaseDebias):
         if self.verbose:
             print("Updating debiased vectors")
 
-        # -------------------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # update the model with new vectors
         [
             model.update(
@@ -325,7 +337,7 @@ class HalfSiblingRegression(BaseDebias):
             for word in tqdm(self.non_gender_dict.keys())
         ]
 
-        # ------------------------------------------------------------------------------
+        # -------------------------------------------------------------------
         # # Generate the new KeyedVectors
         if self.criterion_name_ is None:
             new_model_name = f"{model.name}_debiased"

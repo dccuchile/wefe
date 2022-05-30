@@ -21,7 +21,7 @@ except ModuleNotFoundError as e:
 
 
 class RAN(nn.Module):
-    """Class to perfomr the optimization by gradient descent of the
+    """Class to perform the optimization by gradient descent of the
     objective function.
     """
 
@@ -205,19 +205,19 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     def _identify_bias_subspace(
         self,
-        definning_pairs_embeddings: List[EmbeddingDict],
+        defining_pairs_embeddings: List[EmbeddingDict],
         verbose: bool = False,
     ) -> PCA:
 
         matrix = []
-        for embedding_dict_pair in definning_pairs_embeddings:
+        for embedding_dict_pair in defining_pairs_embeddings:
 
-            # Get the center of the current definning pair.
+            # Get the center of the current defining pair.
             pair_embeddings = np.array(list(embedding_dict_pair.values()))
             center = np.mean(pair_embeddings, axis=0)
-            # For each word, embedding in the definning pair:
+            # For each word, embedding in the defining pair:
             for embedding in embedding_dict_pair.values():
-                # Substract the center of the pair to the embedding
+                # Subtract the center of the pair to the embedding
                 matrix.append(embedding - center)
         matrix = np.array(matrix)  # type: ignore
 
@@ -273,7 +273,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         theta: float,
         n_neighbours: int,
     ) -> List[np.ndarray]:
-        """Obtain the embeddings of the words that should be repeled from
+        """Obtain the embeddings of the words that should be repealed from
         "word". These are the n_neighbours more similar to "word" whose
         indirect bias is greater than theta.
 
@@ -423,7 +423,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         )
 
         # ------------------------------------------------------------------------------:
-        # Identify the bias subspace using the definning pairs.
+        # Identify the bias subspace using the defining pairs.
         if self.verbose:
             print("Identifying the bias subspace.")
 
@@ -461,7 +461,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             those specified in ignore). by default `None`.
         ignore : Optional[List[str]], optional
             If target is `None` and a set of words is specified in ignore,
-            the debiasmethod will perform the debias in all words except
+            the debias method will perform the debias in all words except
             those specified in this set, by default `None`.
         copy : bool, optional
             If `True`, the debias will be performed on a copy of the model.
@@ -473,9 +473,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
         epochs : int, optional
             number of times that the minimization is done. By default 300
          theta: float, optional
-            Inderect bias threshold to select neighbours for the repulsion set.
+            Indirect bias threshold to select neighbours for the repulsion set.
             By default 0.05
-        n_neighbours: int, optinal
+        n_neighbours: int, optimal
             Number of neighbours to be consider for the repulsion set.
             By default 100
         weights:
@@ -521,7 +521,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
                 f"Executing Repulsion attraction Neutralization Debias on {model.name}"
             )
 
-        # If none target words are provided the debias procces is executed
+        # If none target words are provided the debias process is executed
         # over the entire vocabulary
         if not target:
             target = list(model.vocab.keys())

@@ -190,7 +190,7 @@ documentation <https://wefe.readthedocs.io/en/latest/api.html>`__.
 
 
 Run Query Arguments
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 Each metric allows varying the behavior of ``run_query`` according to
 different parameters. There are parameters to customize the
@@ -243,7 +243,7 @@ greater than those obtained by the original query.
 
 
 Out of Vocabulary Words
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 It is common in the literature to find bias tests whose tagret sets are
 common names of social groups. These names are commonly cased and may
@@ -327,7 +327,7 @@ names with respect to pleasant and unpleasant attributes.
     
 
 Word Preprocessors
-------------------
+~~~~~~~~~~~~~~~~~~
 
 ``run_queries`` allows preprocessing each word before they are searched in the model's 
 vocabulary.through the parameter ``preprocessors``. (list of one or more preprocessor).
@@ -513,7 +513,7 @@ preprocessors. This can be controlled by specifying the parameter
 
     
 Running multiple Queries
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 It is usual to want to test many queries of some bias criterion (gender,
 ethnicity, religion, politics, socioeconomic, among others) on several
@@ -790,7 +790,7 @@ a ``run_queries`` execution into a ``plotly`` braplot.
 
 
 Aggregating Results
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 The execution of ``run_queries`` provided many results evaluating the
 gender bias in the tested embeddings. However, these results alone do
@@ -977,7 +977,7 @@ results using the parameter ``return_only_aggregation``
 
 
 Model Ranking
--------------
+~~~~~~~~~~~~~
 
 It may be desirable to obtain an overall view of the bias by model using
 different metrics or bias criteria. While the aggregate values can be
@@ -1515,7 +1515,7 @@ a different criterion-metric ranking.
 
 
 Correlating Rankings
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 Having obtained rankings by metric for each embeddings, it would be
 ideal to see and analyze the degree of agreement between them.
@@ -1675,11 +1675,8 @@ The metrics implemented in the package so far are:
 WEAT
 ~~~~
 
-Word Embedding Association Test (WEAT) was presented in the paper:
-
-  | Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan. 
-  | Semantics derived automatically from language corpora contain human-like biases.
-  | Science, 356(6334):183–186, 2017.
+The `Word Embedding Association Test (WEAT) <https://wefe.readthedocs.io/en/latest/generated/wefe.WEAT.html#wefe.WEAT>`_ 
+was originally presented in [1].
 
 The following description of the metric is WEFE's adaptation of what was presented 
 in the original WEAT work.
@@ -1731,6 +1728,14 @@ into two sets of equal size. The one-sided p-value of the permutation test is:
 .. math::
 
   \text{Pr}_{i}[s(T_{1_i}, T_{2_i}, A_1, A_2) > s(T_1, T_2, A_1, A_2)]
+
+References
+
+
+| [1]: Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan. Semantics derived
+|      automatically from language corpora contain human-like biases.
+|      Science, 356(6334):183–186, 2017.
+
 
 RND
 ~~~
@@ -1803,9 +1808,7 @@ Thus, the optimal value is 0.
 MAC
 ~~~
 
-Mean Average Cosine Similarity (MAC), presented in the paper "*Black is to* 
-*Criminal as Caucasian is to Police: Detecting and Removing Multiclass Bias*
-*in Word Embeddings*".
+`Mean Average Cosine Similarity (MAC) <https://wefe.readthedocs.io/en/latest/generated/wefe.MAC.html#wefe.MAC>`_ originally presented in [1].
 
 The algorithm used to calculate the metric is as follows:
 
@@ -1822,17 +1825,41 @@ The algorithm used to calculate the metric is as follows:
 
 The closer the value is to 1, the less biased the query will be.
 
+References
+
+| [1]: Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
+|      Black is to Criminal as Caucasian is to Police: Detecting and Removing Multiclass
+|      Bias in Word Embeddings.
+|      In Proceedings of the 2019 Conference of the North American Chapter of the
+|      Association for Computational Linguistics:
+|      Human Language Technologies, Volume 1 (Long and Short Papers), pages 615–621,
+|      Minneapolis, Minnesota, June 2019. Association for Computational Linguistics.
+| [2]: https://github.com/TManzini/DebiasMulticlassWordEmbedding/blob/master/Debiasing/evalBias.py
 
 
 ECT
 ~~~
 
-The Embedding Coherence Test, presented in "Attenuating Bias in Word vectors"
+The `Embedding Coherence Test <https://wefe.readthedocs.io/en/latest/generated/wefe.ECT.html#wefe.ECT>`_
+, originally proposed in [1] and implemented in [2],
 calculates the average target group vectors, measures the cosine similarity of each
 to a list of attribute words and calculates the correlation of the resulting
 similarity lists.
 
+Values closer to 1 are better as they represent less bias.
 
+The general steps of the test, as defined in [1], are as follows:
+
+1. Embed all given target and attribute words with the given embedding model.
+2. Calculate mean vectors for the two sets of target word vectors.
+3. Measure the cosine similarity of the mean target vectors to all of the given attribute words.
+4. Calculate the Spearman r correlation between the resulting two lists of similarities.
+5. Return the correlation value as score of the metric (in the range of -1 to 1); higher is better.
+
+References
+
+| [1]: Dev, S., & Phillips, J. (2019, April). Attenuating Bias in Word vectors.
+| [2]: https://github.com/sunipa/Attenuating-Bias-in-Word-Vec
 
 
 RIPA
@@ -1845,3 +1872,12 @@ the association) and calculating the dot product of this vector with the attribu
 RIPA's advantages are its interpretability, and its relative robustness compared to WEAT 
 with regard to how the relation vector is defined.
 
+This metric follows the following steps:
+
+1. The input is the word vectors for a pair of target word sets, and an attribute set.
+   Example: Target Set A (Masculine), Target Set B (Feminine), Attribute Set
+   (Career).
+2. Calculate the difference between the word vector of a pair of target set words.
+3. Calculate the dot product between this difference and the attribute word vector.
+4. Return the average RIPA score across all attribute words, and the average RIPA
+   score for each target pair for an attribute set.

@@ -15,7 +15,7 @@ class HalfSiblingRegression(BaseDebias):
      inference by utilizing the statistical dependency between gender-biased
      word vectors and gender definition word vectors. The learned spurious
      gender information is then subtracted from the gender-biased word
-     vecors to achieve gender-debiasing as the following where Vn' are
+     vectors to achieve gender-debiasing as the following where Vn' are
      the debiased word vectors, Vn are non gender definition and G is
      the approximated gender information:
 
@@ -36,7 +36,7 @@ class HalfSiblingRegression(BaseDebias):
 
      G = Vd W
 
-     3. Substract gender information from non gender definition words:
+     3. Subtract gender information from non gender definition words:
 
      Vn' = Vn - G
 
@@ -181,8 +181,8 @@ class HalfSiblingRegression(BaseDebias):
             information by definition.
 
         alpha: float
-            Ridge Regression constant. By default 60,
-            numner
+            Ridge Regression constant. By default 60
+            
 
         Returns
         -------
@@ -229,7 +229,7 @@ class HalfSiblingRegression(BaseDebias):
     ) -> WordEmbeddingModel:
 
         """
-        Substracts the gender information from vectors.
+        Subtracts the gender information from vectors.
 
         Args:
             model: WordEmbeddingModel

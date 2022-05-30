@@ -437,7 +437,7 @@ def test_half_sibling_regression_class(model, capsys):
     # Gender Debias
     hsr = HalfSiblingRegression(criterion_name="gender",)
     hsr.fit(
-        model, gender_definition=gender_specific
+        model, bias_definition=gender_specific
     )
 
     gender_debiased_w2v = hsr.transform(model, copy=True)
@@ -460,7 +460,7 @@ def test_half_sibling_regression_class(model, capsys):
     attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
 
     gender_debiased_w2v = hsr.fit(
-        model, gender_definition= gender_specific
+        model, bias_definition= gender_specific
     ).transform(model, target=attributes, copy=True)
 
     biased_results = weat.run_query(query_1, model, normalize=True)
@@ -481,7 +481,7 @@ def test_half_sibling_regression_class(model, capsys):
     targets = weat_wordset["male_names"] + weat_wordset["female_names"]
     attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
     gender_debiased_w2v = hsr.fit(
-        model, gender_definition=gender_specific
+        model, bias_definition=gender_specific
     ).transform(model, ignore=gender_specific + targets + attributes, copy=True)
 
     biased_results = weat.run_query(query_1, model, normalize=True)
@@ -493,15 +493,15 @@ def test_half_sibling_regression_class(model, capsys):
     # Test verbose
     hsr = HalfSiblingRegression(verbose=True)
     gender_debiased_w2v = hsr.fit(
-        model, gender_definition=gender_specific
+        model, bias_definition=gender_specific
     ).transform(model, copy=True)
 
     out = capsys.readouterr().out
     assert "Computing the weight matrix." in out
-    assert "Computing gender information" in out
+    assert "Computing bias information" in out
     assert f"Executing Half Sibling Debias on {model.name}" in out
     assert "Copy argument is True. Transform will attempt to create a copy" in out
-    assert "Substracting gender information." in out
+    assert "Substracting bias information." in out
     assert 'Updating debiased vectors' in out
     assert "Done!" in out
 
@@ -512,7 +512,7 @@ def test_half_sibling_regression_class(model, capsys):
     # Test inplace (copy = False)
     hsr = HalfSiblingRegression(criterion_name="gender",)
     hsr.fit(
-        model, gender_definition=gender_specific
+        model, bias_definition=gender_specific
     )
 
     gender_debiased_w2v = hsr.transform(model, copy=False)

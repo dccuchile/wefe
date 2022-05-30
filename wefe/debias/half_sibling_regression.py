@@ -61,7 +61,7 @@ class HalfSiblingRegression(BaseDebias):
          >>> gender_specific = debiaswe_wordsets["gender_specific"]
          >>
          >>> # instance and fit the method
-         >>> hsr = HalfSiblingRegression().fit(model = model, gender_definition_definition = gender_specific)
+         >>> hsr = HalfSiblingRegression().fit(model = model, bias_definition_definition = gender_specific)
          >>> # execute the debias on the words not included in the gender definition set
          >>> debiased_model = hsr.transform(model = model)
          >>>
@@ -119,56 +119,56 @@ class HalfSiblingRegression(BaseDebias):
         else:
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
-    def _get_gender_vectors(
-        self, model: WordEmbeddingModel, gender_definition: List[str]
+    def _get_bias_vectors(
+        self, model: WordEmbeddingModel, bias_definition: List[str]
     ) -> np.ndarray:
 
-        vectors = [model[word] for word in gender_definition if word in model]
+        vectors = [model[word] for word in bias_definition if word in model]
         return np.asarray(vectors)
 
-    def _get_non_gender_dict(
-        self, model: WordEmbeddingModel, non_gender: List[str]
+    def _get_non_bias_dict(
+        self, model: WordEmbeddingModel, non_bias: List[str]
     ) -> Dict[str, float]:
 
         dictionary = get_embeddings_from_sets(
-            model=model, sets=[non_gender], sets_name="non_gender", normalize=False
+            model=model, sets=[non_bias], sets_name="non_bias", normalize=False
         )
         return dictionary[0]
 
     def _compute_weigth_matrix(
-        self, gender_vectors: np.ndarray, non_gender_vectors: np.ndarray, alpha: float
+        self, bias_vectors: np.ndarray, non_bias_vectors: np.ndarray, alpha: float
     ) -> np.ndarray:
 
-        a = gender_vectors.T @ gender_vectors + alpha * np.eye(gender_vectors.shape[1])
-        b = gender_vectors.T @ non_gender_vectors
+        a = bias_vectors.T @ bias_vectors + alpha * np.eye(bias_vectors.shape[1])
+        b = bias_vectors.T @ non_bias_vectors
         weight_matrix = np.linalg.inv(a) @ b
         return weight_matrix
 
-    def _compute_gender_information(
-        self, gender_vectors: np.ndarray, weight_matrix: np.ndarray
+    def _compute_bias_information(
+        self, bias_vectors: np.ndarray, weight_matrix: np.ndarray
     ) -> np.ndarray:
-        gender_information = gender_vectors @ weight_matrix
-        return gender_information
+        bias_information = bias_vectors @ weight_matrix
+        return bias_information
 
-    def _substract_gender_information(
-        self, non_gender_vectors: np.ndarray, gender_information: np.ndarray
+    def _subtract_bias_information(
+        self, non_bias_vectors: np.ndarray, bias_information: np.ndarray
     ) -> np.ndarray:
-        debiased_vectors = non_gender_vectors - gender_information
+        debiased_vectors = non_bias_vectors - bias_information
         return debiased_vectors
 
     def _get_indexes(
-        self, model, target: List[str], non_gender: List[str]
+        self, model, target: List[str], non_bias: List[str]
     ) -> List[int]:
-        return [non_gender.index(word) for word in target if word in model]
+        return [non_bias.index(word) for word in target if word in model]
 
     def fit(
         self,
         model: WordEmbeddingModel,
-        gender_definition: Sequence[str],
+        bias_definition: Sequence[str],
         alpha: float = 60,
     ) -> BaseDebias:
         """
-        Computes the weight matrix and the gender information
+        Computes the weight matrix and the bias information
 
         Parameters
         ----------
@@ -176,13 +176,13 @@ class HalfSiblingRegression(BaseDebias):
         model: WordEmbeddingModel
             The word embedding model to debias.
 
-        gender_definition: Sequence[str]
-            List of strings. This list contains words that embody gender
+        bias_definition: Sequence[str]
+            List of strings. This list contains words that embody bias
             information by definition.
 
         alpha: float
             Ridge Regression constant. By default 60
-            
+
 
         Returns
         -------
@@ -190,32 +190,32 @@ class HalfSiblingRegression(BaseDebias):
             The debias method fitted.
         """
 
-        self.gender_definition = gender_definition
-        self.non_gender = list(set(model.vocab.keys()) - set(self.gender_definition))
+        self.bias_definition = bias_definition
+        self.non_bias = list(set(model.vocab.keys()) - set(self.bias_definition))
         self.alpha = alpha
 
-        gender_definition_vectors = self._get_gender_vectors(
-            model, self.gender_definition
+        bias_definition_vectors = self._get_bias_vectors(
+            model, self.bias_definition
         ).T
 
-        self.non_gender_dict = self._get_non_gender_dict(model, self.non_gender)
+        self.non_bias_dict = self._get_non_bias_dict(model, self.non_bias)
 
         # ------------------------------------------------------------------------------
         # Compute the weight matrix .
         if self.verbose:
             print("Computing the weight matrix.")
         weigth_matrix = self._compute_weigth_matrix(
-            gender_definition_vectors,
-            np.asarray(list(self.non_gender_dict.values())).T,
+            bias_definition_vectors,
+            np.asarray(list(self.non_bias_dict.values())).T,
             alpha=self.alpha,
         )
 
         # ------------------------------------------------------------------------------:
-        # Compute the approximated gender information
+        # Compute the approximated bias information
         if self.verbose:
-            print("Computing gender information")
-        self.gender_information = self._compute_gender_information(
-            gender_definition_vectors, weigth_matrix
+            print("Computing bias information")
+        self.bias_information = self._compute_bias_information(
+            bias_definition_vectors, weigth_matrix
         )
 
         return self
@@ -229,7 +229,7 @@ class HalfSiblingRegression(BaseDebias):
     ) -> WordEmbeddingModel:
 
         """
-        Subtracts the gender information from vectors.
+        Subtracts the bias information from vectors.
 
         Args:
             model: WordEmbeddingModel
@@ -239,13 +239,13 @@ class HalfSiblingRegression(BaseDebias):
             If a set of words is specified in target, the debias method
             will be performed only on the word embeddings of this set.
             If `None` is provided, the debias will be performed on all
-            non gender specific words (except those specified in ignore).
-            Target words must not be included in the gender specific set.
+            non bias specific words (except those specified in ignore).
+            Target words must not be included in the bias specific set.
             by default `None`.
 
             ignore : Optional[List[str]], optional
             If target is `None` and a set of words is specified in ignore,
-            the debias method will perform the debias in all non gender
+            the debias method will perform the debias in all non bias
             specific words except those specified in this
             set, by default `[]`.
 
@@ -265,10 +265,10 @@ class HalfSiblingRegression(BaseDebias):
         check_is_fitted(
             self,
             [
-                "gender_definition",
-                "non_gender",
+                "bias_definition",
+                "non_bias",
                 "alpha",
-                "non_gender_dict",
+                "non_bias_dict",
             ],
         )
 
@@ -292,37 +292,37 @@ class HalfSiblingRegression(BaseDebias):
             )
 
         # -------------------------------------------------------------------
-        # Substract gender information from vectors:
+        # Substract bias information from vectors:
 
         if self.verbose:
-            print("Substracting gender information.")
+            print("Subtracting bias information.")
         # if target or ignore are specified the debias is applied only in the
         # columns corresponding to those words embeddings
         if target or ignore:
             if target:
                 target = list(set(target) - set(ignore))
             else:
-                target = list(set(list(self.non_gender_dict.keys())) - set(ignore))
+                target = list(set(list(self.non_bias_dict.keys())) - set(ignore))
             indexes = self._get_indexes(
-                model, target, list(self.non_gender_dict.keys())
+                model, target, list(self.non_bias_dict.keys())
             )
 
-            gender_info = self.gender_information[:, indexes]
-            vectors = np.asarray(list(self.non_gender_dict.values())).T[:, indexes]
-            debiased_vectors = self._substract_gender_information(
-                vectors, gender_info
+            bias_info = self.bias_information[:, indexes]
+            vectors = np.asarray(list(self.non_bias_dict.values())).T[:, indexes]
+            debiased_vectors = self._subtract_bias_information(
+                vectors, bias_info
             ).T
-            self.non_gender_dict = dict(zip(target, debiased_vectors))
+            self.non_bias_dict = dict(zip(target, debiased_vectors))
 
         # if not target or ignores is provided the debias is applied to
-        # all non gender vectors
+        # all non bias vectors
         else:
-            vectors = np.asarray(list(self.non_gender_dict.values())).T
-            debiased_vectors = self._substract_gender_information(
-                vectors, self.gender_information
+            vectors = np.asarray(list(self.non_bias_dict.values())).T
+            debiased_vectors = self._subtract_bias_information(
+                vectors, self.bias_information
             ).T
-            self.non_gender_dict = dict(
-                zip(self.non_gender_dict.keys(), debiased_vectors)
+            self.non_bias_dict = dict(
+                zip(self.non_bias_dict.keys(), debiased_vectors)
             )
 
         if self.verbose:
@@ -332,9 +332,9 @@ class HalfSiblingRegression(BaseDebias):
         # update the model with new vectors
         [
             model.update(
-                word, self.non_gender_dict[word].astype(model.wv.vectors.dtype)
+                word, self.non_bias_dict[word].astype(model.wv.vectors.dtype)
             )
-            for word in tqdm(self.non_gender_dict.keys())
+            for word in tqdm(self.non_bias_dict.keys())
         ]
 
         # -------------------------------------------------------------------

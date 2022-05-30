@@ -1748,62 +1748,6 @@ of the difference between the word and the average target, and then subtracts
 the norms. The more positive (negative) the relative distance from the norm, 
 the more associated are the sets of attributes towards group two (one). 
 
-RNSB
-~~~~
-
-Relative Negative Sentiment Bias (RNSB) was presented in the paper:
-
-  | Chris Sweeney and Maryam Najafian. A transparent framework for evaluating
-  | unintended demographic bias in word embeddings.
-  | In Proceedings of the 57th Annual Meeting of the Association for
-  | Computational Linguistics, pages 1662–1667, 2019.
-
-Originally this metric is based on measuring bias through word sentiment.
-The main idea is that if there were no bias, all words should be equally negative. 
-Therefore, its procedure is based on calculating how negative the words in the target
-sets are.
-
-For this purpose, RNSB trains a classifier that assigns a probability to each
-word of belonging to the negative class (in the original work the classifier is trained
-using `Bing Liu's lexicon <https://wefe.readthedocs.io/en/latest/generated/dataloaders/wefe.load_bingliu.html>`_
-of positive and negative words).
-Then, it generates a probability distribution with the probabilities calculated in
-the previous step and compares them to the uniform distribution
-(case where all words have the same probability of being negative) using KL divergence.
-When the negative probability distribution is equal to the uniform one (i.e., there
-is no bias), the KL divergence is 0.
-
-The following description of the metric is WEFE's adaptation of what was presented 
-in the original RNSB work.
-
-RNSB receives as input queries with two attribute sets :math:`A_1` and 
-:math:`A_2` and two or more target sets. Thus has a template (tuple of numbers that 
-defines the allowed target and attribute sets in the query) 
-of the form :math:`s=(N,2)` with :math:`N\geq 2`.
-
-Given a query :math:`Q=(\{T_1,T_2,\ldots,T_n\},\{A_1,A_2\})` RNSB is calculated under 
-the following steps::
-
-1. First constructs a binary classifier  :math:`C_{(A_1,A_2)}(\cdot)` using 
-   set :math:`A_1` as training examples for the negative class, and :math:`A_2` as 
-   training examples for the positive class. 
-
-2. After the training process, this classifier gives for every word :math:`w` a 
-   probability :math:`C_{(A_1,A_2)}(w)` that can be interpreted as the degree of 
-   association of :math:`w` with respect to  :math:`A_2` (value 
-   :math:`1-C_{(A_1,A_2)}(w)` is the degree of association with :math:`A_1`).
-
-3. Then, the metric construct a probability distribution :math:`P(\cdot)` over all 
-   the words :math:`w` in :math:`T_1\cup \cdots \cup T_n`, by computing 
-   :math:`C_{(A_1,A_2)}(w)` and normalizing it to ensure that :math:`\sum_w P(w)=1`.
-
-4. Finally RNSB is calculated as the distance between :math:`P(\cdot)` and
-   the uniform distribution :math:`Y(\cdot)` using the KL-divergence.
-
-The main idea behind RNSB is that the more that :math:`P(\cdot)` resembles a 
-uniform distribution, the less biased the word embedding model is. 
-Thus, the optimal value is 0.
-
 
 MAC
 ~~~

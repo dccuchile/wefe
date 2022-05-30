@@ -12,8 +12,9 @@ from wefe.word_embedding_model import WordEmbeddingModel
 class RND(BaseMetric):
     """Relative Norm Distance (RND).
 
-    It measures the relative strength of association of a set of neutral words
-    with respect to two groups.
+    The metric was originally proposed in [1].
+    Visit `RND in Metrics Section <https://wefe.readthedocs.io/en/latest/user_guide_measurement.html#rnd>`_
+    for further information.
 
     References
     ----------

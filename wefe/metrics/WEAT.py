@@ -12,18 +12,71 @@ from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
 
 class WEAT(BaseMetric):
-    """Word Embedding Association Test (WEAT).
+    """Word Embedding Association Test (WEAT)[1].
 
-    The metric was originally proposed in [1].
-    Visit `WEAT in Metrics Section <https://wefe.readthedocs.io/en/latest/about.html#weat>`_
-    for further information.
+    The following description of the metric is WEFE's adaptation of what was presented
+    in the original WEAT work.
 
-    References
-    ----------
+    WEAT receives two sets :math:`T_1` and :math:`T_2` of target words,
+    and two sets :math:`A_1` and :math:`A_2` of attribute words and performs a
+    hypothesis test on the following null hypothesis:
+    There is no difference between the two sets of target words in terms of their
+    relative similarity to the similarity with the two sets of attribute words.
+
+    In formal terms, let :math:`T_1` and :math:`T_2` be two sets of target words of
+    equal size, and :math:`A_1`, :math:`A_2` the two sets of attribute words.
+    Let :math:`\\cos(\\vec{a}, \\vec{b})` denote the cosine of the angle between the
+    vectors :math:`\\vec{a}` and :math:`\\vec{b}`. The test statistic is:
+
+    .. math::
+
+        \\text{WEAT}(T_1,T_2,A_1,A_2) = \\sum_{x \\in T_1} s(x, A_1, A_2) -
+        \\sum_{y \\in T_2} s(y, A_1, A_2)
+
+    where 
+
+    .. math::
+
+        s(w, A, B)=\\text{mean}_{a \\in A} \\cos(\\vec{w}, \\vec{a}) -
+        \\text{mean}_{b \\in B} \\cos(\\vec{w},\\vec{b})
+
+    :math:`s(w,A,B)` measures the association of :math:`w` with the
+    attributes, and :math:`\\text{WEAT}(T_1,T_2,A_1,A_2)` measures the differential
+    association of the two sets of target words with the attribute.
+
+    This metric also contains a variant: WEAT Effect Size (WEAT-ES). This variant
+    represents a normalized measure that quantifies how far apart the two distributions
+    of association between targets and attributes are. Iin practical terms, WEAT
+    Effect Size makes the metric not dependent on the number of words used in each set.
+
+    .. math::
+
+        \\text{WEAT-ES}(T_1,T_2,A_1,A_2) = \\frac{\\text{mean}_{x \\in T_1}\\,
+        s(x, A_1, A_2) - \\text{mean}_{y \\in T_2}\\, s(y, A_1, A_2) }
+        {\\text{std-dev}_{w \\in T_1 \\cup T_2}\\, s(w, A_1, A_2)}
+
+
+
+    The permutation test measures the (un)likelihood of the null hypothesis by
+    computing the probability that a random permutation of the attribute words would
+    produce the observed (or greater) difference in sample mean.
+
+    Let :math:`{(T_{1_i},T_{2_i})}_{i}` denote all the partitions of
+    :math:`T_1 \\cup T_2` into two sets of equal size. The one-sided p-value of the
+    permutation test is:
+
+    .. math::
+
+        \\text{Pr}_{i}[s(T_{1_i}, T_{2_i}, A_1, A_2) > s(T_1, T_2, A_1, A_2)]
+
+    References:
+    -----------
+
     | [1]: Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan. Semantics derived
-    | automatically from language corpora contain human-like biases.
-    | Science, 356(6334):183–186, 2017.
-    """
+    |      automatically from language corpora contain human-like biases.
+    |      Science, 356(6334):183–186, 2017.
+
+"""
 
     metric_template = (2, 2)
     metric_name = "Word Embedding Association Test"

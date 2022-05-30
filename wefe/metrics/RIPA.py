@@ -18,15 +18,10 @@ class RIPA(BaseMetric):
     recommended that only a single pair of target words is used as input to the
     function.
 
-    This metric follows the following steps:
-    
-    1. The input is the word vectors for a pair of target word sets, and an attribute set.
-       Example: Target Set A (Masculine), Target Set B (Feminine), Attribute Set
-       (Career).
-    2. Calculate the difference between the word vector of a pair of target set words.
-    3. Calculate the dot product between this difference and the attribute word vector.
-    4. Return the average RIPA score across all attribute words, and the average RIPA
-       score for each target pair for an attribute set.
+    The metric was originally proposed in [1].
+    Visit `WEAT in Metrics Section <https://wefe.readthedocs.io/en/latest/user_guide_measurement.html#ripa>`_
+    for further information.
+
 
     References
     ----------

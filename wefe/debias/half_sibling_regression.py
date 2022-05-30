@@ -61,7 +61,7 @@ class HalfSiblingRegression(BaseDebias):
          >>> gender_specific = debiaswe_wordsets["gender_specific"]
          >>
          >>> # instance and fit the method
-         >>> hsr = HalfSiblingRegression().fit(model = model, bias_definition_definition = gender_specific)
+         >>> hsr = HalfSiblingRegression().fit(model = model, bias_definitional_words = gender_specific)
          >>> # execute the debias on the words not included in the gender definition set
          >>> debiased_model = hsr.transform(model = model)
          >>>
@@ -120,10 +120,10 @@ class HalfSiblingRegression(BaseDebias):
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
     def _get_bias_vectors(
-        self, model: WordEmbeddingModel, bias_definition: List[str]
+        self, model: WordEmbeddingModel, bias_definitional_words: List[str]
     ) -> np.ndarray:
 
-        vectors = [model[word] for word in bias_definition if word in model]
+        vectors = [model[word] for word in bias_definitional_words if word in model]
         return np.asarray(vectors)
 
     def _get_non_bias_dict(
@@ -164,7 +164,7 @@ class HalfSiblingRegression(BaseDebias):
     def fit(
         self,
         model: WordEmbeddingModel,
-        bias_definition: Sequence[str],
+        bias_definitional_words: Sequence[str],
         alpha: float = 60,
     ) -> BaseDebias:
         """
@@ -176,7 +176,7 @@ class HalfSiblingRegression(BaseDebias):
         model: WordEmbeddingModel
             The word embedding model to debias.
 
-        bias_definition: Sequence[str]
+        bias_definitional_words: Sequence[str]
             List of strings. This list contains words that embody bias
             information by definition.
 
@@ -190,12 +190,12 @@ class HalfSiblingRegression(BaseDebias):
             The debias method fitted.
         """
 
-        self.bias_definition = bias_definition
-        self.non_bias = list(set(model.vocab.keys()) - set(self.bias_definition))
+        self.bias_definitional_words = bias_definitional_words
+        self.non_bias = list(set(model.vocab.keys()) - set(self.bias_definitional_words))
         self.alpha = alpha
 
-        bias_definition_vectors = self._get_bias_vectors(
-            model, self.bias_definition
+        bias_definitional_words_vectors = self._get_bias_vectors(
+            model, self.bias_definitional_words
         ).T
 
         self.non_bias_dict = self._get_non_bias_dict(model, self.non_bias)
@@ -205,7 +205,7 @@ class HalfSiblingRegression(BaseDebias):
         if self.verbose:
             print("Computing the weight matrix.")
         weigth_matrix = self._compute_weigth_matrix(
-            bias_definition_vectors,
+            bias_definitional_words_vectors,
             np.asarray(list(self.non_bias_dict.values())).T,
             alpha=self.alpha,
         )
@@ -215,7 +215,7 @@ class HalfSiblingRegression(BaseDebias):
         if self.verbose:
             print("Computing bias information")
         self.bias_information = self._compute_bias_information(
-            bias_definition_vectors, weigth_matrix
+            bias_definitional_words_vectors, weigth_matrix
         )
 
         return self
@@ -265,7 +265,7 @@ class HalfSiblingRegression(BaseDebias):
         check_is_fitted(
             self,
             [
-                "bias_definition",
+                "bias_definitional_words",
                 "non_bias",
                 "alpha",
                 "non_bias_dict",

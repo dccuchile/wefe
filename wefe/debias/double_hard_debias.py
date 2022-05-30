@@ -31,12 +31,12 @@ class DoubleHardDebias(BaseDebias):
     2. Find the dominant directions of the entire set of vectors by doing a
     Principal components analysis over it.
 
-    3. Get the taget words by finding the most biased words, this is
-    the words tha are closests to the representation of each bias group. In
+    3. Get the target words by finding the most biased words, this is
+    the words tha are closest to the representation of each bias group. In
     case of gender 'he' and 'she'.
 
     3. Try removing each component resulting of PCA and remove also the bias
-    direction to every vector in the target set and find wich component
+    direction to every vector in the target set and find which component
     reduces bias the most.
 
     4. Remove the dominant direction that most reduces bias and remove also
@@ -211,7 +211,7 @@ class DoubleHardDebias(BaseDebias):
     def _drop_frecuency_features(
         self, components: int, model: WordEmbeddingModel
     ) -> Dict[str, np.ndarray]:
-        """Removes from the embeddings the frecuency features. This is done
+        """Removes from the embeddings the frequency features. This is done
         by removing a component from the ones obtain by the pca over the set
         of embeddings. The component to remove is indicated by parameter
         "components" and it is removed from the target words' embeddings.
@@ -242,17 +242,17 @@ class DoubleHardDebias(BaseDebias):
 
     def _identify_bias_subspace(
         self,
-        definning_pairs_embeddings,
+        defining_pairs_embeddings,
         verbose: bool = False,
     ) -> PCA:
 
         matrix = []
-        for embedding_dict_pair in definning_pairs_embeddings:
+        for embedding_dict_pair in defining_pairs_embeddings:
 
-            # Get the center of the current definning pair.
+            # Get the center of the current defining pair.
             pair_embeddings = np.array(list(embedding_dict_pair.values()))
             center = np.mean(pair_embeddings, axis=0)
-            # For each word, embedding in the definning pair:
+            # For each word, embedding in the defining pair:
             for embedding in embedding_dict_pair.values():
                 # Substract the center of the pair to the embedding
                 matrix.append(embedding - center)
@@ -353,7 +353,7 @@ class DoubleHardDebias(BaseDebias):
         )
 
         # -------------------------------------------------------------------
-        # Identify the bias subspace using the definning pairs.
+        # Identify the bias subspace using the defining pairs.
         if self.verbose:
             print("Identifying the bias subspace.")
         self.bias_direction = self._identify_bias_subspace(

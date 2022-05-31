@@ -348,7 +348,7 @@ class DoubleHardDebias(BaseDebias):
             sets=definitional_pairs,
             sets_name="definitional",
             warn_lost_sets=self.verbose,
-            normalize=True,
+            normalize=False,
             verbose=self.verbose,
         )
 

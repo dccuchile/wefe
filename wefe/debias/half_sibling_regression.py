@@ -156,9 +156,7 @@ class HalfSiblingRegression(BaseDebias):
         debiased_vectors = non_bias_vectors - bias_information
         return debiased_vectors
 
-    def _get_indexes(
-        self, model, target: List[str], non_bias: List[str]
-    ) -> List[int]:
+    def _get_indexes(self, model, target: List[str], non_bias: List[str]) -> List[int]:
         return [non_bias.index(word) for word in target if word in model]
 
     def fit(
@@ -191,7 +189,9 @@ class HalfSiblingRegression(BaseDebias):
         """
 
         self.bias_definitional_words = bias_definitional_words
-        self.non_bias = list(set(model.vocab.keys()) - set(self.bias_definitional_words))
+        self.non_bias = list(
+            set(model.vocab.keys()) - set(self.bias_definitional_words)
+        )
         self.alpha = alpha
 
         bias_definitional_words_vectors = self._get_bias_vectors(
@@ -303,15 +303,11 @@ class HalfSiblingRegression(BaseDebias):
                 target = list(set(target) - set(ignore))
             else:
                 target = list(set(list(self.non_bias_dict.keys())) - set(ignore))
-            indexes = self._get_indexes(
-                model, target, list(self.non_bias_dict.keys())
-            )
+            indexes = self._get_indexes(model, target, list(self.non_bias_dict.keys()))
 
             bias_info = self.bias_information[:, indexes]
             vectors = np.asarray(list(self.non_bias_dict.values())).T[:, indexes]
-            debiased_vectors = self._subtract_bias_information(
-                vectors, bias_info
-            ).T
+            debiased_vectors = self._subtract_bias_information(vectors, bias_info).T
             self.non_bias_dict = dict(zip(target, debiased_vectors))
 
         # if not target or ignores is provided the debias is applied to
@@ -321,21 +317,17 @@ class HalfSiblingRegression(BaseDebias):
             debiased_vectors = self._subtract_bias_information(
                 vectors, self.bias_information
             ).T
-            self.non_bias_dict = dict(
-                zip(self.non_bias_dict.keys(), debiased_vectors)
-            )
+            self.non_bias_dict = dict(zip(self.non_bias_dict.keys(), debiased_vectors))
 
         if self.verbose:
             print("Updating debiased vectors")
 
         # -------------------------------------------------------------------
         # update the model with new vectors
-        [
+        for word in tqdm(self.non_bias_dict.keys()):
             model.update(
                 word, self.non_bias_dict[word].astype(model.wv.vectors.dtype)
             )
-            for word in tqdm(self.non_bias_dict.keys())
-        ]
 
         # -------------------------------------------------------------------
         # # Generate the new KeyedVectors

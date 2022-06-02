@@ -29,6 +29,11 @@ using the package to measure bias. The following sections show:
   on the library’s about page. These concepts are widely used in the
   following sections.
 
+.. note::
+
+  For a list of metrics implemented in WEFE, refer to the
+  :ref:`metrics section<metrics-API>` of the API.  
+
 
 A jupyter notebook with this code is located in the following link: `WEFE User
 Guide <https://github.com/dccuchile/wefe/blob/master/examples/User_Guide.ipynb>`__.
@@ -185,8 +190,7 @@ p-values. Also some metrics allow you to change the default value in
 results.
 
 Details of all the metrics implemented, their parameters and
-examples of execution can be found at `API
-documentation <https://wefe.readthedocs.io/en/latest/api.html>`__.
+examples of execution can be found at :ref:`metrics API<metrics-API>`.
 
 
 Run Query Arguments
@@ -1667,161 +1671,3 @@ WEFE also provides a function for graphing the correlations:
 In this case, only two of the three rankings show similar results.
 
 
-Metrics
--------
-
-The metrics implemented in the package so far are:
-
-WEAT
-~~~~
-
-The `Word Embedding Association Test (WEAT) <https://wefe.readthedocs.io/en/latest/generated/wefe.WEAT.html#wefe.WEAT>`_ 
-was originally presented in [1].
-
-The following description of the metric is WEFE's adaptation of what was presented 
-in the original WEAT work.
-
-WEAT receives two sets :math:`T_1` and :math:`T_2` of target words, 
-and two sets :math:`A_1` and :math:`A_2` of attribute words and performs a 
-hypothesis test on the following null hypothesis: 
-There is no difference between the two sets of target words in terms of their
-relative similarity to the similarity with the two sets of attribute words.
-
-In formal terms, let :math:`T_1` and :math:`T_2` be two sets of target words of 
-equal size, and :math:`A_1`, :math:`A_2` the two sets of attribute words.
-Let :math:`\cos(\vec{a},\vec{b})` denote the cosine of the angle between the vectors
-:math:`\vec{a}` and :math:`\vec{b}`. The test statistic is:
-
-.. math::
-
-  \text{WEAT}(T_1,T_2,A_1,A_2) = \sum_{x \in T_1} s(x, A_1, A_2) - \sum_{y \in T_2} s(y, A_1, A_2)
-
-where 
-
-.. math::
-
-  s(w, A, B)=\text{mean}_{a \in A} \cos(\vec{w}, \vec{a}) - \text{mean}
-  _{b \in B} \cos(\vec{w},\vec{b})
-
-:math:`s(w,A,B)` measures the association of :math:`w` with the
-attributes, and :math:`\text{WEAT}(T_1,T_2,A_1,A_2)` measures the differential association 
-of the two sets of target words with the attribute.
-
-This metric also contains a variant: WEAT Effect Size (WEAT-ES). This variant represents a 
-normalized measure that quantifies how far apart the two distributions of association 
-between targets and attributes are. Iin practical terms, WEAT Effect Size makes the 
-metric not dependent on the number of words used in each set.
-
-.. math::
-
-  \text{WEAT-ES}(T_1,T_2,A_1,A_2) = \frac{\text{mean}_{x \in T_1}\, s(x, A_1, A_2) - \text{mean}_{y \in T_2}\, s(y, A_1, A_2) }{\text{std-dev}_{w \in T_1 \cup T_2}\, s(w, A_1, A_2)} 
-
-
-
-The permutation test measures the (un)likelihood of the null hypothesis by
-computing the probability that a random permutation of the attribute words would
-produce the observed (or greater) difference in sample mean.
-
-Let :math:`{(T_{1_i},T_{2_i})}_{i}` denote all the partitions of :math:`T_1 \cup T_2` 
-into two sets of equal size. The one-sided p-value of the permutation test is:
-
-.. math::
-
-  \text{Pr}_{i}[s(T_{1_i}, T_{2_i}, A_1, A_2) > s(T_1, T_2, A_1, A_2)]
-
-References
-
-
-| [1]: Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan. Semantics derived
-|      automatically from language corpora contain human-like biases.
-|      Science, 356(6334):183–186, 2017.
-
-
-RND
-~~~
-
-Relative Norm Distance (RND), presented in the paper "*Word embeddings quantify* 
-*100 years of gender and ethnic stereotypes*".
-RND averages the embeddings of 
-each target set, then for each of the attribute words, calculates the norm 
-of the difference between the word and the average target, and then subtracts 
-the norms. The more positive (negative) the relative distance from the norm, 
-the more associated are the sets of attributes towards group two (one). 
-
-
-MAC
-~~~
-
-`Mean Average Cosine Similarity (MAC) <https://wefe.readthedocs.io/en/latest/generated/wefe.MAC.html#wefe.MAC>`_ originally presented in [1].
-
-The algorithm used to calculate the metric is as follows:
-
-::
-
-    Embed all target and attribute words.
-    For each target set:
-      For each word embedding in the target set:
-        For each attribute set:
-          Calculate the cosine similarity of the target embedding and each attribute embedding of the set.
-          Calculate the mean of the cosines similarities and store it in a array.
-    Average all the mean cosine similarities and return the calculated score.
-
-
-The closer the value is to 1, the less biased the query will be.
-
-References
-
-| [1]: Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
-|      Black is to Criminal as Caucasian is to Police: Detecting and Removing Multiclass
-|      Bias in Word Embeddings.
-|      In Proceedings of the 2019 Conference of the North American Chapter of the
-|      Association for Computational Linguistics:
-|      Human Language Technologies, Volume 1 (Long and Short Papers), pages 615–621,
-|      Minneapolis, Minnesota, June 2019. Association for Computational Linguistics.
-| [2]: https://github.com/TManzini/DebiasMulticlassWordEmbedding/blob/master/Debiasing/evalBias.py
-
-
-ECT
-~~~
-
-The `Embedding Coherence Test <https://wefe.readthedocs.io/en/latest/generated/wefe.ECT.html#wefe.ECT>`_
-, originally proposed in [1] and implemented in [2],
-calculates the average target group vectors, measures the cosine similarity of each
-to a list of attribute words and calculates the correlation of the resulting
-similarity lists.
-
-Values closer to 1 are better as they represent less bias.
-
-The general steps of the test, as defined in [1], are as follows:
-
-1. Embed all given target and attribute words with the given embedding model.
-2. Calculate mean vectors for the two sets of target word vectors.
-3. Measure the cosine similarity of the mean target vectors to all of the given attribute words.
-4. Calculate the Spearman r correlation between the resulting two lists of similarities.
-5. Return the correlation value as score of the metric (in the range of -1 to 1); higher is better.
-
-References
-
-| [1]: Dev, S., & Phillips, J. (2019, April). Attenuating Bias in Word vectors.
-| [2]: https://github.com/sunipa/Attenuating-Bias-in-Word-Vec
-
-
-RIPA
-~~~~
-
-The Relational Inner Product Association, presented in the paper "Understanding 
-Undesirable Word Embedding Associations", calculates bias by measuring the bias of a term
-by using the relation vector (i.e the first principal component of a pair of words that define
-the association) and calculating the dot product of this vector with the attribute word vector.
-RIPA's advantages are its interpretability, and its relative robustness compared to WEAT 
-with regard to how the relation vector is defined.
-
-This metric follows the following steps:
-
-1. The input is the word vectors for a pair of target word sets, and an attribute set.
-   Example: Target Set A (Masculine), Target Set B (Feminine), Attribute Set
-   (Career).
-2. Calculate the difference between the word vector of a pair of target set words.
-3. Calculate the dot product between this difference and the attribute word vector.
-4. Return the average RIPA score across all attribute words, and the average RIPA
-   score for each target pair for an attribute set.

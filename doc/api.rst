@@ -25,6 +25,8 @@ Query
    Query
 
 
+.. _metrics-API:
+
 Metrics
 ==========
 

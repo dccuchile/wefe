@@ -55,7 +55,7 @@ class RAN(nn.Module):
                 Function to be minimized to obtain the debiased embedding
             weights: list, optional
                 weights λi that determine the relative importance of one
-                objective function (repulsion, attarction, neutralization)
+                objective function (repulsion, attraction, neutralization)
                 over another. by Defaults [0.33, 0.33, 0.33].
         """
         super(RAN, self).__init__()

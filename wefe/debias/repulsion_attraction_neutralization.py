@@ -95,7 +95,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
     1. Repelling embeddings from neighbours with a high value of indirect
     bias (indicating a strong association due to gender), to minimize the
     gender bias based illicit associations.
-    2. Attracting debiased embeddings to the original represention, to
+    2. Attracting debiased embeddings to the original representation, to
     minimize the loss of semantic meaning
     3. Neutralizing the gender direction of each word, minimizing its
     bias to any particular gender.
@@ -110,27 +110,28 @@ class RepulsionAttractionNeutralization(BaseDebias):
     1. **Identify a bias subspace through the defining sets.** In the case of
     gender, these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
 
-    2. A multi-objective optimization is performed. For each vector w in the
-    target set it is found its debias counterpart wd by solving:
+    2. A multi-objective optimization is performed. For each vector :math:`w`  in the
+    target set it is found its debias counterpart :math:`w_d`  by solving:
 
-    argmin(Fr(wd),Fa(wd),Fn(wd))
+    :math:`argmin(F_r(w_d),F_a(w_d),F_n(w_d))`
 
     where Fr, Fa, Fn are repulsion, attraction and neutralization functions
     defined as the following:
-
-    Fr(wd) =  Σ |cos(wd,ni)| / |S|
-    Fa(wd) = |cos(wd,w)-1|/2
-    Fn(wd) = |cos(wd,g)|
+    
+    :math:`F_r(w_d) =  \\sum |cos(w_d,n_i)| / |S|`     
+    :math:`F_a(w_d) = |cos(w_d,w)-1|/2 `     
+    :math:`F_n(w_d) = |cos(w_d,g)|` 
 
     The optimization is performed by formulating a single objective:
-    F(wd) =  λ1Fr(wd) + λ2Fa(wd) + λ3Fn(wd)
+    
+    :math:`F(w_d) =  \\lambda_1 F_r(w_d) + \\lambda_2 F_a(w_d) + \\lambda_3 F_n(w_d) ` 
 
-    In the original implementation is define a preserve set (Vp) corresponding
+    In the original implementation is define a preserve set :math:`(V_p)`  corresponding
     to words for which gender carries semantic importance, this words are not
     included in the debias process. In WEFE this words would be the ones
     included in the ignore parameter of the transform method. The words
     that are not present in Vp are the ones to be included in the debias
-    process and form part of the debias set (Vd), in WEFE this words can
+    process and form part of the debias set :math:`(V_d)`, in WEFE this words can
     be specified in the target parameter of the transform method.
 
         Examples

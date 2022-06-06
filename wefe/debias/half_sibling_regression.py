@@ -44,7 +44,12 @@ class HalfSiblingRegression(BaseDebias):
      criterion, such as male or female.
      For a multiclass debias (such as for Latinos, Asians and Whites), it
      is recommended to visit MulticlassHardDebias class.
-
+     
+    .. warning::
+    This method requires three times the memory of the model when a copy of
+    the model and two times the memory of the model if not. Make sure this
+    much memory is available.
+    
      Examples
          --------
          The following example shows how to execute Half Sibling Regression

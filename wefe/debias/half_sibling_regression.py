@@ -19,26 +19,26 @@ class HalfSiblingRegression(BaseDebias):
      the debiased word vectors, Vn are non gender definition and G is
      the approximated gender information:
 
-     Vn' := Vn - G
-
+     :math:`Vn' := V_n - G`
+     
      G is obtained by predicting Non gender definition word vectors (Vn)
      using the gender-definition word vectors (Vd):
-
-     G := E[Vn|Vd]
-
+     
+     :math:`G := E[V_n|V_d]`
+     
     The Prediction is done by a Ridge Regression following the next steps:
 
      1. Compute the weight matrix of a Ridge Regression using two sets of words
-
-     W = ((Vd)^T Vd +  αI)^-1 (Vd)^TVn
+     
+     :math:`W = ((V_d)^T V_d +  \\alpha I)^{-1} (V_d)^TV_n`
 
      2. Compute the gender information:
-
-     G = Vd W
+     
+     :math:`G = V_d W`
 
      3. Subtract gender information from non gender definition words:
-
-     Vn' = Vn - G
+     
+     :math:`V_n' = V_n - G`
 
      This method is binary because it only allows 2 classes of the same bias
      criterion, such as male or female.

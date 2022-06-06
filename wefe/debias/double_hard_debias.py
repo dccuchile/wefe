@@ -189,7 +189,7 @@ class DoubleHardDebias(BaseDebias):
         n_words: int
             number of target words to use.
         bias_representation: Sequence[str]
-            Two words thar represents de bias groups.
+            Two words that represents de bias groups.
 
         Returns:
             List[str]
@@ -405,11 +405,11 @@ class DoubleHardDebias(BaseDebias):
             raise to `MemoryError`, by default True.
         n_words: int, optional
             Number of target words to be used for each bias group.
-            By deafualt 1000
+            By default 1000
         n_components: int, optional
             Numbers of components of PCA to be used to explore the one that
             reduces bias the most. Usually the best one is close to embedding
-            dimension/100. By deafualt 4.
+            dimension/100. By default 4.
         Returns
         -------
         WordEmbeddingModel

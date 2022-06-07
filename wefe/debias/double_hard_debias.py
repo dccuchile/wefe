@@ -119,7 +119,10 @@ class DoubleHardDebias(BaseDebias):
             self.pca_type = IncrementalPCA()
         else:
             self.pca_type = PCA(svd_solver="randomized")
-
+            
+        if not isinstance(pca_args,dict):
+            raise TypeError(f"pca_args should be a dict, got {verbose}.")
+        
         self.pca_args = pca_args
         self.verbose = verbose
 

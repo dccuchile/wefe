@@ -88,17 +88,17 @@ class RepulsionAttractionNeutralization(BaseDebias):
     """Repulsion Attraction Neutralization method.
 
     This method allow reducing the bias of an embedding model creating a
-    transformation such that the stereotypical gender information are
+    transformation such that the stereotypical information is
     minimized with minimal semantic offset. This transformation bases
     its operations on:
 
     1. Repelling embeddings from neighbours with a high value of indirect
-    bias (indicating a strong association due to gender), to minimize the
-    gender bias based illicit associations.
+    bias (indicating a strong association due to bias), to minimize the
+    bias based illicit associations.
     2. Attracting debiased embeddings to the original representation, to
     minimize the loss of semantic meaning
-    3. Neutralizing the gender direction of each word, minimizing its
-    bias to any particular gender.
+    3. Neutralizing the bias direction of each word, minimizing its
+    bias to any particular group.
 
     This method is binary because it only allows 2 classes of the same bias
     criterion,such as male or female.

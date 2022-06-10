@@ -10,8 +10,37 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class MAC(BaseMetric):
-    """Mean Average Cosine Similarity (MAC).
-    Read more on `MAC in the User Guide  <https://wefe.readthedocs.io/en/latest/user_guide_measurement.html#mac>`_
+    """An implementation of Mean Average Cosine Similarity (MAC).
+
+    The metric, presented in the paper "Black is to Criminal as Caucasian is to
+    Police: Detecting and Removing Multiclass Bias in Word Embeddings" [1],
+    calculate the score as follows:
+
+    ::
+
+        Embed all target and attribute words.
+        For each target set:
+        For each word embedding in the target set:
+            For each attribute set:
+            Calculate the cosine similarity of the target embedding and each attribute
+            embedding of the set.
+            Calculate the mean of the cosines similarities and store it in a array.
+        Average all the mean cosine similarities and return the calculated score.
+
+    The closer the value is to 1, the less biased the query will be.
+
+    References
+    ----------
+
+    | [1]: Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
+    |      Black is to Criminal as Caucasian is to Police: Detecting and Removing
+           Multiclass Bias in Word Embeddings.
+    |      In Proceedings of the 2019 Conference of the North American Chapter of the
+           Association for Computational Linguistics:
+           Human Language Technologies, Volume 1 (Long and Short Papers), pages 615–621,
+    |      Minneapolis, Minnesota, June 2019. Association for Computational Linguistics.
+    | [2]: https://github.com/TManzini/DebiasMulticlassWordEmbedding/blob/master/Debiasing/evalBias.py
+
     """
 
     metric_template = ("n", "n")

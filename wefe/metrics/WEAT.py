@@ -12,10 +12,11 @@ from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
 
 class WEAT(BaseMetric):
-    """Word Embedding Association Test (WEAT)[1].
+    """An implementation of Word Embedding Association Test (WEAT).
 
     The following description of the metric is WEFE's adaptation of what was presented
-    in the original WEAT work.
+    in the original WEAT work "Semantics derived automatically from language corpora
+    contain human-like biases" [1].
 
     WEAT receives two sets :math:`T_1` and :math:`T_2` of target words,
     and two sets :math:`A_1` and :math:`A_2` of attribute words and performs a
@@ -33,7 +34,7 @@ class WEAT(BaseMetric):
         \\text{WEAT}(T_1,T_2,A_1,A_2) = \\sum_{x \\in T_1} s(x, A_1, A_2) -
         \\sum_{y \\in T_2} s(y, A_1, A_2)
 
-    where 
+    where
 
     .. math::
 
@@ -55,8 +56,6 @@ class WEAT(BaseMetric):
         s(x, A_1, A_2) - \\text{mean}_{y \\in T_2}\\, s(y, A_1, A_2) }
         {\\text{std-dev}_{w \\in T_1 \\cup T_2}\\, s(w, A_1, A_2)}
 
-
-
     The permutation test measures the (un)likelihood of the null hypothesis by
     computing the probability that a random permutation of the attribute words would
     produce the observed (or greater) difference in sample mean.
@@ -69,11 +68,11 @@ class WEAT(BaseMetric):
 
         \\text{Pr}_{i}[s(T_{1_i}, T_{2_i}, A_1, A_2) > s(T_1, T_2, A_1, A_2)]
 
-    References:
-    -----------
-
-    | [1]: Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan. Semantics derived
-    |      automatically from language corpora contain human-like biases.
+    References
+    ----------
+    | [1]: Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan. 
+    |      Semantics derived automatically from language corpora contain human-like 
+           biases.
     |      Science, 356(6334):183–186, 2017.
 
 """

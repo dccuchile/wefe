@@ -242,10 +242,10 @@ Citation
 
 Please cite the following paper if using this package in an academic publication:
 
-P. Badilla, F. Bravo-Marquez, and J. Pérez 
-`WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the
-29th International Joint Conference on Artificial Intelligence and the 17th 
-Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. <https://www.ijcai.org/Proceedings/2020/60>`_
+`P. Badilla, F. Bravo-Marquez, and J. Pérez 
+ WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the
+ 29th International Joint Conference on Artificial Intelligence and the 17th 
+ Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. <https://www.ijcai.org/Proceedings/2020/60>`_
 
 The author's version can be found at the following `link <https://felipebravom.com/publications/ijcai2020.pdf>`__.
 

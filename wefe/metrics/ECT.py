@@ -11,9 +11,31 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class ECT(BaseMetric):
-    """Embedding Coherence Test.
+    """An implementation of Embedding Coherence Test (ECT).
 
-    Read more in `ECT on Measuring User Guide <https://wefe.readthedocs.io/en/latest/user_guide_measurement.html#ect>`_.
+    ECT. was originally proposed in [1] and implemented in [2].
+    It calculates the average target group vectors, measures the cosine similarity of
+    each to a list of attribute words and calculates the correlation of the resulting
+    similarity lists.
+
+    The general steps of the test, as defined in [1], are as follows:
+
+    1. Embed all given target and attribute words with the given embedding model.
+    2. Calculate mean vectors for the two sets of target word vectors.
+    3. Measure the cosine similarity of the mean target vectors to all of the given
+       attribute words.
+    4. Calculate the Spearman r correlation between the resulting two lists of
+       similarities.
+    5. Return the correlation value as score of the metric (in the range of -1 to 1);
+       higher is better.
+
+    Values closer to 1 are better as they represent less bias.
+
+    References
+    ----------
+
+    | [1]: Dev, S., & Phillips, J. (2019, April). Attenuating Bias in Word vectors.
+    | [2]: https://github.com/sunipa/Attenuating-Bias-in-Word-Vec
     """
 
     # The metrics accepts two target sets and a single attribute set

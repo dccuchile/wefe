@@ -10,11 +10,24 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class RND(BaseMetric):
-    """Relative Norm Distance (RND).
+    """An implementation of Relative Norm Distance (RND).
 
-    The metric was originally proposed in [1].
-    Visit `RND in Metrics Section <https://wefe.readthedocs.io/en/latest/user_guide_measurement.html#rnd>`_
-    for further information.
+    Originally proposed in "Word embeddings quantify 100 years of gender and ethnic
+    stereotypes" [1], calculates the score by:
+
+    1. Average the embeddings of each target set.
+    2. Then, for each attribute embedding, calculate the distance between the
+       attribute embedding and the average of the target 1 and the distance between the
+       embedding and target 2; and subtracts them.
+    3. Finally, it computes the average of the differences of the distances and
+       returns it.
+
+    The available distances are the the difference of the normalized vectors
+    ('norm') and the cosine distance ('cos').
+
+
+    The more positive (negative) the relative distance from the norm,
+    the more associated are the sets of attributes towards group two (one).
 
     References
     ----------
@@ -222,8 +235,7 @@ class RND(BaseMetric):
                                'family': 0.023389697,
                                'home': 0.04009247,
                                'cousins': 0.044702888}}
-        
-        
+
         If you want to use cosine distance instead of euclidean norm
         use the distance parameter as 'cos' before executing the query.
 

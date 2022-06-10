@@ -194,7 +194,7 @@ examples of execution can be found at :ref:`metrics API<metrics-API>`.
 
 
 Run Query Arguments
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Each metric allows varying the behavior of ``run_query`` according to
 different parameters. There are parameters to customize the
@@ -247,7 +247,7 @@ greater than those obtained by the original query.
 
 
 Out of Vocabulary Words
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 It is common in the literature to find bias tests whose tagret sets are
 common names of social groups. These names are commonly cased and may
@@ -331,7 +331,7 @@ names with respect to pleasant and unpleasant attributes.
     
 
 Word Preprocessors
-~~~~~~~~~~~~~~~~~~
+------------------
 
 ``run_queries`` allows preprocessing each word before they are searched in the model's 
 vocabulary.through the parameter ``preprocessors``. (list of one or more preprocessor).
@@ -517,7 +517,7 @@ preprocessors. This can be controlled by specifying the parameter
 
     
 Running multiple Queries
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 It is usual to want to test many queries of some bias criterion (gender,
 ethnicity, religion, politics, socioeconomic, among others) on several
@@ -794,7 +794,7 @@ a ``run_queries`` execution into a ``plotly`` braplot.
 
 
 Aggregating Results
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 The execution of ``run_queries`` provided many results evaluating the
 gender bias in the tested embeddings. However, these results alone do
@@ -981,7 +981,7 @@ results using the parameter ``return_only_aggregation``
 
 
 Model Ranking
-~~~~~~~~~~~~~
+-------------
 
 It may be desirable to obtain an overall view of the bias by model using
 different metrics or bias criteria. While the aggregate values can be

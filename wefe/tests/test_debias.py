@@ -1,16 +1,15 @@
-"""Tests of Hard Debias debiasing method."""
-import pytest
+"""Set of Tests for mitigation methods."""
 import numpy as np
+import pytest
 from gensim.models.keyedvectors import KeyedVectors
-
-from wefe.datasets import fetch_debiaswe, load_weat, fetch_debias_multiclass
+from wefe.datasets import fetch_debias_multiclass, fetch_debiaswe, load_weat
 from wefe.debias.base_debias import BaseDebias
 from wefe.debias.half_sibling_regression import HalfSiblingRegression
-from wefe.debias.hard_debias import HardDebias; HalfSiblingRegression
+from wefe.debias.hard_debias import HardDebias
 from wefe.debias.multiclass_hard_debias import MulticlassHardDebias
-from wefe.word_embedding_model import WordEmbeddingModel
-from wefe.metrics import WEAT, MAC
+from wefe.metrics import MAC, WEAT
 from wefe.query import Query
+from wefe.word_embedding_model import WordEmbeddingModel
 
 
 @pytest.fixture
@@ -22,7 +21,7 @@ def model() -> WordEmbeddingModel:
     WordEmbeddingModel
         The loaded testing model.
     """
-    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv") 
+    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
     return WordEmbeddingModel(w2v, "word2vec")
 
 
@@ -407,7 +406,6 @@ def test_half_sibling_checks(model):
         HalfSiblingRegression(verbose=1)
 
 
-
 def test_half_sibling_regression_class(model, capsys):
 
     # -----------------------------------------------------------------
@@ -436,9 +434,7 @@ def test_half_sibling_regression_class(model, capsys):
     # -----------------------------------------------------------------
     # Gender Debias
     hsr = HalfSiblingRegression(criterion_name="gender",)
-    hsr.fit(
-        model, bias_definitional_words=gender_specific
-    )
+    hsr.fit(model, bias_definitional_words=gender_specific)
 
     gender_debiased_w2v = hsr.transform(model, copy=True)
 
@@ -452,7 +448,7 @@ def test_half_sibling_regression_class(model, capsys):
     biased_results = weat.run_query(query_2, model, normalize=True)
     debiased_results = weat.run_query(query_2, gender_debiased_w2v, normalize=True)
     assert debiased_results["weat"] < biased_results["weat"]
-    
+
     # -----------------------------------------------------------------
     # Test target param
     hsr = HalfSiblingRegression(verbose=True, criterion_name="gender",)
@@ -460,7 +456,7 @@ def test_half_sibling_regression_class(model, capsys):
     attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
 
     gender_debiased_w2v = hsr.fit(
-        model, bias_definitional_words= gender_specific
+        model, bias_definitional_words=gender_specific
     ).transform(model, target=attributes, copy=True)
 
     biased_results = weat.run_query(query_1, model, normalize=True)
@@ -488,7 +484,7 @@ def test_half_sibling_regression_class(model, capsys):
     debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
 
     assert debiased_results["weat"] - biased_results["weat"] < 0.0000001
-    
+
     # -----------------------------------------------------------------
     # Test verbose
     hsr = HalfSiblingRegression(verbose=True)
@@ -502,7 +498,7 @@ def test_half_sibling_regression_class(model, capsys):
     assert f"Executing Half Sibling Debias on {model.name}" in out
     assert "Copy argument is True. Transform will attempt to create a copy" in out
     assert "Subtracting bias information." in out
-    assert 'Updating debiased vectors' in out
+    assert "Updating debiased vectors" in out
     assert "Done!" in out
 
     assert model.name == "word2vec"
@@ -511,9 +507,7 @@ def test_half_sibling_regression_class(model, capsys):
     # -----------------------------------------------------------------
     # Test inplace (copy = False)
     hsr = HalfSiblingRegression(criterion_name="gender",)
-    hsr.fit(
-        model, bias_definitional_words=gender_specific
-    )
+    hsr.fit(model, bias_definitional_words=gender_specific)
 
     gender_debiased_w2v = hsr.transform(model, copy=False)
     assert model == gender_debiased_w2v

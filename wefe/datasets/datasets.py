@@ -240,18 +240,16 @@ def load_bingliu() -> Dict[str, List[str]]:
         resource_package, resource_pos_path
     )
 
-    negative = pd.read_csv(
-        bingliu_neg_bytes, sep="\n", header=None, names=["word"], encoding="latin-1"
-    )
-    negative_cleaned = negative.loc[30:].values.flatten().tolist()
-    positive = pd.read_csv(
-        bingliu_pos_bytes, sep="\n", header=None, names=["word"], encoding="latin-1"
-    )
-    positive_cleaned = positive.loc[29:].values.flatten().tolist()
+    negative_words = [
+        word.decode("latin-1").strip() for word in bingliu_neg_bytes.readlines()
+    ][31:]
+    positive_words = [
+        word.decode("latin-1").strip() for word in bingliu_pos_bytes.readlines()
+    ][30:]
 
     bingliu_lexicon = {
-        "positive_words": positive_cleaned,
-        "negative_words": negative_cleaned,
+        "positive_words": positive_words,
+        "negative_words": negative_words,
     }
 
     return bingliu_lexicon

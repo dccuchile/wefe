@@ -1,22 +1,22 @@
-from ast import Tuple
-from ctypes import Union
+"""Double Hard Debias WEFE implementation."""
 import operator
 from copy import deepcopy
-from typing import Dict, Any, Optional, List, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
-from tqdm import tqdm
-from wefe.debias.base_debias import BaseDebias
+import numpy as np
+from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA, IncrementalPCA
 from sklearn.metrics import pairwise_distances
-from sklearn.cluster import KMeans
+from tqdm import tqdm
+from wefe.debias.base_debias import BaseDebias
 from wefe.preprocessing import get_embeddings_from_sets
-import numpy as np
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class DoubleHardDebias(BaseDebias):
     """Double Hard Debias Method.
+
     This method allow reducing the bias of an embedding model through geometric
     operations between embeddings.
     This method is binary because it only allows 2 classes of the same bias
@@ -25,6 +25,7 @@ class DoubleHardDebias(BaseDebias):
     it is recommended to visit MulticlassHardDebias class.
 
     The main idea of this method is:
+
     1. **Identify a bias subspace through the defining sets.** In the case
     of gender, these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
 
@@ -43,36 +44,37 @@ class DoubleHardDebias(BaseDebias):
     the bias direction of the vectors in the target set.
 
     Examples
-        --------
-        The following example shows how to execute Double Hard Debias method
-        that reduces bias in a word embedding model:
+    --------
+    The following example shows how to execute Double Hard Debias method
+    that reduces bias in a word embedding model:
 
-        >>> from wefe.debias.double_hard_debias import DoubleHardDebias
-        >>> from wefe.utils import load_test_model
-        >>> from wefe.datasets import fetch_debiaswe
-        >>>
-        >>> # load the model (in this case, the test model included in wefe)
-        >>> model = load_test_model()
-        >>> # load definitional pairs, in this case definitinal pairs included in wefe
-        >>> debiaswe_wordsets = fetch_debiaswe()
-        >>> definitional_pairs = debiaswe_wordsets["definitional_pairs"]
-        >>
-        >>> # instance and fit the method
-        >>> dhd = DoubleHardDebias().fit(model = model, definitional_pairs= definitional_pairs)
-        >>> # execute the debias passing words that represent the bias groups
-        >>> debiased_model = dhd.transform(model = model, bias_representation = ['he','she'] )
-        >>>
-        >>>
-        >>> # if you don't want a set of words to be debiased include them in the ignore set
-        >>> gender_specific = debiaswe_wordsets["gender_specific"]
-        >>> debiased_model = dhd.transform(model = model, bias_representation = ['he','she], ignore= gender_specific)
+    >>> from wefe.debias.double_hard_debias import DoubleHardDebias
+    >>> from wefe.utils import load_test_model
+    >>> from wefe.datasets import fetch_debiaswe
+    >>>
+    >>> # load the model (in this case, the test model included in wefe)
+    >>> model = load_test_model()
+    >>> # load definitional pairs, in this case definitinal pairs included in wefe
+    >>> debiaswe_wordsets = fetch_debiaswe()
+    >>> definitional_pairs = debiaswe_wordsets["definitional_pairs"]
+    >>
+    >>> # instance and fit the method
+    >>> dhd = DoubleHardDebias().fit(model=model, definitional_pairs=definitional_pairs)
+    >>> # execute the debias passing words that represent the bias groups
+    >>> debiased_model = dhd.transform(
+    ...     model=model, bias_representation=["he", "she"], ignore=gender_specific
+    ... )
+    >>>
+    >>>
+    >>> # if you don't want a set of words to be debiased include them in the ignore set
+    >>> gender_specific = debiaswe_wordsets["gender_specific"]
 
     References
     ----------
     | [1]: Wang, Tianlu, Xi Victoria Lin, Nazneen Fatema Rajani, Bryan McCann,
-    | Vicente Or-donez y Caiming Xiong: Double-Hard Debias: Tailoring Word
-    | Embeddings for GenderBias Mitigation. CoRR, abs/2005.00965,
-    | 2020.https://arxiv.org/abs/2005.00965.
+           Vicente Or-donez y Caiming Xiong.
+    |      Double-Hard Debias: Tailoring Word Embeddings for GenderBias Mitigation.
+    |      CoRR, abs/2005.00965, 2020.https://arxiv.org/abs/2005.00965.
     | [2]: https://github.com/uvavision/Double-Hard-Debias
     """
 
@@ -119,10 +121,10 @@ class DoubleHardDebias(BaseDebias):
             self.pca_type = IncrementalPCA()
         else:
             self.pca_type = PCA(svd_solver="randomized")
-            
-        if not isinstance(pca_args,dict):
+
+        if not isinstance(pca_args, dict):
             raise TypeError(f"pca_args should be a dict, got {verbose}.")
-        
+
         self.pca_args = pca_args
         self.verbose = verbose
 
@@ -132,9 +134,7 @@ class DoubleHardDebias(BaseDebias):
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
     def _check_sets_size(
-        self,
-        sets: Sequence[Sequence[str]],
-        set_name: str,
+        self, sets: Sequence[Sequence[str]], set_name: str,
     ):
 
         for idx, set_ in enumerate(sets):
@@ -154,7 +154,7 @@ class DoubleHardDebias(BaseDebias):
         self,
         model: WordEmbeddingModel,
         ignore: List[str],
-        bias_representation: Sequence[str],
+        bias_representation: List[str],
     ) -> Dict[str, float]:
         word1 = model[bias_representation[0]]
         word2 = model[bias_representation[1]]
@@ -177,11 +177,13 @@ class DoubleHardDebias(BaseDebias):
         model: WordEmbeddingModel,
         ignore: List[str],
         n_words: int,
-        bias_representation: Sequence[str],
+        bias_representation: List[str],
     ) -> List[str]:
-        """Obtains target words to be debiased. This is done by searching the
-        "n_words" most biased words by obtaining the words closest to each
-        word in the bias_representation set (in case of gender "he" and "she").
+        """Obtain target words to be debiased.
+
+        This is done by searching the "n_words" most biased words by obtaining the
+        words closest to each word in the bias_representation set (in case of gender
+        "he" and "she").
 
         Parameters
         ----------
@@ -194,8 +196,9 @@ class DoubleHardDebias(BaseDebias):
         bias_representation: Sequence[str]
             Two words that represents de bias groups.
 
-        Returns:
-            List[str]
+        Returns
+        -------
+        List[str]
             List of target words for each bias group
         """
         similarities = self._bias_by_projection(model, ignore, bias_representation)
@@ -214,19 +217,23 @@ class DoubleHardDebias(BaseDebias):
     def _drop_frecuency_features(
         self, components: int, model: WordEmbeddingModel
     ) -> Dict[str, np.ndarray]:
-        """Removes from the embeddings the frequency features. This is done
-        by removing a component from the ones obtain by the pca over the set
-        of embeddings. The component to remove is indicated by parameter
-        "components" and it is removed from the target words' embeddings.
+        """Remove the frequency features from the embeddings.
+
+        This is done by removing a component from the ones obtain by the PCA over the
+        set of embeddings. The component to remove is indicated by parameter
+        "components" and it is removed from the target words embeddings.
 
         Parameters
         ----------
-            components: int
-            component number to be removed
+        components: int
+            The number of components to be removed.
+        model: WordEmbeddingModel
+            A word embedding model.
 
-        Returns:
-            Dict[str, np.ndarray]
-            the new embeddings for the target words.
+        Returns
+        -------
+        Dict[str, np.ndarray]
+            The new embeddings for the target words.
         """
         droped_frecuencies = {}
 
@@ -244,9 +251,7 @@ class DoubleHardDebias(BaseDebias):
         return droped_frecuencies
 
     def _identify_bias_subspace(
-        self,
-        defining_pairs_embeddings,
-        verbose: bool = False,
+        self, defining_pairs_embeddings, verbose: bool = False,
     ) -> PCA:
 
         matrix = []
@@ -304,7 +309,7 @@ class DoubleHardDebias(BaseDebias):
     ) -> float:
 
         embeddings = [
-            embeddings_dict[word] for word in self.target_words[0: 2 * n_words]
+            embeddings_dict[word] for word in self.target_words[0 : 2 * n_words]
         ]
         kmeans = KMeans(n_cluster).fit(embeddings)
         y_pred = kmeans.predict(embeddings)
@@ -314,13 +319,10 @@ class DoubleHardDebias(BaseDebias):
         return alignment_score
 
     def fit(
-        self,
-        model: WordEmbeddingModel,
-        definitional_pairs: Sequence[Sequence[str]],
+        self, model: WordEmbeddingModel, definitional_pairs: Sequence[Sequence[str]],
     ) -> BaseDebias:
-
-        """Compute the bias direction and obtains principals components of the
-        entire set of vectors.
+        """Compute the bias direction and obtain the principal components of the entire
+           set of vectors.
 
         Parameters
         ----------
@@ -331,12 +333,12 @@ class DoubleHardDebias(BaseDebias):
             direction. For example, for the case of gender debias, this list
             could be [['woman', 'man'], ['girl', 'boy'], ['she', 'he'],
             ['mother', 'father'], ...].
+
         Returns
         -------
         BaseDebias
             The debias method fitted.
         """
-
         self.definitional_pairs = definitional_pairs
 
         self._check_sets_size(self.definitional_pairs, "definitional")
@@ -378,20 +380,19 @@ class DoubleHardDebias(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        bias_representation: Sequence[str],
+        bias_representation: List[str],
         ignore: List[str] = [],
         copy: bool = True,
         n_words: int = 1000,
         n_components: int = 4,
     ) -> WordEmbeddingModel:
-
         """Execute hard debias over the provided model.
 
         Parameters
         ----------
         model : WordEmbeddingModel
             The word embedding model to debias.
-        bias_representation: Sequence[str]
+        bias_representation: List[str]
             Two words that represents each bias group. In case of gender
             "he" and "she".
         ignore :  List[str], optional
@@ -413,6 +414,7 @@ class DoubleHardDebias(BaseDebias):
             Numbers of components of PCA to be used to explore the one that
             reduces bias the most. Usually the best one is close to embedding
             dimension/100. By default 4.
+
         Returns
         -------
         WordEmbeddingModel
@@ -420,9 +422,7 @@ class DoubleHardDebias(BaseDebias):
         """
         # check if the following attributes exist in the object.
         self._check_transform_args(
-            model=model,
-            ignore=ignore,
-            copy=copy,
+            model=model, ignore=ignore, copy=copy,
         )
         check_is_fitted(
             self,

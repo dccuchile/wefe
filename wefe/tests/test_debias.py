@@ -1,16 +1,15 @@
 """Tests of Hard Debias debiasing method."""
-import pytest
 import numpy as np
+import pytest
 from gensim.models.keyedvectors import KeyedVectors
-
-from wefe.datasets import fetch_debiaswe, load_weat, fetch_debias_multiclass
+from wefe.datasets import fetch_debias_multiclass, fetch_debiaswe, load_weat
 from wefe.debias.base_debias import BaseDebias
 from wefe.debias.double_hard_debias import DoubleHardDebias
 from wefe.debias.hard_debias import HardDebias
 from wefe.debias.multiclass_hard_debias import MulticlassHardDebias
-from wefe.word_embedding_model import WordEmbeddingModel
-from wefe.metrics import WEAT, MAC
+from wefe.metrics import MAC, WEAT
 from wefe.query import Query
+from wefe.word_embedding_model import WordEmbeddingModel
 
 
 @pytest.fixture
@@ -22,7 +21,7 @@ def model() -> WordEmbeddingModel:
     WordEmbeddingModel
         The loaded testing model.
     """
-    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv") 
+    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
     return WordEmbeddingModel(w2v, "word2vec")
 
 
@@ -406,12 +405,13 @@ def test_double_hard_debias_checks(model):
     ):
         DoubleHardDebias(verbose=1)
 
-    with pytest.raises( 
+    with pytest.raises(
         ValueError,
         match=r"The definitional pair at position 10 \(\['word1', 'word2', 'word3'\]\) has more words than allowed by Double Hard Debias: got 3 words, expected 2\.",
     ):
         DoubleHardDebias().fit(
-            model,definitional_pairs= definitional_pairs + [["word1", "word2", "word3"]],
+            model,
+            definitional_pairs=definitional_pairs + [["word1", "word2", "word3"]],
         )
     with pytest.raises(
         ValueError,
@@ -449,11 +449,11 @@ def test_double_hard_debias_class(model, capsys):
     # -----------------------------------------------------------------
     # Gender Debias
     dhd = DoubleHardDebias(criterion_name="gender",)
-    dhd.fit(
-        model, definitional_pairs=definitional_pairs
-        )
+    dhd.fit(model, definitional_pairs=definitional_pairs)
 
-    gender_debiased_w2v = dhd.transform(model,ignore=gender_specific,bias_representation=['he','she'])
+    gender_debiased_w2v = dhd.transform(
+        model, ignore=gender_specific, bias_representation=["he", "she"]
+    )
 
     assert model.name == "word2vec"
     assert gender_debiased_w2v.name == "word2vec_gender_debiased"
@@ -468,11 +468,11 @@ def test_double_hard_debias_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Test target param
-    dhd = DoubleHardDebias(verbose=True, criterion_name="gender",)  
-  
+    dhd = DoubleHardDebias(verbose=True, criterion_name="gender",)
+
     gender_debiased_w2v = dhd.fit(
         model, definitional_pairs=definitional_pairs,
-    ).transform(model, n_words=2,bias_representation=['he','she'], copy=True)
+    ).transform(model, n_words=2, bias_representation=["he", "she"], copy=True)
 
     biased_results = weat.run_query(query_1, model, normalize=True)
     debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
@@ -485,22 +485,22 @@ def test_double_hard_debias_class(model, capsys):
     # -----------------------------------------------------------------
     # Test verbose
     dhd = DoubleHardDebias(verbose=True)
-    gender_debiased_w2v = dhd.fit(
-        model, definitional_pairs
-    ).transform(model, ignore=gender_specific,bias_representation=['he','she'], copy=True)
+    gender_debiased_w2v = dhd.fit(model, definitional_pairs).transform(
+        model, ignore=gender_specific, bias_representation=["he", "she"], copy=True
+    )
     out = capsys.readouterr().out
     assert "Obtaining definitional pairs." in out
-    assert "PCA variance explained:" in out 
+    assert "PCA variance explained:" in out
     assert "Identifying the bias subspace" in out
     assert "Obtaining definitional pairs." in out
     assert f"Executing Double Hard Debias on {model.name}" in out
     assert "Identifying the bias subspace." in out
     assert "Obtaining principal components" in out
-    assert 'Obtaining words to apply debias' in out
-    assert 'Searching component to debias' in out
+    assert "Obtaining words to apply debias" in out
+    assert "Searching component to debias" in out
     assert "Copy argument is True. Transform will attempt to create a copy" in out
-    assert 'Executing debias' in out
-    assert 'Updating debiased vectors' in out
+    assert "Executing debias" in out
+    assert "Updating debiased vectors" in out
     assert "Done!" in out
 
     assert model.name == "word2vec"
@@ -509,11 +509,11 @@ def test_double_hard_debias_class(model, capsys):
     # -----------------------------------------------------------------
     # Test inplace (copy = False)
     dhd = DoubleHardDebias(criterion_name="gender",)
-    dhd.fit(
-        model, definitional_pairs=definitional_pairs
-    )
+    dhd.fit(model, definitional_pairs=definitional_pairs)
 
-    gender_debiased_w2v = dhd.transform(model, ignore=gender_specific, bias_representation=['he','she'], copy=False)
+    gender_debiased_w2v = dhd.transform(
+        model, ignore=gender_specific, bias_representation=["he", "she"], copy=False
+    )
     assert model == gender_debiased_w2v
     assert model.wv == gender_debiased_w2v.wv
     assert model.name == gender_debiased_w2v.name

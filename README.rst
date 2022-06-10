@@ -133,6 +133,15 @@ To compile the documentation, run:
 Changelog
 =========
 
+Version 0.3.2
+-------------
+- Fixed RNSB bug where the classification labels were interchanged and could produce erroneous results when the attributes are of different sizes.
+- Fixed RNSB replication notebook 
+- Update of WEFE case study scores. 
+- Improved documentation examples for WEAT, RNSB, RIPA.
+- Holdout parameter added to RNSB, which allows to indicate whether or not a holdout is performed when training the classifier.
+- Improved printing of the RNSB evaluation.
+
 Version 0.3.1
 -------------
 - Update WEFE original case study

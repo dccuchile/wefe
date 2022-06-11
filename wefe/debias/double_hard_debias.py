@@ -147,7 +147,7 @@ class DoubleHardDebias(BaseDebias):
                     f"got {len(set_)} words, expected 2."
                 )
 
-    def _similarity(self, u: List[np.ndarray], v: List[np.ndarray]) -> float:
+    def _similarity(self, u: List[np.ndarray], v: List[np.ndarray]) -> np.array:
         return 1 - pairwise_distances(u, v, metric="cosine")
 
     def _bias_by_projection(

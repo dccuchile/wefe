@@ -87,6 +87,8 @@ class DoubleHardDebias(BaseDebias):
         verbose: bool = False,
         criterion_name: Optional[str] = None,
         incremental_pca: bool = True,
+        n_words: int = 1000,
+        n_components: int = 4,
     ) -> None:
         """Initialize a Double Hard Debias instance.
 
@@ -108,6 +110,13 @@ class DoubleHardDebias(BaseDebias):
             If `False`, pca will be used over the entire set of vectors.
             **WARNING:** Running pca over the entire set of vectors may
             raise to `MemoryError`,  by default True.
+        n_words: int, optional
+            Number of target words to be used for each bias group.
+            By default 1000
+        n_components: int, optional
+            Numbers of components of PCA to be used to explore the one that
+            reduces bias the most. Usually the best one is close to embedding
+            dimension/100. By default 4.
         """
         # check verbose
         if not isinstance(verbose, bool):
@@ -132,6 +141,14 @@ class DoubleHardDebias(BaseDebias):
             self.criterion_name_ = criterion_name
         else:
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
+
+        if not isinstance(n_words,int):
+            raise ValueError(f"n_words should be int, got: {n_words}")
+        self.n_words = n_words
+
+        if not isinstance(n_components,int):
+            raise ValueError(f"n_components should be int, got: {n_components}")
+        self.n_components = n_components
 
     def _check_sets_size(
         self, sets: Sequence[Sequence[str]], set_name: str,
@@ -319,7 +336,10 @@ class DoubleHardDebias(BaseDebias):
         return alignment_score
 
     def fit(
-        self, model: WordEmbeddingModel, definitional_pairs: Sequence[Sequence[str]],
+        self, 
+        model: WordEmbeddingModel,
+        definitional_pairs: Sequence[Sequence[str]],
+        bias_representation: List[str],
     ) -> BaseDebias:
         """Compute the bias direction and obtain the principal components of the entire
            set of vectors.
@@ -333,7 +353,9 @@ class DoubleHardDebias(BaseDebias):
             direction. For example, for the case of gender debias, this list
             could be [['woman', 'man'], ['girl', 'boy'], ['she', 'he'],
             ['mother', 'father'], ...].
-
+        bias_representation: List[str]
+            Two words that represents each bias group. In case of gender
+            "he" and "she".
         Returns
         -------
         BaseDebias
@@ -356,6 +378,11 @@ class DoubleHardDebias(BaseDebias):
             normalize=False,
             verbose=self.verbose,
         )
+        # -------------------------------------------------------------------
+        # Check bias representation
+        if bias_representation[0] not in model or bias_representation[1] not in model:
+            raise Exception("bias_representation words not in model")
+        self.bias_representation = bias_representation
 
         # -------------------------------------------------------------------
         # Identify the bias subspace using the defining pairs.
@@ -380,11 +407,8 @@ class DoubleHardDebias(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        bias_representation: List[str],
         ignore: List[str] = [],
         copy: bool = True,
-        n_words: int = 1000,
-        n_components: int = 4,
     ) -> WordEmbeddingModel:
         """Execute hard debias over the provided model.
 
@@ -392,9 +416,6 @@ class DoubleHardDebias(BaseDebias):
         ----------
         model : WordEmbeddingModel
             The word embedding model to debias.
-        bias_representation: List[str]
-            Two words that represents each bias group. In case of gender
-            "he" and "she".
         ignore :  List[str], optional
             If set of words is specified in ignore, the debias
             method will perform the debias in all target words except
@@ -407,13 +428,6 @@ class DoubleHardDebias(BaseDebias):
             **WARNING:** Setting copy with `True` requires RAM at least 2x of
             the size of the model, otherwise the execution of the debias may
             raise to `MemoryError`, by default True.
-        n_words: int, optional
-            Number of target words to be used for each bias group.
-            By default 1000
-        n_components: int, optional
-            Numbers of components of PCA to be used to explore the one that
-            reduces bias the most. Usually the best one is close to embedding
-            dimension/100. By default 4.
 
         Returns
         -------
@@ -432,6 +446,7 @@ class DoubleHardDebias(BaseDebias):
                 "bias_direction",
                 "embeddings_mean",
                 "pca",
+                "bias_representation",
             ],
         )
         if self.verbose:
@@ -456,14 +471,14 @@ class DoubleHardDebias(BaseDebias):
         if self.verbose:
             print("Obtaining words to apply debias")
         self.target_words = self.get_target_words(
-            model, ignore, n_words, bias_representation
+            model, ignore, self.n_words, self.bias_representation
         )
 
         # -------------------------------------------------------------------
         # Searching best component of pca to debias
         if self.verbose:
             print("Searching component to debias")
-        optimal_dimensions = self._get_optimal_dimension(model, n_words, n_components)
+        optimal_dimensions = self._get_optimal_dimension(model, self.n_words, self.n_components)
 
         # -------------------------------------------------------------------
         # Execute debias

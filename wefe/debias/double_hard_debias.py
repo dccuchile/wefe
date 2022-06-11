@@ -143,11 +143,11 @@ class DoubleHardDebias(BaseDebias):
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
         if not isinstance(n_words,int):
-            raise ValueError(f"n_words should be int, got: {n_words}")
+            raise TypeError(f"n_words should be int, got: {n_words}")
         self.n_words = n_words
 
         if not isinstance(n_components,int):
-            raise ValueError(f"n_components should be int, got: {n_components}")
+            raise TypeError(f"n_components should be int, got: {n_components}")
         self.n_components = n_components
 
     def _check_sets_size(
@@ -170,12 +170,18 @@ class DoubleHardDebias(BaseDebias):
     def _bias_by_projection(
         self,
         model: WordEmbeddingModel,
+        target: List[str],
         ignore: List[str],
         bias_representation: List[str],
     ) -> Dict[str, float]:
         word1 = model[bias_representation[0]]
         word2 = model[bias_representation[1]]
-
+        if target:
+            vectors = [model[word] for word in target if word in model]
+            words = target
+        else:
+            vectors = model.wv.vectors
+            words = list(model.vocab.keys())
         vectors = model.wv.vectors
         similarities_vectors = (
             self._similarity([word1], vectors)[0]
@@ -192,6 +198,7 @@ class DoubleHardDebias(BaseDebias):
     def get_target_words(
         self,
         model: WordEmbeddingModel,
+        target: List[str],
         ignore: List[str],
         n_words: int,
         bias_representation: List[str],
@@ -218,7 +225,7 @@ class DoubleHardDebias(BaseDebias):
         List[str]
             List of target words for each bias group
         """
-        similarities = self._bias_by_projection(model, ignore, bias_representation)
+        similarities = self._bias_by_projection(model, target, ignore, bias_representation)
         sorted_words = sorted(similarities.items(), key=operator.itemgetter(1))
         female_words = [pair[0] for pair in sorted_words[:n_words]]
         male_words = [pair[0] for pair in sorted_words[-n_words:]]
@@ -407,6 +414,7 @@ class DoubleHardDebias(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
+        target: List[str] = None,
         ignore: List[str] = [],
         copy: bool = True,
     ) -> WordEmbeddingModel:
@@ -470,8 +478,12 @@ class DoubleHardDebias(BaseDebias):
         # Obtain words to apply debias
         if self.verbose:
             print("Obtaining words to apply debias")
+            
+        if target: 
+            self.n_words = len(target) // 2
+            
         self.target_words = self.get_target_words(
-            model, ignore, self.n_words, self.bias_representation
+            model,target, ignore, self.n_words, self.bias_representation
         )
 
         # -------------------------------------------------------------------

@@ -148,16 +148,22 @@ class RepulsionAttractionNeutralization(BaseDebias):
         >>> # load definitional pairs, in this case definitinal pairs included in wefe
         >>> debiaswe_wordsets = fetch_debiaswe()
         >>> definitional_pairs = debiaswe_wordsets["definitional_pairs"]
-        >>
+        >>>
         >>> # instance and fit the method
         >>> ran = RepulsionAttractionNeutralization().fit(model = model, definitional_pairs= definitional_pairs)
         >>> # execute the debias passing words over a set of target words
-        >>> debiased_model = ran.transform(model = model, target = ['doctor','nurse','programmer'])
-        >>>
-        >>>
+        >>> debiased_model = ran.transform(
+        ...    model = model, target = ['doctor','nurse','programmer']
+        ... )
+        Copy argument is True. Transform will attempt to create a copyof the original model. This may fail due to lack of memory.
+        Model copy created successfully.
         >>> # if you don't want a set of words to be debiased include them in the ignore set
         >>> gender_specific = debiaswe_wordsets["gender_specific"]
-        >>> debiased_model = ran.transform(model = model, ignore= gender_specific)
+        >>> debiased_model = ran.transform(
+        ...    model = model, ignore= gender_specific
+        ... )
+        Copy argument is True. Transform will attempt to create a copyof the original model. This may fail due to lack of memory.
+        Model copy created successfully.
 
     References
     ----------

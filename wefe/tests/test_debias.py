@@ -22,7 +22,8 @@ def model() -> WordEmbeddingModel:
     WordEmbeddingModel
         The loaded testing model.
     """
-    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")  
+    w2v = KeyedVectors.load("wefe/tests/test_debias.py
+w2v_test.kv")  
     return WordEmbeddingModel(w2v, "word2vec")
 
 
@@ -406,6 +407,31 @@ def test_ran_checks(model):
         TypeError, match=r"verbose should be a bool, got .*",
     ):
         RepulsionAttractionNeutralization(verbose=1)
+        
+    with pytest.raises(
+        TypeError, match=r"theta should be a float, got .*",
+    ):
+        RepulsionAttractionNeutralization(theta=1)
+        
+    with pytest.raises(
+        TypeError, match=r"n_neighbours should be a int, got .*",
+    ):
+        RepulsionAttractionNeutralization(n_neighbours=2.3)
+        
+    with pytest.raises(
+        TypeError, match=r"epochs should be a int, got .*",
+    ):
+        RepulsionAttractionNeutralization(epochs=2.3)
+    
+    with pytest.raises(
+        TypeError, match=r"weights should be a list, got .*",
+    ):
+        RepulsionAttractionNeutralization(weights=2.3)
+        
+    with pytest.raises(
+        TypeError, match=r"learning_rate should be a float, got .*",
+    ):
+        RepulsionAttractionNeutralization(learning_rate=1)
 
     with pytest.raises(
         ValueError,

@@ -61,7 +61,7 @@ class HalfSiblingRegression(BaseDebias):
     .. warning::
 
         This method requires three times the memory of the model when a copy of
-        the model and two times the memory of the model if not. Make sure this
+        the model is made and two times the memory of the model if not. Make sure this
         much memory is available.
 
     Examples

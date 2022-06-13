@@ -161,9 +161,8 @@ class RepulsionAttractionNeutralization(BaseDebias):
         >>> gender_specific = debiaswe_wordsets["gender_specific"]
         >>> debiased_model = ran.transform(
         ...    model = model, ignore= gender_specific
-        ... )
-        Copy argument is True. Transform will attempt to create a copyof the original model. This may fail due to lack of memory.
-        Model copy created successfully.
+        ... ) # doctest: +SKIP
+
 
     References
     ----------

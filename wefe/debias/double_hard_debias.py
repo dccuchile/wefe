@@ -57,17 +57,26 @@ class DoubleHardDebias(BaseDebias):
     >>> # load definitional pairs, in this case definitinal pairs included in wefe
     >>> debiaswe_wordsets = fetch_debiaswe()
     >>> definitional_pairs = debiaswe_wordsets["definitional_pairs"]
-    >>
-    >>> # instance and fit the method
-    >>> dhd = DoubleHardDebias().fit(model=model, definitional_pairs=definitional_pairs)
-    >>> # execute the debias passing words that represent the bias groups
-    >>> debiased_model = dhd.transform(
-    ...     model=model, bias_representation=["he", "she"], ignore=gender_specific
-    ... )
     >>>
-    >>>
-    >>> # if you don't want a set of words to be debiased include them in the ignore set
+    >>> # instance and fit the method including bias representation words, in case of gender he,she
+    >>> dhd = DoubleHardDebias(verbose=False).fit(model=model, definitional_pairs=definitional_pairs, bias_representation=['he','she'])
+    >>> # execute the debias, if you don't want a set of words to be debiased include them in the ignore set
     >>> gender_specific = debiaswe_wordsets["gender_specific"]
+    >>> 
+    >>> debiased_model = dhd.transform(
+    ...     model=model, ignore=gender_specific
+    ... )
+    Copy argument is True. Transform will attempt to create a copy of the original model. This may fail due to lack of memory.
+    Model copy created successfully.
+    >>>
+    >>>
+    >>> # if you want the debiased to be performed over a sprecific set of words yo can add them in the
+    >>> # target parameter
+    >>> debiased_model = dhd.transform(
+    ... model=model, target = ['doctor','nurse','programmer','teacher']
+    ... )
+    Copy argument is True. Transform will attempt to create a copy of the original model. This may fail due to lack of memory.
+    Model copy created successfully.
 
     References
     ----------
@@ -478,7 +487,7 @@ class DoubleHardDebias(BaseDebias):
         # Obtain words to apply debias
         if self.verbose:
             print("Obtaining words to apply debias")
-            
+
         if target: 
             self.n_words = len(target) // 2
             

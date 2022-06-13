@@ -85,6 +85,8 @@ class HalfSiblingRegression(BaseDebias):
     ... )
     >>> # execute the debias on the words not included in the gender definition set
     >>> debiased_model = hsr.transform(model = model)
+    Copy argument is True. Transform will attempt to create a copy of the original model. This may fail due to lack of memory.
+    Model copy created successfully.
     >>>
     >>>
     >>> # if you want the debias over a specific set of words  you can
@@ -92,12 +94,16 @@ class HalfSiblingRegression(BaseDebias):
     >>> debiased_model = hsr.transform(
     ...     model=model, target=["doctor", "nurse", "programmer"]
     ... )
+    Copy argument is True. Transform will attempt to create a copy of the original model. This may fail due to lack of memory.
+    Model copy created successfully.
     >>>
-    >>> # if you want to excluede a set of words from the debias process
-    >>> # you can inlcude them in the ignore parameter
+    >>> # if you want to exclude a set of words from the debias process
+    >>> # you can include them in the ignore parameter
     >>> debiased_model = hsr.transform(
     ...     model=model, ignore=["dress", "beard", "niece", "nephew"]
     ... )
+    Copy argument is True. Transform will attempt to create a copy of the original model. This may fail due to lack of memory.
+    Model copy created successfully.
 
     References
     ----------

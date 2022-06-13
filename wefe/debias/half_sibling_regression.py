@@ -309,8 +309,9 @@ class HalfSiblingRegression(BaseDebias):
         # columns corresponding to those words embeddings
         if target or ignore:
             if target:
-                target = list(set(target) - set(ignore))
-            else:
+                target = target
+           
+            elif ignore:
                 target = list(set(list(self.non_bias_dict.keys())) - set(ignore))
 
             indexes = self._get_indexes(model, target, list(self.non_bias_dict.keys()))
@@ -320,7 +321,7 @@ class HalfSiblingRegression(BaseDebias):
             debiased_vectors = self._subtract_bias_information(vectors, bias_info).T
             self.non_bias_dict = dict(zip(target, debiased_vectors))
 
-        # if not target or ignores is provided the debias is applied to
+        # if target and ignores are not provided the debias is applied to
         # all non bias vectors
         else:
             vectors = np.asarray(list(self.non_bias_dict.values())).T

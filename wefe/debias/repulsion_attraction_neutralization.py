@@ -176,6 +176,11 @@ class RepulsionAttractionNeutralization(BaseDebias):
         pca_args: Dict[str, Any] = {"n_components": 10},
         verbose: bool = False,
         criterion_name: Optional[str] = None,
+        epochs: int = 300,
+        theta: float = 0.05,
+        n_neighbours: int = 100,
+        learning_rate: float = 0.01,
+        weights: List[float] = [0.33, 0.33, 0.33],
     ) -> None:
         """Initialize a Repulsion Attraction Neutralization Debias instance.
 
@@ -192,6 +197,19 @@ class RepulsionAttractionNeutralization(BaseDebias):
             The name of the criterion for which the debias is being executed,
             e.g., 'Gender'. This will indicate the name of the model returning
             transform, by default None
+        epochs : int, optional
+            number of times that the minimization is done. By default 300
+         theta: float, optional
+            Indirect bias threshold to select neighbours for the repulsion set.
+            By default 0.05
+        n_neighbours: int, optional
+            Number of neighbours to be consider for the repulsion set.
+            By default 100
+        learning_rate: float, optional
+            Learning rate to be used by the optimizer during the optimization.
+            By default 0.01
+        weights: List[float], optional
+            List of the 3 initial weights to be used. By default [0.33,0.33,0.33]
         """
         # check verbose
         if not isinstance(verbose, bool):
@@ -203,6 +221,26 @@ class RepulsionAttractionNeutralization(BaseDebias):
             self.criterion_name_ = criterion_name
         else:
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
+        
+        if not isinstance(epochs, int):
+            raise TypeError(f"epochs should be a int, got {epochs}.")
+        self.epochs = epochs
+        
+        if not isinstance(theta, float):
+            raise TypeError(f"theta should be a float, got {theta}.")
+        self.theta = theta
+        
+        if not isinstance(n_neighbours, int):
+            raise TypeError(f"n_neighbours should be a int, got {n_neighbours}.")
+        self.n_neighbours = n_neighbours
+        
+        if not isinstance(weights, List):
+            raise TypeError(f"weights should be a list, got {weights}.")
+        self.weights = weights
+        
+        if not isinstance(learning_rate, float):
+            raise TypeError(f"learning_rate should be a float, got {learning_rate}.")
+        self.learning_rate = learning_rate
 
     def _identify_bias_subspace(
         self,
@@ -440,12 +478,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         model: WordEmbeddingModel,
         target: Optional[List[str]] = None,
         ignore: Optional[List[str]] = [],
-        learning_rate: float = 0.01,
         copy: bool = True,
-        epochs: int = 300,
-        theta: float = 0.05,
-        n_neighbours: int = 100,
-        weights: List[float] = [0.33, 0.33, 0.33],
     ) -> WordEmbeddingModel:
 
         """
@@ -471,17 +504,6 @@ class RepulsionAttractionNeutralization(BaseDebias):
             **WARNING:** Setting copy with `True` requires RAM at least 2x of
             the size of the model, otherwise the execution of the debias may
             raise to `MemoryError`, by default True.
-        epochs : int, optional
-            number of times that the minimization is done. By default 300
-         theta: float, optional
-            Indirect bias threshold to select neighbours for the repulsion set.
-            By default 0.05
-        n_neighbours: int, optimal
-            Number of neighbours to be consider for the repulsion set.
-            By default 100
-        weights:
-            List of the 3 initial weights to be used. By default [0.33,0.33,0.33]
-
         WordEmbeddingModel
             The debiased embedding model.
         """
@@ -534,7 +556,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             w = model[word]
             w_b = self._init_vector(model, word)
             repulsion = self._get_repulsion_set(
-                model, word, self.bias_direction_, theta, n_neighbours
+                model, word, self.bias_direction_, self.theta, self.n_neighbours
             )
             new_embedding = self._debias(
                 model,
@@ -543,9 +565,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
                 w_b,
                 self.bias_direction_,
                 repulsion,
-                learning_rate,
-                epochs,
-                weights,
+                self.learning_rate,
+                self.epochs,
+                self.weights,
             )
             debiased[word] = new_embedding.detach().numpy()
 

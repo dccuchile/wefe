@@ -22,8 +22,7 @@ def model() -> WordEmbeddingModel:
     WordEmbeddingModel
         The loaded testing model.
     """
-    w2v = KeyedVectors.load("wefe/tests/test_debias.py
-w2v_test.kv")  
+    w2v = KeyedVectors.load("wefe/tests/test_debias.py")  
     return WordEmbeddingModel(w2v, "word2vec")
 
 

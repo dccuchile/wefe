@@ -134,34 +134,34 @@ class RepulsionAttractionNeutralization(BaseDebias):
     process and form part of the debias set :math:`(V_d)`, in WEFE this words can
     be specified in the target parameter of the transform method.
 
-        Examples
-        --------
-        The following example shows how to execute Repulsion Attraction
-        Neutralization method that reduces bias in a word embedding model:
+    Examples
+    --------
+    The following example shows how to execute Repulsion Attraction
+    Neutralization method that reduces bias in a word embedding model:
 
-        >>> from wefe.debias.repulsion_attraction_neutralization import RepulsionAttractionNeutralization
-        >>> from wefe.utils import load_test_model
-        >>> from wefe.datasets import fetch_debiaswe
-        >>>
-        >>> # load the model (in this case, the test model included in wefe)
-        >>> model = load_test_model()
-        >>> # load definitional pairs, in this case definitinal pairs included in wefe
-        >>> debiaswe_wordsets = fetch_debiaswe()
-        >>> definitional_pairs = debiaswe_wordsets["definitional_pairs"]
-        >>>
-        >>> # instance and fit the method
-        >>> ran = RepulsionAttractionNeutralization().fit(model = model, definitional_pairs= definitional_pairs)
-        >>> # execute the debias passing words over a set of target words
-        >>> debiased_model = ran.transform(
-        ...    model = model, target = ['doctor','nurse','programmer']
-        ... )
-        Copy argument is True. Transform will attempt to create a copyof the original model. This may fail due to lack of memory.
-        Model copy created successfully.
-        >>> # if you don't want a set of words to be debiased include them in the ignore set
-        >>> gender_specific = debiaswe_wordsets["gender_specific"]
-        >>> debiased_model = ran.transform(
-        ...    model = model, ignore= gender_specific
-        ... ) # doctest: +SKIP
+    >>> from wefe.debias.repulsion_attraction_neutralization import RepulsionAttractionNeutralization
+    >>> from wefe.utils import load_test_model
+    >>> from wefe.datasets import fetch_debiaswe
+    >>>
+    >>> # load the model (in this case, the test model included in wefe)
+    >>> model = load_test_model()
+    >>> # load definitional pairs, in this case definitinal pairs included in wefe
+    >>> debiaswe_wordsets = fetch_debiaswe()
+    >>> definitional_pairs = debiaswe_wordsets["definitional_pairs"]
+    >>>
+    >>> # instance and fit the method
+    >>> ran = RepulsionAttractionNeutralization().fit(model = model, definitional_pairs= definitional_pairs)
+    >>> # execute the debias passing words over a set of target words
+    >>> debiased_model = ran.transform(
+    ...    model = model, target = ['doctor','nurse','programmer']
+    ... )
+    Copy argument is True. Transform will attempt to create a copyof the original model. This may fail due to lack of memory.
+    Model copy created successfully.
+    >>> # if you don't want a set of words to be debiased include them in the ignore set
+    >>> gender_specific = debiaswe_wordsets["gender_specific"]
+    >>> debiased_model = ran.transform(
+    ...    model = model, ignore= gender_specific
+    ... ) # doctest: +SKIP
 
 
     References
@@ -442,6 +442,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             direction. For example, for the case of gender debias, this list
             could be [['woman', 'man'], ['girl', 'boy'], ['she', 'he'],
             ['mother', 'father'], ...].
+            
         Returns
         -------
         BaseDebias
@@ -485,10 +486,12 @@ class RepulsionAttractionNeutralization(BaseDebias):
         ignore: Optional[List[str]] = [],
         copy: bool = True,
     ) -> WordEmbeddingModel:
-
         """
-        Executes Repulsion Attraction Neutralization Debias over the
+        Execute Repulsion Attraction Neutralization Debias over the
         provided model.
+
+        Parameters
+        ----------
 
         Args:
             model : WordEmbeddingModel

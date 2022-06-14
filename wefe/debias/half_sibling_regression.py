@@ -75,7 +75,7 @@ class HalfSiblingRegression(BaseDebias):
     >>>
     >>> # load the model (in this case, the test model included in wefe)
     >>> model = load_test_model()
-    >>> # load definitional pairs, in this case definitinal pairs included in wefe
+    >>> # load gender specific words, in this case the ones included in wefe
     >>> debiaswe_wordsets = fetch_debiaswe()
     >>> gender_specific = debiaswe_wordsets["gender_specific"]
     >>>

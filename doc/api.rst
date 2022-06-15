@@ -95,6 +95,12 @@ This list contains the debiasing methods implemented so far in WEFE.
 
    DoubleHardDebias
 
+.. autosummary::
+   :toctree: generated/
+   :template: class.rst
+
+   HalfSiblingRegression
+
 
 Dataloaders
 ===========

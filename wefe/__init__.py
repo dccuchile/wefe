@@ -6,7 +6,12 @@ from wefe.datasets import (
     load_bingliu,
     load_weat,
 )
-from wefe.debias import HardDebias, MulticlassHardDebias, HalfSiblingRegression
+from wefe.debias import (
+    DoubleHardDebias,
+    HalfSiblingRegression,
+    HardDebias,
+    MulticlassHardDebias,
+)
 from wefe.metrics import WEAT
 from wefe.metrics.base_metric import BaseMetric
 from wefe.metrics.ECT import ECT
@@ -36,6 +41,7 @@ __all__ = [
     "RIPA",
     "HardDebias",
     "MulticlassHardDebias",
+    "DoubleHardDebias",
     "HalfSiblingRegression",
     "load_bingliu",
     "fetch_debias_multiclass",

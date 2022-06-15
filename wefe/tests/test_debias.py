@@ -4,6 +4,7 @@ import pytest
 from gensim.models.keyedvectors import KeyedVectors
 from wefe.datasets import fetch_debias_multiclass, fetch_debiaswe, load_weat
 from wefe.debias.base_debias import BaseDebias
+from wefe.debias.double_hard_debias import DoubleHardDebias
 from wefe.debias.half_sibling_regression import HalfSiblingRegression
 from wefe.debias.hard_debias import HardDebias
 from wefe.debias.multiclass_hard_debias import MulticlassHardDebias
@@ -87,14 +88,20 @@ def test_hard_debias_checks(model):
 
     with pytest.raises(
         ValueError,
-        match=r"The definitional pair at position 10 \(\['word1', 'word2', 'word3'\]\) has more words than allowed by Hard Debias: got 3 words, expected 2\.",
+        match=(
+            r"The definitional pair at position 10 \(\['word1', 'word2', 'word3'\]\) "
+            r"has more words than allowed by Hard Debias: got 3 words, expected 2\."
+        ),
     ):
         HardDebias().fit(
             model, definitional_pairs + [["word1", "word2", "word3"]],
         )
     with pytest.raises(
         ValueError,
-        match=r"The definitional pair at position 10 \(\['word1'\]\) has less words than allowed by Hard Debias: got 1 words, expected 2\.",
+        match=(
+            r"The definitional pair at position 10 \(\['word1'\]\) has less words "
+            r"than allowed by Hard Debias: got 1 words, expected 2\."
+        ),
     ):
         HardDebias().fit(
             model, definitional_pairs + [["word1"]],
@@ -395,11 +402,152 @@ def test_multiclass_hard_debias_class(model):
     assert model.name == gender_debiased_w2v.name
 
 
-def test_half_sibling_checks(model):
+def test_double_hard_debias_checks(model):
+
+    debiaswe_wordsets = fetch_debiaswe()
+    definitional_pairs = debiaswe_wordsets["definitional_pairs"]
+
+    with pytest.raises(
+        TypeError, match=r"verbose should be a bool, got .*",
+    ):
+        DoubleHardDebias(verbose=1)
+
+    with pytest.raises(
+        TypeError, match=r"n_words should be int, got: .*",
+    ):
+        DoubleHardDebias(n_words=2.3)
+
+    with pytest.raises(
+        TypeError, match=r"n_components should be int, got: .*",
+    ):
+        DoubleHardDebias(n_components=2.3)
+    with pytest.raises(
+        TypeError, match=r"incremental_pca should be a bool, got .*",
+    ):
+        DoubleHardDebias(incremental_pca=1)
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            r"The definitional pair at position 10 \(\['word1', 'word2', 'word3'\]\) "
+            r"has more words than allowed by Double Hard Debias: got 3 words, "
+            r"expected 2\."
+        ),
+    ):
+        DoubleHardDebias().fit(
+            model,
+            definitional_pairs=definitional_pairs + [["word1", "word2", "word3"]],
+            bias_representation=["he", "she"],
+        )
+    with pytest.raises(
+        ValueError,
+        match=(
+            r"The definitional pair at position 10 \(\['word1'\]\) has less words "
+            r"than allowed by Double Hard Debias: got 1 words, expected 2\."
+        ),
+    ):
+        DoubleHardDebias().fit(
+            model, definitional_pairs + [["word1"]], bias_representation=["he", "she"]
+        )
+    with pytest.raises(
+        Exception, match=r"bias_representation words not in model",
+    ):
+        DoubleHardDebias().fit(
+            model,
+            definitional_pairs,
+            bias_representation=["abcde123efg", "gfe321edcba"],
+        )
+
+
+def test_double_hard_debias_class(model, capsys):
+
+    # -----------------------------------------------------------------
+    # Queries
+
+    weat_wordset = load_weat()
+    weat = WEAT()
+    query_1 = Query(
+        [weat_wordset["male_names"], weat_wordset["female_names"]],
+        [weat_wordset["pleasant_5"], weat_wordset["unpleasant_5"]],
+        ["Male Names", "Female Names"],
+        ["Pleasant", "Unpleasant"],
+    )
+    query_2 = Query(
+        [weat_wordset["male_names"], weat_wordset["female_names"]],
+        [weat_wordset["career"], weat_wordset["family"]],
+        ["Male Names", "Female Names"],
+        ["Pleasant", "Unpleasant"],
+    )
+
     debiaswe_wordsets = fetch_debiaswe()
 
     definitional_pairs = debiaswe_wordsets["definitional_pairs"]
+    gender_specific = debiaswe_wordsets["gender_specific"]
 
+    # -----------------------------------------------------------------
+    # Gender Debias
+    dhd = DoubleHardDebias(criterion_name="gender",)
+    dhd.fit(
+        model, definitional_pairs=definitional_pairs, bias_representation=["he", "she"]
+    )
+
+    gender_debiased_w2v = dhd.transform(model, ignore=gender_specific)
+
+    dhd = DoubleHardDebias(verbose=True, criterion_name="gender",)
+
+    targets = weat_wordset["male_names"] + weat_wordset["female_names"]
+    attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
+    gender_debiased_w2v = dhd.fit(
+        model, definitional_pairs=definitional_pairs, bias_representation=["he", "she"]
+    ).transform(model, target=attributes, copy=True)
+
+    biased_results = weat.run_query(query_1, model, normalize=True)
+    debiased_results = weat.run_query(query_1, gender_debiased_w2v, normalize=True)
+    assert debiased_results["weat"] < biased_results["weat"]
+
+    biased_results = weat.run_query(query_2, model, normalize=True)
+    debiased_results = weat.run_query(query_2, gender_debiased_w2v, normalize=True)
+    assert debiased_results["weat"] - biased_results["weat"] < 0.0000001
+
+    # -----------------------------------------------------------------
+    # Test ignore param
+    dhd = DoubleHardDebias(verbose=True, criterion_name="gender",)
+
+    gender_debiased_w2v = dhd.fit(
+        model, definitional_pairs=definitional_pairs, bias_representation=["he", "she"]
+    ).transform(model, ignore=gender_specific + targets + attributes, copy=True)
+
+    # -----------------------------------------------------------------
+    # Test verbose
+    dhd = DoubleHardDebias(verbose=True)
+    gender_debiased_w2v = dhd.fit(
+        model, definitional_pairs, bias_representation=["he", "she"]
+    ).transform(model, ignore=gender_specific, copy=True)
+    out = capsys.readouterr().out
+    assert "Obtaining definitional pairs." in out
+    assert "PCA variance explained:" in out
+    assert "Identifying the bias subspace" in out
+    assert "Obtaining definitional pairs." in out
+    assert f"Executing Double Hard Debias on {model.name}" in out
+    assert "Identifying the bias subspace." in out
+    assert "Obtaining principal components" in out
+    assert "Obtaining words to apply debias" in out
+    assert "Searching component to debias" in out
+    assert "Copy argument is True. Transform will attempt to create a copy" in out
+    assert "Executing debias" in out
+
+    dhd = DoubleHardDebias(criterion_name="gender",)
+    dhd.fit(
+        model, definitional_pairs=definitional_pairs, bias_representation=["he", "she"]
+    )
+
+    gender_debiased_w2v = dhd.transform(model, ignore=gender_specific, copy=False)
+    assert model == gender_debiased_w2v
+    assert model.wv == gender_debiased_w2v.wv
+    assert model.name == gender_debiased_w2v.name
+
+
+def test_half_sibling_checks(model):
     with pytest.raises(
         TypeError, match=r"verbose should be a bool, got .*",
     ):
@@ -427,8 +575,6 @@ def test_half_sibling_regression_class(model, capsys):
 
     debiaswe_wordsets = fetch_debiaswe()
 
-    definitional_pairs = debiaswe_wordsets["definitional_pairs"]
-    equalize_pairs = debiaswe_wordsets["equalize_pairs"]
     gender_specific = debiaswe_wordsets["gender_specific"]
 
     # -----------------------------------------------------------------

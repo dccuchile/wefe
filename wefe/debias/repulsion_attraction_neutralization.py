@@ -1,42 +1,41 @@
+"""Repulsion Attraction Neutralization WEFE implementation."""
 from copy import deepcopy
-import types
-from typing import Dict, Any, Optional, List, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
+import numpy as np
+from sklearn.decomposition import PCA
 from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
-from sklearn.decomposition import PCA
 from wefe.preprocessing import EmbeddingDict, get_embeddings_from_sets
-import numpy as np
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import WordEmbeddingModel
 
 try:
-    import torch.nn as nn
     import torch
-except ModuleNotFoundError as e:
+    import torch.nn as nn
+except ModuleNotFoundError:
     raise ModuleNotFoundError(
-        "PyTorch is required to run RepulsionAttractionNeutralization method.\
-        Visit https://pytorch.org/ to install it."
+        "PyTorch is required to run RepulsionAttractionNeutralization method. "
+        "Visit https://pytorch.org/ to install it."
     )
 
 
 class RAN(nn.Module):
-    """Class to perform the optimization by gradient descent of the
-    objective function.
-    """
+    """NN that perform the optimization by gradient descent of the objective function."""
 
     def __init__(
         self,
         model: WordEmbeddingModel,
         word: str,
-        w_b: np.array,
-        w: np.array,
+        w_b: np.ndarray,
+        w: np.ndarray,
         repulsion_set: List[np.ndarray],
-        bias_direction: np.array,
-        objective_function: types.FunctionType,
+        bias_direction: np.ndarray,
+        objective_function: Callable,
         weights=[0.33, 0.33, 0.33],
     ):
-        """Initialize a RAN instance
+        """Initialize a RAN instance.
+
         Parameters
         ----------
             model: WordEmbeddingModel
@@ -85,7 +84,13 @@ class RAN(nn.Module):
 
 
 class RepulsionAttractionNeutralization(BaseDebias):
-    """Repulsion Attraction Neutralization method.
+    r"""Repulsion Attraction Neutralization method.
+
+    .. warning::
+
+        This method only works if Pytorch is installed. If you do not have it
+        installed, check
+        `<https://pytorch.org/get-started/locally/>`_ for further information.
 
     This method allow reducing the bias of an embedding model creating a
     transformation such that the stereotypical information is
@@ -107,30 +112,37 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     The steps followed to perform the debias are:
 
-    1. **Identify a bias subspace through the defining sets.** In the case of
+    1. Identify a bias subspace through the defining sets. In the case of
     gender, these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
 
     2. A multi-objective optimization is performed. For each vector :math:`w`  in the
     target set it is found its debias counterpart :math:`w_d`  by solving:
 
-    :math:`argmin(F_r(w_d),F_a(w_d),F_n(w_d))`
+    .. math::
+        argmin(F_r(w_d),F_a(w_d),F_n(w_d))
 
     where Fr, Fa, Fn are repulsion, attraction and neutralization functions
     defined as the following:
-    
-    :math:`F_r(w_d) =  \\sum |cos(w_d,n_i)| / |S|`     
-    :math:`F_a(w_d) = |cos(w_d,w)-1|/2 `     
-    :math:`F_n(w_d) = |cos(w_d,g)|` 
+
+    .. math::
+        F_r(w_d) =  \sum |cos(w_d,n_i)| / |S|
+
+    .. math::
+        F_a(w_d) = |cos(w_d,w)-1|/2
+
+    .. math::
+        F_n(w_d) = |cos(w_d,g)|
 
     The optimization is performed by formulating a single objective:
-    
-    :math:`F(w_d) =  \\lambda_1 F_r(w_d) + \\lambda_2 F_a(w_d) + \\lambda_3 F_n(w_d) ` 
+
+    .. math::
+        F(w_d) =  \lambda_1 F_r(w_d) + \lambda_2 F_a(w_d) + \lambda_3 F_n(w_d)
 
     In the original implementation is define a preserve set :math:`(V_p)`  corresponding
     to words for which gender carries semantic importance, this words are not
     included in the debias process. In WEFE this words would be the ones
     included in the ignore parameter of the transform method. The words
-    that are not present in Vp are the ones to be included in the debias
+    that are not present in :math:`V_p` are the ones to be included in the debias
     process and form part of the debias set :math:`(V_d)`, in WEFE this words can
     be specified in the target parameter of the transform method.
 
@@ -139,7 +151,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
     The following example shows how to execute Repulsion Attraction
     Neutralization method that reduces bias in a word embedding model:
 
-    >>> from wefe.debias.repulsion_attraction_neutralization import RepulsionAttractionNeutralization
+    >>> from wefe.debias.repulsion_attraction_neutralization import (
+    ...   RepulsionAttractionNeutralization
+    ... )
     >>> from wefe.utils import load_test_model
     >>> from wefe.datasets import fetch_debiaswe
     >>>
@@ -150,7 +164,10 @@ class RepulsionAttractionNeutralization(BaseDebias):
     >>> definitional_pairs = debiaswe_wordsets["definitional_pairs"]
     >>>
     >>> # instance and fit the method
-    >>> ran = RepulsionAttractionNeutralization().fit(model = model, definitional_pairs= definitional_pairs)
+    >>> ran = RepulsionAttractionNeutralization().fit(
+    ...     model = model,
+    ...     definitional_pairs= definitional_pairs
+    ...   )
     >>> # execute the debias passing words over a set of target words
     >>> debiased_model = ran.transform(
     ...    model = model, target = ['doctor','nurse','programmer']
@@ -226,31 +243,29 @@ class RepulsionAttractionNeutralization(BaseDebias):
             self.criterion_name_ = criterion_name
         else:
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
-        
+
         if not isinstance(epochs, int):
             raise TypeError(f"epochs should be a int, got {epochs}.")
         self.epochs = epochs
-        
+
         if not isinstance(theta, float):
             raise TypeError(f"theta should be a float, got {theta}.")
         self.theta = theta
-        
+
         if not isinstance(n_neighbours, int):
             raise TypeError(f"n_neighbours should be a int, got {n_neighbours}.")
         self.n_neighbours = n_neighbours
-        
+
         if not isinstance(weights, List):
             raise TypeError(f"weights should be a list, got {weights}.")
         self.weights = weights
-        
+
         if not isinstance(learning_rate, float):
             raise TypeError(f"learning_rate should be a float, got {learning_rate}.")
         self.learning_rate = learning_rate
 
     def _identify_bias_subspace(
-        self,
-        defining_pairs_embeddings: List[EmbeddingDict],
-        verbose: bool = False,
+        self, defining_pairs_embeddings: List[EmbeddingDict], verbose: bool = False,
     ) -> PCA:
 
         matrix = []
@@ -275,9 +290,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         return pca
 
     def _check_sets_size(
-        self,
-        sets: Sequence[Sequence[str]],
-        set_name: str,
+        self, sets: Sequence[Sequence[str]], set_name: str,
     ):
 
         for idx, set_ in enumerate(sets):
@@ -317,9 +330,10 @@ class RepulsionAttractionNeutralization(BaseDebias):
         theta: float,
         n_neighbours: int,
     ) -> List[np.ndarray]:
-        """Obtain the embeddings of the words that should be repealed from
-        "word". These are the n_neighbours more similar to "word" whose
-        indirect bias is greater than theta.
+        r"""Obtain the embeddings of the words that should be repealed from word arg.
+
+        These words are the n_neighbours more similar to "word" whose indirect bias is
+        greater than theta.
 
         Parameters
         ----------
@@ -335,9 +349,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
                 Number of neighbours to be considered.
 
         Returns
-        --------
-            List[np.ndarray]
-                The embeddings list conforming the repulsion set.
+        -------
+        List[np.ndarray]
+            The list of embeddings that compose the repulsion set.
         """
         neighbours = self._get_neighbours(model, word, n_neighbours)
         repulsion_set = []
@@ -426,12 +440,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
         return torch.FloatTensor(np.array(v))
 
     def fit(
-        self,
-        model: WordEmbeddingModel,
-        definitional_pairs: Sequence[Sequence[str]],
+        self, model: WordEmbeddingModel, definitional_pairs: Sequence[Sequence[str]],
     ) -> BaseDebias:
-        """
-        Compute the bias direction.
+        """Compute the bias direction.
 
         Parameters
         ----------
@@ -442,13 +453,12 @@ class RepulsionAttractionNeutralization(BaseDebias):
             direction. For example, for the case of gender debias, this list
             could be [['woman', 'man'], ['girl', 'boy'], ['she', 'he'],
             ['mother', 'father'], ...].
-            
+
         Returns
         -------
         BaseDebias
             The debias method fitted.
         """
-
         # Check arguments types
         self._check_sets_size(definitional_pairs, "definitional")
         self.definitional_pairs_ = definitional_pairs
@@ -473,8 +483,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             print("Identifying the bias subspace.")
 
         self.pca_ = self._identify_bias_subspace(
-            self.definitional_pairs_embeddings_,
-            self.verbose,
+            self.definitional_pairs_embeddings_, self.verbose,
         )
         self.bias_direction_ = self.pca_.components_[0]
         return self
@@ -486,15 +495,11 @@ class RepulsionAttractionNeutralization(BaseDebias):
         ignore: Optional[List[str]] = [],
         copy: bool = True,
     ) -> WordEmbeddingModel:
-        """
-        Execute Repulsion Attraction Neutralization Debias over the
-        provided model.
+        """Execute Repulsion Attraction Neutralization Debias over the provided model.
 
         Parameters
         ----------
-
-        Args:
-            model : WordEmbeddingModel
+        model : WordEmbeddingModel
             The word embedding model to debias.
         target : Optional[List[str]], optional
             If a set of words is specified in target, the debias method will

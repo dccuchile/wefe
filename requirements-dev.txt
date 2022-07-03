@@ -1,0 +1,9 @@
+pytest
+flake8
+black
+mypy
+sphinx
+sphinx-gallery
+sphinx-rtd-theme
+numpydoc
+torch

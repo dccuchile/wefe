@@ -2,7 +2,8 @@
 WEFE API
 ========
 
-This is the documentation of the API of WEFE. 
+This reference details all the utilities as well as the metrics and mitigation methods
+implemented so far in WEFE.
 
 .. currentmodule:: wefe
 
@@ -13,7 +14,7 @@ WordEmbeddingModel
    :toctree: generated/
    :template: class.rst
 
-   WordEmbeddingModel
+   wefe.word_embedding_model.WordEmbeddingModel
 
 Query
 ==================
@@ -22,120 +23,58 @@ Query
    :toctree: generated/
    :template: class.rst
 
-   Query
+   wefe.query.Query
+
 
 
 Metrics
-==========
+=======
 
 This list contains the metrics implemented in WEFE.
 
-.. autosummary::
-   :toctree: generated/
-   :template: class.rst
-
-   WEAT
-
 
 .. autosummary::
    :toctree: generated/
    :template: class.rst
 
-   RND
-
-
-.. autosummary::
-   :toctree: generated/
-   :template: class.rst
-
-   RNSB
-
-
-.. autosummary::
-   :toctree: generated/
-   :template: class.rst
-
-   MAC
-
-
-.. autosummary::
-   :toctree: generated/
-   :template: class.rst
-
-   ECT
-
-
-.. autosummary::
-   :toctree: generated/
-   :template: class.rst
-
-   RIPA
+   wefe.metrics.WEAT
+   wefe.metrics.RND
+   wefe.metrics.RNSB
+   wefe.metrics.MAC
+   wefe.metrics.ECT
+   wefe.metrics.RIPA
 
 
 Debias
 ======
 
-This list contains the debiasing methods implemented so far in WEFE.
+This list contains the mitigation (debiasing) methods implemented so far in WEFE.
 
 .. autosummary::
    :toctree: generated/
    :template: class.rst
 
-   HardDebias
-
-.. autosummary::
-   :toctree: generated/
-   :template: class.rst
-
-   MulticlassHardDebias
-
-.. autosummary::
-   :toctree: generated/
-   :template: class.rst
-
-   RepulsionAttractionNeutralization
+   wefe.debias.HardDebias
+   wefe.debias.MulticlassHardDebias
+   wefe.debias.RepulsionAttractionNeutralization
 
 
-Dataloaders
+Datasets
 ===========
 
-The following functions allow one to load word sets used in previous works. 
+The following functions allow you to load sets of words used in previous studies.
 
 
 .. autosummary::
-   :toctree: generated/dataloaders/
+   :toctree: generated/dataset/
    :template: function.rst
 
-   load_bingliu
+   wefe.datasets.load_bingliu
+   wefe.datasets.fetch_debias_multiclass
+   wefe.datasets.fetch_debiaswe
+   wefe.datasets.fetch_eds
+   wefe.datasets.load_weat
 
-
-.. autosummary::
-   :toctree: generated/dataloaders/
-   :template: function.rst
-
-   fetch_debias_multiclass
-
-
-
-.. autosummary::
-   :toctree: generated/dataloaders/
-   :template: function.rst
-
-   fetch_debiaswe
-
-
-.. autosummary::
-   :toctree: generated/dataloaders/
-   :template: function.rst
-
-   fetch_eds
-
-
-.. autosummary::
-   :toctree: generated/dataloaders/
-   :template: function.rst
-
-   load_weat
 
 Preprocessing
 =============
@@ -148,23 +87,8 @@ The documentation of the functions in this section are intended as a guide for W
    :toctree: generated/
    :template: function.rst
 
-   preprocess_word
+   wefe.preprocessing.preprocess_word
+   wefe.preprocessing.get_embeddings_from_set
+   wefe.preprocessing.get_embeddings_from_sets
+   wefe.preprocessing.get_embeddings_from_query
 
-
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
-   get_embeddings_from_set
-
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
-   get_embeddings_from_sets
-
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
-   get_embeddings_from_query

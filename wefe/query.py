@@ -13,6 +13,7 @@ class Query:
         attribute_sets: List[Any],
         target_sets_names: Union[List[str], None] = None,
         attribute_sets_names: Union[List[str], None] = None,
+        sentence_template = None
     ):
         """Initializes the container. It could include a name for each word set.
 
@@ -93,7 +94,10 @@ class Query:
                     type(attribute_sets)
                 )
             )
-
+        
+        if sentence_template != None and not isinstance(sentence_template, str):
+            raise TypeError("Sentence Template should be None or str")
+        
         # check input array sizes
         if len(target_sets) == 0:
             raise Exception(
@@ -128,7 +132,7 @@ class Query:
                         "All elements in attribute set {} must be strings. "
                         "Given: {} at position {}".format(idx, type(word), word_idx)
                     )
-
+        
         # set target and attributes sets to this instance.
         self.target_sets = target_sets
         self.attribute_sets = attribute_sets
@@ -167,6 +171,7 @@ class Query:
                 self.attribute_sets_names = attribute_sets_names
 
         self.query_name = self._get_query_name()
+        self.sentence_template = sentence_template
 
     def __eq__(self, other):
 
@@ -272,6 +277,7 @@ class Query:
                     attribute_subset,
                     target_subset_name,
                     attribute_subset_name,
+                    self.sentence_template
                 )
                 for attribute_subset, attribute_subset_name in zip(
                     attribute_subsets, attribute_subsets_names
@@ -324,3 +330,8 @@ class Query:
 
         return target + " wrt " + attribute
 
+    def get_targets(self):
+        return zip(self.target_sets, self.target_sets_names)
+    
+    def get_attributes(self):
+        return zip(self.attribute_sets, self.attribute_sets_names)

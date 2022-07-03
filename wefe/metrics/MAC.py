@@ -6,7 +6,7 @@ from scipy.spatial import distance
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
-from wefe.word_embedding_model import WordEmbeddingModel
+from wefe.models.base_model import BaseModel
 
 
 class MAC(BaseMetric):
@@ -98,7 +98,7 @@ class MAC(BaseMetric):
     def run_query(
         self,
         query: Query,
-        model: WordEmbeddingModel,
+        word_embedding: BaseModel,
         lost_vocabulary_threshold: float = 0.2,
         preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
@@ -115,7 +115,7 @@ class MAC(BaseMetric):
             A Query object that contains the target and attribute word sets
             for be tested.
 
-        model : WordEmbeddingModel
+        model : BaseModel
             A word embedding model.
 
         preprocessors : List[Dict[str, Union[str, bool, Callable]]]

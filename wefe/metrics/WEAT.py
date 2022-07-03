@@ -6,9 +6,9 @@ from typing import Any, Callable, Dict, List, Set, Tuple, Union
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from wefe.metrics.base_metric import BaseMetric
-from wefe.preprocessing import get_embeddings_from_query
+from wefe.preprocessing import get_embeddings_from_query, get_related_embeddings_from_query
 from wefe.query import Query
-from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
+from wefe.models.base_model import EmbeddingDict, BaseModel, EmbeddingMultiSet
 
 
 class WEAT(BaseMetric):
@@ -28,9 +28,18 @@ class WEAT(BaseMetric):
     metric_template = (2, 2)
     metric_name = "Word Embedding Association Test"
     metric_short_name = "WEAT"
-
+    
+    def _calc_s2(self, tA, tB, A, B) -> np.number:
+        A_mean_sim = np.mean(cosine_similarity([tA], A), dtype=np.float64)
+        B_mean_sim = np.mean(cosine_similarity([tB], B), dtype=np.float64)
+        return A_mean_sim - B_mean_sim
+    
+    def _calc_weat2(self, t1a1, t1a2, t2a1, t2a2, a1t1, a1t2, a2t1, a2t2) -> np.number:
+        first_term  = np.sum([self._calc_s2(x1, x2, a1t1, a2t1) for x1, x2 in zip(t1a1, t1a2) ], dtype=np.float64)
+        second_term = np.sum([self._calc_s2(x1, x2, a1t2, a2t2) for x1, x2 in zip(t2a1, t2a2) ], dtype=np.float64)
+        return first_term - second_term
+    
     def _calc_s(self, w, A, B) -> np.number:
-
         A_mean_sim = np.mean(cosine_similarity([w], A), dtype=np.float64)
         B_mean_sim = np.mean(cosine_similarity([w], B), dtype=np.float64)
         return A_mean_sim - B_mean_sim
@@ -170,7 +179,7 @@ class WEAT(BaseMetric):
     def run_query(
         self,
         query: Query,
-        model: WordEmbeddingModel,
+        word_embedding: BaseModel,
         return_effect_size: bool = False,
         calculate_p_value: bool = False,
         p_value_test_type: str = "right-sided",
@@ -192,8 +201,8 @@ class WEAT(BaseMetric):
         query : Query
             A Query object that contains the target and attribute sets to be tested.
 
-        model : WordEmbeddingModel
-            A word embedding model.
+        word_embedding_model : BaseModel
+            An object containing a word embedding model.
 
         return_effect_size : bool, optional
             Specifies if the returned score in 'result' field of results dict
@@ -367,11 +376,20 @@ class WEAT(BaseMetric):
 
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, model, locals())
-
+        self._check_input(query, word_embedding, locals())
+        
+        if word_embedding.context == True and query.sentence_template != None:
+            return self.run_contextual_query(query,
+                word_embedding,
+                lost_vocabulary_threshold,
+                preprocessors,
+                strategy,
+                normalize,
+                warn_not_found_words)
+        
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
-            model=model,
+            model=word_embedding,
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessors=preprocessors,
@@ -439,3 +457,51 @@ class WEAT(BaseMetric):
             "effect_size": weat_effect_size,
             "p_value": p_value,
         }
+
+    def run_contextual_query(self,
+        query: Query,
+        word_embedding: BaseModel,
+        lost_vocabulary_threshold: float = 0.2,
+        preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+        strategy: str = "first",
+        normalize: bool = False,
+        warn_not_found_words: bool = False):
+        
+        # transform query word sets into embeddings
+        embeddings = get_related_embeddings_from_query(
+            model=word_embedding,
+            query=query,
+            lost_vocabulary_threshold=lost_vocabulary_threshold,
+            preprocessors=preprocessors,
+            strategy=strategy,
+            normalize=normalize,
+            warn_not_found_words=warn_not_found_words,
+        )
+
+        # if there is any/some set has less words than the allowed limit,
+        # return the default value (nan)
+        if embeddings is None:
+            return {"query_name":  query.query_name,
+                    "result":      np.nan,
+                    "weat":        np.nan,
+                    "effect_size": np.nan}
+        
+        # get the targets sets transformed into embeddings.
+        t1a1 = embeddings.getTargetsMean(1, 1)
+        t1a2 = embeddings.getTargetsMean(1, 2)
+        t2a1 = embeddings.getTargetsMean(2, 1)
+        t2a2 = embeddings.getTargetsMean(2, 2)
+        # get the attribute sets transformed into embeddings.
+        a1t1 = embeddings.getAttributes(1, 1)
+        a1t2 = embeddings.getAttributes(2, 1)
+        a2t1 = embeddings.getAttributes(1, 2)
+        a2t2 = embeddings.getAttributes(2, 2)
+        # get the metrics
+        weat = self._calc_weat2(t1a1, t1a2, t2a1, t2a2,
+                                a1t1, a1t2, a2t1, a2t2)
+        # return in result field weat
+        return {"query_name":  query.query_name,
+                "result":      weat,
+                "weat":        weat,
+                "effect_size": np.nan,
+                "p_value":     np.nan }

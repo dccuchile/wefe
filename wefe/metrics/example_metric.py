@@ -7,7 +7,7 @@ from scipy.spatial import distance
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
-from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
+from wefe.models.base_model import EmbeddingDict, BaseModel
 
 
 class ExampleMetric(BaseMetric):
@@ -69,7 +69,7 @@ class ExampleMetric(BaseMetric):
     def run_query(
         self,
         query: Query,
-        model: WordEmbeddingModel,
+        word_embedding: BaseModel,
         # any parameter that you need
         # ...,
         lost_vocabulary_threshold: float = 0.2,
@@ -87,7 +87,7 @@ class ExampleMetric(BaseMetric):
         query : Query
             A Query object that contains the target and attribute word sets to be tested.
 
-        model : WordEmbeddingModel
+        word_embedding_model : BaseModel
             An object containing a word embeddings model.
         
         lost_vocabulary_threshold : float, optional

@@ -10,9 +10,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from wefe.metrics.base_metric import BaseMetric
-from wefe.preprocessing import get_embeddings_from_query
+from wefe.preprocessing import get_embeddings_from_query, get_related_embeddings_from_query
 from wefe.query import Query
-from wefe.word_embedding_model import WordEmbeddingModel
+from wefe.models.base_model import BaseModel
 
 
 class RNSB(BaseMetric):
@@ -212,10 +212,153 @@ class RNSB(BaseMetric):
 
         return kl_divergence, negative_sentiment_probabilities
 
+    def _train_classifier2(
+        self,
+        attribute_0_embeddings : List[np.ndarray],
+        attribute_1_embeddings : List[np.ndarray],
+        estimator: BaseEstimator = LogisticRegression,
+        estimator_params: Dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},
+        random_state: Union[int, None] = None,
+        print_model_evaluation: bool = False,
+    ) -> Tuple[BaseEstimator, float]:
+        """Train the sentiment classifier from the provided attribute embeddings.
+
+        Parameters
+        ----------
+        attribute_embeddings_dict : dict[str, np.ndarray]
+            A dict with the attributes keys and embeddings
+
+        estimator : BaseEstimator, optional
+            A scikit-learn classifier class that implements predict_proba function,
+            by default None,
+
+        estimator_params : dict, optional
+            Parameters that will use the classifier, by default { 'solver': 'liblinear',
+            'max_iter': 10000, }
+
+        random_state : Union[int, None], optional
+            A seed that allows making the execution of the query reproducible, by
+            default None
+
+        print_model_evaluation : bool, optional
+            Indicates whether the classifier evaluation is printed after the
+            training process is completed, by default False
+
+        Returns
+        -------
+        Tuple[BaseEstimator, float]
+            The trained classifier and the accuracy obtained by the model.
+        """
+        attribute_0_embeddings = np.array(attribute_0_embeddings)
+        attribute_1_embeddings = np.array(attribute_1_embeddings)
+        
+        # generate the labels (1, -1) for each embedding
+        positive_attribute_labels = np.ones(attribute_0_embeddings.shape[0])
+        negative_attribute_labels = -np.ones(attribute_1_embeddings.shape[0])
+
+        attributes_embeddings = np.concatenate(
+            (attribute_0_embeddings, attribute_1_embeddings)
+        )
+        attributes_labels = np.concatenate(
+            (negative_attribute_labels, positive_attribute_labels)
+        )
+
+        split = train_test_split(
+            attributes_embeddings,
+            attributes_labels,
+            shuffle=True,
+            random_state=random_state,
+            test_size=0.1,
+            stratify=attributes_labels,
+        )
+        X_embeddings_train, X_embeddings_test, y_train, y_test = split
+
+        num_train_negative_examples = np.count_nonzero((y_train == -1))
+        num_train_positive_examples = np.count_nonzero((y_train == 1))
+
+        # Check the number of train and test examples.
+        if num_train_positive_examples == 1:
+            raise Exception(
+                "After splitting the dataset using train_test_split "
+                "(with test_size=0.1), the first attribute remained with 0 training "
+                "examples."
+            )
+
+        if num_train_negative_examples < 1:
+            raise Exception(
+                "After splitting the dataset using train_test_split "
+                "(with test_size=0.1), the second attribute remained with 0 training "
+                "examples."
+            )
+
+        # when random_state is not none, set it on classifier params.
+        if random_state is not None:
+            estimator_params["random_state"] = random_state
+
+        estimator = estimator(**estimator_params)
+        estimator.fit(X_embeddings_train, y_train)
+
+        # evaluate
+        y_pred = estimator.predict(X_embeddings_test)
+        score = estimator.score(X_embeddings_test, y_test)
+
+        if print_model_evaluation:
+            print(
+                "Classification Report:\n{}".format(
+                    classification_report(y_test, y_pred, labels=estimator.classes_)
+                )
+            )
+
+        return estimator, score
+
+    def _calc_rnsb2(
+        self,
+        target_embeddings_sets : List[np.ndarray],
+        target_words_sets : List[str],
+        classifier: BaseEstimator
+    ) -> Tuple[np.float_, dict]:
+        # get the probabilities associated with each target word vector
+        probabilities = [
+            classifier.predict_proba(target_embeddings)
+            for target_embeddings in target_embeddings_sets
+        ]
+        
+        # extract only the negative sentiment probability for each word
+        negative_probabilities = np.concatenate(
+            [probability[:, 1].flatten() for probability in probabilities]
+        )
+        
+        # normalization of the probabilities
+        normalized_negative_probabilities = np.array(
+            negative_probabilities / np.sum(negative_probabilities)
+        )
+        
+        # get the uniform dist
+        uniform_dist = (
+            np.ones(normalized_negative_probabilities.shape[0])
+            * 1
+            / normalized_negative_probabilities.shape[0]
+        )
+        
+        # calc the kl divergence
+        kl_divergence = entropy(normalized_negative_probabilities, uniform_dist)
+
+        flatten_target_words = [
+            item for sublist in target_words_sets for item in sublist
+        ]
+        
+        # set the probabilities for each word in a dict.
+        negative_sentiment_probabilities = {
+            word: prob
+            for word, prob in zip(flatten_target_words, negative_probabilities)
+        }
+
+        return kl_divergence, negative_sentiment_probabilities
+
     def run_query(
         self,
         query: Query,
-        model: WordEmbeddingModel,
+        word_embedding: BaseModel,
         estimator: BaseEstimator = LogisticRegression,
         estimator_params: Dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},
         n_iterations: int = 1,
@@ -247,8 +390,8 @@ class RNSB(BaseMetric):
             A Query object that contains the target and attribute word sets to
             be tested.
 
-        model : WordEmbeddingModel
-            A word embedding model.
+        word_embedding_model : BaseModel
+            An object containing a word embeddings model.
 
         estimator : BaseEstimator, optional
             A scikit-learn classifier class that implements predict_proba function,
@@ -522,11 +665,25 @@ class RNSB(BaseMetric):
         }
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, model, locals())
-
+        self._check_input(query, word_embedding, locals())
+        
+        if word_embedding.context == True and query.sentence_template != None:
+            return self.run_contextual_query(query,
+                word_embedding,
+                estimator,
+                estimator_params,
+                num_iterations,
+                random_state,
+                print_model_evaluation,
+                lost_vocabulary_threshold,
+                preprocessors,
+                strategy,
+                normalize,
+                warn_not_found_words)
+        
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
-            model=model,
+            model=word_embedding,
             query=query,
             lost_vocabulary_threshold=lost_vocabulary_threshold,
             preprocessors=preprocessors,
@@ -611,3 +768,95 @@ class RNSB(BaseMetric):
             "negative_sentiment_probabilities": negative_sentiment_probabilities,
             "negative_sentiment_distribution": negative_sentiment_distribution,
         }
+        
+    def run_contextual_query(self,
+        query: Query,
+        word_embedding: BaseModel,
+        estimator: BaseEstimator = LogisticRegression,
+        estimator_params: Dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},
+        num_iterations: int = 1,
+        random_state: Union[int, None] = None,
+        print_model_evaluation: bool = False,
+        lost_vocabulary_threshold: float = 0.2,
+        preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+        strategy: str = "first",
+        normalize: bool = False,
+        warn_not_found_words: bool = False):
+        
+        # transform query word sets into embeddings
+        embeddings = get_related_embeddings_from_query(
+            model=word_embedding,
+            query=query,
+            lost_vocabulary_threshold=lost_vocabulary_threshold,
+            preprocessors=preprocessors,
+            strategy=strategy,
+            normalize=normalize,
+            warn_not_found_words=warn_not_found_words,
+        )
+
+        # if there is any/some set has less words than the allowed limit,
+        # return the default value (nan)
+        if embeddings is None:
+            return {"query_name": query.query_name,
+                    "result": np.nan,
+                    "rnsb": np.nan,
+                    "score": np.nan,
+                    "negative_sentiment_probabilities": {},
+                    "negative_sentiment_distribution": {}}
+        
+        # get the targets sets transformed into embeddings.
+        target_embeddings, target_words = embeddings.getAllTargets(query.template[0])
+        # get the attribute sets transformed into embeddings.
+        attribute_0_embeddings = embeddings.getAllAttributes(1)
+        attribute_1_embeddings = embeddings.getAllAttributes(2)
+        
+        # create the arrays that will contain the scores for each iteration
+        calculated_divergences = []
+        calculated_negative_sentiment_probabilities = []
+        scores = []
+
+        # calculate the scores for each iteration
+        for _ in range(num_iterations):
+
+            # train the logit with the train data.
+            trained_classifier, score = self._train_classifier2(
+                attribute_0_embeddings=attribute_0_embeddings,
+                attribute_1_embeddings=attribute_1_embeddings,
+                random_state=random_state,
+                estimator=estimator,
+                estimator_params=estimator_params,
+                print_model_evaluation=print_model_evaluation,
+            )
+
+            scores.append(score)
+            
+            # get the scores
+            divergence, negative_sentiment_probabilities = self._calc_rnsb2(
+                target_embeddings,
+                target_words,
+                trained_classifier
+            )
+            
+            calculated_divergences.append(divergence)
+            calculated_negative_sentiment_probabilities.append(
+                negative_sentiment_probabilities
+            )
+
+        # aggregate results
+        divergence = np.mean(np.array(calculated_divergences))
+        negative_sentiment_probabilities = dict(
+            pd.DataFrame(calculated_negative_sentiment_probabilities).mean()
+        )
+
+        sum_of_prob = np.sum(list(negative_sentiment_probabilities.values()))
+        negative_sentiment_distribution = {
+            word: prob / sum_of_prob
+            for word, prob in negative_sentiment_probabilities.items()
+        }
+        
+        return {"query_name": query.query_name,
+                "result": divergence,
+                "rnsb": divergence,
+                "clf_accuracy": np.mean(scores),
+                "negative_sentiment_probabilities": negative_sentiment_probabilities,
+                "negative_sentiment_distribution": negative_sentiment_distribution}

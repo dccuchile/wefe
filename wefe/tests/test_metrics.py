@@ -156,7 +156,6 @@ def test_RNSB(capsys, model, weat_wordsets):
         "query_name",
         "result",
         "rnsb",
-        "clf_accuracy",
         "negative_sentiment_probabilities",
         "negative_sentiment_distribution",
     ]

@@ -14,6 +14,8 @@ __all__ = [
     "HardDebias",
     "MulticlassHardDebias",
     "RepulsionAttractionNeutralization",
+    "DoubleHardDebias",
+    "HalfSiblingRegression",
     "load_bingliu",
     "fetch_debias_multiclass",
     "fetch_debiaswe",

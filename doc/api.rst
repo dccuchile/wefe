@@ -57,6 +57,8 @@ This list contains the mitigation (debiasing) methods implemented so far in WEFE
    wefe.debias.HardDebias
    wefe.debias.MulticlassHardDebias
    wefe.debias.RepulsionAttractionNeutralization
+   wefe.debias.DoubleHardDebias
+   wefe.debias.HalfSiblingRegression
 
 
 Datasets

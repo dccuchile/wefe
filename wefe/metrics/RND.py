@@ -10,7 +10,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class RND(BaseMetric):
-    """An implementation of Relative Norm Distance (RND).
+    """Relative Norm Distance (RND).
 
     Originally proposed in "Word embeddings quantify 100 years of gender and ethnic
     stereotypes" [1], calculates the score by:

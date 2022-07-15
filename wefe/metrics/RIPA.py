@@ -9,7 +9,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class RIPA(BaseMetric):
-    """An implementation of the Relational Inner Product Association Test (RIPA).
+    """Relational Inner Product Association Test (RIPA).
 
     The Relational Inner Product Association, presented in the paper "Understanding
     Undesirable Word Embedding Associations" [1][2], calculates bias by measuring

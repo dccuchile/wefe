@@ -15,7 +15,6 @@
 import os
 import sys
 
-import sphinx_gallery
 import sphinx_rtd_theme
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -247,7 +246,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ("index", "WEFE.tex", u"WEFE Documentation", u"Pablo Badilla", "manual"),
+    ("index", "WEFE.tex", u"WEFE Documentation", u"WEFE Team", "manual"),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

@@ -11,7 +11,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class ECT(BaseMetric):
-    """An implementation of Embedding Coherence Test (ECT).
+    """Embedding Coherence Test (ECT).
 
     ECT. was originally proposed in [1] and implemented in [2].
     It calculates the average target group vectors, measures the cosine similarity of

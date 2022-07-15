@@ -10,7 +10,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class MAC(BaseMetric):
-    """An implementation of Mean Average Cosine Similarity (MAC).
+    """Mean Average Cosine Similarity (MAC).
 
     The metric, presented in the paper "Black is to Criminal as Caucasian is to
     Police: Detecting and Removing Multiclass Bias in Word Embeddings" [1],

@@ -24,9 +24,8 @@ using the package to measure bias. The following sections show:
 .. note::
 
   If you are not familiar with the concepts of query, target and attribute
-  set, please visit the `the framework
-  section <https://wefe.readthedocs.io/en/latest/about.html#the-framework>`__
-  on the library’s about page. These concepts are widely used in the
+  set, please visit the :ref:`measurement framework`
+  on the library’s conceptual guides. These concepts are widely used in the
   following sections.
 
 .. note::
@@ -789,7 +788,7 @@ a ``run_queries`` execution into a ``plotly`` braplot.
 
 
     
-.. image:: images/WEAT_gender_results.png
+.. image:: ../images/WEAT_gender_results.png
   :alt: WEAT gender results
 
 
@@ -907,7 +906,7 @@ the results dataframe. The aggregation functions available are:
     plot_queries_results(WEAT_gender_results_agg).show()
 
 
-.. image:: images/WEAT_gender_results_agg_only_average.png
+.. image:: ../images/WEAT_gender_results_agg_only_average.png
     :alt: WEAT only aggregated gender results
 
 It is also possible to ask the function to return only the aggregated
@@ -1506,7 +1505,7 @@ a different criterion-metric ranking.
     fig = plot_ranking(gender_ranking)
     fig.show()
 
-.. image:: images/gender_ranking_without_facet.png
+.. image:: ../images/gender_ranking_without_facet.png
     :alt: Gender ranking without facet
 
 .. code:: python
@@ -1514,7 +1513,7 @@ a different criterion-metric ranking.
     fig = plot_ranking(ethnicity_ranking)
     fig.show()
 
-.. image:: images/ethnicity_ranking_without_facet.png
+.. image:: ../images/ethnicity_ranking_without_facet.png
     :alt: Ethnicity ranking with without facet
 
 
@@ -1664,7 +1663,7 @@ WEFE also provides a function for graphing the correlations:
 
 
 
-.. image:: images/ranking_correlations.png
+.. image:: ../images/ranking_correlations.png
     :alt: Ranking correlations
 
 

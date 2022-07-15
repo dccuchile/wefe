@@ -12,7 +12,7 @@ from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
 
 class WEAT(BaseMetric):
-    """An implementation of Word Embedding Association Test (WEAT).
+    """Word Embedding Association Test (WEAT).
 
     The following description of the metric is WEFE's adaptation of what was presented
     in the original WEAT work "Semantics derived automatically from language corpora

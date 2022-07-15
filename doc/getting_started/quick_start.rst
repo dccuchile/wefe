@@ -37,7 +37,7 @@ Embedding model.
 
 The following graphic shows the flow of the query execution:
 
-.. image:: images/diagram_1.png
+.. image:: ../images/diagram_1.png
   :alt: Gender query with WEAT Flow
 
 The programming of the previous flow can be separated into three steps:

@@ -282,7 +282,8 @@ def run_queries(
         index="model_name", columns="query_name", values="result"
     )
     pivoted_results = pivoted_results.reindex(
-        index=[model.name for model in models], columns=query_names,
+        index=[model.name for model in models],
+        columns=query_names,
     )
 
     if aggregate_results:
@@ -386,7 +387,8 @@ def plot_queries_results(results: pd.DataFrame, by: str = "query"):
         barmode="group",
     )
     fig.update_layout(
-        xaxis_title=xaxis_title, yaxis_title="Bias measure",
+        xaxis_title=xaxis_title,
+        yaxis_title="Bias measure",
     )
     fig.for_each_trace(
         lambda t: t.update(x=["wrt<br>".join(label.split("wrt")) for label in t.x])

@@ -5,6 +5,7 @@ from typing import Dict, List, Optional
 
 import numpy as np
 from tqdm import tqdm
+
 from wefe.debias.base_debias import BaseDebias
 from wefe.preprocessing import get_embeddings_from_sets
 from wefe.utils import check_is_fitted
@@ -123,7 +124,9 @@ class HalfSiblingRegression(BaseDebias):
     short_name = "HSR"
 
     def __init__(
-        self, verbose: bool = False, criterion_name: Optional[str] = None,
+        self,
+        verbose: bool = False,
+        criterion_name: Optional[str] = None,
     ) -> None:
         """Initialize a Half Sibling Regression Debias instance.
 
@@ -284,7 +287,8 @@ class HalfSiblingRegression(BaseDebias):
         """
         # check if the following attributes exist in the object.
         check_is_fitted(
-            self, ["bias_definitional_words", "non_bias", "alpha", "non_bias_dict"],
+            self,
+            ["bias_definitional_words", "non_bias", "alpha", "non_bias_dict"],
         )
 
         if self.verbose:
@@ -316,7 +320,7 @@ class HalfSiblingRegression(BaseDebias):
         if target or ignore:
             if target:
                 target = target
-           
+
             elif ignore:
                 target = list(set(list(self.non_bias_dict.keys())) - set(ignore))
 

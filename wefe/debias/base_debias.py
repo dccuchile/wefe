@@ -1,8 +1,9 @@
 """Contains a base class for implement any debias method in WEFE."""
-from typing import List, Optional
 from abc import abstractmethod
+from typing import List, Optional
 
 from sklearn.base import BaseEstimator
+
 from wefe.word_embedding_model import WordEmbeddingModel
 
 

@@ -2,6 +2,7 @@
 import numpy as np
 import pytest
 from gensim.models.keyedvectors import KeyedVectors
+
 from wefe.datasets import fetch_debias_multiclass, fetch_debiaswe, load_weat
 from wefe.debias.base_debias import BaseDebias
 from wefe.debias.double_hard_debias import DoubleHardDebias
@@ -29,11 +30,17 @@ def model() -> WordEmbeddingModel:
 def test_base_debias(model):
 
     bd = BaseDebias()
-    with pytest.raises(NotImplementedError,):
+    with pytest.raises(
+        NotImplementedError,
+    ):
         bd.fit(None)
-    with pytest.raises(NotImplementedError,):
+    with pytest.raises(
+        NotImplementedError,
+    ):
         bd.transform(None)
-    with pytest.raises(NotImplementedError,):
+    with pytest.raises(
+        NotImplementedError,
+    ):
         bd.fit_transform(None)
 
     debiaswe_wordsets = fetch_debiaswe()
@@ -41,30 +48,36 @@ def test_base_debias(model):
 
     # type checking function
     with pytest.raises(
-        TypeError, match=r"model should be a WordEmbeddingModel instance, got .*",
+        TypeError,
+        match=r"model should be a WordEmbeddingModel instance, got .*",
     ):
         bd._check_transform_args(None)
 
     with pytest.raises(
-        TypeError, match=r"target should be None or a list of strings, got .*",
+        TypeError,
+        match=r"target should be None or a list of strings, got .*",
     ):
         bd._check_transform_args(model, target=1)
     with pytest.raises(
-        TypeError, match=r"All elements in target should be strings, .*",
+        TypeError,
+        match=r"All elements in target should be strings, .*",
     ):
         bd._check_transform_args(model, target=gender_specific + [10])
 
     with pytest.raises(
-        TypeError, match=r"ignore should be None or a list of strings, got .*",
+        TypeError,
+        match=r"ignore should be None or a list of strings, got .*",
     ):
         bd._check_transform_args(model, ignore=1)
     with pytest.raises(
-        TypeError, match=r"All elements in ignore should be strings, .*",
+        TypeError,
+        match=r"All elements in ignore should be strings, .*",
     ):
         bd._check_transform_args(model, ignore=gender_specific + [10])
 
     with pytest.raises(
-        TypeError, match=r"copy should be a bool, got .*",
+        TypeError,
+        match=r"copy should be a bool, got .*",
     ):
         bd._check_transform_args(model, copy=None)
 
@@ -82,7 +95,8 @@ def test_hard_debias_checks(model):
     definitional_pairs = debiaswe_wordsets["definitional_pairs"]
 
     with pytest.raises(
-        TypeError, match=r"verbose should be a bool, got .*",
+        TypeError,
+        match=r"verbose should be a bool, got .*",
     ):
         HardDebias(verbose=1)
 
@@ -94,7 +108,8 @@ def test_hard_debias_checks(model):
         ),
     ):
         HardDebias().fit(
-            model, definitional_pairs + [["word1", "word2", "word3"]],
+            model,
+            definitional_pairs + [["word1", "word2", "word3"]],
         )
     with pytest.raises(
         ValueError,
@@ -104,7 +119,8 @@ def test_hard_debias_checks(model):
         ),
     ):
         HardDebias().fit(
-            model, definitional_pairs + [["word1"]],
+            model,
+            definitional_pairs + [["word1"]],
         )
 
 
@@ -135,9 +151,13 @@ def test_hard_debias_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Gender Debias
-    hd = HardDebias(criterion_name="gender",)
+    hd = HardDebias(
+        criterion_name="gender",
+    )
     hd.fit(
-        model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
+        model,
+        definitional_pairs=definitional_pairs,
+        equalize_pairs=equalize_pairs,
     )
 
     gender_debiased_w2v = hd.transform(model, ignore=gender_specific, copy=True)
@@ -155,12 +175,17 @@ def test_hard_debias_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Test target param
-    hd = HardDebias(verbose=True, criterion_name="gender",)
+    hd = HardDebias(
+        verbose=True,
+        criterion_name="gender",
+    )
 
     attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
 
     gender_debiased_w2v = hd.fit(
-        model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
+        model,
+        definitional_pairs=definitional_pairs,
+        equalize_pairs=equalize_pairs,
     ).transform(model, target=attributes, copy=True)
 
     biased_results = weat.run_query(query_1, model, normalize=True)
@@ -173,7 +198,10 @@ def test_hard_debias_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Test ignore param
-    hd = HardDebias(verbose=True, criterion_name="gender",)
+    hd = HardDebias(
+        verbose=True,
+        criterion_name="gender",
+    )
 
     # in this test, the targets and attributes are included in the ignore list.
     # this implies that neither of these words should be subjected to debias and
@@ -181,7 +209,9 @@ def test_hard_debias_class(model, capsys):
     targets = weat_wordset["male_names"] + weat_wordset["female_names"]
     attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
     gender_debiased_w2v = hd.fit(
-        model, definitional_pairs, equalize_pairs=equalize_pairs,
+        model,
+        definitional_pairs,
+        equalize_pairs=equalize_pairs,
     ).transform(model, ignore=gender_specific + targets + attributes, copy=True)
 
     biased_results = weat.run_query(query_1, model, normalize=True)
@@ -193,7 +223,9 @@ def test_hard_debias_class(model, capsys):
     # Test verbose
     hd = HardDebias(verbose=True)
     gender_debiased_w2v = hd.fit(
-        model, definitional_pairs, equalize_pairs=equalize_pairs,
+        model,
+        definitional_pairs,
+        equalize_pairs=equalize_pairs,
     ).transform(model, ignore=gender_specific, copy=True)
 
     out = capsys.readouterr().out
@@ -214,9 +246,13 @@ def test_hard_debias_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Test inplace (copy = False)
-    hd = HardDebias(criterion_name="gender",)
+    hd = HardDebias(
+        criterion_name="gender",
+    )
     hd.fit(
-        model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
+        model,
+        definitional_pairs=definitional_pairs,
+        equalize_pairs=equalize_pairs,
     )
 
     gender_debiased_w2v = hd.transform(model, ignore=gender_specific, copy=False)
@@ -240,7 +276,9 @@ def test_multiclass_hard_debias_class(model):
     debiaswe_wordsets = fetch_debiaswe()
     gender_specific = debiaswe_wordsets["gender_specific"]
 
-    mhd = MulticlassHardDebias(criterion_name="gender",)
+    mhd = MulticlassHardDebias(
+        criterion_name="gender",
+    )
     mhd.fit(
         model=model,
         definitional_sets=gender_definitional_sets,
@@ -305,7 +343,10 @@ def test_multiclass_hard_debias_class(model):
         multiclass_debias_wordsets["ethnicity_analogy_templates"].values()
     )
 
-    mhd = MulticlassHardDebias(verbose=True, criterion_name="ethnicity",)
+    mhd = MulticlassHardDebias(
+        verbose=True,
+        criterion_name="ethnicity",
+    )
     mhd.fit(
         model=model,
         definitional_sets=ethnicity_definitional_sets,
@@ -365,7 +406,9 @@ def test_multiclass_hard_debias_class(model):
 
     # -----------------------------------------------------------------
     # Test ignore param
-    mhd = MulticlassHardDebias(criterion_name="gender",)
+    mhd = MulticlassHardDebias(
+        criterion_name="gender",
+    )
 
     # in this test, the targets and attributes are included in the ignore list.
     # this implies that neither of these words should be subjected to debias and
@@ -388,7 +431,9 @@ def test_multiclass_hard_debias_class(model):
     # -----------------------------------------------------------------
 
     # Test inplace (copy = False)
-    mhd = MulticlassHardDebias(criterion_name="gender",)
+    mhd = MulticlassHardDebias(
+        criterion_name="gender",
+    )
     mhd.fit(
         model=model,
         definitional_sets=gender_definitional_sets,
@@ -408,21 +453,25 @@ def test_double_hard_debias_checks(model):
     definitional_pairs = debiaswe_wordsets["definitional_pairs"]
 
     with pytest.raises(
-        TypeError, match=r"verbose should be a bool, got .*",
+        TypeError,
+        match=r"verbose should be a bool, got .*",
     ):
         DoubleHardDebias(verbose=1)
 
     with pytest.raises(
-        TypeError, match=r"n_words should be int, got: .*",
+        TypeError,
+        match=r"n_words should be int, got: .*",
     ):
         DoubleHardDebias(n_words=2.3)
 
     with pytest.raises(
-        TypeError, match=r"n_components should be int, got: .*",
+        TypeError,
+        match=r"n_components should be int, got: .*",
     ):
         DoubleHardDebias(n_components=2.3)
     with pytest.raises(
-        TypeError, match=r"incremental_pca should be a bool, got .*",
+        TypeError,
+        match=r"incremental_pca should be a bool, got .*",
     ):
         DoubleHardDebias(incremental_pca=1)
 
@@ -450,7 +499,8 @@ def test_double_hard_debias_checks(model):
             model, definitional_pairs + [["word1"]], bias_representation=["he", "she"]
         )
     with pytest.raises(
-        Exception, match=r"bias_representation words not in model",
+        Exception,
+        match=r"bias_representation words not in model",
     ):
         DoubleHardDebias().fit(
             model,
@@ -486,14 +536,19 @@ def test_double_hard_debias_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Gender Debias
-    dhd = DoubleHardDebias(criterion_name="gender",)
+    dhd = DoubleHardDebias(
+        criterion_name="gender",
+    )
     dhd.fit(
         model, definitional_pairs=definitional_pairs, bias_representation=["he", "she"]
     )
 
     gender_debiased_w2v = dhd.transform(model, ignore=gender_specific)
 
-    dhd = DoubleHardDebias(verbose=True, criterion_name="gender",)
+    dhd = DoubleHardDebias(
+        verbose=True,
+        criterion_name="gender",
+    )
 
     targets = weat_wordset["male_names"] + weat_wordset["female_names"]
     attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
@@ -511,7 +566,10 @@ def test_double_hard_debias_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Test ignore param
-    dhd = DoubleHardDebias(verbose=True, criterion_name="gender",)
+    dhd = DoubleHardDebias(
+        verbose=True,
+        criterion_name="gender",
+    )
 
     gender_debiased_w2v = dhd.fit(
         model, definitional_pairs=definitional_pairs, bias_representation=["he", "she"]
@@ -536,7 +594,9 @@ def test_double_hard_debias_class(model, capsys):
     assert "Copy argument is True. Transform will attempt to create a copy" in out
     assert "Executing debias" in out
 
-    dhd = DoubleHardDebias(criterion_name="gender",)
+    dhd = DoubleHardDebias(
+        criterion_name="gender",
+    )
     dhd.fit(
         model, definitional_pairs=definitional_pairs, bias_representation=["he", "she"]
     )
@@ -549,7 +609,8 @@ def test_double_hard_debias_class(model, capsys):
 
 def test_half_sibling_checks(model):
     with pytest.raises(
-        TypeError, match=r"verbose should be a bool, got .*",
+        TypeError,
+        match=r"verbose should be a bool, got .*",
     ):
         HalfSiblingRegression(verbose=1)
 
@@ -579,7 +640,9 @@ def test_half_sibling_regression_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Gender Debias
-    hsr = HalfSiblingRegression(criterion_name="gender",)
+    hsr = HalfSiblingRegression(
+        criterion_name="gender",
+    )
     hsr.fit(model, bias_definitional_words=gender_specific)
 
     gender_debiased_w2v = hsr.transform(model, copy=True)
@@ -597,7 +660,10 @@ def test_half_sibling_regression_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Test target param
-    hsr = HalfSiblingRegression(verbose=True, criterion_name="gender",)
+    hsr = HalfSiblingRegression(
+        verbose=True,
+        criterion_name="gender",
+    )
 
     attributes = weat_wordset["pleasant_5"] + weat_wordset["unpleasant_5"]
 
@@ -615,7 +681,10 @@ def test_half_sibling_regression_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Test ignore param
-    hsr = HalfSiblingRegression(verbose=True, criterion_name="gender",)
+    hsr = HalfSiblingRegression(
+        verbose=True,
+        criterion_name="gender",
+    )
 
     # in this test, the targets and attributes are included in the ignore list.
     # this implies that neither of these words should be subjected to debias and
@@ -652,7 +721,9 @@ def test_half_sibling_regression_class(model, capsys):
 
     # -----------------------------------------------------------------
     # Test inplace (copy = False)
-    hsr = HalfSiblingRegression(criterion_name="gender",)
+    hsr = HalfSiblingRegression(
+        criterion_name="gender",
+    )
     hsr.fit(model, bias_definitional_words=gender_specific)
 
     gender_debiased_w2v = hsr.transform(model, copy=False)

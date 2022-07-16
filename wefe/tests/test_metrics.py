@@ -2,6 +2,7 @@
 import numpy as np
 import pytest
 from gensim.models.keyedvectors import KeyedVectors
+
 from wefe.datasets.datasets import load_weat
 from wefe.metrics import ECT, MAC, RIPA, RND, RNSB, WEAT
 from wefe.query import Query

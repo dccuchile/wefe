@@ -246,7 +246,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ("index", "WEFE.tex", u"WEFE Documentation", u"WEFE Team", "manual"),
+    ("index", "WEFE.tex", "WEFE Documentation", "WEFE Team", "manual"),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -273,7 +273,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "WEFE", u"WEFE Documentation", [u"The WEFE Team"], 1)]
+man_pages = [("index", "WEFE", "WEFE Documentation", ["The WEFE Team"], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -287,8 +287,8 @@ texinfo_documents = [
     (
         "index",
         "WEFE",
-        u"WEFE Documentation",
-        u"The WEFE Team",
+        "WEFE Documentation",
+        "The WEFE Team",
         "WEFE",
         "Word Embedding Fairness Evaluation (WEFE) is an open source library for\
           measuring and mitigating bias in word embedding models.",
@@ -329,4 +329,3 @@ sphinx_gallery_conf = {
 def setup(app):
     # a copy button to copy snippet of code from the documentation
     app.add_js_file("js/copybutton.js")
-

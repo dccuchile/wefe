@@ -1,5 +1,6 @@
 """Query Testing"""
 import pytest
+
 from wefe.datasets.datasets import load_weat
 from wefe.query import Query
 
@@ -342,4 +343,3 @@ def test_wrong_target_and_attribute_sets_and_names(caplog):
             ["Flowers"],
             ["Pleasant", "asdf"],
         )
-

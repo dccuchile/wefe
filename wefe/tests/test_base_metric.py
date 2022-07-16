@@ -1,4 +1,5 @@
 import pytest
+
 from wefe.datasets.datasets import load_weat
 from wefe.metrics.base_metric import BaseMetric
 from wefe.query import Query
@@ -148,5 +149,7 @@ def test_run_query(simple_model_and_query):
 
     test_model, query, _, _, _, _ = simple_model_and_query
 
-    with pytest.raises(NotImplementedError,):
+    with pytest.raises(
+        NotImplementedError,
+    ):
         base_metric.run_query(query, test_model)

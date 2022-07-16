@@ -1,10 +1,10 @@
 "Tests of the word embedding model module"
 import gensim
-import pytest
 import numpy as np
-from gensim.test.utils import common_texts
-from gensim.models import Word2Vec, FastText, KeyedVectors
+import pytest
 import semantic_version
+from gensim.models import FastText, KeyedVectors, Word2Vec
+from gensim.test.utils import common_texts
 
 from wefe.word_embedding_model import WordEmbeddingModel
 
@@ -205,11 +205,13 @@ def test_update_embeddings(word2vec_test):
         word2vec_test.batch_update(None, embeddings)
 
     with pytest.raises(
-        TypeError, match=r"embeddings should be a list, tuple or np.array, got:.*",
+        TypeError,
+        match=r"embeddings should be a list, tuple or np.array, got:.*",
     ):
         word2vec_test.batch_update(words, None)
 
     with pytest.raises(
-        ValueError, match=r"words and embeddings must have the same size, got:.*",
+        ValueError,
+        match=r"words and embeddings must have the same size, got:.*",
     ):
         word2vec_test.batch_update(words + ["is"], embeddings)

@@ -3,6 +3,7 @@ from typing import Any, Callable, Dict, List, Tuple, Union
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -42,7 +43,10 @@ class RND(BaseMetric):
     metric_short_name = "RND"
 
     def __calc_distance(
-        self, vec1: np.ndarray, vec2: np.ndarray, distance_type: str = "norm",
+        self,
+        vec1: np.ndarray,
+        vec2: np.ndarray,
+        distance_type: str = "norm",
     ) -> float:
         if distance_type == "norm":
             return np.linalg.norm(np.subtract(vec1, vec2))
@@ -76,9 +80,13 @@ class RND(BaseMetric):
 
             # calculate the distance
             current_distance = self.__calc_distance(
-                attribute_embedding, target_1_avg_vector, distance_type=distance_type,
+                attribute_embedding,
+                target_1_avg_vector,
+                distance_type=distance_type,
             ) - self.__calc_distance(
-                attribute_embedding, target_2_avg_vector, distance_type=distance_type,
+                attribute_embedding,
+                target_2_avg_vector,
+                distance_type=distance_type,
             )
 
             # add the distance of the neutral word to the accumulated

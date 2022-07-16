@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, List, Union
 
 import numpy as np
 from scipy.spatial import distance
+
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -31,10 +32,10 @@ class ExampleMetric(BaseMetric):
         Parameters
         ----------
         target_embeddings : List[EmbeddingDict]
-            An array with EmbeddingDict. Each dictionary represents an target set. 
+            An array with EmbeddingDict. Each dictionary represents an target set.
              A dict is composed with a word and its embedding as key, value respectively.
         attribute_embeddings : List[EmbeddingDict]
-            [An array with dicts. Each dictionary represents an attribute set. 
+            [An array with dicts. Each dictionary represents an attribute set.
              A dict is composed with a word and its embedding as key, value respectively.
 
         Returns
@@ -89,7 +90,7 @@ class ExampleMetric(BaseMetric):
 
         model : WordEmbeddingModel
             An object containing a word embeddings model.
-        
+
         lost_vocabulary_threshold : float, optional
             Specifies the proportional limit of words that any set of the query is
             allowed to lose when transforming its words into embeddings.
@@ -144,7 +145,7 @@ class ExampleMetric(BaseMetric):
         Returns
         -------
         Dict[str, Any]
-            A dictionary with the query name, the resulting score of the metric, 
+            A dictionary with the query name, the resulting score of the metric,
             and other scores.
         """
         # check the types of the provided arguments (only the defaults).

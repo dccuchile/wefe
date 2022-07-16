@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Sequence
 import numpy as np
 from sklearn.decomposition import PCA
 from tqdm import tqdm
+
 from wefe.debias.base_debias import BaseDebias
 from wefe.preprocessing import get_embeddings_from_sets
 from wefe.utils import check_is_fitted
@@ -104,7 +105,9 @@ class HardDebias(BaseDebias):
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
     def _check_sets_size(
-        self, sets: Sequence[Sequence[str]], set_name: str,
+        self,
+        sets: Sequence[Sequence[str]],
+        set_name: str,
     ):
 
         for idx, set_ in enumerate(sets):
@@ -118,7 +121,9 @@ class HardDebias(BaseDebias):
                 )
 
     def _identify_bias_subspace(
-        self, definning_pairs_embeddings: List[EmbeddingDict], verbose: bool = False,
+        self,
+        definning_pairs_embeddings: List[EmbeddingDict],
+        verbose: bool = False,
     ) -> PCA:
 
         matrix = []
@@ -207,7 +212,10 @@ class HardDebias(BaseDebias):
             ):
                 (
                     (word_a, embedding_a),
-                    (word_b, embedding_b,),
+                    (
+                        word_b,
+                        embedding_b,
+                    ),
                 ) = equalize_pair_embeddings.items()
 
                 y = self._drop((embedding_a + embedding_b) / 2, bias_direction)
@@ -275,7 +283,8 @@ class HardDebias(BaseDebias):
             print("Identifying the bias subspace.")
 
         self.pca_ = self._identify_bias_subspace(
-            self.definitional_pairs_embeddings_, self.verbose,
+            self.definitional_pairs_embeddings_,
+            self.verbose,
         )
         self.bias_direction_ = self.pca_.components_[0]
 
@@ -358,7 +367,10 @@ class HardDebias(BaseDebias):
         # Check types and if the method is fitted
 
         self._check_transform_args(
-            model=model, target=target, ignore=ignore, copy=copy,
+            model=model,
+            target=target,
+            ignore=ignore,
+            copy=copy,
         )
 
         # check if the following attributes exist in the object.
@@ -418,7 +430,9 @@ class HardDebias(BaseDebias):
             print("Equalizing embeddings.")
 
         self._equalize(
-            model, self.equalize_pairs_embeddings_, self.bias_direction_,
+            model,
+            self.equalize_pairs_embeddings_,
+            self.bias_direction_,
         )
 
         if self.verbose:

@@ -3,14 +3,12 @@ import logging
 import numpy as np
 import pytest
 from gensim.models.keyedvectors import KeyedVectors
+
 from wefe.datasets.datasets import load_weat
-from wefe.preprocessing import (
-    _warn_not_found_words,
-    get_embeddings_from_query,
-    get_embeddings_from_set,
-    get_embeddings_from_sets,
-    preprocess_word,
-)
+from wefe.preprocessing import (_warn_not_found_words,
+                                get_embeddings_from_query,
+                                get_embeddings_from_set,
+                                get_embeddings_from_sets, preprocess_word)
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
@@ -323,19 +321,22 @@ def test_get_embeddings_from_sets(model, caplog, capsys):
         get_embeddings_from_sets(model, [["she", 1]])
 
     with pytest.raises(
-        TypeError, match=r"sets_name should be a string or None, got:.*",
+        TypeError,
+        match=r"sets_name should be a string or None, got:.*",
     ):
         get_embeddings_from_sets(model, [["she", "he"]], 0)
 
     with pytest.raises(
-        TypeError, match=r"warn_lost_sets should be a bool, got:.*",
+        TypeError,
+        match=r"warn_lost_sets should be a bool, got:.*",
     ):
         get_embeddings_from_sets(
             model, [["she", "he"]], "definning", warn_lost_sets=None
         )
 
     with pytest.raises(
-        TypeError, match=r"verbose should be a bool, got:.*",
+        TypeError,
+        match=r"verbose should be a bool, got:.*",
     ):
         get_embeddings_from_sets(
             model, [["she", "he"]], "definning", True, verbose=None
@@ -666,4 +667,3 @@ def test_threshold_param_on_get_embeddings_from_query(caplog, simple_query, mode
     embeddings = get_embeddings_from_query(model, query, lost_vocabulary_threshold=0.5)
 
     assert embeddings is not None
-

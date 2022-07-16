@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List, Set, Tuple, Union
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -70,12 +71,11 @@ class WEAT(BaseMetric):
 
     References
     ----------
-    | [1]: Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan. 
-    |      Semantics derived automatically from language corpora contain human-like 
+    | [1]: Aylin Caliskan, Joanna J Bryson, and Arvind Narayanan.
+    |      Semantics derived automatically from language corpora contain human-like
            biases.
     |      Science, 356(6334):183–186, 2017.
-
-"""
+    """
 
     metric_template = (2, 2)
     metric_name = "Word Embedding Association Test"
@@ -397,7 +397,7 @@ class WEAT(BaseMetric):
         the permutation test and return its p-value. The argument
         `p_value_method='approximate'` indicates that the calculation of the
         permutation test will be approximate, i.e., not all possible permutations
-        will be generated.  Instead, random permutations of the attributes to test 
+        will be generated.  Instead, random permutations of the attributes to test
         will be generated.
         On the other hand, the argument `p_value_iterations`
         indicates the number of permutations that will be generated and tested.

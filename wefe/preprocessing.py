@@ -3,7 +3,8 @@ import logging
 from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from sklearn.feature_extraction.text import strip_accents_ascii, strip_accents_unicode
+from sklearn.feature_extraction.text import (strip_accents_ascii,
+                                             strip_accents_unicode)
 
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel

@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional, Sequence
 import numpy as np
 from sklearn.decomposition import PCA
 from tqdm import tqdm
+
 from wefe.debias.base_debias import BaseDebias
 from wefe.preprocessing import get_embeddings_from_sets
 from wefe.utils import check_is_fitted
@@ -77,7 +78,8 @@ class MulticlassHardDebias(BaseDebias):
             )
 
     def _identify_bias_subspace(
-        self, definning_sets_embeddings: List[EmbeddingDict],
+        self,
+        definning_sets_embeddings: List[EmbeddingDict],
     ) -> PCA:
 
         matrix = []
@@ -111,7 +113,9 @@ class MulticlassHardDebias(BaseDebias):
         return v_b
 
     def _get_target(
-        self, model: WordEmbeddingModel, target: Optional[Sequence[str]] = None,
+        self,
+        model: WordEmbeddingModel,
+        target: Optional[Sequence[str]] = None,
     ) -> List[str]:
 
         definitional_words = np.array(self.definitional_sets_).flatten().tolist()
@@ -120,13 +124,17 @@ class MulticlassHardDebias(BaseDebias):
             # keep only words in the model's vocab.
             target = list(
                 filter(
-                    lambda x: x in model.vocab and x not in definitional_words, target,
+                    lambda x: x in model.vocab and x not in definitional_words,
+                    target,
                 )
             )
         else:
             # indicate that all words are canditates to neutralize.
             target = list(
-                filter(lambda x: x not in definitional_words, model.vocab.keys(),)
+                filter(
+                    lambda x: x not in definitional_words,
+                    model.vocab.keys(),
+                )
             )
 
         return target
@@ -229,7 +237,9 @@ class MulticlassHardDebias(BaseDebias):
         # Identify the bias subspace using the definning sets.
         if self.verbose:
             print("Identifying the bias subspace.")
-        self.pca_ = self._identify_bias_subspace(self.definitional_sets_embeddings_,)
+        self.pca_ = self._identify_bias_subspace(
+            self.definitional_sets_embeddings_,
+        )
         self.bias_subspace_ = self.pca_.components_[: self.pca_num_components_]
 
         # ------------------------------------------------------------------------------
@@ -278,14 +288,17 @@ class MulticlassHardDebias(BaseDebias):
             **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
             of the model, otherwise the execution of the debias may raise to
             `MemoryError`, by default True.
-            
+
         Returns
         -------
         WordEmbeddingModel
             The debiased embedding model.
         """
         self._check_transform_args(
-            model=model, target=target, ignore=ignore, copy=copy,
+            model=model,
+            target=target,
+            ignore=ignore,
+            copy=copy,
         )
 
         check_is_fitted(

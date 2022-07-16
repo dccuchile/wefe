@@ -8,6 +8,7 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA, IncrementalPCA
 from sklearn.metrics import pairwise_distances
 from tqdm import tqdm
+
 from wefe.debias.base_debias import BaseDebias
 from wefe.preprocessing import get_embeddings_from_sets
 from wefe.utils import check_is_fitted
@@ -62,7 +63,7 @@ class DoubleHardDebias(BaseDebias):
     >>> dhd = DoubleHardDebias(verbose=False).fit(model=model, definitional_pairs=definitional_pairs, bias_representation=['he','she'])
     >>> # execute the debias, if you don't want a set of words to be debiased include them in the ignore set
     >>> gender_specific = debiaswe_wordsets["gender_specific"]
-    >>> 
+    >>>
     >>> debiased_model = dhd.transform(
     ...     model=model, ignore=gender_specific
     ... )
@@ -151,16 +152,18 @@ class DoubleHardDebias(BaseDebias):
         else:
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
-        if not isinstance(n_words,int):
+        if not isinstance(n_words, int):
             raise TypeError(f"n_words should be int, got: {n_words}")
         self.n_words = n_words
 
-        if not isinstance(n_components,int):
+        if not isinstance(n_components, int):
             raise TypeError(f"n_components should be int, got: {n_components}")
         self.n_components = n_components
 
     def _check_sets_size(
-        self, sets: Sequence[Sequence[str]], set_name: str,
+        self,
+        sets: Sequence[Sequence[str]],
+        set_name: str,
     ):
 
         for idx, set_ in enumerate(sets):
@@ -234,7 +237,9 @@ class DoubleHardDebias(BaseDebias):
         List[str]
             List of target words for each bias group
         """
-        similarities = self._bias_by_projection(model, target, ignore, bias_representation)
+        similarities = self._bias_by_projection(
+            model, target, ignore, bias_representation
+        )
         sorted_words = sorted(similarities.items(), key=operator.itemgetter(1))
         female_words = [pair[0] for pair in sorted_words[:n_words]]
         male_words = [pair[0] for pair in sorted_words[-n_words:]]
@@ -284,7 +289,9 @@ class DoubleHardDebias(BaseDebias):
         return droped_frecuencies
 
     def _identify_bias_subspace(
-        self, defining_pairs_embeddings, verbose: bool = False,
+        self,
+        defining_pairs_embeddings,
+        verbose: bool = False,
     ) -> PCA:
 
         matrix = []
@@ -352,7 +359,7 @@ class DoubleHardDebias(BaseDebias):
         return alignment_score
 
     def fit(
-        self, 
+        self,
         model: WordEmbeddingModel,
         definitional_pairs: Sequence[Sequence[str]],
         bias_representation: List[str],
@@ -453,7 +460,9 @@ class DoubleHardDebias(BaseDebias):
         """
         # check if the following attributes exist in the object.
         self._check_transform_args(
-            model=model, ignore=ignore, copy=copy,
+            model=model,
+            ignore=ignore,
+            copy=copy,
         )
         check_is_fitted(
             self,
@@ -488,18 +497,20 @@ class DoubleHardDebias(BaseDebias):
         if self.verbose:
             print("Obtaining words to apply debias")
 
-        if target: 
+        if target:
             self.n_words = len(target) // 2
-            
+
         self.target_words = self.get_target_words(
-            model,target, ignore, self.n_words, self.bias_representation
+            model, target, ignore, self.n_words, self.bias_representation
         )
 
         # -------------------------------------------------------------------
         # Searching best component of pca to debias
         if self.verbose:
             print("Searching component to debias")
-        optimal_dimensions = self._get_optimal_dimension(model, self.n_words, self.n_components)
+        optimal_dimensions = self._get_optimal_dimension(
+            model, self.n_words, self.n_components
+        )
 
         # -------------------------------------------------------------------
         # Execute debias

@@ -245,7 +245,9 @@ class WordEmbeddingModel:
         self.wv.vectors[word_index] = embedding
 
     def batch_update(
-        self, words: Sequence[str], embeddings: Union[Sequence[np.ndarray], np.ndarray],
+        self,
+        words: Sequence[str],
+        embeddings: Union[Sequence[np.ndarray], np.ndarray],
     ):
         """Update a batch of embeddings.
 

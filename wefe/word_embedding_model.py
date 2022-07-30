@@ -1,5 +1,5 @@
 """A Word Embedding contanier based on gensim BaseKeyedVectors."""
-from typing import Callable, Dict, Sequence, Union
+from typing import Dict, Sequence, Union
 
 import gensim
 import numpy as np
@@ -245,9 +245,7 @@ class WordEmbeddingModel:
         self.wv.vectors[word_index] = embedding
 
     def batch_update(
-        self,
-        words: Sequence[str],
-        embeddings: Union[Sequence[np.ndarray], np.ndarray],
+        self, words: Sequence[str], embeddings: Union[Sequence[np.ndarray], np.ndarray],
     ):
         """Update a batch of embeddings.
 

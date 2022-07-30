@@ -282,8 +282,7 @@ def run_queries(
         index="model_name", columns="query_name", values="result"
     )
     pivoted_results = pivoted_results.reindex(
-        index=[model.name for model in models],
-        columns=query_names,
+        index=[model.name for model in models], columns=query_names,
     )
 
     if aggregate_results:
@@ -387,8 +386,7 @@ def plot_queries_results(results: pd.DataFrame, by: str = "query"):
         barmode="group",
     )
     fig.update_layout(
-        xaxis_title=xaxis_title,
-        yaxis_title="Bias measure",
+        xaxis_title=xaxis_title, yaxis_title="Bias measure",
     )
     fig.for_each_trace(
         lambda t: t.update(x=["wrt<br>".join(label.split("wrt")) for label in t.x])
@@ -615,3 +613,19 @@ def print_doc_table(df):
 
 def save_doc_image(fig, name):
     fig.write_image(f"./doc/images/{name}.png", width=1200, height=600, scale=3)
+
+
+from gensim.models.keyedvectors import KeyedVectors
+
+
+def flair_to_gensim(flair_embedding):
+    # load model from flair
+
+    # hack to transform pytorch embedding to gensim's KeyedVectors
+    keyed_vectors = KeyedVectors(vector_size=flair_embedding.embedding_length)
+    keyed_vectors.add_vectors(
+        keys=list(flair_embedding.vocab.keys()),
+        weights=flair_embedding.embedding.weight.numpy()[:-1, :],
+    )
+
+    return keyed_vectors

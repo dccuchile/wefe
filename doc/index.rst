@@ -45,6 +45,7 @@ the detailed API documentation and extensive examples.
 
    examples/wefe_case_study.rst
    examples/replications.rst
+   examples/multilingual.rst
 
 Repository
 ==========

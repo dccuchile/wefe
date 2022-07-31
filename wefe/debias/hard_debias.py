@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
-from wefe.preprocessing import get_embeddings_from_sets
+from wefe.preprocessing import get_embeddings_from_tuples
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
@@ -260,7 +260,7 @@ class HardDebias(BaseDebias):
         # Obtain the embedding of each definitional pairs.
         if self.verbose:
             print("Obtaining definitional pairs.")
-        self.definitional_pairs_embeddings_ = get_embeddings_from_sets(
+        self.definitional_pairs_embeddings_ = get_embeddings_from_tuples(
             model=model,
             sets=definitional_pairs,
             sets_name="definitional",
@@ -308,7 +308,7 @@ class HardDebias(BaseDebias):
         ]
 
         # Obtain the equalization pairs embeddings candidates
-        self.equalize_pairs_embeddings_ = get_embeddings_from_sets(
+        self.equalize_pairs_embeddings_ = get_embeddings_from_tuples(
             model=model,
             sets=self.equalize_pairs_candidates_,
             sets_name="equalize",

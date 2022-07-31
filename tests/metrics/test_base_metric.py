@@ -4,7 +4,7 @@ from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-def test_validate_wrong_metric_inputs(
+def test_base_metric_input_checking(
     model: WordEmbeddingModel, query_2t2a_1: Query, query_3t2a_1: Query,
 ):
     # Create and configure base metric testing.

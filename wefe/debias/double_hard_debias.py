@@ -9,7 +9,7 @@ from sklearn.decomposition import PCA, IncrementalPCA
 from sklearn.metrics import pairwise_distances
 from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
-from wefe.preprocessing import get_embeddings_from_sets
+from wefe.preprocessing import get_embeddings_from_tuples
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import WordEmbeddingModel
 
@@ -151,11 +151,11 @@ class DoubleHardDebias(BaseDebias):
         else:
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
-        if not isinstance(n_words,int):
+        if not isinstance(n_words, int):
             raise TypeError(f"n_words should be int, got: {n_words}")
         self.n_words = n_words
 
-        if not isinstance(n_components,int):
+        if not isinstance(n_components, int):
             raise TypeError(f"n_components should be int, got: {n_components}")
         self.n_components = n_components
 
@@ -234,7 +234,9 @@ class DoubleHardDebias(BaseDebias):
         List[str]
             List of target words for each bias group
         """
-        similarities = self._bias_by_projection(model, target, ignore, bias_representation)
+        similarities = self._bias_by_projection(
+            model, target, ignore, bias_representation
+        )
         sorted_words = sorted(similarities.items(), key=operator.itemgetter(1))
         female_words = [pair[0] for pair in sorted_words[:n_words]]
         male_words = [pair[0] for pair in sorted_words[-n_words:]]
@@ -352,7 +354,7 @@ class DoubleHardDebias(BaseDebias):
         return alignment_score
 
     def fit(
-        self, 
+        self,
         model: WordEmbeddingModel,
         definitional_pairs: Sequence[Sequence[str]],
         bias_representation: List[str],
@@ -386,7 +388,7 @@ class DoubleHardDebias(BaseDebias):
         if self.verbose:
             print("Obtaining definitional pairs.")
 
-        self.definitional_pairs_embeddings = get_embeddings_from_sets(
+        self.definitional_pairs_embeddings = get_embeddings_from_tuples(
             model=model,
             sets=definitional_pairs,
             sets_name="definitional",
@@ -488,18 +490,20 @@ class DoubleHardDebias(BaseDebias):
         if self.verbose:
             print("Obtaining words to apply debias")
 
-        if target: 
+        if target:
             self.n_words = len(target) // 2
-            
+
         self.target_words = self.get_target_words(
-            model,target, ignore, self.n_words, self.bias_representation
+            model, target, ignore, self.n_words, self.bias_representation
         )
 
         # -------------------------------------------------------------------
         # Searching best component of pca to debias
         if self.verbose:
             print("Searching component to debias")
-        optimal_dimensions = self._get_optimal_dimension(model, self.n_words, self.n_components)
+        optimal_dimensions = self._get_optimal_dimension(
+            model, self.n_words, self.n_components
+        )
 
         # -------------------------------------------------------------------
         # Execute debias

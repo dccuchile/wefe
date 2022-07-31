@@ -2,7 +2,7 @@
 from typing import Dict, List
 
 import pytest
-from wefe.datasets.datasets import load_weat
+from wefe.datasets.datasets import fetch_debiaswe, load_weat
 from wefe.query import Query
 from wefe.utils import load_test_model
 from wefe.word_embedding_model import WordEmbeddingModel
@@ -31,6 +31,13 @@ def weat_wordsets() -> Dict[str, List[str]]:
     """
     weat_wordsets = load_weat()
     return weat_wordsets
+
+
+@pytest.fixture
+def gender_specific():
+    debiaswe_wordsets = fetch_debiaswe()
+    gender_specific = debiaswe_wordsets["gender_specific"]
+    return gender_specific
 
 
 @pytest.fixture

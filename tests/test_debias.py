@@ -1,79 +1,13 @@
 """Set of Tests for mitigation methods."""
 import numpy as np
 import pytest
-from gensim.models.keyedvectors import KeyedVectors
 from wefe.datasets import fetch_debias_multiclass, fetch_debiaswe, load_weat
-from wefe.debias.base_debias import BaseDebias
 from wefe.debias.double_hard_debias import DoubleHardDebias
 from wefe.debias.half_sibling_regression import HalfSiblingRegression
 from wefe.debias.hard_debias import HardDebias
 from wefe.debias.multiclass_hard_debias import MulticlassHardDebias
 from wefe.metrics import MAC, WEAT
 from wefe.query import Query
-from wefe.word_embedding_model import WordEmbeddingModel
-
-
-@pytest.fixture
-def model() -> WordEmbeddingModel:
-    """Load a subset of Word2vec as a testing model.
-
-    Returns
-    -------
-    WordEmbeddingModel
-        The loaded testing model.
-    """
-    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
-    return WordEmbeddingModel(w2v, "word2vec")
-
-
-def test_base_debias(model):
-
-    bd = BaseDebias()
-    with pytest.raises(NotImplementedError,):
-        bd.fit(None)
-    with pytest.raises(NotImplementedError,):
-        bd.transform(None)
-    with pytest.raises(NotImplementedError,):
-        bd.fit_transform(None)
-
-    debiaswe_wordsets = fetch_debiaswe()
-    gender_specific = debiaswe_wordsets["gender_specific"]
-
-    # type checking function
-    with pytest.raises(
-        TypeError, match=r"model should be a WordEmbeddingModel instance, got .*",
-    ):
-        bd._check_transform_args(None)
-
-    with pytest.raises(
-        TypeError, match=r"target should be None or a list of strings, got .*",
-    ):
-        bd._check_transform_args(model, target=1)
-    with pytest.raises(
-        TypeError, match=r"All elements in target should be strings, .*",
-    ):
-        bd._check_transform_args(model, target=gender_specific + [10])
-
-    with pytest.raises(
-        TypeError, match=r"ignore should be None or a list of strings, got .*",
-    ):
-        bd._check_transform_args(model, ignore=1)
-    with pytest.raises(
-        TypeError, match=r"All elements in ignore should be strings, .*",
-    ):
-        bd._check_transform_args(model, ignore=gender_specific + [10])
-
-    with pytest.raises(
-        TypeError, match=r"copy should be a bool, got .*",
-    ):
-        bd._check_transform_args(model, copy=None)
-
-    assert (
-        bd._check_transform_args(
-            model, target=["word1", "word2"], ignore=gender_specific, copy=False
-        )
-        is None
-    )
 
 
 def test_hard_debias_checks(model):

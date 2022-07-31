@@ -22,7 +22,7 @@ from wefe.metrics.RNSB import RNSB
 from wefe.preprocessing import (
     get_embeddings_from_query,
     get_embeddings_from_set,
-    get_embeddings_from_sets,
+    get_embeddings_from_tuples,
     preprocess_word,
 )
 from wefe.query import Query
@@ -51,6 +51,6 @@ __all__ = [
     "preprocess_word",
     "get_embeddings_from_query",
     "get_embeddings_from_set",
-    "get_embeddings_from_sets",
+    "get_embeddings_from_tuples",
     "__version__",
 ]

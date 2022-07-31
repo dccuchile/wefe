@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 import numpy as np
 from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
-from wefe.preprocessing import get_embeddings_from_sets
+from wefe.preprocessing import get_embeddings_from_tuples
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import WordEmbeddingModel
 
@@ -159,7 +159,7 @@ class HalfSiblingRegression(BaseDebias):
         self, model: WordEmbeddingModel, non_bias: List[str]
     ) -> Dict[str, np.ndarray]:
 
-        dictionary = get_embeddings_from_sets(
+        dictionary = get_embeddings_from_tuples(
             model=model, sets=[non_bias], sets_name="non_bias", normalize=False
         )
         return dictionary[0]
@@ -316,7 +316,7 @@ class HalfSiblingRegression(BaseDebias):
         if target or ignore:
             if target:
                 target = target
-           
+
             elif ignore:
                 target = list(set(list(self.non_bias_dict.keys())) - set(ignore))
 

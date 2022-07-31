@@ -1,53 +1,21 @@
 import logging
+from typing import Dict, List
 
 import numpy as np
 import pytest
-from gensim.models.keyedvectors import KeyedVectors
-from wefe.datasets.datasets import load_weat
 from wefe.preprocessing import (
     _warn_not_found_words,
     get_embeddings_from_query,
     get_embeddings_from_set,
-    get_embeddings_from_sets,
+    get_embeddings_from_tuples,
     preprocess_word,
 )
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
-
-@pytest.fixture
-def model() -> WordEmbeddingModel:
-    """Load a subset of Word2vec as a testing model.
-
-    Returns
-    -------
-    WordEmbeddingModel
-        The loaded testing model.
-    """
-    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
-    return WordEmbeddingModel(w2v, "word2vec")
-
-
-@pytest.fixture
-def weat_word_set():
-    return load_weat()
-
-
-@pytest.fixture
-def simple_query():
-    weat_wordsets = load_weat()
-
-    flowers = weat_wordsets["flowers"]
-    insects = weat_wordsets["insects"]
-    pleasant = weat_wordsets["pleasant_5"]
-    unpleasant = weat_wordsets["unpleasant_5"]
-    query = Query(
-        [flowers, insects],
-        [pleasant, unpleasant],
-        ["Flowers", "Insects"],
-        ["Pleasant", "Unpleasant"],
-    )
-    return query, flowers, insects, pleasant, unpleasant
+# --------------------------------------------------------------------------------------
+# test preprocess_word
+# --------------------------------------------------------------------------------------
 
 
 def test_preprocess_word():
@@ -101,7 +69,12 @@ def test_preprocess_word():
     assert word == "asd-woman"
 
 
-def test_get_embeddings_from_word_set_types(model):
+# --------------------------------------------------------------------------------------
+# test get_embeddings_from_set
+# --------------------------------------------------------------------------------------
+
+
+def test_get_embeddings_from_set_types(model):
 
     WORDS = ["man", "woman"]
 
@@ -152,10 +125,10 @@ def test_get_embeddings_from_word_set_types(model):
         get_embeddings_from_set(model, WORDS, strategy="blabla")
 
 
-def test_get_embeddings_from_word_set(model):
+def test_get_embeddings_from_set(model):
 
     # ----------------------------------------------------------------------------------
-    # test basic operation of _get_embeddings_from_word_set
+    # test basic operation of get_embeddings_from_set
     WORDS = ["man", "woman"]
 
     not_found_words, embeddings = get_embeddings_from_set(model, WORDS)
@@ -169,7 +142,9 @@ def test_get_embeddings_from_word_set(model):
     assert np.array_equal(model["man"], embeddings["man"])
     assert np.array_equal(model["woman"], embeddings["woman"])
 
-    # ----------------------------------------------------------------------------------
+
+def test_get_embeddings_from_set_with_oov(model):
+
     # test with a word that does not exists in the model
     WORDS = ["man", "woman", "not_a_word_"]
     not_found_words, embeddings = get_embeddings_from_set(model, WORDS)
@@ -183,8 +158,10 @@ def test_get_embeddings_from_word_set(model):
     assert np.array_equal(model["man"], embeddings["man"])
     assert np.array_equal(model["woman"], embeddings["woman"])
 
-    # ----------------------------------------------------------------------------------
+
+def test_get_embeddings_from_set_prep_lowercase(model):
     # test word preprocessor lowercase
+
     WORDS = [
         "mAN",
         "WOmaN",
@@ -202,7 +179,8 @@ def test_get_embeddings_from_word_set(model):
     assert np.array_equal(model["man"], embeddings["man"])
     assert np.array_equal(model["woman"], embeddings["woman"])
 
-    # ----------------------------------------------------------------------------------
+
+def test_get_embeddings_from_set_prep_strip_accents(model):
     # test word preprocessor strip_accents:
     WORDS = [
         "mán",
@@ -221,7 +199,8 @@ def test_get_embeddings_from_word_set(model):
     assert np.array_equal(model["man"], embeddings["man"])
     assert np.array_equal(model["woman"], embeddings["woman"])
 
-    # ----------------------------------------------------------------------------------
+
+def test_get_embeddings_from_set_prep_strategy_first(model):
     # test two word preprocessors strip_accents strategy="first":
     WORDS = [
         "mán",
@@ -247,7 +226,8 @@ def test_get_embeddings_from_word_set(model):
     assert np.array_equal(model["man"], embeddings["man"])
     assert np.array_equal(model["woman"], embeddings["woman"])
 
-    # ----------------------------------------------------------------------------------
+
+def test_get_embeddings_from_set_prep_strategy_all(model):
     # test two word preprocessors strip_accents strategy="all":
     WORDS = [
         "mán",
@@ -270,7 +250,8 @@ def test_get_embeddings_from_word_set(model):
 
     assert [np.array_equal(model[k], embeddings[k]) for k in embeddings.keys()]
 
-    # ----------------------------------------------------------------------------------
+
+def test_get_embeddings_from_set_with_normalization(model):
     # test normalize
     WORDS = ["man", "woman"]
 
@@ -280,11 +261,18 @@ def test_get_embeddings_from_word_set(model):
     assert 0.99999 < np.linalg.norm(embeddings["woman"]) < 1.00001
 
 
-# -------------------------------------------------------------------------------------
-def test_get_embeddings_from_sets(model, caplog, capsys):
+# --------------------------------------------------------------------------------------
+# test get_embeddings_from_sets
+# --------------------------------------------------------------------------------------
 
-    # ----------------------------------------------------------------------------------
+
+def test_get_embeddings_from_sets_type_checkings(model):
     # Test types and value checking.
+
+    with pytest.raises(
+        TypeError, match=(r"model should be a WordEmbeddingModel instance, got None"),
+    ):
+        get_embeddings_from_tuples(None, [["he"]])
 
     with pytest.raises(
         TypeError,
@@ -293,7 +281,7 @@ def test_get_embeddings_from_sets(model, caplog, capsys):
             r"strings, got:.*"
         ),
     ):
-        get_embeddings_from_sets(model, None)
+        get_embeddings_from_tuples(model, None)
 
     with pytest.raises(
         TypeError,
@@ -302,7 +290,7 @@ def test_get_embeddings_from_sets(model, caplog, capsys):
             r", got in index.*"
         ),
     ):
-        get_embeddings_from_sets(model, [None])
+        get_embeddings_from_tuples(model, [None])
 
     with pytest.raises(
         TypeError,
@@ -311,7 +299,7 @@ def test_get_embeddings_from_sets(model, caplog, capsys):
             r"Got in set.*at position 0:.*"
         ),
     ):
-        get_embeddings_from_sets(model, [[1, "he"]])
+        get_embeddings_from_tuples(model, [[1, "he"]])
 
     with pytest.raises(
         TypeError,
@@ -320,34 +308,59 @@ def test_get_embeddings_from_sets(model, caplog, capsys):
             r"Got in set.* at position 1:.*"
         ),
     ):
-        get_embeddings_from_sets(model, [["she", 1]])
+        get_embeddings_from_tuples(model, [["she", 1]])
 
     with pytest.raises(
         TypeError, match=r"sets_name should be a string or None, got:.*",
     ):
-        get_embeddings_from_sets(model, [["she", "he"]], 0)
+        get_embeddings_from_tuples(model, [["she", "he"]], 0)
 
     with pytest.raises(
         TypeError, match=r"warn_lost_sets should be a bool, got:.*",
     ):
-        get_embeddings_from_sets(
+        get_embeddings_from_tuples(
             model, [["she", "he"]], "definning", warn_lost_sets=None
         )
 
     with pytest.raises(
         TypeError, match=r"verbose should be a bool, got:.*",
     ):
-        get_embeddings_from_sets(
+        get_embeddings_from_tuples(
             model, [["she", "he"]], "definning", True, verbose=None
         )
 
-    # ----------------------------------------------------------------------------------
-    # Test with pairs of words
+
+def test_get_embeddings_from_sets_with_monuples(model):
+    # Test with 1-tuples
+
+    pairs = [["woman"], ["she"], ["mother"]]
+    pairs_set_name = "definning"
+
+    embedding_pairs = get_embeddings_from_tuples(
+        model, sets=pairs, sets_name=pairs_set_name
+    )
+
+    assert isinstance(embedding_pairs, list)
+
+    for embedding_pair in embedding_pairs:
+        assert isinstance(embedding_pair, dict)
+        assert len(embedding_pair.keys()) == 1
+        assert len(embedding_pair.values()) == 1
+
+        for word, embedding in embedding_pair.items():
+            assert isinstance(word, str)
+            assert isinstance(embedding, np.ndarray)
+            assert embedding.shape == (300,)
+            assert all(model[word] == embedding)
+
+
+def test_get_embeddings_from_sets_with_pairs(model):
+    # Test with pairs of words (2-tuples)
 
     pairs = [["woman", "man"], ["she", "he"], ["mother", "father"]]
     pairs_set_name = "definning"
 
-    embedding_pairs = get_embeddings_from_sets(
+    embedding_pairs = get_embeddings_from_tuples(
         model, sets=pairs, sets_name=pairs_set_name
     )
 
@@ -357,14 +370,16 @@ def test_get_embeddings_from_sets(model, caplog, capsys):
         assert isinstance(embedding_pair, dict)
         assert len(embedding_pair.keys()) == 2
         assert len(embedding_pair.values()) == 2
-        for w, e in embedding_pair.items():
-            assert isinstance(w, str)
-            assert isinstance(e, np.ndarray)
-            assert e.shape == (300,)
-            assert all(model[w] == e)
 
-    # ----------------------------------------------------------------------------------
-    # Test with sets
+        for word, embedding in embedding_pair.items():
+            assert isinstance(word, str)
+            assert isinstance(embedding, np.ndarray)
+            assert embedding.shape == (300,)
+            assert all(model[word] == embedding)
+
+
+def test_get_embeddings_from_sets_with_triple(model):
+    # Test with 3-tuples
 
     sets = [
         ["judaism", "christianity", "islam"],
@@ -373,7 +388,7 @@ def test_get_embeddings_from_sets(model, caplog, capsys):
     ]
     sets_name = "definning"
 
-    embedding_pairs = get_embeddings_from_sets(model, sets=sets, sets_name=sets_name)
+    embedding_pairs = get_embeddings_from_tuples(model, sets=sets, sets_name=sets_name)
 
     assert isinstance(embedding_pairs, list)
 
@@ -381,20 +396,25 @@ def test_get_embeddings_from_sets(model, caplog, capsys):
         assert isinstance(embedding_pair, dict)
         assert len(embedding_pair.keys()) == 3
         assert len(embedding_pair.values()) == 3
-        for w, e in embedding_pair.items():
-            assert isinstance(w, str)
-            assert isinstance(e, np.ndarray)
-            assert e.shape == (300,)
-            assert all(model[w] == e)
 
-    # ----------------------------------------------------------------------------------
+        for word, embedding in embedding_pair.items():
+            assert isinstance(word, str)
+            assert isinstance(embedding, np.ndarray)
+            assert embedding.shape == (300,)
+            assert all(model[word] == embedding)
+
+
+def test_get_embeddings_from_sets_with_oov(model, caplog, capsys):
     # Test out of vocabulary (OOV) words and failures
+
+    pairs = [["woman", "man"], ["she", "he"], ["mother", "father"]]
+    pairs_set_name = "definning"
 
     oov_pairs = [["the", "vbbge"], ["ddsds", "ferhh"]]
     pairs_with_oov = pairs + oov_pairs
 
     with caplog.at_level(logging.INFO):
-        embedding_pairs_2 = get_embeddings_from_sets(
+        embedding_pairs_2 = get_embeddings_from_tuples(
             model,
             sets=pairs_with_oov,
             sets_name=pairs_set_name,
@@ -408,15 +428,24 @@ def test_get_embeddings_from_sets(model, caplog, capsys):
 
         assert "3/5 sets of words were correctly converted to sets of embeddings" in out
 
+
+def test_get_embeddings_from_sets_with_no_set_converted(model):
+
+    oov_pairs = [["the", "vbbge"], ["ddsds", "ferhh"]]
+
     with pytest.raises(
         Exception,
         match=r"No set could be converted to embedding because no set "
         "could be fully found in the model vocabulary.",
     ):
-        get_embeddings_from_sets(model, sets=oov_pairs)
+        get_embeddings_from_tuples(model, sets=oov_pairs)
 
 
-#
+# --------------------------------------------------------------------------------------
+# test warn_not_found_words
+# --------------------------------------------------------------------------------------
+
+
 def test_warn_not_found_words(caplog):
 
     with pytest.raises(
@@ -432,10 +461,14 @@ def test_warn_not_found_words(caplog):
     assert msg in caplog.text
 
 
-def test_get_embeddings_from_query(caplog, simple_query, model: WordEmbeddingModel):
-    query, flowers, insects, pleasant, unpleasant = simple_query
-    w2v = model.wv
-    # test types
+# --------------------------------------------------------------------------------------
+# test get_embeddings_from_sets
+# --------------------------------------------------------------------------------------
+
+
+def test_get_embeddings_from_query_input_checking(
+    query_2t2a_1: Query, model: WordEmbeddingModel
+):
 
     # target sets None
     with pytest.raises(TypeError, match="query should be an instance of Query, got"):
@@ -445,15 +478,30 @@ def test_get_embeddings_from_query(caplog, simple_query, model: WordEmbeddingMod
         TypeError,
         match=r"preprocessors should be a list of dicts which contains preprocessor options, got .*\.",
     ):
-        get_embeddings_from_query(model, query, preprocessors=1)
+        get_embeddings_from_query(model, query_2t2a_1, preprocessors=1)
 
     with pytest.raises(
         TypeError, match="warn_not_found_words should be a boolean, got"
     ):
-        get_embeddings_from_query(model, query, warn_not_found_words=None)
+        get_embeddings_from_query(model, query_2t2a_1, warn_not_found_words=None)
 
-    embeddings = get_embeddings_from_query(model, query)
 
+def test_get_embeddings_from_query(
+    query_2t2a_1: Query, weat_wordsets: Dict[str, List[str]], model: WordEmbeddingModel
+):
+
+    flowers, insects, pleasant, unpleasant = (
+        weat_wordsets["flowers"],
+        weat_wordsets["insects"],
+        weat_wordsets["pleasant_5"],
+        weat_wordsets["unpleasant_5"],
+    )
+
+    word_vectors = model.wv
+
+    embeddings = get_embeddings_from_query(model, query_2t2a_1)
+
+    assert embeddings is not None
     target_embeddings, attribute_embeddings = embeddings
 
     target_embeddings_sets = list(target_embeddings.values())
@@ -481,10 +529,10 @@ def test_get_embeddings_from_query(caplog, simple_query, model: WordEmbeddingMod
     assert list(attribute_embeddings_sets[0].keys()) == pleasant
     assert list(attribute_embeddings_sets[1].keys()) == unpleasant
 
-    assert list(target_embeddings_sets[0]["aster"] == w2v["aster"])
-    assert list(target_embeddings_sets[1]["ant"] == w2v["ant"])
-    assert list(attribute_embeddings_sets[0]["caress"] == w2v["caress"])
-    assert list(attribute_embeddings_sets[1]["abuse"] == w2v["abuse"])
+    assert list(target_embeddings_sets[0]["aster"] == word_vectors["aster"])
+    assert list(target_embeddings_sets[1]["ant"] == word_vectors["ant"])
+    assert list(attribute_embeddings_sets[0]["caress"] == word_vectors["caress"])
+    assert list(attribute_embeddings_sets[1]["abuse"] == word_vectors["abuse"])
 
 
 def test_preprocessor_args_on_get_embeddings_from_query(caplog, simple_query, model):

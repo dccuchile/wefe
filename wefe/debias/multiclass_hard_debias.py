@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
-from wefe.preprocessing import get_embeddings_from_sets
+from wefe.preprocessing import get_embeddings_from_tuples
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
@@ -216,7 +216,7 @@ class MulticlassHardDebias(BaseDebias):
         if self.verbose:
             print("Obtaining definitional sets.")
         self.definitional_sets_ = definitional_sets
-        self.definitional_sets_embeddings_ = get_embeddings_from_sets(
+        self.definitional_sets_embeddings_ = get_embeddings_from_tuples(
             model=model,
             sets=definitional_sets,
             sets_name="definitional",
@@ -239,7 +239,7 @@ class MulticlassHardDebias(BaseDebias):
         # Note that the equalization sets are the same as the definitional sets.
         if self.verbose:
             print("Obtaining equalize pairs.")
-        self.equalize_sets_embeddings_ = get_embeddings_from_sets(
+        self.equalize_sets_embeddings_ = get_embeddings_from_tuples(
             model=model,
             sets=equalize_sets,
             sets_name="equalize",

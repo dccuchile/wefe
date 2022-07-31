@@ -180,4 +180,3 @@ def test_load_gn_glove():
         for word in set_:
             assert isinstance(word, str)
             assert len(word) > 0
-

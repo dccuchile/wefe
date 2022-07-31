@@ -342,4 +342,3 @@ def test_wrong_target_and_attribute_sets_and_names(caplog):
             ["Flowers"],
             ["Pleasant", "asdf"],
         )
-

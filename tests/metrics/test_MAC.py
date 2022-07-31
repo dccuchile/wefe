@@ -67,4 +67,3 @@ def test_MAC_lost_vocabulary_threshold(
     assert np.isnan(results["result"])
     assert isinstance(results["targets_eval"], dict)
     assert results["query_name"] == "Flowers and Insects wrt Pleasant and Unpleasant"
-

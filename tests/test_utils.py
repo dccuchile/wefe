@@ -528,4 +528,3 @@ def test_correlations(queries_and_models):
             ]
         ),
     )
-

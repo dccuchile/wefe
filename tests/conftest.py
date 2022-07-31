@@ -1,9 +1,10 @@
+"""Test configurations and fixtures."""
 from typing import Dict, List
 
 import pytest
-from gensim.models.keyedvectors import KeyedVectors
 from wefe.datasets.datasets import load_weat
 from wefe.query import Query
+from wefe.utils import load_test_model
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
@@ -16,8 +17,7 @@ def model() -> WordEmbeddingModel:
     WordEmbeddingModel
         The loaded testing model.
     """
-    w2v = KeyedVectors.load("./tests/w2v_test.kv")
-    return WordEmbeddingModel(w2v, "word2vec")
+    return load_test_model()
 
 
 @pytest.fixture
@@ -66,6 +66,22 @@ def query_2t2a_1(weat_wordsets: Dict[str, List[str]]) -> Query:
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
+    return query
+
+
+@pytest.fixture
+def query_3t2a_1(weat_wordsets: Dict[str, List[str]]) -> Query:
+    query = Query(
+        [
+            weat_wordsets["flowers"],
+            weat_wordsets["insects"],
+            weat_wordsets["instruments"],
+        ],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        ["Flowers", "Weapons", "Instruments"],
+        ["Pleasant", "Unpleasant"],
+    )
+
     return query
 
 

@@ -666,4 +666,3 @@ def test_threshold_param_on_get_embeddings_from_query(caplog, simple_query, mode
     embeddings = get_embeddings_from_query(model, query, lost_vocabulary_threshold=0.5)
 
     assert embeddings is not None
-

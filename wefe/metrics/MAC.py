@@ -243,7 +243,7 @@ class MAC(BaseMetric):
                 "query_name": query.query_name,
                 "result": np.nan,
                 "mac": np.nan,
-                "targets_eval": None,
+                "targets_eval": {},
             }
 
         # get the targets and attribute sets transformed into embeddings.

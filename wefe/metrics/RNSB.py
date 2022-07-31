@@ -542,7 +542,6 @@ class RNSB(BaseMetric):
                 "query_name": query.query_name,
                 "result": np.nan,
                 "rnsb": np.nan,
-                "score": np.nan,
                 "negative_sentiment_probabilities": {},
                 "negative_sentiment_distribution": {},
             }

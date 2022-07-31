@@ -1,7 +1,8 @@
 import logging
-import numpy as np
 from itertools import combinations
 from typing import Any, List, Union
+
+import numpy as np
 
 
 class Query:

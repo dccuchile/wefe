@@ -77,6 +77,35 @@ def query_2t2a_1(weat_wordsets: Dict[str, List[str]]) -> Query:
 
 
 @pytest.fixture
+def query_2t2a_uppercase(weat_wordsets: Dict[str, List[str]]) -> Query:
+    """Generate a Flower and Insects wrt Pleasant vs Unpleasant test query.
+
+    Parameters
+    ----------
+    weat_wordsets : Dict[str, List[str]]
+        The word sets used in WEAT original work.
+
+    Returns
+    -------
+    Query
+        The generated query.
+    """
+    query = Query(
+        [
+            [s.upper() for s in weat_wordsets["flowers"]],
+            [s.upper() for s in weat_wordsets["insects"]],
+        ],
+        [
+            [s.upper() for s in weat_wordsets["pleasant_5"]],
+            [s.upper() for s in weat_wordsets["unpleasant_5"]],
+        ],
+        ["Flowers", "Insects"],
+        ["Pleasant", "Unpleasant"],
+    )
+    return query
+
+
+@pytest.fixture
 def query_3t2a_1(weat_wordsets: Dict[str, List[str]]) -> Query:
     query = Query(
         [

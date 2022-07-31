@@ -476,7 +476,10 @@ def test_get_embeddings_from_query_input_checking(
 
     with pytest.raises(
         TypeError,
-        match=r"preprocessors should be a list of dicts which contains preprocessor options, got .*\.",
+        match=(
+            r"preprocessors should be a list of dicts which contains preprocessor "
+            r"options, got .*\."
+        ),
     ):
         get_embeddings_from_query(model, query_2t2a_1, preprocessors=1)
 
@@ -484,6 +487,12 @@ def test_get_embeddings_from_query_input_checking(
         TypeError, match="warn_not_found_words should be a boolean, got"
     ):
         get_embeddings_from_query(model, query_2t2a_1, warn_not_found_words=None)
+
+    # check param type
+    with pytest.raises(
+        TypeError, match=r"lost_vocabulary_threshold should be float, .*"
+    ):
+        get_embeddings_from_query(model, query_2t2a_1, lost_vocabulary_threshold="")
 
 
 def test_get_embeddings_from_query(
@@ -535,37 +544,55 @@ def test_get_embeddings_from_query(
     assert list(attribute_embeddings_sets[1]["abuse"] == word_vectors["abuse"])
 
 
-def test_preprocessor_args_on_get_embeddings_from_query(caplog, simple_query, model):
-    _, flowers, insects, pleasant, unpleasant = simple_query
-    w2v = model.wv
+def test_get_embeddings_from_query_oov_warns(
+    caplog, model: WordEmbeddingModel, weat_wordsets: Dict[str, List[str]],
+):
+    # check lost words warning when warn_not_found_words is True
 
-    # with lost words and warn_not_found_words=True
-    flowers_2 = flowers + ["aaa", "bbb"]
-    query_2 = Query(
-        [flowers_2, insects],
+    flowers, insects, pleasant, unpleasant = (
+        weat_wordsets["flowers"],
+        weat_wordsets["insects"],
+        weat_wordsets["pleasant_5"],
+        weat_wordsets["unpleasant_5"],
+    )
+
+    flowers_with_oov = flowers + ["aaa", "bbb"]
+    query_with_oov_1 = Query(
+        [flowers_with_oov, insects],
         [pleasant, unpleasant],
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
-    embeddings = get_embeddings_from_query(model, query_2, warn_not_found_words=True)
+
+    embeddings = get_embeddings_from_query(
+        model, query_with_oov_1, warn_not_found_words=True
+    )
+    assert embeddings is not None
     assert (
         "The following words from set 'Flowers' do not exist within the vocabulary"
         in caplog.text
     )
     assert "['aaa', 'bbb']" in caplog.text
 
-    # with preprocessor options
-    flowers_3 = [s.upper() for s in flowers]
-    query_3 = Query(
-        [flowers_3, insects],
-        [pleasant, unpleasant],
-        ["Flowers", "Insects"],
-        ["Pleasant", "Unpleasant"],
-    )
-    embeddings = get_embeddings_from_query(
-        model, query_3, preprocessors=[{"lowercase": True}]
+
+def test_get_embeddings_from_query_with_lower_preprocessor(
+    model: WordEmbeddingModel,
+    query_2t2a_uppercase: Query,
+    weat_wordsets: Dict[str, List[str]],
+):
+    # check get_embeddings_from_query with lowercase and one preprocessor options
+    flowers, insects, pleasant, unpleasant = (
+        weat_wordsets["flowers"],
+        weat_wordsets["insects"],
+        weat_wordsets["pleasant_5"],
+        weat_wordsets["unpleasant_5"],
     )
 
+    embeddings = get_embeddings_from_query(
+        model, query_2t2a_uppercase, preprocessors=[{"lowercase": True}]
+    )
+
+    assert embeddings is not None
     target_embeddings, attribute_embeddings = embeddings
 
     target_embeddings_sets = list(target_embeddings.values())
@@ -581,16 +608,29 @@ def test_preprocessor_args_on_get_embeddings_from_query(caplog, simple_query, mo
     assert list(attribute_embeddings_sets[0].keys()) == pleasant
     assert list(attribute_embeddings_sets[1].keys()) == unpleasant
 
-    assert list(target_embeddings_sets[0]["aster"] == w2v["aster"])
-    assert list(target_embeddings_sets[1]["ant"] == w2v["ant"])
-    assert list(attribute_embeddings_sets[0]["caress"] == w2v["caress"])
-    assert list(attribute_embeddings_sets[1]["abuse"] == w2v["abuse"])
+    assert list(target_embeddings_sets[0]["aster"] == model["aster"])
+    assert list(target_embeddings_sets[1]["ant"] == model["ant"])
+    assert list(attribute_embeddings_sets[0]["caress"] == model["caress"])
+    assert list(attribute_embeddings_sets[1]["abuse"] == model["abuse"])
 
-    # with secondary_preprocessor_options options
+
+def test_get_embeddings_from_query_with_two_preprocessors(
+    model: WordEmbeddingModel,
+    query_2t2a_uppercase: Query,
+    weat_wordsets: Dict[str, List[str]],
+):
+    # test get_embeddings_from_query with secondary preprocessor_options options
+    flowers, insects, pleasant, unpleasant = (
+        weat_wordsets["flowers"],
+        weat_wordsets["insects"],
+        weat_wordsets["pleasant_5"],
+        weat_wordsets["unpleasant_5"],
+    )
     embeddings = get_embeddings_from_query(
-        model, query_3, preprocessors=[{}, {"lowercase": True}]
+        model, query_2t2a_uppercase, preprocessors=[{}, {"lowercase": True}]
     )
 
+    assert embeddings is not None
     target_embeddings, attribute_embeddings = embeddings
 
     target_embeddings_sets = list(target_embeddings.values())
@@ -606,20 +646,22 @@ def test_preprocessor_args_on_get_embeddings_from_query(caplog, simple_query, mo
     assert list(attribute_embeddings_sets[0].keys()) == pleasant
     assert list(attribute_embeddings_sets[1].keys()) == unpleasant
 
-    assert list(target_embeddings_sets[0]["aster"] == w2v["aster"])
-    assert list(target_embeddings_sets[1]["ant"] == w2v["ant"])
-    assert list(attribute_embeddings_sets[0]["caress"] == w2v["caress"])
-    assert list(attribute_embeddings_sets[1]["abuse"] == w2v["abuse"])
+    assert list(target_embeddings_sets[0]["aster"] == model["aster"])
+    assert list(target_embeddings_sets[1]["ant"] == model["ant"])
+    assert list(attribute_embeddings_sets[0]["caress"] == model["caress"])
+    assert list(attribute_embeddings_sets[1]["abuse"] == model["abuse"])
 
 
-def test_threshold_param_on_get_embeddings_from_query(caplog, simple_query, model):
-    query, flowers, insects, pleasant, unpleasant = simple_query
+def test_get_embeddings_from_query_lost_threshold(
+    caplog, model: WordEmbeddingModel, weat_wordsets: Dict[str, List[str]]
+):
 
-    # check param type
-    with pytest.raises(
-        TypeError, match=r"lost_vocabulary_threshold should be float, .*"
-    ):
-        get_embeddings_from_query(model, query, lost_vocabulary_threshold="")
+    flowers, insects, pleasant, unpleasant = (
+        weat_wordsets["flowers"],
+        weat_wordsets["insects"],
+        weat_wordsets["pleasant_5"],
+        weat_wordsets["unpleasant_5"],
+    )
 
     # with lost vocabulary threshold.
     flowers_ = flowers + ["aaa", "aab", "aac", "aad", "aaf", "aag", "aah", "aai", "aaj"]

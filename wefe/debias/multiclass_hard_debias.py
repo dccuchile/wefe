@@ -165,10 +165,10 @@ class MulticlassHardDebias(BaseDebias):
         equalize_sets_embeddings: List[EmbeddingDict],
         bias_subspace: np.ndarray,
     ):
-        for equalize_pair_embeddings in equalize_sets_embeddings:
+        for equalize_tuple_embeddings in equalize_sets_embeddings:
 
-            words = equalize_pair_embeddings.keys()
-            embeddings = np.array(list(equalize_pair_embeddings.values()))
+            words = equalize_tuple_embeddings.keys()
+            embeddings = np.array(list(equalize_tuple_embeddings.values()))
 
             # calculate the mean of the equality set
             mean = np.mean(embeddings, axis=0)
@@ -199,6 +199,9 @@ class MulticlassHardDebias(BaseDebias):
             A sequence of string pairs that will be used to define the bias direction.
             For example, for the case of gender debias, this list could be [['woman',
             'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
+            Multiclass hard debias also accepts lists of sets of more than two words,
+            such as religion where sets of words representing Christianity, Islam and
+            Judaism can be used. See the example for more information.
         equalize_pairs : Optional[Sequence[Sequence[str]]], optional
             A list with pairs of strings, which will be equalized.
             In the case of passing None, the equalization will be done over the word
@@ -212,6 +215,7 @@ class MulticlassHardDebias(BaseDebias):
         """
         # ------------------------------------------------------------------------------:
         # Obtain the embedding of the definitional sets.
+        self._check_sets_sizes(definitional_sets, set_name="definitional", set_size="n")
 
         if self.verbose:
             print("Obtaining definitional sets.")

@@ -1,24 +1,16 @@
-"Tests of the word embedding model module"
+"""Tests of the word embedding model module."""
 import gensim
-import pytest
 import numpy as np
-from gensim.test.utils import common_texts
-from gensim.models import Word2Vec, FastText, KeyedVectors
+import pytest
 import semantic_version
-
+from gensim.models import FastText, KeyedVectors, Word2Vec
+from gensim.test.utils import common_texts
 from wefe.word_embedding_model import WordEmbeddingModel
 
 gensim_version = semantic_version.Version.coerce(gensim.__version__)
 
 
-@pytest.fixture
-def word2vec_test():
-    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
-    return WordEmbeddingModel(w2v, "word2vec")
-
-
 def test__init__():
-
     # Test types verifications
 
     # target sets None
@@ -70,11 +62,11 @@ def test__init__():
     assert model.vocab_prefix == "\\c\\en"
 
 
-def test__eq__(word2vec_test):
-    model_1 = WordEmbeddingModel(word2vec_test.wv, "w2v")
-    model_2 = WordEmbeddingModel(word2vec_test.wv, "w2v_2")
-    model_3 = WordEmbeddingModel(word2vec_test.wv, "w2v_3", vocab_prefix="a")
-    model_3_ = WordEmbeddingModel(word2vec_test.wv, "w2v_3", vocab_prefix="b")
+def test__eq__(keyed_vector_model: gensim.models.KeyedVectors):
+    model_1 = WordEmbeddingModel(keyed_vector_model, "w2v")
+    model_2 = WordEmbeddingModel(keyed_vector_model, "w2v_2")
+    model_3_prefix_a = WordEmbeddingModel(keyed_vector_model, "w2v_3", vocab_prefix="a")
+    model_3_prefix_b = WordEmbeddingModel(keyed_vector_model, "w2v_3", vocab_prefix="b")
 
     assert model_1 != ""
 
@@ -85,24 +77,27 @@ def test__eq__(word2vec_test):
 
     assert model_1 != model_2
 
-    assert model_2 != model_3
-    assert model_3 == model_3
+    assert model_2 != model_3_prefix_a
+    assert model_3_prefix_a == model_3_prefix_a
 
-    assert model_3_ != model_3
-
-
-def test__contains__(word2vec_test):
-    assert "men" in word2vec_test
-    assert "asdf" not in word2vec_test
+    assert model_3_prefix_b != model_3_prefix_a
 
 
-def test__getitem__(word2vec_test):
+def test__contains__(model: WordEmbeddingModel):
+    assert "men" in model
+    assert "asdf" not in model
+    assert None not in model
+    assert 0 not in model
 
-    embedding = word2vec_test["ASDF"]
+
+def test__getitem__(model: WordEmbeddingModel):
+
+    embedding = model["ASDF"]
     assert embedding is None
 
-    embedding = word2vec_test["career"]
+    embedding = model["career"]
     assert isinstance(embedding, np.ndarray)
+    assert embedding.shape == (1, 300)
 
 
 def test__init__with_w2v_model():
@@ -132,52 +127,54 @@ def test__init_with_fast_model():
 
 
 # -------------------------------------------------------------------------------------
-def test_normalize_embeddings(word2vec_test):
+def test_normalize_embeddings(model: WordEmbeddingModel):
     # test unnormalized embeddings
-    for word in word2vec_test.vocab:
-        assert np.abs(np.linalg.norm(word2vec_test[word]) - 1.0) > 0.000001
+    for word in model.vocab:
+        assert np.abs(np.linalg.norm(model[word]) - 1.0) > 0.000001
 
     # test normalized embeddings
-    word2vec_test.normalize()
-    for word in word2vec_test.vocab:
-        assert np.linalg.norm(word2vec_test[word]) - 1.0 < 0.000001
+    model.normalize()
+    for word in model.vocab:
+        assert np.linalg.norm(model[word]) - 1.0 < 0.000001
 
-    word2vec_test.wv = None
+    model.wv = None
 
     with pytest.raises(
         TypeError, match="The model does not have the init_sims method implemented."
     ):
-        word2vec_test.normalize()
+        model.normalize()
 
 
 # -------------------------------------------------------------------------------------
-def test_update_embedding(word2vec_test):
-    new_embedding = np.ones(300, dtype=word2vec_test.wv.vectors.dtype)
-    word2vec_test.update("The", new_embedding)
-    assert all(word2vec_test["The"] == new_embedding)
+def test_update_embedding(model: WordEmbeddingModel):
+
+    new_embedding = np.ones(300, dtype=model.wv.vectors.dtype)
+    model.update("The", new_embedding)
+    assert model["The"].shape == (3, 1)
+    assert all(model["The"] == new_embedding)
 
     with pytest.raises(TypeError, match=r"word should be a string, got .*"):
-        word2vec_test.update(0, new_embedding)
+        model.update(0, new_embedding)
 
     with pytest.raises(ValueError, match=r"word .* not in model vocab."):
-        word2vec_test.update("blablablablabla", new_embedding)
+        model.update("blablablablabla", new_embedding)
 
     with pytest.raises(
         TypeError, match=r".* new embedding should be a np\.array, got .*\."
     ):
-        word2vec_test.update("The", 0)
+        model.update("The", 0)
 
     with pytest.raises(
         ValueError,
         match=r"The size of .* embedding (.*) is different from the size of the "
         r"embeddings in the model (.*)\.",
     ):
-        word2vec_test.update("The", np.ones(200, dtype=np.float64))
+        model.update("The", np.ones(200, dtype=np.float64))
 
     with pytest.raises(
         ValueError, match=r"embedding dtype .* is not the same of model's dtype .*\."
     ):
-        word2vec_test.update("The", np.ones(300, dtype=np.float64))
+        model.update("The", np.ones(300, dtype=np.float64))
 
 
 # -------------------------------------------------------------------------------------

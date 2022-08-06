@@ -206,9 +206,9 @@ class Query:
                 "<Query: "
                 + self.query_name
                 + "\n- Target sets: "
-                + repr(self.attribute_sets)
-                + "\n- Attribute sets:"
                 + repr(self.target_sets)
+                + "\n- Attribute sets:"
+                + repr(self.attribute_sets)
                 + ">"
             )
             return repr_
@@ -286,8 +286,7 @@ class Query:
         return np.array(subqueries).flatten().tolist()
 
     def _get_query_name(self) -> str:
-        """Generate the query name from the name of its target and
-        attribute sets.
+        """Generate the query name from the name of its target and attribute sets.
 
         Returns
         -------

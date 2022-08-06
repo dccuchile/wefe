@@ -1,10 +1,12 @@
-"""Query Testing"""
+"""Query testing module."""
+from typing import Dict, List
+
 import pytest
 from wefe.datasets.datasets import load_weat
 from wefe.query import Query
 
 
-def test_create_query_input_verifications():
+def test_create_query_input_checks():
 
     # target sets None
     with pytest.raises(TypeError, match="target_sets must be a*"):
@@ -59,14 +61,14 @@ def test_create_query_input_verifications():
 
 def test_create_query():
 
-    # create a real query:
-    weat = load_weat()
+    weat_wordsets = load_weat()
 
-    flowers = weat["flowers"]
-    insects = weat["insects"]
-    pleasant = weat["pleasant_5"]
-    unpleasant = weat["unpleasant_5"]
+    flowers = weat_wordsets["flowers"]
+    insects = weat_wordsets["insects"]
+    pleasant = weat_wordsets["pleasant_5"]
+    unpleasant = weat_wordsets["unpleasant_5"]
 
+    # create a query using the word sets:
     query = Query(
         [flowers, insects],
         [pleasant, unpleasant],
@@ -166,16 +168,14 @@ def test_eq():
     assert query_bad_name_4 != query
 
 
-def test_templates():
+def test_templates(weat_wordsets: Dict[str, List[str]]):
 
-    weat = load_weat()
-
-    flowers = weat["flowers"]
-    insects = weat["insects"]
-    weapons = weat["weapons"]
-    instruments = weat["instruments"]
-    pleasant = weat["pleasant_5"]
-    unpleasant = weat["unpleasant_9"]
+    flowers = weat_wordsets["flowers"]
+    insects = weat_wordsets["insects"]
+    weapons = weat_wordsets["weapons"]
+    instruments = weat_wordsets["instruments"]
+    pleasant = weat_wordsets["pleasant_5"]
+    unpleasant = weat_wordsets["unpleasant_9"]
 
     query = Query(
         [flowers, insects, weapons, instruments],
@@ -323,7 +323,7 @@ def test_wrong_target_and_attribute_sets_and_names(caplog):
             r"elements as target_sets_names \(len=2\)"
         ),
     ):
-        q = Query(
+        Query(
             [weat_word_set["flowers"]],
             [weat_word_set["pleasant_5"]],
             ["Flowers", "asdf"],
@@ -336,7 +336,7 @@ def test_wrong_target_and_attribute_sets_and_names(caplog):
             r"attribute_sets_names \(len=2\)"
         ),
     ):
-        q = Query(
+        Query(
             [weat_word_set["flowers"]],
             [weat_word_set["pleasant_5"]],
             ["Flowers"],

@@ -159,7 +159,7 @@ class DoubleHardDebias(BaseDebias):
             raise TypeError(f"n_components should be int, got: {n_components}")
         self.n_components = n_components
 
-    def _check_sets_size(
+    def _check_sets_sizes(
         self, sets: Sequence[Sequence[str]], set_name: str,
     ):
 
@@ -381,7 +381,7 @@ class DoubleHardDebias(BaseDebias):
         """
         self.definitional_pairs = definitional_pairs
 
-        self._check_sets_size(self.definitional_pairs, "definitional")
+        self._check_sets_sizes(self.definitional_pairs, "definitional")
 
         # -------------------------------------------------------------------
         # Obtain the embedding of each definitional pairs.

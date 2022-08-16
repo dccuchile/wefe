@@ -1,7 +1,7 @@
 """Double Hard Debias WEFE implementation."""
 import operator
 from copy import deepcopy
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -159,21 +159,7 @@ class DoubleHardDebias(BaseDebias):
             raise TypeError(f"n_components should be int, got: {n_components}")
         self.n_components = n_components
 
-    def _check_sets_sizes(
-        self, sets: Sequence[Sequence[str]], set_name: str,
-    ):
-
-        for idx, set_ in enumerate(sets):
-            if len(set_) != 2:
-                adverb = "less" if len(set_) < 2 else "more"
-
-                raise ValueError(
-                    f"The {set_name} pair at position {idx} ({set_}) has {adverb} "
-                    f"words than allowed by {self.name}: "
-                    f"got {len(set_)} words, expected 2."
-                )
-
-    def _similarity(self, u: List[np.ndarray], v: List[np.ndarray]) -> np.array:
+    def _similarity(self, u: List[np.ndarray], v: List[np.ndarray]) -> np.ndarray:
         return 1 - pairwise_distances(u, v, metric="cosine")
 
     def _bias_by_projection(
@@ -183,6 +169,7 @@ class DoubleHardDebias(BaseDebias):
         ignore: List[str],
         bias_representation: List[str],
     ) -> Dict[str, float]:
+
         word1 = model[bias_representation[0]]
         word2 = model[bias_representation[1]]
         if target:
@@ -226,7 +213,7 @@ class DoubleHardDebias(BaseDebias):
             Set of words to be ignored from the debias process.
         n_words: int
             number of target words to use.
-        bias_representation: Sequence[str]
+        bias_representation: List[str]
             Two words that represents de bias groups.
 
         Returns
@@ -356,7 +343,7 @@ class DoubleHardDebias(BaseDebias):
     def fit(
         self,
         model: WordEmbeddingModel,
-        definitional_pairs: Sequence[Sequence[str]],
+        definitional_pairs: List[List[str]],
         bias_representation: List[str],
     ) -> BaseDebias:
         """Compute the bias direction and obtain the principal components of the entire
@@ -366,7 +353,7 @@ class DoubleHardDebias(BaseDebias):
         ----------
         model : WordEmbeddingModel
             The word embedding model to debias.
-        definitional_pairs : Sequence[Sequence[str]]
+        definitional_pairs : List[List[str]]
             A sequence of string pairs that will be used to define the bias
             direction. For example, for the case of gender debias, this list
             could be [['woman', 'man'], ['girl', 'boy'], ['she', 'he'],
@@ -381,7 +368,7 @@ class DoubleHardDebias(BaseDebias):
         """
         self.definitional_pairs = definitional_pairs
 
-        self._check_sets_sizes(self.definitional_pairs, "definitional")
+        self._check_sets_sizes(self.definitional_pairs, "definitional", set_size=2)
 
         # -------------------------------------------------------------------
         # Obtain the embedding of each definitional pairs.

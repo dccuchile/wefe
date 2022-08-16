@@ -150,6 +150,7 @@ def test_hard_debias_ignore_param(
         model, definitional_pairs, equalize_pairs=equalize_pairs,
     ).transform(model, ignore=ignore, copy=True)
 
+    # test gender query 1,none of their words were debiased.
     biased_results = weat.run_query(gender_query_1, model, normalize=True)
     debiased_results = weat.run_query(
         gender_query_1, gender_debiased_w2v, normalize=True
@@ -158,7 +159,7 @@ def test_hard_debias_ignore_param(
     assert np.isclose(debiased_results["weat"], biased_results["weat"])
 
     # test gender query 2, debias was not applied to their target words
-    # (career vs family)
+    # (career vs family), but to its attributes.
     biased_results = weat.run_query(gender_query_2, model, normalize=True)
     debiased_results = weat.run_query(
         gender_query_2, gender_debiased_w2v, normalize=True

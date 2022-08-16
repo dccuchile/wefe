@@ -355,3 +355,26 @@ def ethnicity_query_1(weat_wordsets: Dict[str, List[str]]) -> Query:
         ["pleasant_5", "unpleasant_5"],
     )
     return query
+
+
+@pytest.fixture
+def control_query_1(weat_wordsets: Dict[str, List[str]]) -> Query:
+    """Generate a Flowers vs Insects names wrt Pleasant vs Unpleasant query.
+
+    Parameters
+    ----------
+    weat_wordsets : Dict[str, List[str]]
+        The word sets used in WEAT original work.
+
+    Returns
+    -------
+    Query
+        The generated query.
+    """
+    query = Query(
+        [weat_wordsets["flowers"], weat_wordsets["insects"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        ["flowers", "insects"],
+        ["pleasant_5", "unpleasant_5"],
+    )
+    return query

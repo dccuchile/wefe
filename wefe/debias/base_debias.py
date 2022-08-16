@@ -1,12 +1,12 @@
 """Contains a base class for implement any debias method in WEFE."""
 from abc import abstractmethod
-from typing import List, Optional, Sequence, Union
+from typing import List, Optional, Union
 
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, TransformerMixin
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-class BaseDebias(BaseEstimator):
+class BaseDebias(BaseEstimator, TransformerMixin):
     """Mixin class for implement any debias method in WEFE."""
 
     @abstractmethod
@@ -172,7 +172,7 @@ class BaseDebias(BaseEstimator):
                     adverb = "less" if len(set_) < set_size else "more"
 
                     raise ValueError(
-                        f"The {set_name} tuple at position {idx} ({set_}) has {adverb} "
+                        f"The {set_name} set at position {idx} ({set_}) has {adverb} "
                         f"words than allowed by {self.name}: "
                         f"got {len(set_)} words, expected {set_size}."
                     )

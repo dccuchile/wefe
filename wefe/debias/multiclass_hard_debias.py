@@ -1,7 +1,7 @@
 """Manzini et al. Multiclass Hard Debias WEFE implementation."""
 import logging
 from copy import deepcopy
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from sklearn.decomposition import PCA
@@ -110,27 +110,6 @@ class MulticlassHardDebias(BaseDebias):
             v_b += np.dot(vector.transpose(), component) * component
         return v_b
 
-    def _get_target(
-        self, model: WordEmbeddingModel, target: Optional[Sequence[str]] = None,
-    ) -> List[str]:
-
-        definitional_words = np.array(self.definitional_sets_).flatten().tolist()
-
-        if target is not None:
-            # keep only words in the model's vocab.
-            target = list(
-                filter(
-                    lambda x: x in model.vocab and x not in definitional_words, target,
-                )
-            )
-        else:
-            # indicate that all words are canditates to neutralize.
-            target = list(
-                filter(lambda x: x not in definitional_words, model.vocab.keys(),)
-            )
-
-        return target
-
     def _neutralize(
         self,
         model: WordEmbeddingModel,
@@ -147,6 +126,11 @@ class MulticlassHardDebias(BaseDebias):
             ignore_ = set(ignore)
         else:
             ignore_ = set()
+
+        # filtering the defitional sets in order to ignore these words in the
+        # neutralization.
+        definitional_words = set(np.array(self.definitional_sets_).flatten().tolist())
+        target_ = target_.difference(definitional_words)
 
         for word in tqdm(target_):
             if word not in ignore_:
@@ -186,8 +170,8 @@ class MulticlassHardDebias(BaseDebias):
     def fit(
         self,
         model: WordEmbeddingModel,
-        definitional_sets: Sequence[Sequence[str]],
-        equalize_sets: Sequence[Sequence[str]],
+        definitional_sets: List[List[str]],
+        equalize_sets: List[List[str]],
     ) -> BaseDebias:
         """Compute the bias direction and obtains the equalize embedding pairs.
 
@@ -195,14 +179,14 @@ class MulticlassHardDebias(BaseDebias):
         ----------
         model : WordEmbeddingModel
             The word embedding model to debias.
-        definitional_sets : Sequence[Sequence[str]]
+        definitional_sets : List[List[str]]
             A sequence of string pairs that will be used to define the bias direction.
             For example, for the case of gender debias, this list could be [['woman',
             'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
             Multiclass hard debias also accepts lists of sets of more than two words,
             such as religion where sets of words representing Christianity, Islam and
             Judaism can be used. See the example for more information.
-        equalize_pairs : Optional[Sequence[Sequence[str]]], optional
+        equalize_pairs : Optional[List[List[str]]], optional
             A list with pairs of strings, which will be equalized.
             In the case of passing None, the equalization will be done over the word
             pairs passed in definitional_sets,
@@ -333,7 +317,6 @@ class MulticlassHardDebias(BaseDebias):
             print("Neutralizing embeddings")
 
         # get the words that will be debiased.
-        target = self._get_target(model, target)
         self._neutralize(
             model=model,
             bias_subspace=self.bias_subspace_,

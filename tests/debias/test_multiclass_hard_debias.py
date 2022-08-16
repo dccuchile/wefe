@@ -14,11 +14,6 @@ def test_multiclass_hard_debias_param_checks(
 ):
 
     with pytest.raises(
-        TypeError, match=r"verbose should be a bool, got .*",
-    ):
-        MulticlassHardDebias(verbose=1)
-
-    with pytest.raises(
         ValueError,
         match=(
             r"The definitional set at position 10 \(\['word1', 'word2', 'word3'\]\) "
@@ -50,8 +45,8 @@ def test_multiclass_hard_debias_with_gender(
     gender_query_1: Query,
     gender_query_2: Query,
     gender_query_3: Query,
-    mhd_gender_definitional_sets: List[str],
-    mhd_gender_equalize_sets: List[str],
+    mhd_gender_definitional_sets: List[List[str]],
+    mhd_gender_equalize_sets: List[List[str]],
 ):
     weat = WEAT()
 
@@ -92,8 +87,8 @@ def test_multiclass_hard_debias_with_gender(
 def test_multiclass_hard_debias_with_ethnicity(
     model: WordEmbeddingModel,
     ethnicity_query_1: Query,
-    mhd_ethnicity_definitional_sets: List[str],
-    mhd_ethnicity_equalize_sets: List[str],
+    mhd_ethnicity_definitional_sets: List[List[str]],
+    mhd_ethnicity_equalize_sets: List[List[str]],
 ):
     weat = WEAT()
 
@@ -103,8 +98,8 @@ def test_multiclass_hard_debias_with_ethnicity(
         definitional_sets=mhd_ethnicity_definitional_sets,
         equalize_sets=mhd_ethnicity_equalize_sets,
     )
+    ethnicity_debiased_w2v = mhd.transform(model, copy=True)
 
-    ethnicity_debiased_w2v = mhd.transform(model, copy=True,)
     assert model.name == "test_w2v"
     assert ethnicity_debiased_w2v.name == "test_w2v_ethnicity_debiased"
 
@@ -114,16 +109,16 @@ def test_multiclass_hard_debias_with_ethnicity(
         ethnicity_query_1, ethnicity_debiased_w2v, normalize=True
     )
 
-    assert debiased_results["weat"] < biased_results["weat"]
+    assert abs(debiased_results["weat"]) < abs(biased_results["weat"])
 
 
 def test_multiclass_hard_debias_target_param(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    mhd_gender_definitional_sets: List[str],
-    mhd_gender_equalize_sets: List[str],
-    gender_specific: List[str],
+    control_query_1: Query,
+    mhd_gender_definitional_sets: List[List[str]],
+    mhd_gender_equalize_sets: List[List[str]],
     weat_wordsets: Dict[str, List[str]],
 ):
     weat = WEAT()
@@ -132,31 +127,55 @@ def test_multiclass_hard_debias_target_param(
 
     mhd = MulticlassHardDebias()
 
-    attributes = weat_wordsets["pleasant_5"] + weat_wordsets["unpleasant_5"]
+    attribute_words = weat_wordsets["career"] + weat_wordsets["family"]
+    attribute_words.remove("family")
+    attribute_words.remove("executive")
 
     gender_debiased_w2v = mhd.fit(
         model,
         definitional_sets=mhd_gender_definitional_sets,
         equalize_sets=mhd_gender_equalize_sets,
-    ).transform(model, target=attributes, copy=True)
+    ).transform(model, target=attribute_words, copy=True,)
 
-    assert model.name == "word2vec"
-    assert gender_debiased_w2v.name == "word2vec_debiased"
+    assert model.name == "test_w2v"
+    assert gender_debiased_w2v.name == "test_w2v_debiased"
 
-    # test gender query 1, debias was applied to their attribute words.
+    # test gender query 1, debias was only applied to the target words
+    # (in equalization step).
     biased_results = weat.run_query(gender_query_1, model, normalize=True)
     debiased_results = weat.run_query(
         gender_query_1, gender_debiased_w2v, normalize=True
     )
-    assert debiased_results["weat"] < biased_results["weat"]
+    assert abs(debiased_results["weat"]) < abs(biased_results["weat"])
 
-    # test gender query 2, debias was not applied to their attribute words.
+    # test gender query 2, debias was applied to the target (in equalization
+    # step) and attribute words (in neutralization step).
     biased_results = weat.run_query(gender_query_2, model, normalize=True)
     debiased_results = weat.run_query(
         gender_query_2, gender_debiased_w2v, normalize=True
     )
-    assert np.isclose(debiased_results["weat"] - biased_results["weat"], 0)
+    assert abs(debiased_results["weat"]) < abs(biased_results["weat"])
 
+    # test control_query_1 (flowers vs insects wrt pleasant vs unpleasant), debias
+    # was not applied to their target (equalization) and attribute words
+    # (neutralization).
+    biased_results = weat.run_query(control_query_1, model, normalize=True)
+    debiased_results = weat.run_query(
+        control_query_1, gender_debiased_w2v, normalize=True
+    )
+    assert np.isclose(debiased_results["weat"], biased_results["weat"])
+
+
+def test_multiclass_hard_debias_ignore_param(
+    model: WordEmbeddingModel,
+    gender_query_1: Query,
+    gender_query_2: Query,
+    control_query_1: Query,
+    mhd_gender_definitional_sets: List[List[str]],
+    mhd_gender_equalize_sets: List[List[str]],
+    weat_wordsets: Dict[str, List[str]],
+):
+    weat = WEAT()
     # -----------------------------------------------------------------
     # Test ignore param
     mhd = MulticlassHardDebias(criterion_name="gender")
@@ -166,26 +185,36 @@ def test_multiclass_hard_debias_target_param(
     # therefore, both queries when executed with weat should return the same score.
     targets = weat_wordsets["male_names"] + weat_wordsets["female_names"]
     attributes = weat_wordsets["pleasant_5"] + weat_wordsets["unpleasant_5"]
+    ignore = targets + attributes
+
     gender_debiased_w2v = mhd.fit(
         model,
         definitional_sets=mhd_gender_definitional_sets,
         equalize_sets=mhd_gender_equalize_sets,
-    ).transform(model, ignore=gender_specific + targets + attributes, copy=True)
+    ).transform(model, ignore=ignore, copy=True)
 
     biased_results = weat.run_query(gender_query_1, model, normalize=True)
     debiased_results = weat.run_query(
         gender_query_1, gender_debiased_w2v, normalize=True
     )
 
-    assert np.isclose(debiased_results["weat"] - biased_results["weat"], 0)
+    assert np.isclose(debiased_results["weat"], biased_results["weat"])
+
+    # test gender query 2, debias was not applied to their target words
+    # (career vs family)
+    biased_results = weat.run_query(gender_query_2, model, normalize=True)
+    debiased_results = weat.run_query(
+        gender_query_2, gender_debiased_w2v, normalize=True
+    )
+    assert abs(debiased_results["weat"]) < abs(biased_results["weat"])
 
 
 def test_multiclass_hard_debias_copy_param(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    mhd_gender_definitional_sets: List[str],
-    mhd_gender_equalize_sets: List[str],
+    mhd_gender_definitional_sets: List[List[str]],
+    mhd_gender_equalize_sets: List[List[str]],
 ):
     weat = WEAT()
     # Since we will mutate the original model in the test, we calculate WEAT scores
@@ -211,9 +240,9 @@ def test_multiclass_hard_debias_copy_param(
     debiased_results = weat.run_query(
         gender_query_1, gender_debiased_w2v, normalize=True
     )
-    assert debiased_results["weat"] < biased_results_q1["weat"]
+    assert abs(debiased_results["weat"]) < abs(biased_results_q1["weat"])
 
     debiased_results = weat.run_query(
         gender_query_2, gender_debiased_w2v, normalize=True
     )
-    assert debiased_results["weat"] < biased_results_q2["weat"]
+    assert abs(debiased_results["weat"]) < abs(biased_results_q2["weat"])

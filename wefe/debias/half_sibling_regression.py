@@ -7,7 +7,7 @@ import numpy as np
 from tqdm import tqdm
 
 from wefe.debias.base_debias import BaseDebias
-from wefe.preprocessing import get_embeddings_from_sets
+from wefe.preprocessing import get_embeddings_from_tuples
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import WordEmbeddingModel
 
@@ -82,7 +82,7 @@ class HalfSiblingRegression(BaseDebias):
     >>>
     >>> # instance and fit the method
     >>> hsr = HalfSiblingRegression().fit(
-    ...     model=model, bias_definitional_words=gender_specific
+    ...     model=model, definitional_words=gender_specific
     ... )
     >>> # execute the debias on the words not included in the gender definition set
     >>> debiased_model = hsr.transform(model = model)
@@ -162,7 +162,7 @@ class HalfSiblingRegression(BaseDebias):
         self, model: WordEmbeddingModel, non_bias: List[str]
     ) -> Dict[str, np.ndarray]:
 
-        dictionary = get_embeddings_from_sets(
+        dictionary = get_embeddings_from_tuples(
             model=model, sets=[non_bias], sets_name="non_bias", normalize=False
         )
         return dictionary[0]
@@ -194,7 +194,7 @@ class HalfSiblingRegression(BaseDebias):
     def fit(
         self,
         model: WordEmbeddingModel,
-        bias_definitional_words: List[str],
+        definitional_words: List[str],
         alpha: float = 60,
     ) -> BaseDebias:
         """Compute the weight matrix and the bias information.
@@ -203,7 +203,7 @@ class HalfSiblingRegression(BaseDebias):
         ----------
         model: WordEmbeddingModel
             The word embedding model to debias.
-        bias_definitional_words: List[str]
+        definitional_words: List[str]
             List of strings. This list contains words that embody bias
             information by definition.
         alpha: float
@@ -214,7 +214,7 @@ class HalfSiblingRegression(BaseDebias):
         BaseDebias
             The debias method fitted.
         """
-        self.bias_definitional_words = bias_definitional_words
+        self.bias_definitional_words = definitional_words
         self.non_bias = list(
             set(model.vocab.keys()) - set(self.bias_definitional_words)
         )

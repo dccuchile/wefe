@@ -286,7 +286,7 @@ def _check_lost_vocabulary_threshold(
     return False
 
 
-def get_embeddings_from_sets(
+def get_embeddings_from_tuples(
     model: WordEmbeddingModel,
     sets: Sequence[Sequence[str]],
     sets_name: Union[str, None] = None,

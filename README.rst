@@ -110,7 +110,7 @@ To run the test, execute::
 
 To check the coverage, run::
 
-    py.test wefe --cov-report xml:cov.xml --cov wefe
+    pytest tests --cov-report xml:cov.xml --cov wefe
 
 And then::
 
@@ -132,6 +132,12 @@ To compile the documentation, run:
 
 Changelog
 =========
+
+NEW DEVELOP VERSION
+-------------------
+- Fixed wrong repr of query. Now the sets are in the correct order.
+- Greatly improved library testing mechanisms.
+
 
 Version 0.3.2
 -------------

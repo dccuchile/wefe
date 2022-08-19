@@ -601,7 +601,7 @@ def load_test_model() -> WordEmbeddingModel:
     weat_w2v_path = pkg_resources.resource_filename(resource_package, resource_path)
 
     test_model = KeyedVectors.load(weat_w2v_path)
-    return WordEmbeddingModel(test_model, "Test w2v model")
+    return WordEmbeddingModel(test_model, "test_w2v")
 
 
 def print_doc_table(df):

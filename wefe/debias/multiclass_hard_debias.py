@@ -1,4 +1,4 @@
-"""Manzini et al. Multiclass Hard Debias WEFE implementation."""
+"""Multiclass Hard Debias WEFE implementation."""
 import logging
 from copy import deepcopy
 from typing import Any, Dict, List, Optional

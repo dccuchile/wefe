@@ -18,11 +18,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 @pytest.fixture
 def keyed_vector_model() -> KeyedVectors:
 
-    resource_package = __name__
-    resource_path = "/".join(("datasets", "data", "test_model.kv"))
-    weat_w2v_path = pkg_resources.resource_filename(resource_package, resource_path)
-
-    test_model = KeyedVectors.load(weat_w2v_path)
+    test_model = KeyedVectors.load("./wefe/datasets/data/test_model.kv")
     return test_model
 
 

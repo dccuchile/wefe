@@ -1,4 +1,4 @@
-"""Set of Tests for mitigation methods."""
+"""Multiclass Hard Debias (MHD) test sets."""
 from typing import Dict, List
 
 import numpy as np

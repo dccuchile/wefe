@@ -35,7 +35,7 @@ def test__init__():
     ):
         WordEmbeddingModel({})
 
-    w2v = KeyedVectors.load("./wefe/tests/w2v_test.kv")
+    w2v = KeyedVectors.load("./wefe/datasets/data/test_model.kv")
 
     with pytest.raises(TypeError, match=r"name should be a string or None, got"):
         WordEmbeddingModel(w2v, name=1)
@@ -97,7 +97,7 @@ def test__getitem__(model: WordEmbeddingModel):
 
     embedding = model["career"]
     assert isinstance(embedding, np.ndarray)
-    assert embedding.shape == (1, 300)
+    assert embedding.shape == (300,)
 
 
 def test__init__with_w2v_model():
@@ -150,7 +150,7 @@ def test_update_embedding(model: WordEmbeddingModel):
 
     new_embedding = np.ones(300, dtype=model.wv.vectors.dtype)
     model.update("The", new_embedding)
-    assert model["The"].shape == (3, 1)
+    assert model["The"].shape == (300,)
     assert all(model["The"] == new_embedding)
 
     with pytest.raises(TypeError, match=r"word should be a string, got .*"):
@@ -178,35 +178,35 @@ def test_update_embedding(model: WordEmbeddingModel):
 
 
 # -------------------------------------------------------------------------------------
-def test_update_embeddings(word2vec_test):
+def test_update_embeddings(model):
     words = ["The", "in"]
     embeddings = [np.ones(300, dtype=np.float32), np.ones(300, dtype=np.float32) * -1]
 
-    word2vec_test.batch_update(words, embeddings)
+    model.batch_update(words, embeddings)
 
-    assert all(word2vec_test["The"] == embeddings[0])
-    assert all(word2vec_test["in"] == embeddings[1])
+    assert all(model["The"] == embeddings[0])
+    assert all(model["in"] == embeddings[1])
 
     embeddings_in_array = np.array(
         [np.ones(300, dtype=np.float32) * 2, np.ones(300, dtype=np.float32) * -2]
     )
-    word2vec_test.batch_update(words, embeddings_in_array)
+    model.batch_update(words, embeddings_in_array)
 
-    assert all(word2vec_test["The"] == embeddings_in_array[0])
-    assert all(word2vec_test["in"] == embeddings_in_array[1])
+    assert all(model["The"] == embeddings_in_array[0])
+    assert all(model["in"] == embeddings_in_array[1])
 
     with pytest.raises(
         TypeError,
         match=r"words argument should be a list, tuple or np.array of strings, got .*",
     ):
-        word2vec_test.batch_update(None, embeddings)
+        model.batch_update(None, embeddings)
 
     with pytest.raises(
         TypeError, match=r"embeddings should be a list, tuple or np.array, got:.*",
     ):
-        word2vec_test.batch_update(words, None)
+        model.batch_update(words, None)
 
     with pytest.raises(
         ValueError, match=r"words and embeddings must have the same size, got:.*",
     ):
-        word2vec_test.batch_update(words + ["is"], embeddings)
+        model.batch_update(words + ["is"], embeddings)

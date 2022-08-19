@@ -1,5 +1,4 @@
-"""Set of Tests for mitigation methods."""
-from operator import contains
+"""Hard Debias (HD) test sets."""
 from typing import Dict, List
 
 import numpy as np
@@ -217,8 +216,8 @@ def test_hard_debias_copy_param(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    definitional_pairs: List[str],
-    equalize_pairs: List[str],
+    definitional_pairs: List[List[str]],
+    equalize_pairs: List[List[str]],
     gender_specific: List[str],
 ):
     weat = WEAT()

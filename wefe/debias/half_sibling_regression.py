@@ -191,7 +191,7 @@ class HalfSiblingRegression(BaseDebias):
     def fit(
         self,
         model: WordEmbeddingModel,
-        bias_definitional_words: List[str],
+        definitional_words: List[str],
         alpha: float = 60,
     ) -> BaseDebias:
         """Compute the weight matrix and the bias information.
@@ -200,7 +200,7 @@ class HalfSiblingRegression(BaseDebias):
         ----------
         model: WordEmbeddingModel
             The word embedding model to debias.
-        bias_definitional_words: List[str]
+        definitional_words: List[str]
             List of strings. This list contains words that embody bias
             information by definition.
         alpha: float
@@ -211,7 +211,7 @@ class HalfSiblingRegression(BaseDebias):
         BaseDebias
             The debias method fitted.
         """
-        self.bias_definitional_words = bias_definitional_words
+        self.bias_definitional_words = definitional_words
         self.non_bias = list(
             set(model.vocab.keys()) - set(self.bias_definitional_words)
         )

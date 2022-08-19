@@ -1,4 +1,4 @@
-"""Set of Tests for mitigation methods."""
+"""Double Hard Debias (DHD) test set."""
 from typing import Dict, List
 
 import numpy as np
@@ -153,10 +153,6 @@ def test_multiclass_hard_debias_ignore_param(
 ):
     weat = WEAT()
     dhd = DoubleHardDebias(verbose=True, criterion_name="gender",)
-
-    # gender_debiased_w2v = dhd.fit(
-    #     model, definitional_pairs=definitional_pairs, bias_representation=["he", "she"]
-    # ).transform(model, ignore=gender_specific + targets + attributes, copy=True)
 
     targets = weat_wordsets["male_names"] + weat_wordsets["female_names"]
     attributes = weat_wordsets["pleasant_5"] + weat_wordsets["unpleasant_5"]

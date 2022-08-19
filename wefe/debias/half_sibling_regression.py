@@ -81,7 +81,7 @@ class HalfSiblingRegression(BaseDebias):
     >>>
     >>> # instance and fit the method
     >>> hsr = HalfSiblingRegression().fit(
-    ...     model=model, bias_definitional_words=gender_specific
+    ...     model=model, definitional_words=gender_specific
     ... )
     >>> # execute the debias on the words not included in the gender definition set
     >>> debiased_model = hsr.transform(model = model)

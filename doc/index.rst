@@ -25,7 +25,6 @@ the detailed API documentation and extensive examples.
    user_guide/measurement.rst
    user_guide/mitigation.rst
    user_guide/loading_embeddings.rst
-   user_guide/contribute.rst
    
 .. toctree::
    :maxdepth: 2
@@ -38,6 +37,8 @@ the detailed API documentation and extensive examples.
    :caption: Conceptual Guides
 
    conceptual_guides/measurement_framework.rst
+   conceptual_guides/mitigation_framework.rst
+   conceptual_guides/references.rst
 
 .. toctree::
    :maxdepth: 2
@@ -46,6 +47,14 @@ the detailed API documentation and extensive examples.
    examples/wefe_case_study.rst
    examples/replications.rst
    examples/multilingual.rst
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contributing
+
+
+   user_guide/contribute.rst
+
 
 Repository
 ==========

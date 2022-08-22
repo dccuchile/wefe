@@ -1,3 +1,5 @@
+.. _bias measurement:
+
 Bias Measurement
 ================
 
@@ -785,8 +787,6 @@ a ``run_queries`` execution into a ``plotly`` braplot.
     
     # Plot the results
     plot_queries_results(WEAT_gender_results).show()
-
-
     
 .. image:: ../images/WEAT_gender_results.png
   :alt: WEAT gender results

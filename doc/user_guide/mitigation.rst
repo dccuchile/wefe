@@ -1,90 +1,77 @@
-Bias Mitigation
-===============
+.. _bias mitigation:
 
-WEFE also provides several methods to mitigate the bias of the embedding
-models. In the following section:
+Bias Mitigation (Debias)
+========================
 
-*  We present how to reduce binary bias (such as gender bias) using Hard
-   Debias.
-*  We present how to reduce multiclass bias (such as ethnic having
-   classes like black, white, Latino, etc…) using Multiclass Hard
-   Debias.
+The following guide is designed to present the more general details on 
+using the package to mitigate (debias) bias in word embedding models. 
+The following sections show:
 
-
-.. code:: python
-
-    import gensim.downloader as api
-    
-    from wefe.datasets import fetch_debiaswe, load_weat
-    from wefe.debias.hard_debias import HardDebias
-    from wefe.metrics import WEAT
-    from wefe.query import Query
-    from wefe.word_embedding_model import WordEmbeddingModel
-    
-    twitter_25 = api.load("glove-twitter-25")
-    model = WordEmbeddingModel(twitter_25, "glove-twitter-dim=25")
+- run :class:`~wefe.debias.hard_debias.HardDebias` mitigation method on an
+  embedding model to mitigate gender bias (using the ``fit-transform`` interface).
+- apply the ``target`` parameter when executing the transformation.
+- apply the ``ignore`` parameter when executing the transformation.
+- apply the ``copy`` parameter when executing the transformation.
+- run :class:`~wefe.debias.multiclass_hard_debias.MulticlassHardDebias` mitigation 
+  method on an word embedding model to mitigate ethnic bias.
 
 Hard Debias
 -----------
 
-This method allow reducing the bias of an embedding model through
-geometric operations between embeddings. This method is binary because
-it only allows two classes of the same bias criterion, such as male or
-female.
+    Hard Debias allow reducing the bias of an embedding model through geometric
+    operations between embeddings.
+    This method is binary because it only allows 2 classes of the same bias criterion,
+    such as male or female.
 
-The main idea of this method is:
+    .. note::  
 
-1. **Identify a bias subspace through the defining sets.** In the case
-    of gender, these could be
-    e.g., \ ``{'woman', 'man'}, {'she', 'he'}, ...``
+        For a multiclass debias (such as for Latinos, Asians and Whites), it is
+        recommended to visit
+        :class:`~wefe.debias.multiclass_hard_debias.MulticlassHardDebias` class.
 
-2. **Neutralize the bias subspace on the embeddings that should not be
-   biased.**
+    The main idea of this method is:
 
-    First, it is defined a set of words that are correct to be related to
-    the bias criterion: the *criterion specific gender words*. For
-    example, in the case of gender, *gender specific* words are:
-    ``{'he', 'his', 'He', 'her', 'she', 'him', 'him', 'She', 'man', 'women', 'men'...}``.
+    1. Identify a bias subspace through the defining sets. In the case of gender,
+    these could be e.g. ``[['woman', 'man'], ['she', 'he'], ...]``
 
-    Then, it is defined that all words outside this set should have no
-    relation to the bias criterion and thus have the possibility of being
-    biased. (e.g. for the case of gender: ``{doctor, nurse, ...}``).
-    Therefore, this set of words is neutralized with respect to the bias
-    subspace found in the previous step.
+    2. Neutralize the bias subspace of embeddings that should not be biased.
+    First, it is defined a set of words that are correct to be related to the bias
+    criterion: the *criterion specific gender words*.
+    For example, in the case of gender, *gender specific* words are:
+    ``['he', 'his', 'He', 'her', 'she', 'him', 'him', 'She', 'man', 'women', 'men'...]``.
+
+    Then, it is defined that all words outside this set should have no relation to the
+    bias criterion and thus have the possibility of being biased. (e.g. for the case of
+    genthe bias direction, such that neither is closer to the bias direction
+    than the other: ``['doctor', 'nurse', ...]``). Therefore, this set of words is
+    neutralized with respect to the bias subspace found in the previous step.
 
     The neutralization is carried out under the following operation:
 
-    -  u : embedding
-    -  v : bias direction
+    - :math:`u` : embedding
+    - :math:`v` : bias direction
 
     First calculate the projection of the embedding on the bias subspace.
 
-    -  projection = v • (v • u) / (v • v)
+    .. math::
+
+       \text{bias_subspace} = \frac{v \cdot (v \cdot u)}{(v \cdot v)}
 
     Then subtract the projection from the embedding.
 
-    -  u’ = u - projection
+    .. math::
 
-3. **Equalize the embeddings with respect to the bias direction.**.
+        u' = u - \text{bias_subspace}
 
-    Given an equalization set (set of word pairs such as [she, he], [men,
-    women], …, but not limited to the definitional set) this step
-    executes, for each pair, an equalization with respect to the bias
-    direction. That is, it takes a pair of embeddings and distributes
-    them both at the same distance from the bias direction, so that
-    neither is closer to the bias direction than the other.
+    3. Equalizate the embeddings with respect to the bias direction.
+    Given an equalization set (set of word pairs such as ``['she', 'he'],
+    ['men', 'women'], ...``, but not limited to the definitional set) this step
+    executes, for each pair, an equalization with respect to the bias direction.
+    That is, it takes both embeddings of the pair and distributes them at the same
+    distance from the bias direction, so that neither is closer to the bias direction
+    than the other.
 
-Fit-Transform Interface
-~~~~~~~~~~~~~~~~~~~~~~~
 
-WEFE implements all debias methods through an interface inspired by the
-transformers of ``scikit-learn``. That is, the execution of a debias
-method involves two steps: - First a training through the ``fit`` method
-where the transformation that will be applied on the embeddings is
-calculated - Second, a ``transform`` that applies the trained
-transformation.
-
-Each of these stages defines its own parameters.
 
 The fit parameters define how the neutralization will be calculated. In
 Hard Debias, you have to provide the the ``definitional_pairs``, the
@@ -212,7 +199,7 @@ Target Parameter
 ~~~~~~~~~~~~~~~~
 
 
--  target: If a set of words is specified in target, the debias method will be performed
+-  ``target``: If a set of words is specified in target, the debias method is performed
    only on the word embeddings associated with this set. In the case of providing
    ``None``, the transformation will be performed on all vocabulary words except those
    specified in ignore. By default ``None``.

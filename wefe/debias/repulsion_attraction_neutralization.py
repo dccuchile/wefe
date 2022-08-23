@@ -20,8 +20,63 @@ except ModuleNotFoundError:
     )
 
 
+
+class RAN_Loss(nn.Module):
+    """Represents the loss for repulsion attraction neutralization."""
+    
+    def __init__(self,
+        w_b: np.ndarray,
+        w: np.ndarray,
+        repulsion_set: List[np.ndarray],
+        bias_direction: np.ndarray,
+    ) -> None:
+        """Initialize a RAN_Loss instance.
+
+        Parameters
+        ----------
+            w_b: np.array
+                Debiased embedding of word
+            w: np.array
+                Original embedding of word
+            repulsion_set: List[np.ndarray]
+                Set of embeddings to be repeled from word
+            bias_direction: np.array
+        """
+
+        super(RAN_Loss, self).__init__()
+        self.w = w
+        self.w_b = nn.Parameter(w_b)
+        self.repulsion_set = repulsion_set
+        self.bias_direction = bias_direction
+
+    def _repulsion(self):
+        if not isinstance(self.repulsion_set, bool):
+            cos_similarity = self._cosine_similarity(self.w_b, self.repulsion_set)
+            repulsion = torch.abs(cos_similarity).mean(dim=0)
+        else:
+            repulsion = 0
+        return repulsion
+
+    def _attraction(self) -> torch.Tensor:
+        attraction = (
+            torch.abs(torch.cosine_similarity(self.w_b[None, :], self.w[None, :]) - 1)[0] / 2
+            )
+        return attraction
+
+    def _neutralization(self) -> torch.Tensor:
+        neutralization = torch.abs(self.w_b.dot(self.bias_direction)).mean(dim=0)
+        return neutralization
+
+    def _objective_function(self, w1,w2,w3) -> torch.Tensor:
+        return self._repulsion() * w1 + self._attraction() * w2 + self._neutralization() * w3
+
+    def _cosine_similarity(
+        self, w: torch.Tensor,set_vectors: torch.Tensor
+    ) -> torch.Tensor:
+        return torch.matmul(set_vectors, w) / (set_vectors.norm(dim=1) * w.norm(dim=0))
+
 class RAN(nn.Module):
-    """NN that perform the optimization by gradient descent of the objective function."""
+    """NN that performs the optimization by gradient descent of the objective function."""
 
     def __init__(
         self,
@@ -31,9 +86,8 @@ class RAN(nn.Module):
         w: np.ndarray,
         repulsion_set: List[np.ndarray],
         bias_direction: np.ndarray,
-        objective_function: Callable,
         weights=[0.33, 0.33, 0.33],
-    ):
+    ) -> None:
         """Initialize a RAN instance.
 
         Parameters
@@ -49,9 +103,6 @@ class RAN(nn.Module):
             repulsion_set: List[np.ndarray]
                 Set of embeddings to be repeled from word
             bias_direction: np.array
-
-            objective_function: types.FunctionType
-                Function to be minimized to obtain the debiased embedding
             weights: list, optional
                 weights λi that determine the relative importance of one
                 objective function (repulsion, attraction, neutralization)
@@ -74,13 +125,13 @@ class RAN(nn.Module):
         self.bias_direction = torch.FloatTensor(np.array(bias_direction))
 
         self.weights = weights
+        
+        self.loss = RAN_Loss(self.w, self.w_b, self.repulsion_set, self.bias_direction)
 
-        self.objective_function = objective_function
+    def _forward(self):
+        w1,w2,w3 = self.weights
+        return self.loss._objective_function(w1,w2,w3)
 
-    def forward(self):
-        return self.objective_function(
-            self.w_b, self.w, self.bias_direction, self.repulsion_set, self.weights
-        )
 
 
 class RepulsionAttractionNeutralization(BaseDebias):
@@ -363,46 +414,6 @@ class RepulsionAttractionNeutralization(BaseDebias):
                 repulsion_set.append(model[neighbour])
         return repulsion_set
 
-    def _cosine_similarity(
-        self, w: torch.Tensor, set_vectors: torch.Tensor
-    ) -> torch.Tensor:
-        return torch.matmul(set_vectors, w) / (set_vectors.norm(dim=1) * w.norm(dim=0))
-
-    def _repulsion(self, w_b: torch.Tensor, repulsion_set: torch.Tensor):
-        if not isinstance(repulsion_set, bool):
-            cos_similarity = self._cosine_similarity(w_b, repulsion_set)
-            repulsion = torch.abs(cos_similarity).mean(dim=0)
-        else:
-            repulsion = 0
-        return repulsion
-
-    def _attraction(self, w_b: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
-        attraction = (
-            torch.abs(torch.cosine_similarity(w_b[None, :], w[None, :]) - 1)[0] / 2
-        )
-        return attraction
-
-    def _neutralization(
-        self, w_b: torch.Tensor, bias_direction: torch.Tensor
-    ) -> torch.Tensor:
-        neutralization = torch.abs(w_b.dot(bias_direction)).mean(dim=0)
-        return neutralization
-
-    def _objective_function(
-        self,
-        w_b: np.ndarray,
-        w: np.ndarray,
-        bias_direction: np.ndarray,
-        repulsion_set: torch.Tensor,
-        weights: List[float],
-    ) -> torch.Tensor:
-        w1, w2, w3 = weights
-        return (
-            self._repulsion(w_b, repulsion_set) * w1
-            + self._attraction(w_b, w) * w2
-            + self._neutralization(w_b, bias_direction) * w3
-        )
-
     def _debias(
         self,
         model: WordEmbeddingModel,
@@ -423,13 +434,12 @@ class RepulsionAttractionNeutralization(BaseDebias):
             w,
             repulsion_set,
             bias_direction,
-            self._objective_function,
             weights,
         )
         optimizer = torch.optim.Adam(ran.parameters(), lr=learning_rate)
         for epoch in range(epochs):
             optimizer.zero_grad()
-            out = ran.forward()
+            out = ran._forward()
             out.backward()
             optimizer.step()
         debiased_vector = ran.w_b

@@ -137,7 +137,9 @@ NEW DEVELOP VERSION
 -------------------
 - Fixed wrong repr of query. Now the sets are in the correct order.
 - Greatly improved library testing mechanisms.
-
+- Improved project documentation. Now, the documentation is divided into user guide and
+  theoretical framework. In addition, the user guides are fully executable because they
+  are now on notebooks.
 
 Version 0.3.2
 -------------

@@ -275,11 +275,16 @@ class MulticlassHardDebias(BaseDebias):
             If a set of words is specified in target, the debias method will be performed
             only on the word embeddings of this set. If `None` is provided, the
             debias will be performed on all words (except those specified in ignore).
+            Note that some words that are not in target may be modified due to the
+            equalization process.
             by default `None`.
         ignore : Optional[List[str]], optional
             If target is `None` and a set of words is specified in ignore, the debias
             method will perform the debias in all words except those specified in this
-            set, by default `None`.
+            set.
+            Note that some words that are in ignore may be modified due to the
+            equalization process.
+            by default `None`.
         copy : bool, optional
             If `True`, the debias will be performed on a copy of the model.
             If `False`, the debias will be applied on the same model delivered, causing

@@ -21,20 +21,18 @@ class DoubleHardDebias(BaseDebias):
     operations between embeddings.
     This method is binary because it only allows 2 classes of the same bias
     criterion, such as male or female.
-    For a multiclass debias (such as for Latinos, Asians and Whites),
-    it is recommended to visit MulticlassHardDebias class.
 
     The main idea of this method is:
 
-    1. **Identify a bias subspace through the defining sets.** In the case
-    of gender, these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
+    1. Identify a bias subspace through the defining sets. In the case
+    of gender, these could be e.g. ``[['woman', 'man'], ['she', 'he'], ...]``
 
     2. Find the dominant directions of the entire set of vectors by doing a
     Principal components analysis over it.
 
     3. Get the target words by finding the most biased words, this is
     the words tha are closest to the representation of each bias group. In
-    case of gender 'he' and 'she'.
+    case of gender ``'he'`` and ``'she'``.
 
     3. Try removing each component resulting of PCA and remove also the bias
     direction to every vector in the target set and find which component
@@ -58,9 +56,14 @@ class DoubleHardDebias(BaseDebias):
     >>> debiaswe_wordsets = fetch_debiaswe()
     >>> definitional_pairs = debiaswe_wordsets["definitional_pairs"]
     >>>
-    >>> # instance and fit the method including bias representation words, in case of gender he,she
-    >>> dhd = DoubleHardDebias(verbose=False).fit(model=model, definitional_pairs=definitional_pairs, bias_representation=['he','she'])
-    >>> # execute the debias, if you don't want a set of words to be debiased include them in the ignore set
+    >>> # instance and fit the method including bias representation words,
+    >>> # in case of gender definitional_pairs=[['he', 'she'], ...]
+    >>> dhd = DoubleHardDebias().fit(
+    ...     model=model,
+    ...     definitional_pairs=definitional_pairs,
+    ...     bias_representation=['he','she'])
+    >>> # execute the debias, if you don't want a set of words to be debiased
+    >>> # include them in the ignore set.
     >>> gender_specific = debiaswe_wordsets["gender_specific"]
     >>>
     >>> debiased_model = dhd.transform(
@@ -68,10 +71,10 @@ class DoubleHardDebias(BaseDebias):
     ... )
     Copy argument is True. Transform will attempt to create a copy of the original model. This may fail due to lack of memory.
     Model copy created successfully.
-    >>>
-    >>>
-    >>> # if you want the debiased to be performed over a sprecific set of words yo can add them in the
-    >>> # target parameter
+
+    If you want the debiased to be performed over a specific set of words you can
+    specify them in the target parameter
+
     >>> debiased_model = dhd.transform(
     ... model=model, target = ['doctor','nurse','programmer','teacher']
     ... )
@@ -160,9 +163,7 @@ class DoubleHardDebias(BaseDebias):
         self.n_components = n_components
 
     def _check_sets_size(
-        self,
-        sets: List[List[str]],
-        set_name: str,
+        self, sets: List[List[str]], set_name: str,
     ):
 
         for idx, set_ in enumerate(sets):
@@ -458,9 +459,7 @@ class DoubleHardDebias(BaseDebias):
         """
         # check if the following attributes exist in the object.
         self._check_transform_args(
-            model=model,
-            ignore=ignore,
-            copy=copy,
+            model=model, ignore=ignore, copy=copy,
         )
         check_is_fitted(
             self,

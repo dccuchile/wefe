@@ -15,7 +15,7 @@ already installed.
 Available languages are English, Spanish, French, German, Italian, Spanish,
 Swedish, Dutch.
 
-.. note::
+.. warning::
 
     The words sets used in the notebooks were translated using google translator. 
     Therefore, it is possible that some concepts may have been mistranslated and may

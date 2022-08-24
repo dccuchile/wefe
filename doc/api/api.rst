@@ -58,9 +58,10 @@ This list contains the debiasing methods implemented so far in WEFE.
    DoubleHardDebias
    HalfSiblingRegression
 
+.. _datasets-API:
 
-Dataloaders
-===========
+Datasets
+========
 
 The following functions allow one to load word sets used in previous works. 
 

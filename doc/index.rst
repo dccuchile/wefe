@@ -21,9 +21,8 @@ the detailed API documentation and extensive examples.
    :maxdepth: 2
    :caption: User Guide
 
-   
-   user_guide/measurement.rst
-   user_guide/mitigation.rst
+   user_guide/measurement.ipynb
+   user_guide/mitigation.ipynb
    user_guide/loading_embeddings.rst
    
 .. toctree::
@@ -51,7 +50,6 @@ the detailed API documentation and extensive examples.
 .. toctree::
    :maxdepth: 2
    :caption: Contributing
-
 
    user_guide/contribute.rst
 

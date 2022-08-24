@@ -41,7 +41,9 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
+    "myst_nb",
 ]
+
 
 mathjax_path = ""
 
@@ -75,8 +77,23 @@ templates_path = ["_templates"]
 autosummary_generate = True
 
 # The suffix of source filenames.
-source_suffix = ".rst"
+# source_suffix = ".rst"
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".ipynb": "myst-nb",
+    ".myst": "myst-nb",
+}
 
+myst_enable_extensions = [
+    "amsmath",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "html_image",
+]
+myst_url_schemes = ("http", "https", "mailto")
+nb_execution_mode = "cache"
+nb_execution_timeout = 120
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
 
@@ -324,6 +341,10 @@ sphinx_gallery_conf = {
     "backreferences_dir": os.path.join("generated"),
     "reference_url": {"wefe": None},
 }
+
+html_js_files = [
+    "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"
+]
 
 
 def setup(app):

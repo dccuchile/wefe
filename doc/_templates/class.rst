@@ -3,6 +3,7 @@
 
 .. currentmodule:: {{ module }}
 
+
 .. autoclass:: {{ objname }}
    :members:
 
@@ -10,6 +11,15 @@
    .. automethod:: __init__
    {% endblock %}
 
+<<<<<<< HEAD
+=======
+.. include:: {{module}}.{{objname}}.examples
+
+.. .. raw:: html
+
+..     <div style='clear:both'></div>
+
+>>>>>>> develop
 .. raw:: html
 
-    <div style='clear:both'></div>
+    <div class="clearer"></div>

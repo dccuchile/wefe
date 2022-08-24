@@ -2,7 +2,8 @@
 WEFE API
 ========
 
-This is the documentation of the API of WEFE. 
+This reference details all the utilities as well as the metrics and mitigation methods
+implemented so far in WEFE.
 
 .. currentmodule:: wefe
 
@@ -13,7 +14,7 @@ WordEmbeddingModel
    :toctree: generated/
    :template: class.rst
 
-   WordEmbeddingModel
+   wefe.word_embedding_model.WordEmbeddingModel
 
 Query
 =====
@@ -22,26 +23,26 @@ Query
    :toctree: generated/
    :template: class.rst
 
-   Query
+   wefe.query.Query
 
 
-.. _metrics-API:
 
 Metrics
 =======
 
 This list contains the metrics implemented in WEFE.
 
+
 .. autosummary::
    :toctree: generated/
    :template: class.rst
 
-   WEAT
-   RND
-   RNSB
-   MAC
-   ECT
-   RIPA
+   wefe.metrics.WEAT
+   wefe.metrics.RND
+   wefe.metrics.RNSB
+   wefe.metrics.MAC
+   wefe.metrics.ECT
+   wefe.metrics.RIPA
 
 
 Debias
@@ -53,28 +54,29 @@ This list contains the debiasing methods implemented so far in WEFE.
    :toctree: generated/
    :template: class.rst
 
-   HardDebias
-   MulticlassHardDebias
-   DoubleHardDebias
-   HalfSiblingRegression
+   wefe.debias.HardDebias
+   wefe.debias.MulticlassHardDebias
+   wefe.debias.RepulsionAttractionNeutralization
+   wefe.debias.DoubleHardDebias
+   wefe.debias.HalfSiblingRegression
 
-.. _datasets-API:
 
 Datasets
-========
+===========
 
-The following functions allow one to load word sets used in previous works. 
+The following functions allow you to load sets of words used in previous studies.
 
 
 .. autosummary::
-   :toctree: generated/dataloaders/
+   :toctree: generated/dataset/
    :template: function.rst
 
-   load_bingliu
-   fetch_debias_multiclass
-   fetch_debiaswe
-   fetch_eds
-   load_weat
+   wefe.datasets.load_bingliu
+   wefe.datasets.fetch_debias_multiclass
+   wefe.datasets.fetch_debiaswe
+   wefe.datasets.fetch_eds
+   wefe.datasets.load_weat
+
 
 Preprocessing
 =============
@@ -87,7 +89,8 @@ The documentation of the functions in this section are intended as a guide for W
    :toctree: generated/
    :template: function.rst
 
-   preprocess_word
-   get_embeddings_from_set
-   get_embeddings_from_tuples
-   get_embeddings_from_query
+   wefe.preprocessing.preprocess_word
+   wefe.preprocessing.get_embeddings_from_set
+   wefe.preprocessing.get_embeddings_from_tuples
+   wefe.preprocessing.get_embeddings_from_query
+

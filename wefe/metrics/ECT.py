@@ -4,7 +4,6 @@ from typing import Any, Callable, Dict, List, Union
 import numpy as np
 from scipy.spatial.distance import cosine
 from scipy.stats import spearmanr
-
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -14,10 +13,12 @@ from wefe.word_embedding_model import WordEmbeddingModel
 class ECT(BaseMetric):
     """Embedding Coherence Test (ECT).
 
-    ECT. was originally proposed in [1] and implemented in [2].
+    The metric was originally proposed in [1] and implemented in [2].
     It calculates the average target group vectors, measures the cosine similarity of
     each to a list of attribute words and calculates the correlation of the resulting
     similarity lists.
+    
+    Values closer to 1 are better as they represent less bias.
 
     The general steps of the test, as defined in [1], are as follows:
 

@@ -1,6 +1,6 @@
-from .ECT import ECT
-from .MAC import MAC, BaseMetric
-from .RIPA import RIPA
-from .RND import RND
-from .RNSB import RNSB
-from .WEAT import WEAT
+from wefe.metrics.ECT import ECT
+from wefe.metrics.MAC import MAC
+from wefe.metrics.RIPA import RIPA
+from wefe.metrics.RND import RND
+from wefe.metrics.RNSB import RNSB
+from wefe.metrics.WEAT import WEAT

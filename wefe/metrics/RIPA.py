@@ -2,7 +2,6 @@
 from typing import Any, Callable, Dict, List, Tuple, Union
 
 import numpy as np
-
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -12,13 +11,14 @@ from wefe.word_embedding_model import WordEmbeddingModel
 class RIPA(BaseMetric):
     """Relational Inner Product Association Test (RIPA).
 
-    The Relational Inner Product Association, presented in the paper "Understanding
-    Undesirable Word Embedding Associations" [1][2], calculates bias by measuring
-    the bias of a term by using the relation vector (i.e the first principal component
-    of a pair of words that define the association) and calculating the dot product of
-    this vector with the attribute word vector.
-    RIPA's advantages are its interpretability, and its relative robustness compared
-    to WEAT with regard to how the relation vector is defined.
+    This metric was originally proposed in [1][2].
+
+    RIPA is most interpretable with a single pair of target words, although
+    this function returns the values for every attribute averaged across all base pairs.
+
+    NOTE: As the variance tends to be high depending on the base pair chosen, it is
+    recommended that only a single pair of target words is used as input to the
+    function.
 
     This metric follows the following steps:
 

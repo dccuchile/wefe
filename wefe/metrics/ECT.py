@@ -11,7 +11,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class ECT(BaseMetric):
-    """Embedding Coherence Test [1].
+    """Embedding Coherence Test (ECT).
 
     The metric was originally proposed in [1] and implemented in [2].
     Values closer to 1 are better as they represent less bias.

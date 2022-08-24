@@ -9,7 +9,9 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class RIPA(BaseMetric):
-    """An implementation of the Relational Inner Product Association Test, proposed by [1][2].
+    """Relational Inner Product Association Test (RIPA).
+
+    This metric was originally proposed in [1][2].
 
     RIPA is most interpretable with a single pair of target words, although
     this function returns the values for every attribute averaged across all base pairs.

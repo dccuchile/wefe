@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
-from wefe.preprocessing import EmbeddingDict, get_embeddings_from_sets
+from wefe.preprocessing import EmbeddingDict, get_embeddings_from_tuples
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import WordEmbeddingModel
 
@@ -20,11 +20,11 @@ except ModuleNotFoundError:
     )
 
 
-
 class RAN_Loss(nn.Module):
     """Represents the loss for repulsion attraction neutralization."""
-    
-    def __init__(self,
+
+    def __init__(
+        self,
         w_b: np.ndarray,
         w: np.ndarray,
         repulsion_set: List[np.ndarray],
@@ -59,21 +59,29 @@ class RAN_Loss(nn.Module):
 
     def _attraction(self) -> torch.Tensor:
         attraction = (
-            torch.abs(torch.cosine_similarity(self.w_b[None, :], self.w[None, :]) - 1)[0] / 2
-            )
+            torch.abs(torch.cosine_similarity(self.w_b[None, :], self.w[None, :]) - 1)[
+                0
+            ]
+            / 2
+        )
         return attraction
 
     def _neutralization(self) -> torch.Tensor:
         neutralization = torch.abs(self.w_b.dot(self.bias_direction)).mean(dim=0)
         return neutralization
 
-    def _objective_function(self, w1,w2,w3) -> torch.Tensor:
-        return self._repulsion() * w1 + self._attraction() * w2 + self._neutralization() * w3
+    def _objective_function(self, w1, w2, w3) -> torch.Tensor:
+        return (
+            self._repulsion() * w1
+            + self._attraction() * w2
+            + self._neutralization() * w3
+        )
 
     def _cosine_similarity(
-        self, w: torch.Tensor,set_vectors: torch.Tensor
+        self, w: torch.Tensor, set_vectors: torch.Tensor
     ) -> torch.Tensor:
         return torch.matmul(set_vectors, w) / (set_vectors.norm(dim=1) * w.norm(dim=0))
+
 
 class RAN(nn.Module):
     """NN that performs the optimization by gradient descent of the objective function."""
@@ -125,13 +133,12 @@ class RAN(nn.Module):
         self.bias_direction = torch.FloatTensor(np.array(bias_direction))
 
         self.weights = weights
-        
+
         self.loss = RAN_Loss(self.w, self.w_b, self.repulsion_set, self.bias_direction)
 
     def _forward(self):
-        w1,w2,w3 = self.weights
-        return self.loss._objective_function(w1,w2,w3)
-
+        w1, w2, w3 = self.weights
+        return self.loss._objective_function(w1, w2, w3)
 
 
 class RepulsionAttractionNeutralization(BaseDebias):
@@ -427,15 +434,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         weights: List[float],
     ) -> torch.Tensor:
 
-        ran = RAN(
-            model,
-            word,
-            w_b,
-            w,
-            repulsion_set,
-            bias_direction,
-            weights,
-        )
+        ran = RAN(model, word, w_b, w, repulsion_set, bias_direction, weights,)
         optimizer = torch.optim.Adam(ran.parameters(), lr=learning_rate)
         for epoch in range(epochs):
             optimizer.zero_grad()
@@ -478,7 +477,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         if self.verbose:
             print("Obtaining definitional pairs.")
 
-        self.definitional_pairs_embeddings_ = get_embeddings_from_sets(
+        self.definitional_pairs_embeddings_ = get_embeddings_from_tuples(
             model=model,
             sets=definitional_pairs,
             sets_name="definitional",

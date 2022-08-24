@@ -24,6 +24,6 @@ __all__ = [
     "preprocess_word",
     "get_embeddings_from_query",
     "get_embeddings_from_set",
-    "get_embeddings_from_sets",
+    "get_embeddings_from_tuples",
     "__version__",
 ]

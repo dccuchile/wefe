@@ -1,13 +1,13 @@
 """Hard Debias WEFE implementation."""
 import logging
 from copy import deepcopy
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from sklearn.decomposition import PCA
 from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
-from wefe.preprocessing import get_embeddings_from_sets
+from wefe.preprocessing import get_embeddings_from_tuples
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
@@ -102,20 +102,6 @@ class HardDebias(BaseDebias):
             self.criterion_name_ = criterion_name
         else:
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
-
-    def _check_sets_size(
-        self, sets: Sequence[Sequence[str]], set_name: str,
-    ):
-
-        for idx, set_ in enumerate(sets):
-            if len(set_) != 2:
-                adverb = "less" if len(set_) < 2 else "more"
-
-                raise ValueError(
-                    f"The {set_name} pair at position {idx} ({set_}) has {adverb} "
-                    f"words than allowed by {self.name}: "
-                    f"got {len(set_)} words, expected 2."
-                )
 
     def _identify_bias_subspace(
         self, definning_pairs_embeddings: List[EmbeddingDict], verbose: bool = False,
@@ -227,8 +213,8 @@ class HardDebias(BaseDebias):
     def fit(
         self,
         model: WordEmbeddingModel,
-        definitional_pairs: Sequence[Sequence[str]],
-        equalize_pairs: Optional[Sequence[Sequence[str]]] = None,
+        definitional_pairs: List[List[str]],
+        equalize_pairs: Optional[List[List[str]]] = None,
         **fit_params,
     ) -> BaseDebias:
         """Compute the bias direction and obtains the equalize embedding pairs.
@@ -237,11 +223,11 @@ class HardDebias(BaseDebias):
         ----------
         model : WordEmbeddingModel
             The word embedding model to debias.
-        definitional_pairs : Sequence[Sequence[str]]
+        definitional_pairs : List[List[str]]
             A sequence of string pairs that will be used to define the bias direction.
             For example, for the case of gender debias, this list could be [['woman',
             'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
-        equalize_pairs : Optional[Sequence[Sequence[str]]], optional
+        equalize_pairs : Optional[List[List[str]]], optional
             A list with pairs of strings, which will be equalized.
             In the case of passing None, the equalization will be done over the word
             pairs passed in definitional_pairs,
@@ -253,14 +239,14 @@ class HardDebias(BaseDebias):
             The debias method fitted.
         """
         # Check arguments types
-        self._check_sets_size(definitional_pairs, "definitional")
+        self._check_sets_sizes(definitional_pairs, set_name="definitional", set_size=2)
         self.definitional_pairs_ = definitional_pairs
 
         # ------------------------------------------------------------------------------
         # Obtain the embedding of each definitional pairs.
         if self.verbose:
             print("Obtaining definitional pairs.")
-        self.definitional_pairs_embeddings_ = get_embeddings_from_sets(
+        self.definitional_pairs_embeddings_ = get_embeddings_from_tuples(
             model=model,
             sets=definitional_pairs,
             sets_name="definitional",
@@ -289,7 +275,7 @@ class HardDebias(BaseDebias):
         else:
             self.equalize_pairs_ = equalize_pairs
 
-        self._check_sets_size(self.equalize_pairs_, "equalize")
+        self._check_sets_sizes(self.equalize_pairs_, set_name="equalize", set_size=2)
 
         # Get the equalization pairs candidates
         if self.verbose:
@@ -308,7 +294,7 @@ class HardDebias(BaseDebias):
         ]
 
         # Obtain the equalization pairs embeddings candidates
-        self.equalize_pairs_embeddings_ = get_embeddings_from_sets(
+        self.equalize_pairs_embeddings_ = get_embeddings_from_tuples(
             model=model,
             sets=self.equalize_pairs_candidates_,
             sets_name="equalize",
@@ -336,11 +322,12 @@ class HardDebias(BaseDebias):
             If a set of words is specified in target, the debias method will be performed
             only on the word embeddings of this set. If `None` is provided, the
             debias will be performed on all words (except those specified in ignore).
-            by default `None`.
+            By default `None`.
         ignore : Optional[List[str]], optional
             If target is `None` and a set of words is specified in ignore, the debias
             method will perform the debias in all words except those specified in this
-            set, by default `None`.
+            set.
+            By default `None`.
         copy : bool, optional
             If `True`, the debias will be performed on a copy of the model.
             If `False`, the debias will be applied on the same model delivered, causing

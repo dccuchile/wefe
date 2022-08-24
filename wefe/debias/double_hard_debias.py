@@ -1,7 +1,7 @@
 """Double Hard Debias WEFE implementation."""
 import operator
 from copy import deepcopy
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -9,7 +9,7 @@ from sklearn.decomposition import PCA, IncrementalPCA
 from sklearn.metrics import pairwise_distances
 from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
-from wefe.preprocessing import get_embeddings_from_sets
+from wefe.preprocessing import get_embeddings_from_tuples
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import WordEmbeddingModel
 
@@ -151,29 +151,15 @@ class DoubleHardDebias(BaseDebias):
         else:
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
-        if not isinstance(n_words,int):
+        if not isinstance(n_words, int):
             raise TypeError(f"n_words should be int, got: {n_words}")
         self.n_words = n_words
 
-        if not isinstance(n_components,int):
+        if not isinstance(n_components, int):
             raise TypeError(f"n_components should be int, got: {n_components}")
         self.n_components = n_components
 
-    def _check_sets_size(
-        self, sets: Sequence[Sequence[str]], set_name: str,
-    ):
-
-        for idx, set_ in enumerate(sets):
-            if len(set_) != 2:
-                adverb = "less" if len(set_) < 2 else "more"
-
-                raise ValueError(
-                    f"The {set_name} pair at position {idx} ({set_}) has {adverb} "
-                    f"words than allowed by {self.name}: "
-                    f"got {len(set_)} words, expected 2."
-                )
-
-    def _similarity(self, u: List[np.ndarray], v: List[np.ndarray]) -> np.array:
+    def _similarity(self, u: List[np.ndarray], v: List[np.ndarray]) -> np.ndarray:
         return 1 - pairwise_distances(u, v, metric="cosine")
 
     def _bias_by_projection(
@@ -183,6 +169,7 @@ class DoubleHardDebias(BaseDebias):
         ignore: List[str],
         bias_representation: List[str],
     ) -> Dict[str, float]:
+
         word1 = model[bias_representation[0]]
         word2 = model[bias_representation[1]]
         if target:
@@ -226,7 +213,7 @@ class DoubleHardDebias(BaseDebias):
             Set of words to be ignored from the debias process.
         n_words: int
             number of target words to use.
-        bias_representation: Sequence[str]
+        bias_representation: List[str]
             Two words that represents de bias groups.
 
         Returns
@@ -234,7 +221,9 @@ class DoubleHardDebias(BaseDebias):
         List[str]
             List of target words for each bias group
         """
-        similarities = self._bias_by_projection(model, target, ignore, bias_representation)
+        similarities = self._bias_by_projection(
+            model, target, ignore, bias_representation
+        )
         sorted_words = sorted(similarities.items(), key=operator.itemgetter(1))
         female_words = [pair[0] for pair in sorted_words[:n_words]]
         male_words = [pair[0] for pair in sorted_words[-n_words:]]
@@ -352,9 +341,9 @@ class DoubleHardDebias(BaseDebias):
         return alignment_score
 
     def fit(
-        self, 
+        self,
         model: WordEmbeddingModel,
-        definitional_pairs: Sequence[Sequence[str]],
+        definitional_pairs: List[List[str]],
         bias_representation: List[str],
     ) -> BaseDebias:
         """Compute the bias direction and obtain the principal components of the entire
@@ -364,7 +353,7 @@ class DoubleHardDebias(BaseDebias):
         ----------
         model : WordEmbeddingModel
             The word embedding model to debias.
-        definitional_pairs : Sequence[Sequence[str]]
+        definitional_pairs : List[List[str]]
             A sequence of string pairs that will be used to define the bias
             direction. For example, for the case of gender debias, this list
             could be [['woman', 'man'], ['girl', 'boy'], ['she', 'he'],
@@ -379,14 +368,14 @@ class DoubleHardDebias(BaseDebias):
         """
         self.definitional_pairs = definitional_pairs
 
-        self._check_sets_size(self.definitional_pairs, "definitional")
+        self._check_sets_sizes(self.definitional_pairs, "definitional", set_size=2)
 
         # -------------------------------------------------------------------
         # Obtain the embedding of each definitional pairs.
         if self.verbose:
             print("Obtaining definitional pairs.")
 
-        self.definitional_pairs_embeddings = get_embeddings_from_sets(
+        self.definitional_pairs_embeddings = get_embeddings_from_tuples(
             model=model,
             sets=definitional_pairs,
             sets_name="definitional",
@@ -488,18 +477,20 @@ class DoubleHardDebias(BaseDebias):
         if self.verbose:
             print("Obtaining words to apply debias")
 
-        if target: 
+        if target:
             self.n_words = len(target) // 2
-            
+
         self.target_words = self.get_target_words(
-            model,target, ignore, self.n_words, self.bias_representation
+            model, target, ignore, self.n_words, self.bias_representation
         )
 
         # -------------------------------------------------------------------
         # Searching best component of pca to debias
         if self.verbose:
             print("Searching component to debias")
-        optimal_dimensions = self._get_optimal_dimension(model, self.n_words, self.n_components)
+        optimal_dimensions = self._get_optimal_dimension(
+            model, self.n_words, self.n_components
+        )
 
         # -------------------------------------------------------------------
         # Execute debias

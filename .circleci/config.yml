@@ -12,5 +12,5 @@ workflows:
           version: '3.7'
           setup: 
             - python/install-packages:
-                pip-dependency-file: ~/project/dev-requirements.txt
+                pip-dependency-file: requirements-dev.txt
                 pkg-manager: pip

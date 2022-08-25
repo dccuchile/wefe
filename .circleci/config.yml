@@ -1,27 +1,16 @@
-version: 2.1
-
+version: '2.1'
 orbs:
   python: circleci/python@2.0.3
-
-jobs:
-  test:
-    executor: python/default
-    steps:
-      - checkout
-      - python/install-packages:
-          pkg-manager: pip
-      - python/install-packages:
-          pip-dependency-file: dev-requirements.txt
-          pkg-manager: pip
-      - python/install-packages:
-          args: pytest
-          pkg-manager: pip
-          pypi-cache: false
-      - python/test:
-          version: '3.7'
-          test-tool: pytest
 
 workflows:
   main:
     jobs:
-      - test
+      - python/test:
+          pkg-manager: pip
+          test-tool: pytest
+          test-tool-args: tests
+          version: '3.7'
+          setup: 
+            - python/install-packages:
+                pip-dependency-file: dev-requirements.txt
+                pkg-manager: pip

@@ -76,10 +76,7 @@ Citation
 
 Please cite the following paper if using this package in an academic publication:
 
-`P. Badilla, F. Bravo-Marquez, and J. Pérez 
- WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the
- 29th International Joint Conference on Artificial Intelligence and the 17th 
- Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. <https://www.ijcai.org/Proceedings/2020/60>`_
+`P. Badilla, F. Bravo-Marquez, and J. Pérez WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the 29th International Joint Conference on Artificial Intelligence and the 17th Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. <https://www.ijcai.org/Proceedings/2020/60>`__
 
 The author's version can be found at the following 
 `link <https://felipebravom.com/publications/ijcai2020.pdf>`__.
@@ -107,12 +104,11 @@ Roadmap
 
 We expect in the future to:
 
-- Implement the metrics that have come out in recent works on bias in embeddings.
 - Implement new queries on different criteria.
 - Create a single script that evaluates different embedding models under different bias criteria. 
 - From the previous script, rank as many embeddings available on the web as possible.
 - Implement a visualization module.
-- Implement p-values with statistic resampling to all metrics.
+- Implement p-values mixin that applies for all metrics that accept two targets.
 
 License
 =======
@@ -137,6 +133,10 @@ We thank all our contributors who have allowed WEFE to grow, especially
 `stolenpyjak <https://github.com/stolenpyjak/>`_ and 
 `mspl13 <https://github.com/mspl13/>`_ for implementing new metrics.
 
+We also thank `alan-cueva <https://github.com/alan-cueva/>`_ for initiating the development 
+of metrics for contextualized embedding models and 
+`harshvr15 <https://github.com/harshvr15/>`_ for the examples of multi-language bias measurement.
+
 Thank you very much 😊!
 
 Contact
@@ -150,3 +150,4 @@ Acknowledgments
 ===============
 This work was funded by the 
 `Millennium Institute for Foundational Research on Data (IMFD) <https://imfd.cl/en/>`_.
+It is also sponsored by `National Center of Artificial Intelligence of Chile (CENIA) <https://cenia.cl/en/>`_.

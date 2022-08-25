@@ -43,5 +43,5 @@ WEFE implements the following bias mitigation (debias) metrics:
 - :class:`~wefe.debias.repulsion_attraction_neutralization.RepulsionAttractionNeutralization`,
 - :class:`~wefe.debias.half_sibling_regression.HalfSiblingRegression`,
 
-Except for ``MulticlassHardDebias``, all methods are compatible with binary criteria, 
+Except for ``MulticlassHardDebias``, all methods are limited to binary criteria, 
 such gender.

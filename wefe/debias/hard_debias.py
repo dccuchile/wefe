@@ -18,12 +18,12 @@ class HardDebias(BaseDebias):
     """Hard Debias debiasing method.
 
     Hard debias is a method that allows mitigating biases through geometric operations
-    on embeddings. 
+    on embeddings.
 
     This method is binary because it only allows 2 classes of the same bias criterion,
     such as male or female.
 
-    .. note::  
+    .. note::
 
         For a multiclass debias (such as for Latinos, Asians and Whites), it is
         recommended to visit
@@ -70,6 +70,74 @@ class HardDebias(BaseDebias):
     That is, it takes both embeddings of the pair and distributes them at the same
     distance from the bias direction, so that neither is closer to the bias direction
     than the other.
+
+    Examples
+    --------
+
+    .. note::
+
+        For more information on the use of mitigation methods, visit
+        :ref:`bias mitigation` in the User Guide.
+
+    To run the bias debiasing specified in the original paper, run:
+
+    >>> from wefe.datasets import fetch_debiaswe
+    >>> from wefe.debias.hard_debias import HardDebias
+    >>> from wefe.utils import load_test_model
+    >>>
+    >>> model = load_test_model()  # load a reduced version of word2vec
+    >>> model
+    >>>
+    >>> # load the definitional and equalize pairs. Also, the gender specific words
+    >>> # that should be ignored in the debias process.
+    >>> debiaswe_wordsets = fetch_debiaswe()
+    >>>
+    >>> definitional_pairs = debiaswe_wordsets["definitional_pairs"]
+    >>> equalize_pairs = debiaswe_wordsets["equalize_pairs"]
+    >>> gender_specific = debiaswe_wordsets["gender_specific"]
+    >>>
+    >>> # instance the debias object that will perform the mitigation
+    >>> hd = HardDebias(verbose=False, criterion_name="gender")
+    >>>
+    >>> # fits the transformation parameters (bias direction, etc...)
+    >>> hd.fit(
+    ...     model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
+    >>> )
+    >>>
+    >>> # run the transformation (debiasing) on the embedding model
+    >>  # note that words specified in ignore will not be mitigated (see exception
+    >>  # to this in the transform documentation).
+    >>> gender_debiased_model = hd.transform(model, ignore=gender_specific, copy=True)
+
+    If you only want to run debias on a limited set of words, you can use the target
+    parameter when running transform.
+
+
+    >>> targets = [
+    ...     "executive",
+    ...     "management",
+    ...     "professional",
+    ...     "corporation",
+    ...     "salary",
+    ...     "office",
+    ...     "business",
+    ...     "career",
+    ...     "home",
+    ...     "parents",
+    ...     "children",
+    ...     "family",
+    ...     "cousins",
+    ...     "marriage",
+    ...     "wedding",
+    ...     "relatives",
+    ... ]
+    >>>
+    >>> hd = HardDebias(verbose=False, criterion_name="gender").fit(
+    ...     model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
+    >>> )
+    >>>
+    >>> gender_debiased_model = hd.transform(model, target=targets, copy=True)
+
 
     References
     ----------

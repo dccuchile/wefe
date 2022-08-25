@@ -88,3 +88,5 @@ conda_deploy/
 
 *.csv
 *.xls
+
+doc/user_guide/gender_debiased_glove.kv

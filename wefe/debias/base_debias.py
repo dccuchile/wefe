@@ -2,30 +2,20 @@
 from abc import abstractmethod
 from typing import List, Optional, Union
 
-from sklearn.base import BaseEstimator, TransformerMixin
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-class BaseDebias(BaseEstimator, TransformerMixin):
+class BaseDebias:
     """Mixin class for implement any debias method in WEFE."""
 
     @abstractmethod
-    def fit(
-        self,
-        model: WordEmbeddingModel,
-        debias_criterion_name: Optional[str] = None,
-        **fit_params,
-    ) -> "BaseDebias":
+    def fit(self, model: WordEmbeddingModel, **fit_params,) -> "BaseDebias":
         """Fit the transformation.
 
         Parameters
         ----------
         model : WordEmbeddingModel
             The word embedding model to debias.
-        debias_criterion_name : Optional[str], optional
-            The name of the criterion for which the debias is being executed,
-            e.g. 'Gender'. This will indicate the name of the model returning transform,
-            by default None
         verbose: bool, optional
             True will print informative messages about the debiasing process,
             by default False.

@@ -543,15 +543,11 @@ def calculate_ranking_correlations(
         DataFrame that contains the calculated rankings.
 
     method : {'pearson', 'kendall', 'spearman'} or callable
-        Method of correlation:
-        * pearson : standard correlation coefficient
-        * kendall : Kendall Tau correlation coefficient
-        * spearman : Spearman rank correlation
-        * callable: callable with input two 1d ndarrays
-            and returning a float. Note that the returned matrix from corr
-            will have 1 along the diagonals and will be symmetric
-            regardless of the callable's behavior.
-            .. version
+        Correlation type:
+        - pearson : standard correlation coefficient
+        - kendall : Kendall Tau correlation coefficient
+        - spearman : Spearman rank correlation
+        - callable: callable with input two 1d ndarrays and returning a float.
 
     Returns
     -------

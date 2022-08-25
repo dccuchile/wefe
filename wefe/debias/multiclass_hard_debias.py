@@ -22,6 +22,39 @@ class MulticlassHardDebias(BaseDebias):
     For example, for the case of religion bias, it supports a debias using words
     associated with Christianity, Islam and Judaism.
 
+    Examples
+    --------
+    .. note::
+
+        For more information on the use of mitigation methods, visit
+        :ref:`bias mitigation` in the User Guide.
+
+    The following example shows how to run an ethnicity debias based on Black, 
+    Asian and Caucasian groups.
+
+    >>> from wefe.datasets import fetch_debias_multiclass
+    >>> from wefe.debias.multiclass_hard_debias import MulticlassHardDebias
+    >>>
+    >>> multiclass_debias_wordsets = fetch_debias_multiclass()
+    >>> weat_wordsets = load_weat()
+    >>> weat = WEAT()
+    >>>
+    >>> ethnicity_definitional_sets = (
+    ...     multiclass_debias_wordsets["ethnicity_definitional_sets"]
+    ... )
+    >>> ethnicity_equalize_sets = list(
+    ...     multiclass_debias_wordsets["ethnicity_analogy_templates"].values()
+    >>> )
+    >>>
+    >>> mhd = MulticlassHardDebias(verbose=False, criterion_name="ethnicity")
+    >>> mhd.fit(
+    ...     model=model,
+    ...     definitional_sets=ethnicity_definitional_sets,
+    ...     equalize_sets=ethnicity_equalize_sets,
+    ... )
+    >>>
+    >>> ethnicity_debiased_model = mhd.transform(model, copy=True)
+
     References
     ----------
     | [1]: Manzini, T., Chong, L. Y., Black, A. W., & Tsvetkov, Y. (2019, June).

@@ -119,7 +119,7 @@ Standard usage pattern of WEFE
 
 The following flow chart shows how to perform a bias measurement using a gender
 query, word2vec embeddings and the WEAT metric.
-
+   
 .. image:: ../images/diagram_1.png
   :alt: Bias measurement diagram.
 

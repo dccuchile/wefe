@@ -86,7 +86,6 @@ class HardDebias(BaseDebias):
     >>> from wefe.utils import load_test_model
     >>>
     >>> model = load_test_model()  # load a reduced version of word2vec
-    >>> model
     >>>
     >>> # load the definitional and equalize pairs. Also, the gender specific words
     >>> # that should be ignored in the debias process.
@@ -102,16 +101,15 @@ class HardDebias(BaseDebias):
     >>> # fits the transformation parameters (bias direction, etc...)
     >>> hd.fit(
     ...     model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
-    >>> )
+    ... )
     >>>
-    >>> # run the transformation (debiasing) on the embedding model
+    >>> # perform the transformation (debiasing) on the embedding model
     >>  # note that words specified in ignore will not be mitigated (see exception
     >>  # to this in the transform documentation).
     >>> gender_debiased_model = hd.transform(model, ignore=gender_specific, copy=True)
 
     If you only want to run debias on a limited set of words, you can use the target
     parameter when running transform.
-
 
     >>> targets = [
     ...     "executive",

@@ -32,27 +32,33 @@ class MulticlassHardDebias(BaseDebias):
     The following example shows how to run an ethnicity debias based on Black, 
     Asian and Caucasian groups.
 
-    >>> from wefe.datasets import fetch_debias_multiclass
+    >>> from wefe.datasets import fetch_debias_multiclass, load_weat
     >>> from wefe.debias.multiclass_hard_debias import MulticlassHardDebias
+    >>> from wefe.utils import load_test_model
     >>>
+    >>> model = load_test_model()  # load a reduced version of word2vec
+    >>>
+    >>> # obtain the sets of words that will be used in the debias process.
     >>> multiclass_debias_wordsets = fetch_debias_multiclass()
     >>> weat_wordsets = load_weat()
-    >>> weat = WEAT()
     >>>
     >>> ethnicity_definitional_sets = (
     ...     multiclass_debias_wordsets["ethnicity_definitional_sets"]
     ... )
     >>> ethnicity_equalize_sets = list(
     ...     multiclass_debias_wordsets["ethnicity_analogy_templates"].values()
-    >>> )
+    ... )
     >>>
+    >>> # instance the debias object that will perform the mitigation
     >>> mhd = MulticlassHardDebias(verbose=False, criterion_name="ethnicity")
+    >>> # fits the transformation parameters (bias direction, etc...)
     >>> mhd.fit(
     ...     model=model,
     ...     definitional_sets=ethnicity_definitional_sets,
     ...     equalize_sets=ethnicity_equalize_sets,
     ... )
     >>>
+    >>> # perform the transformation (debiasing) on the embedding model
     >>> ethnicity_debiased_model = mhd.transform(model, copy=True)
 
     References

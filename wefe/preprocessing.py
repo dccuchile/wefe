@@ -3,7 +3,8 @@ import logging
 from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from sklearn.feature_extraction.text import strip_accents_ascii, strip_accents_unicode
+from sklearn.feature_extraction.text import (strip_accents_ascii,
+                                             strip_accents_unicode)
 
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
@@ -285,7 +286,7 @@ def _check_lost_vocabulary_threshold(
     return False
 
 
-def get_embeddings_from_sets(
+def get_embeddings_from_tuples(
     model: WordEmbeddingModel,
     sets: Sequence[Sequence[str]],
     sets_name: Union[str, None] = None,

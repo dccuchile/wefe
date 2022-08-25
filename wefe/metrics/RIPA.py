@@ -9,7 +9,9 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class RIPA(BaseMetric):
-    """An implementation of the Relational Inner Product Association Test, proposed by [1][2].
+    """Relational Inner Product Association Test (RIPA).
+
+    This metric was originally proposed in [1][2].
 
     RIPA is most interpretable with a single pair of target words, although
     this function returns the values for every attribute averaged across all base pairs.
@@ -19,18 +21,31 @@ class RIPA(BaseMetric):
     function.
 
     This metric follows the following steps:
-    
-    1. The input is the word vectors for a pair of target word sets, and an attribute set.
-       Example: Target Set A (Masculine), Target Set B (Feminine), Attribute Set
-       (Career).
+
+    1. The input is the word vectors for a pair of target word sets, and an
+       attribute set. Example: Target Set A (Masculine), Target Set B (Feminine),
+       Attribute Set (Career).
     2. Calculate the difference between the word vector of a pair of target set words.
     3. Calculate the dot product between this difference and the attribute word vector.
     4. Return the average RIPA score across all attribute words, and the average RIPA
        score for each target pair for an attribute set.
 
+    .. note::
+
+        RIPA is most interpretable with a single pair of target words, although
+        this function returns the values for every attribute averaged across all
+        base pairs.
+
+    .. note::
+
+        Note 2: As the variance tends to be high depending on the base pair chosen,
+        it is recommended that only a single pair of target words is used as input
+        to the function.
+
     References
     ----------
-    | [1]: Ethayarajh, K., & Duvenaud, D., & Hirst, G. (2019, July). Understanding Undesirable Word Embedding Associations.
+    | [1]: Ethayarajh, K., & Duvenaud, D., & Hirst, G. (2019, July).
+           Understanding Undesirable Word Embedding Associations.
     | [2]: https://kawine.github.io/assets/acl2019_bias_slides.pdf
     | [3]: https://kawine.github.io/blog/nlp/2019/09/23/bias.html
 
@@ -207,7 +222,7 @@ class RIPA(BaseMetric):
         >>> from wefe.metrics import RIPA
         >>> from wefe.query import Query
         >>> from wefe.utils import load_test_model
-        >>> 
+        >>>
         >>> # define the query
         ... query = Query(
         ...     target_sets=[
@@ -227,7 +242,7 @@ class RIPA(BaseMetric):
         >>>
         >>> # load the model (in this case, the test model included in wefe)
         >>> model = load_test_model()
-        >>> 
+        >>>
         >>> # instance the metric and run the query
         >>> RIPA().run_query(query, model) # doctest: +SKIP
         {

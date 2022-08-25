@@ -110,7 +110,7 @@ To run the test, execute::
 
 To check the coverage, run::
 
-    py.test wefe --cov-report xml:cov.xml --cov wefe
+    pytest tests --cov-report xml:cov.xml --cov wefe
 
 And then::
 
@@ -132,6 +132,14 @@ To compile the documentation, run:
 
 Changelog
 =========
+
+NEW DEVELOP VERSION
+-------------------
+- Fixed wrong repr of query. Now the sets are in the correct order.
+- Greatly improved library testing mechanisms.
+- Improved project documentation. Now, the documentation is divided into user guide and
+  theoretical framework. In addition, the user guides are fully executable because they
+  are now on notebooks.
 
 Version 0.3.2
 -------------
@@ -231,6 +239,11 @@ Contributors
 
 We thank all our contributors who have allowed WEFE to grow, especially 
 `stolenpyjak <https://github.com/stolenpyjak/>`_ and 
-`mspl13 <https://github.com/mspl13/>`_ for implementing new metrics.
+`mspl13 <https://github.com/mspl13/>`_ for implementing new metrics for static 
+embedding measurement.
+We also thank `alan-cueva <https://github.com/alan-cueva>`_ for his contribution to
+the implementation of metrics in contextual models.
+Thanks are also due to `harshvr15 <https://github.com/harshvr15>`_ for implementing
+several examples, thus facilitating the use of WEFE for newcomers.
 
 Thank you very much 😊!

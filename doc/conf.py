@@ -15,7 +15,6 @@
 import os
 import sys
 
-import sphinx_gallery
 import sphinx_rtd_theme
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -42,7 +41,9 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
+    "myst_nb",
 ]
+
 
 mathjax_path = ""
 
@@ -76,8 +77,23 @@ templates_path = ["_templates"]
 autosummary_generate = True
 
 # The suffix of source filenames.
-source_suffix = ".rst"
+# source_suffix = ".rst"
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".ipynb": "myst-nb",
+    ".myst": "myst-nb",
+}
 
+myst_enable_extensions = [
+    "amsmath",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "html_image",
+]
+myst_url_schemes = ("http", "https", "mailto")
+nb_execution_mode = "cache"
+nb_execution_timeout = 120
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
 
@@ -136,7 +152,8 @@ exclude_patterns = ["_build", "_templates"]
 pygments_style = "sphinx"
 
 # Custom style
-html_style = "css/project-template.css"
+# html_style = "css/project-template.css"
+
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -149,14 +166,13 @@ html_style = "css/project-template.css"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_theme = "sphinx_rtd_theme"
-
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 # html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+# html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -247,7 +263,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ("index", "WEFE.tex", u"WEFE Documentation", u"Pablo Badilla", "manual"),
+    ("index", "WEFE.tex", "WEFE Documentation", "WEFE Team", "manual"),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -274,7 +290,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "WEFE", u"WEFE Documentation", [u"The WEFE Team"], 1)]
+man_pages = [("index", "WEFE", "WEFE Documentation", ["The WEFE Team"], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False
@@ -288,8 +304,8 @@ texinfo_documents = [
     (
         "index",
         "WEFE",
-        u"WEFE Documentation",
-        u"The WEFE Team",
+        "WEFE Documentation",
+        "The WEFE Team",
         "WEFE",
         "Word Embedding Fairness Evaluation (WEFE) is an open source library for\
           measuring and mitigating bias in word embedding models.",
@@ -313,10 +329,10 @@ texinfo_documents = [
 # intersphinx configuration
 intersphinx_mapping = {
     "python": ("https://docs.python.org/{.major}".format(sys.version_info), None),
-    "numpy": ("https://docs.scipy.org/doc/numpy/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
-    "matplotlib": ("https://matplotlib.org/", None),
-    "sklearn": ("http://scikit-learn.org/stable", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    "matplotlib": ("https://matplotlib.org/stable", None),
+    "sklearn": ("https://scikit-learn.org/stable/", None),
 }
 
 # sphinx-gallery configuration
@@ -326,8 +342,11 @@ sphinx_gallery_conf = {
     "reference_url": {"wefe": None},
 }
 
+html_js_files = [
+    "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"
+]
+
 
 def setup(app):
     # a copy button to copy snippet of code from the documentation
     app.add_js_file("js/copybutton.js")
-

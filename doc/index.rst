@@ -14,31 +14,48 @@ the detailed API documentation and extensive examples.
    :maxdepth: 2
    :caption: Getting Started
    
-   about  
-   quick_start
+   getting_started/about.rst
+   getting_started/quick_start.rst
 
 .. toctree::
    :maxdepth: 2
-   :caption: Documentation
+   :caption: User Guide
 
+   user_guide/measurement.ipynb
+   user_guide/mitigation.ipynb
+   user_guide/loading_embeddings.rst
    
-   user_guide_measurement
-   user_guide_mitigation
-   loading_embeddings
-   contribute
-   api
+.. toctree::
+   :maxdepth: 2
+   :caption: API
+   
+   api/api.rst
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Conceptual Guides
+
+   conceptual_guides/measurement_framework.rst
+   conceptual_guides/mitigation_framework.rst
+   conceptual_guides/references.rst
 
 .. toctree::
    :maxdepth: 2
    :caption: Examples
 
-   wefe_case_study
-   replications
+   examples/wefe_case_study.rst
+   examples/replications.rst
+   examples/multilingual.rst
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contributing
+
+   user_guide/contribute.rst
+
 
 Repository
 ==========
 
 You can find the project repository at the following link:
 `WEFE repository on Github <https://github.com/dccuchile/wefe/>`_.
-
-

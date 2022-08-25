@@ -11,6 +11,7 @@ doc/_build/
 doc/auto_examples/
 doc/modules/generated/
 doc/datasets/generated/
+doc/api/generated/
 
 # Distribution / packaging
 
@@ -87,3 +88,5 @@ conda_deploy/
 
 *.csv
 *.xls
+
+doc/user_guide/gender_debiased_glove.kv

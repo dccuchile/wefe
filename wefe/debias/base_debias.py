@@ -1,31 +1,21 @@
 """Contains a base class for implement any debias method in WEFE."""
-from typing import List, Optional
 from abc import abstractmethod
+from typing import List, Optional, Union
 
-from sklearn.base import BaseEstimator
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-class BaseDebias(BaseEstimator):
+class BaseDebias:
     """Mixin class for implement any debias method in WEFE."""
 
     @abstractmethod
-    def fit(
-        self,
-        model: WordEmbeddingModel,
-        debias_criterion_name: Optional[str] = None,
-        **fit_params,
-    ) -> "BaseDebias":
+    def fit(self, model: WordEmbeddingModel, **fit_params,) -> "BaseDebias":
         """Fit the transformation.
 
         Parameters
         ----------
         model : WordEmbeddingModel
             The word embedding model to debias.
-        debias_criterion_name : Optional[str], optional
-            The name of the criterion for which the debias is being executed,
-            e.g. 'Gender'. This will indicate the name of the model returning transform,
-            by default None
         verbose: bool, optional
             True will print informative messages about the debiasing process,
             by default False.
@@ -156,3 +146,40 @@ class BaseDebias(BaseEstimator):
         # check copy
         if not isinstance(copy, bool):
             raise TypeError(f"copy should be a bool, got {copy}.")
+
+    def _check_sets_sizes(
+        self, sets: List[List[str]], set_name: str, set_size: Union[int, str],
+    ):
+
+        if len(sets) == 0:
+            raise ValueError("")
+
+        # case fixed set_size.
+        if isinstance(set_size, int):
+
+            for idx, set_ in enumerate(sets):
+                if len(set_) != set_size:
+                    adverb = "less" if len(set_) < set_size else "more"
+
+                    raise ValueError(
+                        f"The {set_name} set at position {idx} ({set_}) has {adverb} "
+                        f"words than allowed by {self.name}: "
+                        f"got {len(set_)} words, expected {set_size}."
+                    )
+
+        # case free set_size.
+        elif set_size == "n":
+            inferred_set_size = len(sets[0])
+
+            for idx, set_ in enumerate(sets):
+                if len(set_) != inferred_set_size:
+                    adverb = "less" if len(set_) < inferred_set_size else "more"
+
+                    raise ValueError(
+                        f"The {set_name} set at position {idx} ({set_}) has {adverb} "
+                        f"words than the other {set_name} sets: "
+                        f"got {len(set_)} words, expected {inferred_set_size}."
+                    )
+
+        else:
+            raise ValueError('Wrong set_size value {set_size}. Expected int or "n"')

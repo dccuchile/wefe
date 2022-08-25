@@ -1,13 +1,13 @@
-"""Manzini et al. Multiclass Hard Debias WEFE implementation."""
+"""Multiclass Hard Debias WEFE implementation."""
 import logging
 from copy import deepcopy
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from sklearn.decomposition import PCA
 from tqdm import tqdm
 from wefe.debias.base_debias import BaseDebias
-from wefe.preprocessing import get_embeddings_from_sets
+from wefe.preprocessing import get_embeddings_from_tuples
 from wefe.utils import check_is_fitted
 from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
@@ -21,6 +21,45 @@ class MulticlassHardDebias(BaseDebias):
     support more than two types of social target sets within the definitional set.
     For example, for the case of religion bias, it supports a debias using words
     associated with Christianity, Islam and Judaism.
+
+    Examples
+    --------
+    .. note::
+
+        For more information on the use of mitigation methods, visit
+        :ref:`bias mitigation` in the User Guide.
+
+    The following example shows how to run an ethnicity debias based on Black, 
+    Asian and Caucasian groups.
+
+    >>> from wefe.datasets import fetch_debias_multiclass, load_weat
+    >>> from wefe.debias.multiclass_hard_debias import MulticlassHardDebias
+    >>> from wefe.utils import load_test_model
+    >>>
+    >>> model = load_test_model()  # load a reduced version of word2vec
+    >>>
+    >>> # obtain the sets of words that will be used in the debias process.
+    >>> multiclass_debias_wordsets = fetch_debias_multiclass()
+    >>> weat_wordsets = load_weat()
+    >>>
+    >>> ethnicity_definitional_sets = (
+    ...     multiclass_debias_wordsets["ethnicity_definitional_sets"]
+    ... )
+    >>> ethnicity_equalize_sets = list(
+    ...     multiclass_debias_wordsets["ethnicity_analogy_templates"].values()
+    ... )
+    >>>
+    >>> # instance the debias object that will perform the mitigation
+    >>> mhd = MulticlassHardDebias(verbose=False, criterion_name="ethnicity")
+    >>> # fits the transformation parameters (bias direction, etc...)
+    >>> mhd.fit(
+    ...     model=model,
+    ...     definitional_sets=ethnicity_definitional_sets,
+    ...     equalize_sets=ethnicity_equalize_sets,
+    ... )
+    >>>
+    >>> # perform the transformation (debiasing) on the embedding model
+    >>> ethnicity_debiased_model = mhd.transform(model, copy=True)
 
     References
     ----------
@@ -111,7 +150,7 @@ class MulticlassHardDebias(BaseDebias):
         return v_b
 
     def _get_target(
-        self, model: WordEmbeddingModel, target: Optional[Sequence[str]] = None,
+        self, model: WordEmbeddingModel, target: Optional[List[str]] = None,
     ) -> List[str]:
 
         definitional_words = np.array(self.definitional_sets_).flatten().tolist()
@@ -148,6 +187,11 @@ class MulticlassHardDebias(BaseDebias):
         else:
             ignore_ = set()
 
+        # filtering the defitional sets in order to ignore these words in the
+        # neutralization.
+        definitional_words = set(np.array(self.definitional_sets_).flatten().tolist())
+        target_ = target_.difference(definitional_words)
+
         for word in tqdm(target_):
             if word not in ignore_:
                 # get the embedding
@@ -165,10 +209,10 @@ class MulticlassHardDebias(BaseDebias):
         equalize_sets_embeddings: List[EmbeddingDict],
         bias_subspace: np.ndarray,
     ):
-        for equalize_pair_embeddings in equalize_sets_embeddings:
+        for equalize_tuple_embeddings in equalize_sets_embeddings:
 
-            words = equalize_pair_embeddings.keys()
-            embeddings = np.array(list(equalize_pair_embeddings.values()))
+            words = equalize_tuple_embeddings.keys()
+            embeddings = np.array(list(equalize_tuple_embeddings.values()))
 
             # calculate the mean of the equality set
             mean = np.mean(embeddings, axis=0)
@@ -186,8 +230,8 @@ class MulticlassHardDebias(BaseDebias):
     def fit(
         self,
         model: WordEmbeddingModel,
-        definitional_sets: Sequence[Sequence[str]],
-        equalize_sets: Sequence[Sequence[str]],
+        definitional_sets: List[List[str]],
+        equalize_sets: List[List[str]],
     ) -> BaseDebias:
         """Compute the bias direction and obtains the equalize embedding pairs.
 
@@ -195,11 +239,14 @@ class MulticlassHardDebias(BaseDebias):
         ----------
         model : WordEmbeddingModel
             The word embedding model to debias.
-        definitional_sets : Sequence[Sequence[str]]
+        definitional_sets : List[List[str]]
             A sequence of string pairs that will be used to define the bias direction.
             For example, for the case of gender debias, this list could be [['woman',
             'man'], ['girl', 'boy'], ['she', 'he'], ['mother', 'father'], ...].
-        equalize_pairs : Optional[Sequence[Sequence[str]]], optional
+            Multiclass hard debias also accepts lists of sets of more than two words,
+            such as religion where sets of words representing Christianity, Islam and
+            Judaism can be used. See the example for more information.
+        equalize_pairs : Optional[List[List[str]]], optional
             A list with pairs of strings, which will be equalized.
             In the case of passing None, the equalization will be done over the word
             pairs passed in definitional_sets,
@@ -212,11 +259,12 @@ class MulticlassHardDebias(BaseDebias):
         """
         # ------------------------------------------------------------------------------:
         # Obtain the embedding of the definitional sets.
+        self._check_sets_sizes(definitional_sets, set_name="definitional", set_size="n")
 
         if self.verbose:
             print("Obtaining definitional sets.")
         self.definitional_sets_ = definitional_sets
-        self.definitional_sets_embeddings_ = get_embeddings_from_sets(
+        self.definitional_sets_embeddings_ = get_embeddings_from_tuples(
             model=model,
             sets=definitional_sets,
             sets_name="definitional",
@@ -239,7 +287,7 @@ class MulticlassHardDebias(BaseDebias):
         # Note that the equalization sets are the same as the definitional sets.
         if self.verbose:
             print("Obtaining equalize pairs.")
-        self.equalize_sets_embeddings_ = get_embeddings_from_sets(
+        self.equalize_sets_embeddings_ = get_embeddings_from_tuples(
             model=model,
             sets=equalize_sets,
             sets_name="equalize",
@@ -266,11 +314,16 @@ class MulticlassHardDebias(BaseDebias):
             If a set of words is specified in target, the debias method will be performed
             only on the word embeddings of this set. If `None` is provided, the
             debias will be performed on all words (except those specified in ignore).
+            Note that some words that are not in target may be modified due to the
+            equalization process.
             by default `None`.
         ignore : Optional[List[str]], optional
             If target is `None` and a set of words is specified in ignore, the debias
             method will perform the debias in all words except those specified in this
-            set, by default `None`.
+            set.
+            Note that some words that are in ignore may be modified due to the
+            equalization process.
+            by default `None`.
         copy : bool, optional
             If `True`, the debias will be performed on a copy of the model.
             If `False`, the debias will be applied on the same model delivered, causing
@@ -278,7 +331,7 @@ class MulticlassHardDebias(BaseDebias):
             **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
             of the model, otherwise the execution of the debias may raise to
             `MemoryError`, by default True.
-            
+
         Returns
         -------
         WordEmbeddingModel
@@ -329,7 +382,6 @@ class MulticlassHardDebias(BaseDebias):
             print("Neutralizing embeddings")
 
         # get the words that will be debiased.
-        target = self._get_target(model, target)
         self._neutralize(
             model=model,
             bias_subspace=self.bias_subspace_,

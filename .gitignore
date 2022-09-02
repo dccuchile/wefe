@@ -7,11 +7,11 @@ __pycache__/
 *.so
 
 # scikit-learn specific
-doc/_build/
-doc/auto_examples/
-doc/modules/generated/
-doc/datasets/generated/
-doc/api/generated/
+docs/_build/
+docs/auto_examples/
+docs/modules/generated/
+docs/datasets/generated/
+docs/api/generated/
 
 # Distribution / packaging
 
@@ -61,9 +61,9 @@ coverage.xml
 # Django stuff:
 *.log
 
-# Sphinx documentation
-doc/_build/
-doc/generated/
+# Sphinx docsumentation
+docs/_build/
+docs/generated/
 
 # PyBuilder
 target/
@@ -79,7 +79,7 @@ target/
 
 .mypy_cache
 
-./doc/results/
+./docs/results/
 
 develop.ipynb
 
@@ -89,4 +89,4 @@ conda_deploy/
 *.csv
 *.xls
 
-doc/user_guide/gender_debiased_glove.kv
+docs/user_guide/gender_debiased_glove.kv

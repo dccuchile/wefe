@@ -1,11 +1,11 @@
-pytest
+pytest>=7.0.0
 pytest-cov
 coverage
-flake8
+flake8>=5.0.4
 black
 mypy
 sphinx
 sphinx-gallery
 sphinx-rtd-theme
 numpydoc
-torch
+myst_nb

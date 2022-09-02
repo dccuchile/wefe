@@ -133,13 +133,19 @@ To compile the documentation, run:
 Changelog
 =========
 
-NEW DEVELOP VERSION
+Version 0.4.0
 -------------------
+- 3 new bias mitigation methods (debias) implemented: Double Hard Debias, Half
+  Sibling Regression and Repulsion Attraction Neutralization.
+- The library documentation of the library has been restructured. 
+  Now, the documentation is divided into user guide and theoretical framework
+  The user guide does not contain theoretical information. 
+  Instead, theoretical documentation can be found in the conceptual guides. 
+- The user guides are fully executable because they are now on notebooks.
+- There was also an important improvement in the API documentation and in metrics and
+  debias examples.
+- Improved library testing mechanisms for metrics and debias methods.
 - Fixed wrong repr of query. Now the sets are in the correct order.
-- Greatly improved library testing mechanisms.
-- Improved project documentation. Now, the documentation is divided into user guide and
-  theoretical framework. In addition, the user guides are fully executable because they
-  are now on notebooks.
 
 Version 0.3.2
 -------------

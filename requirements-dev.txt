@@ -9,3 +9,4 @@ sphinx-gallery
 sphinx-rtd-theme
 numpydoc
 myst_nb
+pydocstyle

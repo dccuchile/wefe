@@ -14,8 +14,12 @@ class ECT(BaseMetric):
     """Embedding Coherence Test (ECT).
 
     The metric was originally proposed in [1] and implemented in [2].
-    Values closer to 1 are better as they represent less bias.
+    It calculates the average target group vectors, measures the cosine similarity of
+    each to a list of attribute words and calculates the correlation of the resulting
+    similarity lists.
     
+    Values closer to 1 are better as they represent less bias.
+
     The general steps of the test, as defined in [1], are as follows:
 
     1. Embed all given target and attribute words with the given embedding model.
@@ -27,12 +31,13 @@ class ECT(BaseMetric):
     5. Return the correlation value as score of the metric (in the range of -1 to 1);
        higher is better.
 
+    Values closer to 1 are better as they represent less bias.
 
     References
     ----------
+
     | [1]: Dev, S., & Phillips, J. (2019, April). Attenuating Bias in Word vectors.
     | [2]: https://github.com/sunipa/Attenuating-Bias-in-Word-Vec
-
     """
 
     # The metrics accepts two target sets and a single attribute set

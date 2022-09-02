@@ -543,15 +543,11 @@ def calculate_ranking_correlations(
         DataFrame that contains the calculated rankings.
 
     method : {'pearson', 'kendall', 'spearman'} or callable
-        Method of correlation:
-        * pearson : standard correlation coefficient
-        * kendall : Kendall Tau correlation coefficient
-        * spearman : Spearman rank correlation
-        * callable: callable with input two 1d ndarrays
-            and returning a float. Note that the returned matrix from corr
-            will have 1 along the diagonals and will be symmetric
-            regardless of the callable's behavior.
-            .. version
+        Correlation type:
+        - pearson : standard correlation coefficient
+        - kendall : Kendall Tau correlation coefficient
+        - spearman : Spearman rank correlation
+        - callable: callable with input two 1d ndarrays and returning a float.
 
     Returns
     -------
@@ -613,3 +609,19 @@ def print_doc_table(df):
 
 def save_doc_image(fig, name):
     fig.write_image(f"./doc/images/{name}.png", width=1200, height=600, scale=3)
+
+
+from gensim.models.keyedvectors import KeyedVectors
+
+
+def flair_to_gensim(flair_embedding):
+    # load model from flair
+
+    # hack to transform pytorch embedding to gensim's KeyedVectors
+    keyed_vectors = KeyedVectors(vector_size=flair_embedding.embedding_length)
+    keyed_vectors.add_vectors(
+        keys=list(flair_embedding.vocab.keys()),
+        weights=flair_embedding.embedding.weight.numpy()[:-1, :],
+    )
+
+    return keyed_vectors

@@ -17,7 +17,7 @@ WordEmbeddingModel
    wefe.word_embedding_model.WordEmbeddingModel
 
 Query
-==================
+=====
 
 .. autosummary::
    :toctree: generated/
@@ -26,6 +26,7 @@ Query
    wefe.query.Query
 
 
+.. _metrics-API:
 
 Metrics
 =======
@@ -44,11 +45,12 @@ This list contains the metrics implemented in WEFE.
    wefe.metrics.ECT
    wefe.metrics.RIPA
 
+.. _debias-API:
 
 Debias
 ======
 
-This list contains the mitigation (debiasing) methods implemented so far in WEFE.
+This list contains the debiasing methods implemented so far in WEFE.
 
 .. autosummary::
    :toctree: generated/
@@ -60,6 +62,7 @@ This list contains the mitigation (debiasing) methods implemented so far in WEFE
    wefe.debias.DoubleHardDebias
    wefe.debias.HalfSiblingRegression
 
+.. _datasets-API:
 
 Datasets
 ===========
@@ -91,6 +94,25 @@ The documentation of the functions in this section are intended as a guide for W
 
    wefe.preprocessing.preprocess_word
    wefe.preprocessing.get_embeddings_from_set
-   wefe.preprocessing.get_embeddings_from_sets
+   wefe.preprocessing.get_embeddings_from_tuples
    wefe.preprocessing.get_embeddings_from_query
 
+
+Utils
+=====
+
+Collection of assorted utils. 
+
+.. autosummary::
+   :toctree: generated/
+   :template: function.rst
+
+   wefe.utils.load_test_model
+   wefe.utils.generate_subqueries_from_queries_list
+   wefe.utils.run_queries
+   wefe.utils.plot_queries_results
+   wefe.utils.create_ranking
+   wefe.utils.plot_ranking
+   wefe.utils.calculate_ranking_correlations
+   wefe.utils.plot_ranking_correlations
+   wefe.utils.flair_to_gensim

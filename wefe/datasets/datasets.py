@@ -266,7 +266,7 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
     format (to be used in debiasing methods).
     The dictionary keys whose names contain definitional sets and analogies
     templates are the keys that point to the original format focused on debiasing.
-    
+
     References
     ----------
     | [1]: Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.

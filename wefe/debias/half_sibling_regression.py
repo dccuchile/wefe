@@ -123,7 +123,9 @@ class HalfSiblingRegression(BaseDebias):
     short_name = "HSR"
 
     def __init__(
-        self, verbose: bool = False, criterion_name: Optional[str] = None,
+        self,
+        verbose: bool = False,
+        criterion_name: Optional[str] = None,
     ) -> None:
         """Initialize a Half Sibling Regression Debias instance.
 
@@ -284,7 +286,8 @@ class HalfSiblingRegression(BaseDebias):
         """
         # check if the following attributes exist in the object.
         check_is_fitted(
-            self, ["bias_definitional_words", "non_bias", "alpha", "non_bias_dict"],
+            self,
+            ["bias_definitional_words", "non_bias", "alpha", "non_bias_dict"],
         )
 
         if self.verbose:

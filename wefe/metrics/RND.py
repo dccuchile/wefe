@@ -3,6 +3,7 @@ from typing import Any, Callable, Dict, List, Tuple, Union
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -12,8 +13,22 @@ from wefe.word_embedding_model import WordEmbeddingModel
 class RND(BaseMetric):
     """Relative Norm Distance (RND).
 
-    It measures the relative strength of association of a set of neutral words
-    with respect to two groups.
+    Originally proposed in "Word embeddings quantify 100 years of gender and ethnic
+    stereotypes" [1], calculates the score by:
+
+    1. Average the embeddings of each target set.
+    2. Then, for each attribute embedding, calculate the distance between the
+       attribute embedding and the average of the target 1 and the distance between the
+       embedding and target 2; and subtracts them.
+    3. Finally, it computes the average of the differences of the distances and
+       returns it.
+
+    The available distances are the the difference of the normalized vectors
+    ('norm') and the cosine distance ('cos').
+
+
+    The more positive (negative) the relative distance from the norm,
+    the more associated are the sets of attributes towards group two (one).
 
     References
     ----------
@@ -28,7 +43,10 @@ class RND(BaseMetric):
     metric_short_name = "RND"
 
     def __calc_distance(
-        self, vec1: np.ndarray, vec2: np.ndarray, distance_type: str = "norm",
+        self,
+        vec1: np.ndarray,
+        vec2: np.ndarray,
+        distance_type: str = "norm",
     ) -> float:
         if distance_type == "norm":
             return np.linalg.norm(np.subtract(vec1, vec2))
@@ -62,9 +80,13 @@ class RND(BaseMetric):
 
             # calculate the distance
             current_distance = self.__calc_distance(
-                attribute_embedding, target_1_avg_vector, distance_type=distance_type,
+                attribute_embedding,
+                target_1_avg_vector,
+                distance_type=distance_type,
             ) - self.__calc_distance(
-                attribute_embedding, target_2_avg_vector, distance_type=distance_type,
+                attribute_embedding,
+                target_2_avg_vector,
+                distance_type=distance_type,
             )
 
             # add the distance of the neutral word to the accumulated
@@ -221,8 +243,7 @@ class RND(BaseMetric):
                                'family': 0.023389697,
                                'home': 0.04009247,
                                'cousins': 0.044702888}}
-        
-        
+
         If you want to use cosine distance instead of euclidean norm
         use the distance parameter as 'cos' before executing the query.
 

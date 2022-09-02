@@ -1,15 +1,17 @@
 ===============================
-Replication of Previous Studies
+Previous Studies Replication
 ===============================
 
 All replications of other studies that WEFE has currently implemented are in the Examples folder. 
 
 Below we list some examples:
 
-WEAT Replication
-================
+Semantics derived automatically from language corpora contain human-like biases (WEAT)
+======================================================================================
 
-The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/WEAT_experiments.ipynb>`__ reproduces the experiments performed in the following paper:
+The following 
+`notebook <https://github.com/dccuchile/wefe/blob/master/examples/WEAT_experiments.ipynb>`__ 
+reproduces the experiments performed in the following paper:
 
     Semantics derived automatically from language corpora contain human-like biases.
     Aylin Caliskan, Joanna J. Bryson, Arvind Narayanan
@@ -22,10 +24,12 @@ The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/
   the original paper. However, our results are still very similar to those 
   in the original paper.
 
-RNSB Replication
-================
+A transparent framework for evaluating unintended demographic bias in word embeddings (RNSB)
+============================================================================================
 
-The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/RNSB_experiments.ipynb>`__ replicates the experiments carried out in the following paper:
+The following 
+`notebook <https://github.com/dccuchile/wefe/blob/master/examples/RNSB_experiments.ipynb>`__ 
+replicates the experiments carried out in the following paper:
 
     Chris Sweeney and Maryam Najafian.
     A transparent framework for evaluating unintended demographic bias in word embeddings.
@@ -82,7 +86,7 @@ The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/
 >>> glove_fig.update_yaxes(range=[0, 0.2])
 >>> glove_fig.show()
 
-.. image:: images/glove_rnsb.png
+.. image:: ../images/glove_rnsb.png
   :alt: Glove RNSB sentiment distribution
 
 >>> # Show the results obtained with conceptnet
@@ -96,7 +100,7 @@ The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/
 
 
 
-.. image:: images/conceptnet_rnsb.png
+.. image:: ../images/conceptnet_rnsb.png
   :alt: Conceptnet RNSB sentiment distribution
 
 
@@ -115,7 +119,7 @@ The following `notebook <https://github.com/dccuchile/wefe/blob/master/examples/
 >>> fair_distribution_fig.show()
 
 
-.. image:: images/fair_rnsb.png
+.. image:: ../images/fair_rnsb.png
   :alt: Fair RNSB sentiment distribution
 
 .. note::  

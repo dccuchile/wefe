@@ -21,7 +21,7 @@ except ModuleNotFoundError:
 
 
 class RAN_Loss(nn.Module):
-    """Represents the loss for repulsion attraction neutralization."""
+    """Loss for Repulsion Attraction Neutralization method."""
 
     def __init__(
         self,
@@ -41,8 +41,8 @@ class RAN_Loss(nn.Module):
             repulsion_set: List[np.ndarray]
                 Set of embeddings to be repeled from word
             bias_direction: np.array
-        """
 
+        """
         super(RAN_Loss, self).__init__()
         self.w = w
         self.w_b = nn.Parameter(w_b)
@@ -84,7 +84,7 @@ class RAN_Loss(nn.Module):
 
 
 class RAN(nn.Module):
-    """NN that performs the optimization by gradient descent of the objective function."""
+    """NN that performs the optimization by gradient descent of the loss function."""
 
     def __init__(
         self,
@@ -142,7 +142,7 @@ class RAN(nn.Module):
 
 
 class RepulsionAttractionNeutralization(BaseDebias):
-    r"""Repulsion Attraction Neutralization method.
+    """Repulsion Attraction Neutralization method.
 
     .. warning::
 
@@ -150,59 +150,68 @@ class RepulsionAttractionNeutralization(BaseDebias):
         installed, check
         `<https://pytorch.org/get-started/locally/>`_ for further information.
 
-    This method allow reducing the bias of an embedding model creating a
-    transformation such that the stereotypical information is
-    minimized with minimal semantic offset. This transformation bases
-    its operations on:
+    This method allow reducing the bias of an embedding model creating a transformation
+    such that the stereotypical information is minimized with minimal semantic offset.
+    This transformation bases its operations on:
 
-    1. Repelling embeddings from neighbours with a high value of indirect
-    bias (indicating a strong association due to bias), to minimize the
-    bias based illicit associations.
-    2. Attracting debiased embeddings to the original representation, to
-    minimize the loss of semantic meaning
-    3. Neutralizing the bias direction of each word, minimizing its
-    bias to any particular group.
+    1. Repelling embeddings from neighbours with a high value of indirect bias
+       (indicating a strong association due to bias), to minimize the
+       bias based illicit associations.
+    2. Attracting debiased embeddings to the original representation, to minimize the
+       loss of semantic meaning.
+    3. Neutralizing the bias direction of each word, minimizing its bias to any
+       particular group.
 
     This method is binary because it only allows 2 classes of the same bias
-    criterion,such as male or female.
-    For a multiclass debias (such as for Latinos, Asians and Whites), it
-    is recommended to visit MulticlassHardDebias class.
+    criterion, such as male or female.
+
+    .. note::
+
+        For a multiclass debias (such as for Latinos, Asians and Whites), it is
+        recommended to visit
+        :class:`~wefe.debias.multiclass_hard_debias.MulticlassHardDebias` class.
 
     The steps followed to perform the debias are:
 
     1. Identify a bias subspace through the defining sets. In the case of
-    gender, these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
+       gender, these could be e.g. ``[['woman', 'man'], ['she', 'he'], ...]``
 
     2. A multi-objective optimization is performed. For each vector :math:`w`  in the
-    target set it is found its debias counterpart :math:`w_d`  by solving:
+       target set it is found its debias counterpart :math:`w_d`  by solving:
 
     .. math::
+
         argmin(F_r(w_d),F_a(w_d),F_n(w_d))
 
-    where Fr, Fa, Fn are repulsion, attraction and neutralization functions
-    defined as the following:
+    where :math:`Fr`, :math:`Fa`, :math:`Fn` are repulsion, attraction and
+    neutralization functions defined as the following:
 
     .. math::
-        F_r(w_d) =  \sum |cos(w_d,n_i)| / |S|
+
+        F_r(w_d) =  \\sum |cos(w_d,n_i)| / |S|
 
     .. math::
+
         F_a(w_d) = |cos(w_d,w)-1|/2
 
     .. math::
+
         F_n(w_d) = |cos(w_d,g)|
 
     The optimization is performed by formulating a single objective:
 
     .. math::
-        F(w_d) =  \lambda_1 F_r(w_d) + \lambda_2 F_a(w_d) + \lambda_3 F_n(w_d)
 
-    In the original implementation is define a preserve set :math:`(V_p)`  corresponding
+        F(w_d) =  \\lambda_1 F_r(w_d) + \\lambda_2 F_a(w_d) + \\lambda_3 F_n(w_d)
+
+    In the original implementation is define a preserve set :math:`(V_p)` corresponding
     to words for which gender carries semantic importance, this words are not
-    included in the debias process. In WEFE this words would be the ones
-    included in the ignore parameter of the transform method. The words
-    that are not present in :math:`V_p` are the ones to be included in the debias
-    process and form part of the debias set :math:`(V_d)`, in WEFE this words can
-    be specified in the target parameter of the transform method.
+    included in the debias process.
+
+    In WEFE this words would be the ones included in the ignore parameter of the
+    transform method. The words that are not present in :math:`V_p` are the ones to be
+    included in the debias process and form part of the debias set :math:`(V_d)`,
+    in WEFE this words can be specified in the target parameter of the transform method.
 
     Examples
     --------
@@ -242,9 +251,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
     References
     ----------
     | [1]: Kumar, Vaibhav, Tenzin Singhay Bhotia y Tanmoy Chakraborty: Nurse
-        is Closer to Woman than Surgeon? Mitigating Gender-Biased Proximities
-        in Word Embeddings. CoRR,abs/2006.01938, 2020.
-        https://arxiv.org/abs/2006.01938
+      is Closer to Woman than Surgeon? Mitigating Gender-Biased Proximities
+      in Word Embeddings. CoRR,abs/2006.01938, 2020.
+    | https://arxiv.org/abs/2006.01938
     | [2]: https://github.com/TimeTraveller-San/RAN-Debias
     """
 
@@ -279,7 +288,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             transform, by default None
         epochs : int, optional
             number of times that the minimization is done. By default 300
-         theta: float, optional
+        theta: float, optional
             Indirect bias threshold to select neighbours for the repulsion set.
             By default 0.05
         n_neighbours: int, optional
@@ -323,7 +332,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
         self.learning_rate = learning_rate
 
     def _identify_bias_subspace(
-        self, defining_pairs_embeddings: List[EmbeddingDict], verbose: bool = False,
+        self,
+        defining_pairs_embeddings: List[EmbeddingDict],
+        verbose: bool = False,
     ) -> PCA:
 
         matrix = []
@@ -348,7 +359,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
         return pca
 
     def _check_sets_size(
-        self, sets: Sequence[Sequence[str]], set_name: str,
+        self,
+        sets: Sequence[Sequence[str]],
+        set_name: str,
     ):
 
         for idx, set_ in enumerate(sets):
@@ -434,7 +447,15 @@ class RepulsionAttractionNeutralization(BaseDebias):
         weights: List[float],
     ) -> torch.Tensor:
 
-        ran = RAN(model, word, w_b, w, repulsion_set, bias_direction, weights,)
+        ran = RAN(
+            model,
+            word,
+            w_b,
+            w,
+            repulsion_set,
+            bias_direction,
+            weights,
+        )
         optimizer = torch.optim.Adam(ran.parameters(), lr=learning_rate)
         for epoch in range(epochs):
             optimizer.zero_grad()
@@ -449,7 +470,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
         return torch.FloatTensor(np.array(v))
 
     def fit(
-        self, model: WordEmbeddingModel, definitional_pairs: Sequence[Sequence[str]],
+        self,
+        model: WordEmbeddingModel,
+        definitional_pairs: Sequence[Sequence[str]],
     ) -> BaseDebias:
         """Compute the bias direction.
 
@@ -492,7 +515,8 @@ class RepulsionAttractionNeutralization(BaseDebias):
             print("Identifying the bias subspace.")
 
         self.pca_ = self._identify_bias_subspace(
-            self.definitional_pairs_embeddings_, self.verbose,
+            self.definitional_pairs_embeddings_,
+            self.verbose,
         )
         self.bias_direction_ = self.pca_.components_[0]
         return self

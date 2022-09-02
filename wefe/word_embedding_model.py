@@ -1,5 +1,5 @@
 """A Word Embedding contanier based on gensim BaseKeyedVectors."""
-from typing import Callable, Dict, Sequence, Union
+from typing import Dict, Sequence, Union
 
 import gensim
 import numpy as np

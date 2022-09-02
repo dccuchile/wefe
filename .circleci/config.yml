@@ -1,5 +1,4 @@
-version: 2.1
-
+version: '2.1'
 orbs:
   python: circleci/python@0.2.1
 
@@ -14,7 +13,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            pip install -r requirements-dev.txt
+            pip install pytest
             mkdir test-results
             pytest wefe --junitxml=test-results/junit.xml
 
@@ -27,4 +26,12 @@ jobs:
 workflows:
   main:
     jobs:
-      - test
+      - python/test:
+          pkg-manager: pip
+          test-tool: pytest
+          test-tool-args: tests
+          version: '3.7'
+          setup: 
+            - python/install-packages:
+                pip-dependency-file: requirements-dev.txt
+                pkg-manager: pip

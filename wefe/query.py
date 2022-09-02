@@ -323,4 +323,3 @@ class Query:
             )
 
         return target + " wrt " + attribute
-

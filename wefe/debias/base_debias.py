@@ -2,18 +2,16 @@
 from abc import abstractmethod
 from typing import List, Optional, Union
 
-from sklearn.base import BaseEstimator, TransformerMixin
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-class BaseDebias(BaseEstimator, TransformerMixin):
+class BaseDebias:
     """Mixin class for implement any debias method in WEFE."""
 
     @abstractmethod
     def fit(
         self,
         model: WordEmbeddingModel,
-        debias_criterion_name: Optional[str] = None,
         **fit_params,
     ) -> "BaseDebias":
         """Fit the transformation.
@@ -22,10 +20,6 @@ class BaseDebias(BaseEstimator, TransformerMixin):
         ----------
         model : WordEmbeddingModel
             The word embedding model to debias.
-        debias_criterion_name : Optional[str], optional
-            The name of the criterion for which the debias is being executed,
-            e.g. 'Gender'. This will indicate the name of the model returning transform,
-            by default None
         verbose: bool, optional
             True will print informative messages about the debiasing process,
             by default False.
@@ -158,7 +152,10 @@ class BaseDebias(BaseEstimator, TransformerMixin):
             raise TypeError(f"copy should be a bool, got {copy}.")
 
     def _check_sets_sizes(
-        self, sets: List[List[str]], set_name: str, set_size: Union[int, str],
+        self,
+        sets: List[List[str]],
+        set_name: str,
+        set_size: Union[int, str],
     ):
 
         if len(sets) == 0:

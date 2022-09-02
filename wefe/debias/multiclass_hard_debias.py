@@ -22,6 +22,45 @@ class MulticlassHardDebias(BaseDebias):
     For example, for the case of religion bias, it supports a debias using words
     associated with Christianity, Islam and Judaism.
 
+    Examples
+    --------
+    .. note::
+
+        For more information on the use of mitigation methods, visit
+        :ref:`bias mitigation` in the User Guide.
+
+    The following example shows how to run an ethnicity debias based on Black,
+    Asian and Caucasian groups.
+
+    >>> from wefe.datasets import fetch_debias_multiclass, load_weat
+    >>> from wefe.debias.multiclass_hard_debias import MulticlassHardDebias
+    >>> from wefe.utils import load_test_model
+    >>>
+    >>> model = load_test_model()  # load a reduced version of word2vec
+    >>>
+    >>> # obtain the sets of words that will be used in the debias process.
+    >>> multiclass_debias_wordsets = fetch_debias_multiclass()
+    >>> weat_wordsets = load_weat()
+    >>>
+    >>> ethnicity_definitional_sets = (
+    ...     multiclass_debias_wordsets["ethnicity_definitional_sets"]
+    ... )
+    >>> ethnicity_equalize_sets = list(
+    ...     multiclass_debias_wordsets["ethnicity_analogy_templates"].values()
+    ... )
+    >>>
+    >>> # instance the debias object that will perform the mitigation
+    >>> mhd = MulticlassHardDebias(verbose=False, criterion_name="ethnicity")
+    >>> # fits the transformation parameters (bias direction, etc...)
+    >>> mhd.fit(
+    ...     model=model,
+    ...     definitional_sets=ethnicity_definitional_sets,
+    ...     equalize_sets=ethnicity_equalize_sets,
+    ... )
+    >>>
+    >>> # perform the transformation (debiasing) on the embedding model
+    >>> ethnicity_debiased_model = mhd.transform(model, copy=True)
+
     References
     ----------
     | [1]: Manzini, T., Chong, L. Y., Black, A. W., & Tsvetkov, Y. (2019, June).
@@ -77,7 +116,8 @@ class MulticlassHardDebias(BaseDebias):
             )
 
     def _identify_bias_subspace(
-        self, definning_sets_embeddings: List[EmbeddingDict],
+        self,
+        definning_sets_embeddings: List[EmbeddingDict],
     ) -> PCA:
 
         matrix = []
@@ -217,7 +257,9 @@ class MulticlassHardDebias(BaseDebias):
         # Identify the bias subspace using the definning sets.
         if self.verbose:
             print("Identifying the bias subspace.")
-        self.pca_ = self._identify_bias_subspace(self.definitional_sets_embeddings_,)
+        self.pca_ = self._identify_bias_subspace(
+            self.definitional_sets_embeddings_,
+        )
         self.bias_subspace_ = self.pca_.components_[: self.pca_num_components_]
 
         # ------------------------------------------------------------------------------
@@ -254,11 +296,16 @@ class MulticlassHardDebias(BaseDebias):
             If a set of words is specified in target, the debias method will be performed
             only on the word embeddings of this set. If `None` is provided, the
             debias will be performed on all words (except those specified in ignore).
+            Note that some words that are not in target may be modified due to the
+            equalization process.
             by default `None`.
         ignore : Optional[List[str]], optional
             If target is `None` and a set of words is specified in ignore, the debias
             method will perform the debias in all words except those specified in this
-            set, by default `None`.
+            set.
+            Note that some words that are in ignore may be modified due to the
+            equalization process.
+            by default `None`.
         copy : bool, optional
             If `True`, the debias will be performed on a copy of the model.
             If `False`, the debias will be applied on the same model delivered, causing
@@ -266,14 +313,17 @@ class MulticlassHardDebias(BaseDebias):
             **WARNING:** Setting copy with `True` requires RAM at least 2x of the size
             of the model, otherwise the execution of the debias may raise to
             `MemoryError`, by default True.
-            
+
         Returns
         -------
         WordEmbeddingModel
             The debiased embedding model.
         """
         self._check_transform_args(
-            model=model, target=target, ignore=ignore, copy=copy,
+            model=model,
+            target=target,
+            ignore=ignore,
+            copy=copy,
         )
 
         check_is_fitted(

@@ -17,47 +17,125 @@ logger = logging.getLogger(__name__)
 class HardDebias(BaseDebias):
     """Hard Debias debiasing method.
 
-    This method allow reducing the bias of an embedding model through geometric
-    operations between embeddings.
+    Hard debias is a method that allows mitigating biases through geometric operations
+    on embeddings.
+
     This method is binary because it only allows 2 classes of the same bias criterion,
     such as male or female.
-    For a multiclass debias (such as for Latinos, Asians and Whites), it is recommended
-    to visit MulticlassHardDebias class.
+
+    .. note::
+
+        For a multiclass debias (such as for Latinos, Asians and Whites), it is
+        recommended to visit
+        :class:`~wefe.debias.multiclass_hard_debias.MulticlassHardDebias` class.
 
     The main idea of this method is:
 
-    1. **Identify a bias subspace through the defining sets.** In the case of gender,
-    these could be e.g. `{'woman', 'man'}, {'she', 'he'}, ...`
+    1. Identify a bias subspace through the defining sets. In the case of gender,
+    these could be e.g. ``[['woman', 'man'], ['she', 'he'], ...]``
 
-    2. **Neutralize the bias subspace of embeddings that should not be biased.**
+    2. Neutralize the bias subspace of embeddings that should not be biased.
     First, it is defined a set of words that are correct to be related to the bias
     criterion: the *criterion specific gender words*.
     For example, in the case of gender, *gender specific* words are:
-    `{'he', 'his', 'He', 'her', 'she', 'him', 'him', 'She', 'man', 'women', 'men'...}`.
+    ``['he', 'his', 'He', 'her', 'she', 'him', 'him', 'She', 'man', 'women', 'men'...]``.
 
     Then, it is defined that all words outside this set should have no relation to the
     bias criterion and thus have the possibility of being biased. (e.g. for the case of
-    gender: `{doctor, nurse, ...}`). Therefore, this set of words is neutralized with
-    respect to the bias subspace found in the previous step.
+    genthe bias direction, such that neither is closer to the bias direction
+    than the other: ``['doctor', 'nurse', ...]``). Therefore, this set of words is
+    neutralized with respect to the bias subspace found in the previous step.
 
     The neutralization is carried out under the following operation:
 
-    - u : embedding
-    - v : bias direction
+    - :math:`u` : embedding
+    - :math:`v` : bias direction
 
     First calculate the projection of the embedding on the bias subspace.
-    - bias_subspace = v • (v • u) / (v • v)
+
+    .. math::
+
+       \\text{bias_subspace} = \\frac{v \\cdot (v \\cdot u)}{(v \\cdot v)}
 
     Then subtract the projection from the embedding.
-    - u' = u - bias_subspace
 
-    3. **Equalizate the embeddings with respect to the bias direction.**.
-    Given an equalization set (set of word pairs such as [she, he], [men, women], ...,
-    but not limited to the definitional set) this step executes, for each pair,
-    an equalization with respect to the bias direction.
+    .. math::
+
+        u' = u - \\text{bias_subspace}
+
+    3. Equalizate the embeddings with respect to the bias direction.
+    Given an equalization set (set of word pairs such as ``['she', 'he'],
+    ['men', 'women'], ...``, but not limited to the definitional set) this step
+    executes, for each pair, an equalization with respect to the bias direction.
     That is, it takes both embeddings of the pair and distributes them at the same
-    distance from the bias direction, such that neither is closer to the bias direction
+    distance from the bias direction, so that neither is closer to the bias direction
     than the other.
+
+    Examples
+    --------
+
+    .. note::
+
+        For more information on the use of mitigation methods, visit
+        :ref:`bias mitigation` in the User Guide.
+
+    To run the bias debiasing specified in the original paper, run:
+
+    >>> from wefe.datasets import fetch_debiaswe
+    >>> from wefe.debias.hard_debias import HardDebias
+    >>> from wefe.utils import load_test_model
+    >>>
+    >>> model = load_test_model()  # load a reduced version of word2vec
+    >>>
+    >>> # load the definitional and equalize pairs. Also, the gender specific words
+    >>> # that should be ignored in the debias process.
+    >>> debiaswe_wordsets = fetch_debiaswe()
+    >>>
+    >>> definitional_pairs = debiaswe_wordsets["definitional_pairs"]
+    >>> equalize_pairs = debiaswe_wordsets["equalize_pairs"]
+    >>> gender_specific = debiaswe_wordsets["gender_specific"]
+    >>>
+    >>> # instance the debias object that will perform the mitigation
+    >>> hd = HardDebias(verbose=False, criterion_name="gender")
+    >>>
+    >>> # fits the transformation parameters (bias direction, etc...)
+    >>> hd.fit(
+    ...     model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
+    ... )
+    >>>
+    >>> # perform the transformation (debiasing) on the embedding model
+    >>  # note that words specified in ignore will not be mitigated (see exception
+    >>  # to this in the transform documentation).
+    >>> gender_debiased_model = hd.transform(model, ignore=gender_specific, copy=True)
+
+    If you only want to run debias on a limited set of words, you can use the target
+    parameter when running transform.
+
+    >>> targets = [
+    ...     "executive",
+    ...     "management",
+    ...     "professional",
+    ...     "corporation",
+    ...     "salary",
+    ...     "office",
+    ...     "business",
+    ...     "career",
+    ...     "home",
+    ...     "parents",
+    ...     "children",
+    ...     "family",
+    ...     "cousins",
+    ...     "marriage",
+    ...     "wedding",
+    ...     "relatives",
+    ... ]
+    >>>
+    >>> hd = HardDebias(verbose=False, criterion_name="gender").fit(
+    ...     model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
+    >>> )
+    >>>
+    >>> gender_debiased_model = hd.transform(model, target=targets, copy=True)
+
 
     References
     ----------
@@ -104,7 +182,9 @@ class HardDebias(BaseDebias):
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
     def _identify_bias_subspace(
-        self, definning_pairs_embeddings: List[EmbeddingDict], verbose: bool = False,
+        self,
+        definning_pairs_embeddings: List[EmbeddingDict],
+        verbose: bool = False,
     ) -> PCA:
 
         matrix = []
@@ -193,7 +273,10 @@ class HardDebias(BaseDebias):
             ):
                 (
                     (word_a, embedding_a),
-                    (word_b, embedding_b,),
+                    (
+                        word_b,
+                        embedding_b,
+                    ),
                 ) = equalize_pair_embeddings.items()
 
                 y = self._drop((embedding_a + embedding_b) / 2, bias_direction)
@@ -261,7 +344,8 @@ class HardDebias(BaseDebias):
             print("Identifying the bias subspace.")
 
         self.pca_ = self._identify_bias_subspace(
-            self.definitional_pairs_embeddings_, self.verbose,
+            self.definitional_pairs_embeddings_,
+            self.verbose,
         )
         self.bias_direction_ = self.pca_.components_[0]
 
@@ -322,11 +406,15 @@ class HardDebias(BaseDebias):
             If a set of words is specified in target, the debias method will be performed
             only on the word embeddings of this set. If `None` is provided, the
             debias will be performed on all words (except those specified in ignore).
+            Note that some words that are not in target may be modified due to the
+            equalization process.
             By default `None`.
         ignore : Optional[List[str]], optional
             If target is `None` and a set of words is specified in ignore, the debias
             method will perform the debias in all words except those specified in this
             set.
+            Note that some words that are in ignore may be modified due to the
+            equalization process.
             By default `None`.
         copy : bool, optional
             If `True`, the debias will be performed on a copy of the model.
@@ -345,7 +433,10 @@ class HardDebias(BaseDebias):
         # Check types and if the method is fitted
 
         self._check_transform_args(
-            model=model, target=target, ignore=ignore, copy=copy,
+            model=model,
+            target=target,
+            ignore=ignore,
+            copy=copy,
         )
 
         # check if the following attributes exist in the object.
@@ -405,7 +496,9 @@ class HardDebias(BaseDebias):
             print("Equalizing embeddings.")
 
         self._equalize(
-            model, self.equalize_pairs_embeddings_, self.bias_direction_,
+            model,
+            self.equalize_pairs_embeddings_,
+            self.bias_direction_,
         )
 
         if self.verbose:

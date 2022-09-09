@@ -19,6 +19,7 @@
     color: rgba(0, 0, 0, 0.87);
     font-size: 12px;
     table-layout: fixed;
+    margin-bottom: 24px;
 }
 
 .dataframe thead {

@@ -1,9 +1,11 @@
+.. _mitigation framework:
+
 Mitigation Framework
 ====================
 
 .. note::
    If you want to see tutorials on how to mitigate (debias) bias in word embedding 
-   models, visit :ref:`bias mitigation` in the User Guide.
+   models, visit :ref:`Bias Mitigation <bias mitigation>` in the User Guide.
 
 
 WEFE standardizes all mitigation methods through an interface inherited from 

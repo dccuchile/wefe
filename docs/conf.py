@@ -196,7 +196,9 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
 # html_context = {
-#     "css_files": ["_static/theme_overrides.css",],  # override wide tables in RTD theme
+#     "css_files": [
+#         "_static/css/theme_overrides.css",  # overrides for wide tables in RTD theme
+#     ],
 # }
 
 # Add any extra paths that contain custom files (such as robots.txt or
@@ -350,3 +352,4 @@ html_js_files = [
 def setup(app):
     # a copy button to copy snippet of code from the documentation
     app.add_js_file("js/copybutton.js")
+    app.add_css_file("css/theme_overrides.css")

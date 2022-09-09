@@ -3,10 +3,13 @@ pytest-cov
 coverage
 flake8>=5.0.4
 black
+isort
 mypy
+pydocstyle
+jupyterlab
 sphinx
 sphinx-gallery
 sphinx-rtd-theme
 numpydoc
-myst_nb
-pydocstyle
+pandoc
+jupyterlab-code-formatter

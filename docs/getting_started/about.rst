@@ -2,24 +2,41 @@
 About
 =====
 
-*Word Embedding Fairness Evaluation* (WEFE) is an open source library for 
-measuring an mitigating bias in word embedding models. 
-It generalizes many existing fairness metrics into a unified framework and 
-provides a standard interface for:
+*Word Embedding Fairness Evaluation* (WEFE) is an open source library that implements 
+many fairness metrics and mitigation methods (debias) in a unified framework. 
+It also provides a standard interface for designing new ones. 
 
-- Encapsulating existing fairness metrics from previous work and designing
-  new ones.
+The main goal of the library is to provide a ready-to-use tool that allows the 
+user to run bias measures and mitigation methods in a straightforward manner 
+through well-designed and documented interfaces.
+
+In bias measurement, WEFE provides a standard interface for:
+
+- Encapsulating existing fairness metrics.
 - Encapsulating the test words used by fairness metrics into standard
   objects called queries.
 - Computing a fairness metric on a given pre-trained word embedding model 
   using user-given queries.
 
-WEFE also standardizes the process of mitigating bias through an interface similar 
-to the ``scikit-learn`` ``fit-transform``.
-This standardization separates the mitigation process into two stages:
 
-- The logic of calculating the transformation to be performed on the model (``fit``).
-- The execution of the mitigation transformation on the model (``transform``).
+On the other hand, WEFE standardizes all mitigation methods through an interface 
+inherited from `scikit-learn <https://scikit-learn.org/>`_ basic data transformations: 
+the ``fit-transform`` interface. This standardization separates the mitigation 
+process into two stages:
+
+- The first step, ``fit``, learn the corresponding mitigation transformation.
+- The ``transform`` method applies the transformation learned in the previous step
+  to words residing in the original embedding space. 
+
+.. note::
+
+  To learn more about the measurement or mitigation framework, visit
+  :ref:`measurement framework` or
+  :ref:`mitigation framework` respectively, in the Conceptual Guides Section.
+
+  For practical tutorials on how to measure or mitigate bias, visit 
+  :ref:`bias measurement` or :ref:`bias mitigation` respectively 
+  in the WEFE User Guide.
 
 Motivation and objectives
 =========================
@@ -104,12 +121,12 @@ Roadmap
 
 We expect in the future to:
 
+- Implement measurement framework for contextualized embedding models.
 - Implement new queries on different criteria.
 - Create a single script that evaluates different embedding models under different bias criteria. 
 - From the previous script, rank as many embeddings available on the web as possible.
-- Implement a visualization module.
+- Implement a simple visualization module.
 - Implement p-values mixin that applies for all metrics that accept two targets.
-
 License
 =======
 
@@ -148,6 +165,7 @@ You are also welcome to do a pull request or publish an issue in the
 
 Acknowledgments
 ===============
+
 This work was funded by the 
 `Millennium Institute for Foundational Research on Data (IMFD) <https://imfd.cl/en/>`_.
 It is also sponsored by `National Center of Artificial Intelligence of Chile (CENIA) <https://cenia.cl/en/>`_.

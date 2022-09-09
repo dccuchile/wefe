@@ -56,11 +56,11 @@ This list contains the debiasing methods implemented so far in WEFE.
    :toctree: generated/
    :template: class.rst
 
-   wefe.debias.HardDebias
-   wefe.debias.MulticlassHardDebias
-   wefe.debias.RepulsionAttractionNeutralization
-   wefe.debias.DoubleHardDebias
-   wefe.debias.HalfSiblingRegression
+   wefe.debias.hard_debias.HardDebias
+   wefe.debias.multiclass_hard_debias.MulticlassHardDebias
+   wefe.debias.repulsion_attraction_neutralization.RepulsionAttractionNeutralization
+   wefe.debias.double_hard_debias.DoubleHardDebias
+   wefe.debias.half_sibling_regression.HalfSiblingRegression
 
 .. _datasets-API:
 

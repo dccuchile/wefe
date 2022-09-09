@@ -21,8 +21,8 @@ the detailed API documentation and extensive examples.
    :maxdepth: 2
    :caption: User Guide
 
-   user_guide/measurement.ipynb
-   user_guide/mitigation.ipynb
+   user_guide/measurement_user_guide.rst
+   user_guide/mitigation_user_guide.rst
    user_guide/loading_embeddings.rst
    
 .. toctree::

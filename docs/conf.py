@@ -79,8 +79,6 @@ autosummary_generate = True
 # source_suffix = ".rst"
 source_suffix = {
     ".rst": "restructuredtext",
-    ".ipynb": "myst-nb",
-    ".myst": "myst-nb",
 }
 
 myst_enable_extensions = [

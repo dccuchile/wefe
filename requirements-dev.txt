@@ -7,9 +7,10 @@ isort
 mypy
 pydocstyle
 jupyterlab
-sphinx
+Sphinx==5.1.1
+importlib-metadata==4.12.0
 sphinx-gallery
-sphinx-rtd-theme
+sphinx-rtd-theme==1.0.0
 numpydoc
 pandoc
 jupyterlab-code-formatter

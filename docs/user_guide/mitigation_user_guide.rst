@@ -68,13 +68,13 @@ First calculate the projection of the embedding on the bias subspace.
 
 .. math::
 
-    \text{bias_subspace} = \frac{v \cdot (v \cdot u)}{(v \cdot v)}
+    \text{bias subspace} = \frac{v \cdot (v \cdot u)}{(v \cdot v)}
 
 Then subtract the projection from the embedding.
 
 .. math::
 
-    u' = u - \text{bias_subspace}
+    u' = u - \text{bias subspace}
 
 3. Equalizate the embeddings with respect to the bias direction.
 

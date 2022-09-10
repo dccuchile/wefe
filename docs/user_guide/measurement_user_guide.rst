@@ -71,36 +71,6 @@ twitter dataset loaded using `gensim-data <https://github.com/RaRe-Technologies/
 
 .. code:: ipython3
 
-    import plotly.io as pio
-    png_renderer = pio.renderers["png"]
-    png_renderer.scale = 2
-    
-    pio.renderers.default = "png"
-
-
-.. code:: ipython3
-
-    pio.renderers
-
-
-
-
-.. parsed-literal::
-
-    Renderers configuration
-    -----------------------
-        Default renderer: 'png'
-        Available renderers:
-            ['plotly_mimetype', 'jupyterlab', 'nteract', 'vscode',
-             'notebook', 'notebook_connected', 'kaggle', 'azure', 'colab',
-             'cocalc', 'databricks', 'json', 'png', 'jpeg', 'jpg', 'svg',
-             'pdf', 'browser', 'firefox', 'chrome', 'chromium', 'iframe',
-             'iframe_connected', 'sphinx_gallery', 'sphinx_gallery_png']
-
-
-
-.. code:: ipython3
-
     import gensim.downloader as api
     
     from wefe.datasets import load_weat

@@ -1,6 +1,6 @@
 """Repulsion Attraction Neutralization WEFE implementation."""
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
 from sklearn.decomposition import PCA
@@ -239,7 +239,8 @@ class RepulsionAttractionNeutralization(BaseDebias):
     >>> debiased_model = ran.transform(
     ...    model = model, target = ['doctor','nurse','programmer']
     ... )
-    Copy argument is True. Transform will attempt to create a copyof the original model. This may fail due to lack of memory.
+    Copy argument is True. Transform will attempt to create a copyof the original model.
+    This may fail due to lack of memory.
     Model copy created successfully.
     >>> # if you don't want a set of words to be debiased include them in the ignore set
     >>> gender_specific = debiaswe_wordsets["gender_specific"]

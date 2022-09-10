@@ -1,3 +1,4 @@
+# flake8: noqa
 from wefe.metrics.ECT import ECT
 from wefe.metrics.MAC import MAC
 from wefe.metrics.RIPA import RIPA

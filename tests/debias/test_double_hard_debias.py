@@ -14,21 +14,25 @@ def test_double_hard_debias_checks(
 ):
 
     with pytest.raises(
-        TypeError, match=r"verbose should be a bool, got .*",
+        TypeError,
+        match=r"verbose should be a bool, got .*",
     ):
         DoubleHardDebias(verbose=1)
 
     with pytest.raises(
-        TypeError, match=r"n_words should be int, got: .*",
+        TypeError,
+        match=r"n_words should be int, got: .*",
     ):
         DoubleHardDebias(n_words=2.3)
 
     with pytest.raises(
-        TypeError, match=r"n_components should be int, got: .*",
+        TypeError,
+        match=r"n_components should be int, got: .*",
     ):
         DoubleHardDebias(n_components=2.3)
     with pytest.raises(
-        TypeError, match=r"incremental_pca should be a bool, got .*",
+        TypeError,
+        match=r"incremental_pca should be a bool, got .*",
     ):
         DoubleHardDebias(incremental_pca=1)
 
@@ -56,7 +60,8 @@ def test_double_hard_debias_checks(
             model, definitional_pairs + [["word1"]], bias_representation=["he", "she"]
         )
     with pytest.raises(
-        Exception, match=r"bias_representation words not in model",
+        Exception,
+        match=r"bias_representation words not in model",
     ):
         DoubleHardDebias().fit(
             model,
@@ -75,7 +80,9 @@ def test_double_hard_debias(
 
     weat = WEAT()
 
-    dhd = DoubleHardDebias(criterion_name="gender",)
+    dhd = DoubleHardDebias(
+        criterion_name="gender",
+    )
     dhd.fit(
         model, definitional_pairs=definitional_pairs, bias_representation=["he", "she"]
     )
@@ -108,7 +115,10 @@ def test_double_hard_debias_target_param(
 ):
     weat = WEAT()
 
-    dhd = DoubleHardDebias(verbose=True, criterion_name="gender",)
+    dhd = DoubleHardDebias(
+        verbose=True,
+        criterion_name="gender",
+    )
 
     attribute_words = weat_wordsets["career"] + weat_wordsets["family"]
     attribute_words.remove("family")
@@ -152,7 +162,10 @@ def test_multiclass_hard_debias_ignore_param(
     weat_wordsets: Dict[str, List[str]],
 ):
     weat = WEAT()
-    dhd = DoubleHardDebias(verbose=True, criterion_name="gender",)
+    dhd = DoubleHardDebias(
+        verbose=True,
+        criterion_name="gender",
+    )
 
     targets = weat_wordsets["male_names"] + weat_wordsets["female_names"]
     attributes = weat_wordsets["pleasant_5"] + weat_wordsets["unpleasant_5"]
@@ -193,7 +206,9 @@ def test_double_hard_debias_copy_param(
     biased_results_q2 = weat.run_query(gender_query_2, model, normalize=True)
 
     # Test inplace (copy = False)
-    dhd = DoubleHardDebias(criterion_name="gender",)
+    dhd = DoubleHardDebias(
+        criterion_name="gender",
+    )
     dhd.fit(
         model, definitional_pairs=definitional_pairs, bias_representation=["he", "she"]
     )
@@ -242,7 +257,9 @@ def test_multiclass_hard_debias_verbose(
     assert "Copy argument is True. Transform will attempt to create a copy" in out
     assert "Executing debias" in out
 
-    dhd = DoubleHardDebias(criterion_name="gender",)
+    dhd = DoubleHardDebias(
+        criterion_name="gender",
+    )
     dhd.fit(
         model, definitional_pairs=definitional_pairs, bias_representation=["he", "she"]
     )
@@ -251,4 +268,3 @@ def test_multiclass_hard_debias_verbose(
     assert model == gender_debiased_w2v
     assert model.wv == gender_debiased_w2v.wv
     assert model.name == gender_debiased_w2v.name
-

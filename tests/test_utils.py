@@ -8,8 +8,12 @@ from gensim.models import KeyedVectors
 from wefe.datasets import load_weat
 from wefe.metrics import RND, WEAT
 from wefe.query import Query
-from wefe.utils import (calculate_ranking_correlations, create_ranking,
-                        load_test_model, run_queries)
+from wefe.utils import (
+    calculate_ranking_correlations,
+    create_ranking,
+    load_test_model,
+    run_queries,
+)
 from wefe.word_embedding_model import WordEmbeddingModel
 
 gensim_version = semantic_version.Version.coerce(gensim.__version__)

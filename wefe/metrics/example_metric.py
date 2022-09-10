@@ -4,7 +4,6 @@ from typing import Any, Callable, Dict, List, Union
 
 import numpy as np
 from scipy.spatial import distance
-
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -33,10 +32,12 @@ class ExampleMetric(BaseMetric):
         ----------
         target_embeddings : List[EmbeddingDict]
             An array with EmbeddingDict. Each dictionary represents an target set.
-             A dict is composed with a word and its embedding as key, value respectively.
+            A dict is composed with a word and its embedding as key, value
+            respectively.
         attribute_embeddings : List[EmbeddingDict]
-            [An array with dicts. Each dictionary represents an attribute set.
-             A dict is composed with a word and its embedding as key, value respectively.
+            An array with dicts. Each dictionary represents an attribute set.
+            A dict is composed with a word and its embedding as key, value
+            respectively.
 
         Returns
         -------
@@ -86,7 +87,8 @@ class ExampleMetric(BaseMetric):
         Parameters
         ----------
         query : Query
-            A Query object that contains the target and attribute word sets to be tested.
+            A Query object that contains the target and attribute word sets to be
+            tested.
 
         model : WordEmbeddingModel
             An object containing a word embeddings model.
@@ -111,8 +113,8 @@ class ExampleMetric(BaseMetric):
             A list of these preprocessor options will allow you to search for several
             variants of the words (depending on the search strategy) into the model.
             For example `[{}, {'lowecase': True, 'strip_accents': True}]` will allow you
-            to search for each word first without any transformation and then transformed
-            to lowercase and without accents.
+            to search for each word first without any transformation and then
+            transformed to lowercase and without accents.
 
             The available word preprocessing options are as follows (it is not necessary
             to put them all):
@@ -120,9 +122,9 @@ class ExampleMetric(BaseMetric):
             - `lowercase`: `bool`. Indicates if the words are transformed to lowercase.
             - `uppercase`: `bool`. Indicates if the words are transformed to uppercase.
             - `titlecase`: `bool`. Indicates if the words are transformed to titlecase.
-            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents of
-                                the words are eliminated. The stripping type can be
-                                specified. True uses 'unicode' by default.
+            - `strip_accents`: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents
+                               of the words are eliminated. The stripping type can be
+                               specified. True uses 'unicode' by default.
             - `preprocessor`: `Callable`. It receives a function that operates on each
                             word. In the case of specifying a function, it overrides
                             the default preprocessor (i.e., the previous options

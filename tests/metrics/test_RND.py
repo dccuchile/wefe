@@ -69,7 +69,10 @@ def test_RND_lost_vocabulary_threshold(
 ):
     rnd = RND()
 
-    result = rnd.run_query(query_2t1a_lost_vocab_1, model,)
+    result = rnd.run_query(
+        query_2t1a_lost_vocab_1,
+        model,
+    )
     check_RND_result_keys(result)
 
     assert result["query_name"] == "Flowers and Insects wrt Pleasant"

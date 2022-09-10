@@ -3,8 +3,7 @@ import logging
 from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from sklearn.feature_extraction.text import (strip_accents_ascii,
-                                             strip_accents_unicode)
+from sklearn.feature_extraction.text import strip_accents_ascii, strip_accents_unicode
 
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
@@ -34,8 +33,8 @@ def preprocess_word(
 
         - ```titlecase```: bool. Indicates if the words are transformed to titlecase.
 
-        - ```strip_accents```: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents of
-          the words are eliminated. The stripping type can be
+        - ```strip_accents```: `bool`, `{'ascii', 'unicode'}`: Specifies if the
+          accents of the words are eliminated. The stripping type can be
           specified. True uses 'unicode' by default.
 
         - ```preprocessor```: Callable. It receives a function that operates on each
@@ -171,8 +170,8 @@ def get_embeddings_from_set(
 
     if not isinstance(preprocessors, list):
         raise TypeError(
-            "preprocessors should be a list of dicts which contains preprocessor options"
-            f", got {preprocessors}."
+            "preprocessors should be a list of dicts which contains preprocessor "
+            f"options, got {preprocessors}."
         )
     if len(preprocessors) == 0:
         raise TypeError(

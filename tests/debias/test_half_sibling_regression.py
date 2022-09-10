@@ -11,7 +11,8 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 def test_half_sibling_checks(model):
     with pytest.raises(
-        TypeError, match=r"verbose should be a bool, got .*",
+        TypeError,
+        match=r"verbose should be a bool, got .*",
     ):
         HalfSiblingRegression(verbose=1)
 
@@ -24,7 +25,9 @@ def test_half_sibling_regression_class(
 ):
     weat = WEAT()
 
-    hsr = HalfSiblingRegression(criterion_name="gender",)
+    hsr = HalfSiblingRegression(
+        criterion_name="gender",
+    )
     hsr.fit(model, definitional_words=gender_specific)
 
     gender_debiased_w2v = hsr.transform(model, copy=True)
@@ -55,7 +58,9 @@ def test_half_sibling_regression_target_param(
 ):
     weat = WEAT()
 
-    hsr = HalfSiblingRegression(criterion_name="gender",)
+    hsr = HalfSiblingRegression(
+        criterion_name="gender",
+    )
 
     attribute_words = weat_wordsets["career"] + weat_wordsets["family"]
     attribute_words.remove("family")
@@ -97,7 +102,10 @@ def test_half_sibling_regression_ignore_param(
 ):
     weat = WEAT()
 
-    hsr = HalfSiblingRegression(verbose=True, criterion_name="gender",)
+    hsr = HalfSiblingRegression(
+        verbose=True,
+        criterion_name="gender",
+    )
 
     targets = weat_wordsets["male_names"] + weat_wordsets["female_names"]
     attributes = weat_wordsets["pleasant_5"] + weat_wordsets["unpleasant_5"]
@@ -141,7 +149,10 @@ def test_double_hard_debias_copy_param(
     biased_results_q2 = weat.run_query(gender_query_2, model, normalize=True)
 
     # Test inplace (copy = False)
-    hsr = HalfSiblingRegression(verbose=True, criterion_name="gender",)
+    hsr = HalfSiblingRegression(
+        verbose=True,
+        criterion_name="gender",
+    )
     hsr.fit(model, definitional_words=gender_specific)
 
     gender_debiased_w2v = hsr.transform(model, ignore=gender_specific, copy=False)
@@ -163,7 +174,9 @@ def test_double_hard_debias_copy_param(
 
 
 def test_verbose(
-    model: WordEmbeddingModel, gender_specific: List[str], capsys,
+    model: WordEmbeddingModel,
+    gender_specific: List[str],
+    capsys,
 ):
 
     # -----------------------------------------------------------------
@@ -187,7 +200,9 @@ def test_verbose(
 
     # -----------------------------------------------------------------
     # Test inplace (copy = False)
-    hsr = HalfSiblingRegression(criterion_name="gender",)
+    hsr = HalfSiblingRegression(
+        criterion_name="gender",
+    )
     hsr.fit(model, definitional_words=gender_specific)
 
     gender_debiased_w2v = hsr.transform(model, copy=False)

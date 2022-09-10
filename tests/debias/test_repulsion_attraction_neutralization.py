@@ -24,7 +24,9 @@ def test_hard_debias_target_param(
     attribute_words.remove("family")
     attribute_words.remove("executive")
 
-    ran = RepulsionAttractionNeutralization(criterion_name="gender",)
+    ran = RepulsionAttractionNeutralization(
+        criterion_name="gender",
+    )
     ran.fit(model, definitional_pairs=definitional_pairs)
 
     gender_debiased_w2v = ran.transform(model, target=attribute_words, copy=True)

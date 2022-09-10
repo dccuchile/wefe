@@ -5,7 +5,6 @@ from typing import Any, Callable, Dict, List, Set, Tuple, Union
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -214,8 +213,8 @@ class WEAT(BaseMetric):
 
         if verbose:
             logging.info(
-                f"Number of runs: {runs}, Permutations that pass the test function type:"
-                f"{count_pass_function}, p-value: {p_value}"
+                f"Number of runs: {runs}, Permutations that pass the test function "
+                f"type: {count_pass_function}, p-value: {p_value}"
             )
         return p_value
 

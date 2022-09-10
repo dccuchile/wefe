@@ -10,11 +10,13 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 def test_hard_debias_param_checks(
-    model: WordEmbeddingModel, definitional_pairs: List[List[str]],
+    model: WordEmbeddingModel,
+    definitional_pairs: List[List[str]],
 ):
 
     with pytest.raises(
-        TypeError, match=r"verbose should be a bool, got .*",
+        TypeError,
+        match=r"verbose should be a bool, got .*",
     ):
         HardDebias(verbose=1)
 
@@ -26,7 +28,8 @@ def test_hard_debias_param_checks(
         ),
     ):
         HardDebias().fit(
-            model, definitional_pairs + [["word1", "word2", "word3"]],
+            model,
+            definitional_pairs + [["word1", "word2", "word3"]],
         )
 
     with pytest.raises(
@@ -37,7 +40,8 @@ def test_hard_debias_param_checks(
         ),
     ):
         HardDebias().fit(
-            model, definitional_pairs + [["word1"]],
+            model,
+            definitional_pairs + [["word1"]],
         )
 
 
@@ -56,7 +60,9 @@ def test_hard_debias_class(
     # Gender Debias
     hd = HardDebias(criterion_name="gender")
     hd.fit(
-        model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
+        model,
+        definitional_pairs=definitional_pairs,
+        equalize_pairs=equalize_pairs,
     )
 
     gender_debiased_w2v = hd.transform(model, ignore=gender_specific, copy=True)
@@ -98,7 +104,9 @@ def test_hard_debias_target_param(
     attribute_words.remove("executive")
 
     gender_debiased_w2v = hd.fit(
-        model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
+        model,
+        definitional_pairs=definitional_pairs,
+        equalize_pairs=equalize_pairs,
     ).transform(model, target=attribute_words, copy=True)
 
     # test gender query 1, debias was only applied to the target words
@@ -146,7 +154,9 @@ def test_hard_debias_ignore_param(
     ignore = targets + attributes
 
     gender_debiased_w2v = hd.fit(
-        model, definitional_pairs, equalize_pairs=equalize_pairs,
+        model,
+        definitional_pairs,
+        equalize_pairs=equalize_pairs,
     ).transform(model, ignore=ignore, copy=True)
 
     # test gender query 1,none of their words were debiased.
@@ -180,7 +190,9 @@ def test_hard_debias_verbose_param(
     # Test verbose
     hd = HardDebias(verbose=True)
     gender_debiased_w2v = hd.fit(
-        model, definitional_pairs, equalize_pairs=equalize_pairs,
+        model,
+        definitional_pairs,
+        equalize_pairs=equalize_pairs,
     ).transform(model, ignore=gender_specific, copy=True)
 
     out = capsys.readouterr().out
@@ -226,9 +238,13 @@ def test_hard_debias_copy_param(
     biased_results_q1 = weat.run_query(gender_query_1, model, normalize=True)
     biased_results_q2 = weat.run_query(gender_query_2, model, normalize=True)
 
-    hd = HardDebias(criterion_name="gender",)
+    hd = HardDebias(
+        criterion_name="gender",
+    )
     hd.fit(
-        model, definitional_pairs=definitional_pairs, equalize_pairs=equalize_pairs,
+        model,
+        definitional_pairs=definitional_pairs,
+        equalize_pairs=equalize_pairs,
     )
 
     gender_debiased_w2v = hd.transform(model, ignore=gender_specific, copy=False)

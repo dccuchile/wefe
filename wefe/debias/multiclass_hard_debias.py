@@ -293,9 +293,10 @@ class MulticlassHardDebias(BaseDebias):
         model : WordEmbeddingModel
             The word embedding model to debias.
         target : Optional[List[str]], optional
-            If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. If `None` is provided, the
-            debias will be performed on all words (except those specified in ignore).
+            If a set of words is specified in target, the debias method will be
+            performed only on the word embeddings of this set. If `None` is provided,
+            the debias will be performed on all words (except those specified in
+            ignore).
             Note that some words that are not in target may be modified due to the
             equalization process.
             by default `None`.

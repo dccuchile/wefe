@@ -9,7 +9,6 @@ from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
-
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -29,7 +28,8 @@ class RNSB(BaseMetric):
 
     For this purpose, RNSB trains a classifier that assigns a probability to each
     word of belonging to the negative class (in the original work the classifier is
-    trained using `Bing Liu's lexicon <https://wefe.readthedocs.io/en/latest/generated/dataloaders/wefe.load_bingliu.html>`_
+    trained using
+    :func:`~wefe.datasets.load_bingliu`
     of positive and negative words).
     Then, it generates a probability distribution with the probabilities calculated in
     the previous step and compares them to the uniform distribution
@@ -61,7 +61,8 @@ class RNSB(BaseMetric):
 
     3. Then, the metric construct a probability distribution :math:`P(\\cdot)` over all
        the words :math:`w` in :math:`T_1\\cup \\cdots \\cup T_n`, by computing
-       :math:`C_{(A_1,A_2)}(w)` and normalizing it to ensure that :math:`\\sum_w P(w)=1`.
+       :math:`C_{(A_1,A_2)}(w)` and normalizing it to ensure that
+       :math:`\\sum_w P(w)=1`.
 
     4. Finally RNSB is calculated as the distance between :math:`P(\\cdot)` and
        the uniform distribution :math:`Y(\\cdot)` using the KL-divergence.
@@ -157,15 +158,15 @@ class RNSB(BaseMetric):
             if num_train_positive_examples == 1:
                 raise Exception(
                     "After splitting the dataset using train_test_split "
-                    "(with test_size=0.1), the first attribute remained with 0 training "
-                    "examples."
+                    "(with test_size=0.1), the first attribute remained with 0 "
+                    "training examples."
                 )
 
             if num_train_negative_examples < 1:
                 raise Exception(
                     "After splitting the dataset using train_test_split "
-                    "(with test_size=0.1), the second attribute remained with 0 training "
-                    "examples."
+                    "(with test_size=0.1), the second attribute remained with 0 "
+                    "training examples."
                 )
 
             estimator = estimator(**estimator_params)

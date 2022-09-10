@@ -1451,7 +1451,7 @@ On the other hand, a low degree of agreement shows the opposite: the rankings do
 allow to clearly establish which embedding is less biased than another.
 
 The level of concordance of the rankings can be evaluated by calculating
-correlations.WEFE provides :class:`~wefe.utils.calculate_ranking_correlations` to
+correlations.WEFE provides :func:`~wefe.utils.calculate_ranking_correlations` to
 calculate the correlations between rankings.
 
 .. code:: ipython3

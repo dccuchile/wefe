@@ -66,7 +66,7 @@ autodoc_default_flags = ["members", "inherited-members"]
 templates_path = ["_templates"]
 
 # generate autosummary even if no references
-autosummary_generate = False
+autosummary_generate = True
 
 # The suffix of source filenames.
 # source_suffix = ".rst"

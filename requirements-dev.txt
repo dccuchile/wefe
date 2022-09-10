@@ -1,7 +1,7 @@
 pytest>=7.0.0
 pytest-cov
 coverage
-flake8==5.0.4
+# flake8==5.0.4
 black==22.6.0
 isort==5.10.1
 mypy==0.812

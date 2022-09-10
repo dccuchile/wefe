@@ -12,7 +12,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class HalfSiblingRegression(BaseDebias):
-    """Half Sibling Debias method.
+    r"""Half Sibling Debias method.
 
     This method proposes to learn spurious gender information via causal
     inference by utilizing the statistical dependency between gender-biased
@@ -39,7 +39,7 @@ class HalfSiblingRegression(BaseDebias):
 
     .. math::
 
-        W = ((V_d)^T V_d +  \\alpha I)^{-1} (V_d)^TV_n
+        W = ((V_d)^T V_d +  \alpha I)^{-1} (V_d)^TV_n
 
     2. Compute the gender information:
 

@@ -142,7 +142,7 @@ class RAN(nn.Module):
 
 
 class RepulsionAttractionNeutralization(BaseDebias):
-    """Repulsion Attraction Neutralization method.
+    r"""Repulsion Attraction Neutralization method.
 
     .. warning::
 
@@ -188,7 +188,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     .. math::
 
-        F_r(w_d) =  \\sum |cos(w_d,n_i)| / |S|
+        F_r(w_d) =  \sum |cos(w_d,n_i)| / |S|
 
     .. math::
 
@@ -202,7 +202,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     .. math::
 
-        F(w_d) =  \\lambda_1 F_r(w_d) + \\lambda_2 F_a(w_d) + \\lambda_3 F_n(w_d)
+        F(w_d) =  \lambda_1 F_r(w_d) + \lambda_2 F_a(w_d) + \lambda_3 F_n(w_d)
 
     In the original implementation is define a preserve set :math:`(V_p)` corresponding
     to words for which gender carries semantic importance, this words are not

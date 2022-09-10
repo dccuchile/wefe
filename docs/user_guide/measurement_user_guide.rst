@@ -1381,7 +1381,7 @@ Plotting the rankings
 ~~~~~~~~~~~~~~~~~~~~~
 
 It is possible to graph the rankings in barplots using the
-:ref:`~wefe.utils.plot_ranking` function. The generated figure shows the accumulated
+:func:`~wefe.utils.plot_ranking` function. The generated figure shows the accumulated
 rankings for each embedding model. Each bar represents the sum of the
 rankings obtained by each embedding. Each color within a bar represents
 a different criterion-metric ranking.

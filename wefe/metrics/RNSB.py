@@ -16,7 +16,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class RNSB(BaseMetric):
-    """Relative Relative Negative Sentiment Bias (RNSB).
+    r"""Relative Relative Negative Sentiment Bias (RNSB).
 
     The metric was originally proposed in "A transparent framework for evaluating
     unintended demographic bias in word embeddings" [1].
@@ -45,12 +45,12 @@ class RNSB(BaseMetric):
     RNSB receives as input queries with two attribute sets :math:`A_1` and
     :math:`A_2` and two or more target sets. Thus has a template (tuple of numbers that
     defines the allowed target and attribute sets in the query)
-    of the form :math:`s=(N,2)` with :math:`N\\geq 2`.
+    of the form :math:`s=(N,2)` with :math:`N\geq 2`.
 
-    Given a query :math:`Q=(\\{T_1,T_2,\\ldots,T_n\\},\\{A_1,A_2\\})` RNSB is
+    Given a query :math:`Q=(\{T_1,T_2,\ldots,T_n\},\{A_1,A_2\})` RNSB is
     calculated under the following steps:
 
-    1. First constructs a binary classifier  :math:`C_{(A_1,A_2)}(\\cdot)` using
+    1. First constructs a binary classifier  :math:`C_{(A_1,A_2)}(\cdot)` using
        set :math:`A_1` as training examples for the negative class, and :math:`A_2` as
        training examples for the positive class.
 
@@ -59,15 +59,15 @@ class RNSB(BaseMetric):
        association of :math:`w` with respect to  :math:`A_2` (value
        :math:`1-C_{(A_1,A_2)}(w)` is the degree of association with :math:`A_1`).
 
-    3. Then, the metric construct a probability distribution :math:`P(\\cdot)` over all
-       the words :math:`w` in :math:`T_1\\cup \\cdots \\cup T_n`, by computing
+    3. Then, the metric construct a probability distribution :math:`P(\cdot)` over all
+       the words :math:`w` in :math:`T_1\cup \cdots \cup T_n`, by computing
        :math:`C_{(A_1,A_2)}(w)` and normalizing it to ensure that
-       :math:`\\sum_w P(w)=1`.
+       :math:`\sum_w P(w)=1`.
 
-    4. Finally RNSB is calculated as the distance between :math:`P(\\cdot)` and
-       the uniform distribution :math:`Y(\\cdot)` using the KL-divergence.
+    4. Finally RNSB is calculated as the distance between :math:`P(\cdot)` and
+       the uniform distribution :math:`Y(\cdot)` using the KL-divergence.
 
-    The main idea behind RNSB is that the more that :math:`P(\\cdot)` resembles a
+    The main idea behind RNSB is that the more that :math:`P(\cdot)` resembles a
     uniform distribution, the less biased the word embedding model is.
     Thus, the optimal value is 0.
 

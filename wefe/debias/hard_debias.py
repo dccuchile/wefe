@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class HardDebias(BaseDebias):
-    """Hard Debias debiasing method.
+    r"""Hard Debias debiasing method.
 
     Hard debias is a method that allows mitigating biases through geometric operations
     on embeddings.
@@ -56,13 +56,13 @@ class HardDebias(BaseDebias):
 
     .. math::
 
-       \\text{bias_subspace} = \\frac{v \\cdot (v \\cdot u)}{(v \\cdot v)}
+       \text{bias subspace} = \frac{v \cdot (v \cdot u)}{(v \cdot v)}
 
     Then subtract the projection from the embedding.
 
     .. math::
 
-        u' = u - \\text{bias_subspace}
+        u' = u - \text{bias subspace}
 
     3. Equalizate the embeddings with respect to the bias direction.
     Given an equalization set (set of word pairs such as ``['she', 'he'],

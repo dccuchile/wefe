@@ -127,6 +127,7 @@ We expect in the future to:
 - From the previous script, rank as many embeddings available on the web as possible.
 - Implement a simple visualization module.
 - Implement p-values mixin that applies for all metrics that accept two targets.
+
 License
 =======
 

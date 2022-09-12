@@ -7,13 +7,14 @@ through rankings and graph these results.
 
 import copy
 import logging
-from typing import Callable, Dict, List, Type, Union
+from typing import Callable, List, Type, Union
 
 import numpy as np
 import pandas as pd
 import pkg_resources
 import plotly.express as px
 import plotly.graph_objects as go
+from gensim.models.keyedvectors import KeyedVectors
 from sklearn.utils.validation import check_is_fitted as _check_is_fitted
 
 from wefe.metrics.base_metric import BaseMetric
@@ -50,13 +51,13 @@ AGGREGATION_FUNCTION_NAMES = {
 
 
 def generate_subqueries_from_queries_list(
-    metric: Type[BaseMetric], queries: List[Query]
+    metric: BaseMetric, queries: List[Query]
 ) -> List[Query]:
     """Generate a list of subqueries from queries.
 
     Parameters
     ----------
-    metric : Type[BaseMetric]
+    metric : BaseMetric
         Some metric.
     queries : List[Query]
         A list with queries.
@@ -67,20 +68,20 @@ def generate_subqueries_from_queries_list(
         A list with all the generated subqueries.
     """
     # instance metric
-    metric = metric()
+    metric_ = metric()
 
     subqueries = []
     for query_idx, query in enumerate(queries):
         try:
-            subqueries += query.get_subqueries(metric.metric_template)
+            subqueries += query.get_subqueries(metric_.metric_template)
         except Exception as e:
             logging.warning(
                 "Query in index {} ({}) can not be splitted in subqueries "
                 "with the {} metric template = {}. Exception: \n{}".format(
                     query_idx,
                     query.query_name,
-                    metric.metric_name,
-                    metric.metric_template,
+                    metric_.metric_name,
+                    metric_.metric_template,
                     e,
                 )
             )
@@ -282,7 +283,8 @@ def run_queries(
         index="model_name", columns="query_name", values="result"
     )
     pivoted_results = pivoted_results.reindex(
-        index=[model.name for model in models], columns=query_names,
+        index=[model.name for model in models],
+        columns=query_names,
     )
 
     if aggregate_results:
@@ -386,7 +388,8 @@ def plot_queries_results(results: pd.DataFrame, by: str = "query"):
         barmode="group",
     )
     fig.update_layout(
-        xaxis_title=xaxis_title, yaxis_title="Bias measure",
+        xaxis_title=xaxis_title,
+        yaxis_title="Bias measure",
     )
     fig.for_each_trace(
         lambda t: t.update(x=["wrt<br>".join(label.split("wrt")) for label in t.x])
@@ -426,7 +429,8 @@ def create_ranking(
         - dense: like ‘min’, but rank always increases by 1 between groups.
 
     ascending : bool, optional
-        Whether or not the elements should be ranked in ascending order, by default True.
+        Whether or not the elements should be ranked in ascending order,
+        by default True.
 
     Returns
     -------
@@ -609,9 +613,6 @@ def print_doc_table(df):
 
 def save_doc_image(fig, name):
     fig.write_image(f"./doc/images/{name}.png", width=1200, height=600, scale=3)
-
-
-from gensim.models.keyedvectors import KeyedVectors
 
 
 def flair_to_gensim(flair_embedding):

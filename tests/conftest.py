@@ -2,7 +2,6 @@
 from typing import Dict, List, Union
 
 import numpy as np
-import pkg_resources
 import pytest
 from gensim.models import KeyedVectors
 from wefe.datasets.datasets import fetch_debias_multiclass, fetch_debiaswe, load_weat

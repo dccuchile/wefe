@@ -1,3 +1,5 @@
+.. _quick_start:
+
 ===========
 Quick Start
 ===========
@@ -98,5 +100,4 @@ with the parameters created in the past steps. In this case we use the
 A score greater than 0 indicates that there is indeed a biased relationship between 
 women and the arts with respect to men and science. 
 
-For more advanced usage, visit user the `User Guide <user_guide.html>`_ 
-section.
+For more advanced usage, visit user the :ref:`bias measurement` in the User Guide.

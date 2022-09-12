@@ -3,7 +3,6 @@ from typing import Any, Callable, Dict, List, Tuple, Union
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -247,7 +246,7 @@ class RND(BaseMetric):
         If you want to use cosine distance instead of euclidean norm
         use the distance parameter as 'cos' before executing the query.
 
-        >>> RND().run_query(query, model, normalize=True, distance='cos') # doctest: +SKIP
+        >>> RND().run_query(query, model, normalize=True, distance='cos')
         {'query_name': 'Female terms and Male Terms wrt Family',
          'result': 0.03643466345965862,
          'rnd': 0.03643466345965862,

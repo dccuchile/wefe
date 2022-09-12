@@ -202,11 +202,13 @@ def test_update_embeddings(model):
         model.batch_update(None, embeddings)
 
     with pytest.raises(
-        TypeError, match=r"embeddings should be a list, tuple or np.array, got:.*",
+        TypeError,
+        match=r"embeddings should be a list, tuple or np.array, got:.*",
     ):
         model.batch_update(words, None)
 
     with pytest.raises(
-        ValueError, match=r"words and embeddings must have the same size, got:.*",
+        ValueError,
+        match=r"words and embeddings must have the same size, got:.*",
     ):
         model.batch_update(words + ["is"], embeddings)

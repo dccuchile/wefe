@@ -270,7 +270,8 @@ def test_get_embeddings_from_sets_type_checkings(model):
     # Test types and value checking.
 
     with pytest.raises(
-        TypeError, match=(r"model should be a WordEmbeddingModel instance, got None"),
+        TypeError,
+        match=(r"model should be a WordEmbeddingModel instance, got None"),
     ):
         get_embeddings_from_tuples(None, [["he"]])
 
@@ -311,19 +312,22 @@ def test_get_embeddings_from_sets_type_checkings(model):
         get_embeddings_from_tuples(model, [["she", 1]])
 
     with pytest.raises(
-        TypeError, match=r"sets_name should be a string or None, got:.*",
+        TypeError,
+        match=r"sets_name should be a string or None, got:.*",
     ):
         get_embeddings_from_tuples(model, [["she", "he"]], 0)
 
     with pytest.raises(
-        TypeError, match=r"warn_lost_sets should be a bool, got:.*",
+        TypeError,
+        match=r"warn_lost_sets should be a bool, got:.*",
     ):
         get_embeddings_from_tuples(
             model, [["she", "he"]], "definning", warn_lost_sets=None
         )
 
     with pytest.raises(
-        TypeError, match=r"verbose should be a bool, got:.*",
+        TypeError,
+        match=r"verbose should be a bool, got:.*",
     ):
         get_embeddings_from_tuples(
             model, [["she", "he"]], "definning", True, verbose=None
@@ -545,7 +549,9 @@ def test_get_embeddings_from_query(
 
 
 def test_get_embeddings_from_query_oov_warns(
-    caplog, model: WordEmbeddingModel, weat_wordsets: Dict[str, List[str]],
+    caplog,
+    model: WordEmbeddingModel,
+    weat_wordsets: Dict[str, List[str]],
 ):
     # check lost words warning when warn_not_found_words is True
 

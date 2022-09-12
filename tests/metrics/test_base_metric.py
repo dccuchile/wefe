@@ -5,7 +5,9 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 def test_base_metric_input_checking(
-    model: WordEmbeddingModel, query_2t2a_1: Query, query_3t2a_1: Query,
+    model: WordEmbeddingModel,
+    query_2t2a_1: Query,
+    query_3t2a_1: Query,
 ):
     # Create and configure base metric testing.
     # disable abstract methods.
@@ -45,7 +47,8 @@ def test_base_metric_input_checking(
 
 
 def test_validate_old_preprocessor_args_inputs(
-    model: WordEmbeddingModel, query_2t2a_1: Query,
+    model: WordEmbeddingModel,
+    query_2t2a_1: Query,
 ):
 
     # instance test metric
@@ -105,5 +108,7 @@ def test_run_query(model: WordEmbeddingModel, query_2t2a_1: Query):
     base_metric.metric_name = "Test Metric"
     base_metric.metric_short_name = "TM"
 
-    with pytest.raises(NotImplementedError,):
+    with pytest.raises(
+        NotImplementedError,
+    ):
         base_metric.run_query(query_2t2a_1, model)

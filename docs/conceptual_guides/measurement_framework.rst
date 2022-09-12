@@ -6,6 +6,7 @@ Measurement Framework
 Below we present the main aspects of the measurement framework developed at WEFE. 
 
 .. note::
+   
    If you want to see tutorials on how to apply queries, visit :ref:`bias measurement` 
    in the User Guide.
 
@@ -124,7 +125,7 @@ query, word2vec embeddings and the WEAT metric.
   :alt: Bias measurement diagram.
 
 To see the implementation of this query using WEFE, refer to 
-the `Quick start <quick_start.html>`_ section.
+the :ref:`Quick start <quick_start>` section.
 
 Metrics Implemented So Far
 --------------------------

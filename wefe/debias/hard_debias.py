@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class HardDebias(BaseDebias):
-    """Hard Debias debiasing method.
+    r"""Hard Debias debiasing method.
 
     Hard debias is a method that allows mitigating biases through geometric operations
     on embeddings.
@@ -38,7 +38,8 @@ class HardDebias(BaseDebias):
     First, it is defined a set of words that are correct to be related to the bias
     criterion: the *criterion specific gender words*.
     For example, in the case of gender, *gender specific* words are:
-    ``['he', 'his', 'He', 'her', 'she', 'him', 'him', 'She', 'man', 'women', 'men'...]``.
+    ``['he', 'his', 'He', 'her', 'she', 'him', 'him', 'She', 'man', 'women', 'men',
+    ...]``.
 
     Then, it is defined that all words outside this set should have no relation to the
     bias criterion and thus have the possibility of being biased. (e.g. for the case of
@@ -55,13 +56,13 @@ class HardDebias(BaseDebias):
 
     .. math::
 
-       \\text{bias_subspace} = \\frac{v \\cdot (v \\cdot u)}{(v \\cdot v)}
+       \text{bias subspace} = \frac{v \cdot (v \cdot u)}{(v \cdot v)}
 
     Then subtract the projection from the embedding.
 
     .. math::
 
-        u' = u - \\text{bias_subspace}
+        u' = u - \text{bias subspace}
 
     3. Equalizate the embeddings with respect to the bias direction.
     Given an equalization set (set of word pairs such as ``['she', 'he'],
@@ -139,7 +140,8 @@ class HardDebias(BaseDebias):
 
     References
     ----------
-    | [1]: Bolukbasi, T., Chang, K. W., Zou, J. Y., Saligrama, V., & Kalai, A. T. (2016).
+    | [1]: Bolukbasi, T., Chang, K. W., Zou, J. Y., Saligrama, V., & Kalai, A. T.
+           (2016).
     | Man is to computer programmer as woman is to homemaker? debiasing word embeddings.
     | Advances in Neural Information Processing Systems.
     | [2]: https://github.com/tolga-b/debiaswe
@@ -166,8 +168,8 @@ class HardDebias(BaseDebias):
             by default False.
         criterion_name : Optional[str], optional
             The name of the criterion for which the debias is being executed,
-            e.g., 'Gender'. This will indicate the name of the model returning transform,
-            by default None
+            e.g., 'Gender'. This will indicate the name of the model returning
+            transform, by default None
         """
         # check verbose
         if not isinstance(verbose, bool):
@@ -403,9 +405,10 @@ class HardDebias(BaseDebias):
         model : WordEmbeddingModel
             The word embedding model to debias.
         target : Optional[List[str]], optional
-            If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. If `None` is provided, the
-            debias will be performed on all words (except those specified in ignore).
+            If a set of words is specified in target, the debias method will be
+            performed only on the word embeddings of this set. If `None` is provided,
+            the debias will be performed on all words (except those specified in
+            ignore).
             Note that some words that are not in target may be modified due to the
             equalization process.
             By default `None`.

@@ -9,7 +9,6 @@ from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
-
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -17,7 +16,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class RNSB(BaseMetric):
-    """Relative Relative Negative Sentiment Bias (RNSB).
+    r"""Relative Relative Negative Sentiment Bias (RNSB).
 
     The metric was originally proposed in "A transparent framework for evaluating
     unintended demographic bias in word embeddings" [1].
@@ -29,7 +28,8 @@ class RNSB(BaseMetric):
 
     For this purpose, RNSB trains a classifier that assigns a probability to each
     word of belonging to the negative class (in the original work the classifier is
-    trained using `Bing Liu's lexicon <https://wefe.readthedocs.io/en/latest/generated/dataloaders/wefe.load_bingliu.html>`_
+    trained using
+    :func:`~wefe.datasets.load_bingliu`
     of positive and negative words).
     Then, it generates a probability distribution with the probabilities calculated in
     the previous step and compares them to the uniform distribution
@@ -45,12 +45,12 @@ class RNSB(BaseMetric):
     RNSB receives as input queries with two attribute sets :math:`A_1` and
     :math:`A_2` and two or more target sets. Thus has a template (tuple of numbers that
     defines the allowed target and attribute sets in the query)
-    of the form :math:`s=(N,2)` with :math:`N\\geq 2`.
+    of the form :math:`s=(N,2)` with :math:`N\geq 2`.
 
-    Given a query :math:`Q=(\\{T_1,T_2,\\ldots,T_n\\},\\{A_1,A_2\\})` RNSB is
+    Given a query :math:`Q=(\{T_1,T_2,\ldots,T_n\},\{A_1,A_2\})` RNSB is
     calculated under the following steps:
 
-    1. First constructs a binary classifier  :math:`C_{(A_1,A_2)}(\\cdot)` using
+    1. First constructs a binary classifier  :math:`C_{(A_1,A_2)}(\cdot)` using
        set :math:`A_1` as training examples for the negative class, and :math:`A_2` as
        training examples for the positive class.
 
@@ -59,14 +59,15 @@ class RNSB(BaseMetric):
        association of :math:`w` with respect to  :math:`A_2` (value
        :math:`1-C_{(A_1,A_2)}(w)` is the degree of association with :math:`A_1`).
 
-    3. Then, the metric construct a probability distribution :math:`P(\\cdot)` over all
-       the words :math:`w` in :math:`T_1\\cup \\cdots \\cup T_n`, by computing
-       :math:`C_{(A_1,A_2)}(w)` and normalizing it to ensure that :math:`\\sum_w P(w)=1`.
+    3. Then, the metric construct a probability distribution :math:`P(\cdot)` over all
+       the words :math:`w` in :math:`T_1\cup \cdots \cup T_n`, by computing
+       :math:`C_{(A_1,A_2)}(w)` and normalizing it to ensure that
+       :math:`\sum_w P(w)=1`.
 
-    4. Finally RNSB is calculated as the distance between :math:`P(\\cdot)` and
-       the uniform distribution :math:`Y(\\cdot)` using the KL-divergence.
+    4. Finally RNSB is calculated as the distance between :math:`P(\cdot)` and
+       the uniform distribution :math:`Y(\cdot)` using the KL-divergence.
 
-    The main idea behind RNSB is that the more that :math:`P(\\cdot)` resembles a
+    The main idea behind RNSB is that the more that :math:`P(\cdot)` resembles a
     uniform distribution, the less biased the word embedding model is.
     Thus, the optimal value is 0.
 
@@ -157,15 +158,15 @@ class RNSB(BaseMetric):
             if num_train_positive_examples == 1:
                 raise Exception(
                     "After splitting the dataset using train_test_split "
-                    "(with test_size=0.1), the first attribute remained with 0 training "
-                    "examples."
+                    "(with test_size=0.1), the first attribute remained with 0 "
+                    "training examples."
                 )
 
             if num_train_negative_examples < 1:
                 raise Exception(
                     "After splitting the dataset using train_test_split "
-                    "(with test_size=0.1), the second attribute remained with 0 training "
-                    "examples."
+                    "(with test_size=0.1), the second attribute remained with 0 "
+                    "training examples."
                 )
 
             estimator = estimator(**estimator_params)

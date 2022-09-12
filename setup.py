@@ -52,8 +52,7 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.10",
 ]
 EXTRAS_REQUIRE = {
-    "tests": ["pytest", "pytest-cov"],
-    "docs": ["sphinx", "sphinx-gallery", "sphinx_rtd_theme", "numpydoc", "matplotlib"],
+    "pytorch": ["torch"],
 }
 
 setup(

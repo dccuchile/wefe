@@ -33,19 +33,17 @@ sys.path.insert(0, os.path.abspath(".."))
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
-    "numpydoc",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
-    # "sphinx_gallery.gen_gallery",
+    "numpydoc",
+    "sphinx_gallery.gen_gallery",
     "sphinx.ext.todo",
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
-    "myst_nb",
+    "sphinx.ext.napoleon",
 ]
 
-
-mathjax_path = ""
 
 # this is needed for some reason...
 # see https://github.com/numpy/numpydoc/issues/69
@@ -60,13 +58,7 @@ if os.environ.get("NO_MATHJAX"):
     mathjax_path = ""
 else:
     extensions.append("sphinx.ext.mathjax")
-    mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/" "tex-chtml.js"
-
-# from distutils.version import LooseVersion
-# if LooseVersion(sphinx.__version__) < LooseVersion('1.4'):
-#     extensions.append('sphinx.ext.pngmath')
-# else:
-#     extensions.append('sphinx.ext.imgmath')
+    mathjax_path = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
 
 autodoc_default_flags = ["members", "inherited-members"]
 
@@ -80,20 +72,8 @@ autosummary_generate = True
 # source_suffix = ".rst"
 source_suffix = {
     ".rst": "restructuredtext",
-    ".ipynb": "myst-nb",
-    ".myst": "myst-nb",
 }
 
-myst_enable_extensions = [
-    "amsmath",
-    "colon_fence",
-    "deflist",
-    "dollarmath",
-    "html_image",
-]
-myst_url_schemes = ("http", "https", "mailto")
-nb_execution_mode = "cache"
-nb_execution_timeout = 120
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
 
@@ -138,7 +118,7 @@ exclude_patterns = ["_build", "_templates"]
 # default_role = None
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
-# add_function_parentheses = True
+add_function_parentheses = False
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
@@ -153,7 +133,6 @@ pygments_style = "sphinx"
 
 # Custom style
 # html_style = "css/project-template.css"
-
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -196,7 +175,9 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
 # html_context = {
-#     "css_files": ["_static/theme_overrides.css",],  # override wide tables in RTD theme
+#     "css_files": [
+#         "_static/css/theme_overrides.css",  # overrides for wide tables in RTD theme
+#     ],
 # }
 
 # Add any extra paths that contain custom files (such as robots.txt or
@@ -256,7 +237,12 @@ latex_elements = {
     # The font size ('10pt', '11pt' or '12pt').
     #'pointsize': '10pt',
     # Additional stuff for the LaTeX preamble.
-    #'preamble': '',
+    "preamble": r"""
+        \usepackage{amsmath}\usepackage{amsfonts}\usepackage{bm}
+        \usepackage{morefloats}\usepackage{enumitem} \setlistdepth{10}
+        \let\oldhref\href
+        \renewcommand{\href}[2]{\oldhref{#1}{\hbox{#2}}}
+        """
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
@@ -350,3 +336,4 @@ html_js_files = [
 def setup(app):
     # a copy button to copy snippet of code from the documentation
     app.add_js_file("js/copybutton.js")
+    app.add_css_file("css/theme_overrides.css")

@@ -710,7 +710,7 @@ class RNSB(BaseMetric):
         ...    ["russian"],
         ...    ["scottish"],
         ...    ["italian"],
-        ...]
+        ... ]
         >>>
         >>> bing_liu = load_bingliu()
         >>>

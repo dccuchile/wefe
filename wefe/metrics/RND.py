@@ -95,13 +95,13 @@ class RND(BaseMetric):
             # by word
             distance_by_words[attribute_words[attribute_word_index]] = current_distance
 
-        sorted_distances_by_word = {
+        sorted_distance_by_word = {
             k: v for k, v in sorted(distance_by_words.items(), key=lambda item: item[1])
         }
 
         # calculate the average of the distances and return
         mean_distance = sum_of_distances / len(distance_by_words)
-        return mean_distance, sorted_distances_by_word
+        return mean_distance, sorted_distance_by_word
 
     def run_query(
         self,
@@ -213,11 +213,11 @@ class RND(BaseMetric):
         >>> model = load_test_model()
         >>>
         >>> # instance the metric and run the query
-        >>> RND().run_query(query, model) # doctest: +SKIP
+        >>> RND().run_query(query, model)
         {'query_name': 'Female terms and Male Terms wrt Family',
          'result': 0.030381828546524048,
          'rnd': 0.030381828546524048,
-         'distances_by_word': {'wedding': -0.1056304,
+         'distance_by_word': {'wedding': -0.1056304,
                                'marriage': -0.10163283,
                                'children': -0.068374634,
                                'parents': 0.00097084045,
@@ -230,11 +230,11 @@ class RND(BaseMetric):
         If you want the embeddings to be normalized before calculating the metrics
         use the normalize parameter as True before executing the query.
 
-        >>> RND().run_query(query, model, normalize=True) # doctest: +SKIP
+        >>> RND().run_query(query, model, normalize=True)
         {'query_name': 'Female terms and Male Terms wrt Family',
          'result': -0.006278775632381439,
          'rnd': -0.006278775632381439,
-         'distances_by_word': {'children': -0.05244279,
+         'distance_by_word': {'children': -0.05244279,
                                'wedding': -0.04642248,
                                'marriage': -0.04268837,
                                'parents': -0.022358716,
@@ -250,7 +250,7 @@ class RND(BaseMetric):
         {'query_name': 'Female terms and Male Terms wrt Family',
          'result': 0.03643466345965862,
          'rnd': 0.03643466345965862,
-         'distances_by_word': {'cousins': -0.035989374,
+         'distance_by_word': {'cousins': -0.035989374,
                                'home': -0.026971221,
                                'family': -0.009296179,
                                'relatives': 0.015690982,
@@ -280,7 +280,7 @@ class RND(BaseMetric):
                 "query_name": query.query_name,
                 "result": np.nan,
                 "rnd": np.nan,
-                "distances_by_word": {},
+                "distance_by_word": {},
             }
 
         # get the targets and attribute sets transformed into embeddings.
@@ -297,7 +297,7 @@ class RND(BaseMetric):
         # get a list with the transformed attribute words
         attribute_0_words = list(attribute_embeddings[0].keys())
 
-        rnd, distances_by_word = self.__calc_rnd(
+        rnd, distance_by_word = self.__calc_rnd(
             target_0_embeddings,
             target_1_embeddings,
             attribute_0_embeddings,
@@ -309,5 +309,5 @@ class RND(BaseMetric):
             "query_name": query.query_name,
             "result": rnd,
             "rnd": rnd,
-            "distances_by_word": distances_by_word,
+            "distance_by_word": distance_by_word,
         }

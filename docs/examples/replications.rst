@@ -24,6 +24,8 @@ reproduces the experiments performed in the following paper:
   the original paper. However, our results are still very similar to those 
   in the original paper.
 
+
+
 A transparent framework for evaluating unintended demographic bias in word embeddings (RNSB)
 ============================================================================================
 

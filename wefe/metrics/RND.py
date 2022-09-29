@@ -151,7 +151,7 @@ class RND(BaseMetric):
                 titlecase.
             *   ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that
                 the accents of the words are eliminated. The stripping type can be
-                specified. True uses ‘unicode’ by default.
+                specified. True uses 'unicode' by default.
             *   ``preprocessor``: ``Callable``. It receives a function that operates
                 on each word. In the case of specifying a function, it overrides the
                 default preprocessor (i.e., the previous options stop working).
@@ -159,14 +159,14 @@ class RND(BaseMetric):
             A list of preprocessor options allows you to search for several
             variants of the words into the model. For example, the preprocessors
             ``[{}, {"lowercase": True, "strip_accents": True}]``
-            ``{}`` allows first to search for the original words in the vocabulary of
+            ``{}`` allows searching first for the original words in the vocabulary of
             the model. In case some of them are not found,
             ``{"lowercase": True, "strip_accents": True}`` is executed on these words
             and then they are searched in the model vocabulary.
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
-            include only the first transformed word found. all' will include all
+            include only the first transformed word found. 'all' will include all
             transformed words found, by default "first".
 
         normalize : bool, optional
@@ -227,7 +227,7 @@ class RND(BaseMetric):
                                'home': 0.1733501}}
         >>>
 
-        If you want the embeddings to be normalized before calculating the metrics
+        If you want the embeddings to be normalized before calculating the metrics,
         use the normalize parameter as True before executing the query.
 
         >>> RND().run_query(query, model, normalize=True) # doctest: +SKIP
@@ -243,7 +243,7 @@ class RND(BaseMetric):
                                'home': 0.04009247,
                                'cousins': 0.044702888}}
 
-        If you want to use cosine distance instead of euclidean norm
+        If you want to use cosine distance instead of Euclidean norm
         use the distance parameter as 'cos' before executing the query.
 
         >>> RND().run_query(query, model, normalize=True, distance='cos')

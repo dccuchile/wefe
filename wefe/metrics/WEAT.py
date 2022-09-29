@@ -47,7 +47,7 @@ class WEAT(BaseMetric):
 
     This metric also contains a variant: WEAT Effect Size (WEAT-ES). This variant
     represents a normalized measure that quantifies how far apart the two distributions
-    of association between targets and attributes are. Iin practical terms, WEAT
+    of association between targets and attributes are. In practical terms, WEAT
     Effect Size makes the metric not dependent on the number of words used in each set.
 
     .. math::
@@ -256,12 +256,12 @@ class WEAT(BaseMetric):
 
         p_value_test_type : {'left-sided', 'right-sided', 'two-sided}, optional
             When calculating the p-value, specify the type of test to be performed.
-            The options are 'left-sided', 'right-sided' and 'two-sided
+            The options are 'left-sided', 'right-sided' and 'two-sided'
             , by default 'right-sided'
 
         p_value_method : {'exact', 'approximate'}, optional
             When calculating the p-value, specify the method for calculating the
-            p-value. This can be 'exact 'and 'approximate'.
+            p-value. This can be 'exact' and 'approximate'.
             by default 'approximate'.
 
         p_value_iterations : int, optional
@@ -271,7 +271,7 @@ class WEAT(BaseMetric):
 
         p_value_verbose : bool, optional
             In case of calculating the p-value, specify if notification messages
-            will be logged during its calculation., by default False.
+            will be logged during its calculation, by default False.
 
         lost_vocabulary_threshold : float, optional
             Specifies the proportional limit of words that any set of the query is
@@ -300,7 +300,7 @@ class WEAT(BaseMetric):
                 titlecase.
             *   ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that
                 the accents of the words are eliminated. The stripping type can be
-                specified. True uses ‘unicode’ by default.
+                specified. True uses 'unicode' by default.
             *   ``preprocessor``: ``Callable``. It receives a function that operates
                 on each word. In the case of specifying a function, it overrides the
                 default preprocessor (i.e., the previous options stop working).
@@ -308,14 +308,14 @@ class WEAT(BaseMetric):
             A list of preprocessor options allows you to search for several
             variants of the words into the model. For example, the preprocessors
             ``[{}, {"lowercase": True, "strip_accents": True}]``
-            ``{}`` allows first to search for the original words in the vocabulary of
+            ``{}`` allows searching first for the original words in the vocabulary of
             the model. In case some of them are not found,
             ``{"lowercase": True, "strip_accents": True}`` is executed on these words
             and then they are searched in the model vocabulary.
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
-            include only the first transformed word found. all' will include all
+            include only the first transformed word found. 'all' will include all
             transformed words found, by default "first".
 
         normalize : bool, optional

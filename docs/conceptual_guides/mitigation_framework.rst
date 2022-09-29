@@ -14,8 +14,9 @@ WEFE standardizes all mitigation methods through an interface inherited from
 Fit method
 ----------
 
-The first step ``fit``, consists in learning the corresponding mitigation transformation 
-which usually corresponds to a matrix projection of the embedding space. 
+The first step ``fit``, consists in learning the corresponding mitigation 
+transformation, which usually corresponds to a matrix projection of the 
+embedding space. 
 This method is quite flexible: it can accept multiple sets of words and other parameters. 
 
 Transform method
@@ -46,4 +47,4 @@ WEFE implements the following bias mitigation (debias) metrics:
 - :class:`~wefe.debias.half_sibling_regression.HalfSiblingRegression`,
 
 Except for ``MulticlassHardDebias``, all methods are limited to binary criteria, 
-such gender.
+such as gender.

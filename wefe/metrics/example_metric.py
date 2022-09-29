@@ -133,7 +133,7 @@ class ExampleMetric(BaseMetric):
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
-            include only the first transformed word found. all' will include all
+            include only the first transformed word found. 'all' will include all
             transformed words found., by default "first"
 
         normalize : bool, optional

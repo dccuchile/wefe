@@ -361,7 +361,7 @@ The possible options for a preprocessor are:
 -  ``uppercase``: ``bool``. Indicates that the words are transformed to uppercase.
 -  ``titlecase``: ``bool``. Indicates that the words are transformed to titlecase.
 -  ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that the accents of the words
-   are eliminated. The stripping type can be specified. True uses ‘unicode’ by default.
+   are eliminated. The stripping type can be specified. True uses 'unicode' by default.
 -  ``preprocessor``: ``Callable``. It receives a function that operates on each word. 
    In the case of specifying a function, it overrides the default preprocessor 
    (i.e., the previous options stop working).
@@ -370,7 +370,7 @@ The possible options for a preprocessor are:
 A list of preprocessor options allows searching for several
 variants of the words into the model. For example, the preprocessors
 ``[{}, {"lowercase": True, "strip_accents": True}]``
-``{}`` allows first to search for the original words in the vocabulary of the model. 
+``{}`` allows searching first for the original words in the vocabulary of the model. 
 In case some of them are not found, ``{"lowercase": True, "strip_accents": True}`` 
 is executed on these words and then they are searched in the model vocabulary.
 

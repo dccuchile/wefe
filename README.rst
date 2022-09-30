@@ -1,14 +1,14 @@
 .. -*- mode: rst -*-
 
-|ReadTheDocs|_ |CircleCI|_ |Conda|_ |CondaLatestRelease|_ |CondaVersion|_
+|ReadTheDocs|_ |GithubActions|_ |Conda|_ |CondaLatestRelease|_ |CondaVersion|_
 
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/wefe/badge/?version=latest
 .. _ReadTheDocs: https://wefe.readthedocs.io/en/latest/?badge=latest
 
 
-.. |CircleCI| image:: https://circleci.com/gh/dccuchile/wefe.svg?style=shield 
-.. _CircleCI: https://circleci.com/gh/dccuchile/wefe.svg?style=shield 
+.. |GithubActions| image:: https://github.com/dccuchile/wefe/actions/workflows/ci.yaml/badge.svg?branch=master
+.. _GithubActions: https://github.com/dccuchile/wefe/actions/workflows/ci.yaml/badge.svg?branch=master
 
 
 .. |Conda| image:: https://anaconda.org/pbadilla/wefe/badges/installer/conda.svg

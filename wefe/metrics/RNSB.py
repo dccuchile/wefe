@@ -22,7 +22,7 @@ class RNSB(BaseMetric):
     unintended demographic bias in word embeddings" [1].
 
     This metric is based on measuring bias through word sentiment.
-    The main idea is that if there were no bias, all words should be equally negative.
+    The main idea is that if there was no bias, all words should be equally negative.
     Therefore, its procedure is based on calculating how negative the words in
     the target sets are.
 
@@ -43,7 +43,7 @@ class RNSB(BaseMetric):
     in the original RNSB work.
 
     RNSB receives as input queries with two attribute sets :math:`A_1` and
-    :math:`A_2` and two or more target sets. Thus has a template (tuple of numbers that
+    :math:`A_2` and two or more target sets, thus has a template (tuple of numbers that
     defines the allowed target and attribute sets in the query)
     of the form :math:`s=(N,2)` with :math:`N\geq 2`.
 
@@ -59,7 +59,7 @@ class RNSB(BaseMetric):
        association of :math:`w` with respect to  :math:`A_2` (value
        :math:`1-C_{(A_1,A_2)}(w)` is the degree of association with :math:`A_1`).
 
-    3. Then, the metric construct a probability distribution :math:`P(\cdot)` over all
+    3. Then, the metric constructs a probability distribution :math:`P(\cdot)` over all
        the words :math:`w` in :math:`T_1\cup \cdots \cup T_n`, by computing
        :math:`C_{(A_1,A_2)}(w)` and normalizing it to ensure that
        :math:`\sum_w P(w)=1`.
@@ -318,21 +318,21 @@ class RNSB(BaseMetric):
             by default 1.
 
         random_state : Union[int, None], optional
-            Seed that allow making the execution of the query reproducible.
+            Seed that allows making the execution of the query reproducible.
             Warning: if a random_state other than None is provided along with
             n_iterations, each iteration will split the dataset and train a
             classifier associated to the same seed, so the results of each iteration
-            will always be the same , by default None.
+            will always be the same, by default None.
 
         holdout: bool, optional
             True indicates that a holdout (split attributes in train/test sets) will
             be executed before running the model training.
-            This option allows to evaluate the performance of the classifier
+            This option allows for evaluating the performance of the classifier
             (can be printed using print_model_evaluation=True) at the cost of training
             the classifier with fewer examples. False disables this functionality.
-            Note that holdout divides into 80%train and 20% test, performs a shuffle
-            and tries to maintain the original ratio of the classes via stratify param.
-            by default True
+            Note that holdout divides into 80% train and 20% test, performs a shuffle
+            and tries to maintain the original ratio of the classes via stratify param,
+            by default True.
 
         print_model_evaluation : bool, optional
             Indicates whether the classifier evaluation is printed after the
@@ -359,7 +359,7 @@ class RNSB(BaseMetric):
                 titlecase.
             *   ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that
                 the accents of the words are eliminated. The stripping type can be
-                specified. True uses ‘unicode’ by default.
+                specified. True uses 'unicode' by default.
             *   ``preprocessor``: ``Callable``. It receives a function that operates
                 on each word. In the case of specifying a function, it overrides the
                 default preprocessor (i.e., the previous options stop working).
@@ -367,14 +367,14 @@ class RNSB(BaseMetric):
             A list of preprocessor options allows you to search for several
             variants of the words into the model. For example, the preprocessors
             ``[{}, {"lowercase": True, "strip_accents": True}]``
-            ``{}`` allows first to search for the original words in the vocabulary of
+            ``{}`` allows searching first for the original words in the vocabulary of
             the model. In case some of them are not found,
             ``{"lowercase": True, "strip_accents": True}`` is executed on these words
             and then they are searched in the model vocabulary.
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
-            include only the first transformed word found. all' will include all
+            include only the first transformed word found. 'all' will include all
             transformed words found, by default "first".
 
         normalize : bool, optional

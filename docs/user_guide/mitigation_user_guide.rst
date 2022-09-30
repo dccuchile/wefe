@@ -30,7 +30,8 @@ Hard Debias
 -----------
 
 
-Hard debias is a method that allows mitigating biases through geometric operations on embeddings. 
+Hard debias is a method that allows mitigating biases through geometric operations 
+on embeddings. 
 This method is binary because it only allows 2 classes of the same bias criterion,
 such as male or female.
 
@@ -48,12 +49,12 @@ these could be e.g. ``[['woman', 'man'], ['she', 'he'], ...]``
 
 2. Neutralize the bias subspace of embeddings that should not be biased.
 
-First, it is defined a set of words that are correct to be related to the bias
+First, we define a set of words that are correct to be related to the bias
 criterion: the *criterion specific gender words*.
 For example, in the case of gender, *gender specific* words are:
 ``['he', 'his', 'He', 'her', 'she', 'him', 'him', 'She', 'man', 'women', 'men'...]``.
 
-Then, it is defined that all words outside this set should have no relation to the
+We then define that all words outside this set should have no relation to the
 bias criterion and thus have the possibility of being biased. (e.g. for the case of
 genthe bias direction, such that neither is closer to the bias direction
 than the other: ``['doctor', 'nurse', ...]``). Therefore, this set of words is

@@ -41,7 +41,7 @@ process into two stages:
 Motivation and objectives
 =========================
 
-Word Embeddings models are a core component in almost all NLP downstream systems.
+Word Embedding models are a core component in almost all NLP downstream systems.
 Several studies have shown that they are prone to inherit stereotypical social
 biases from the corpus they were built on.
 The common method for quantifying bias is to use a metric that calculates the

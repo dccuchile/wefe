@@ -3,7 +3,7 @@ Multilingual Gender Bias Measurement Examples
 =============================================
 
 The notebooks located in 
-`multilingual examples folder <https://github.com/dccuchile/wefe/blob/99adb03a7f096685a47dd0a1d77861da77f7b3ca/examples/multilingual>`_ 
+`multilingual examples folder <https://github.com/dccuchile/wefe/tree/master/examples/multilingual>`_ 
 show how to measure gender bias in static embeddings from gender queries in different
 languages.
 

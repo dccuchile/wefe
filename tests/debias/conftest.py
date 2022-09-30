@@ -3,7 +3,6 @@ from typing import Dict, List, Union
 
 import numpy as np
 import pytest
-from gensim.models import KeyedVectors
 from wefe.datasets.datasets import fetch_debias_multiclass, fetch_debiaswe, load_weat
 from wefe.query import Query
 from wefe.utils import load_test_model
@@ -12,13 +11,6 @@ from wefe.word_embedding_model import WordEmbeddingModel
 # -------------------------------------------------------------------------------------
 # Models
 # -------------------------------------------------------------------------------------
-
-
-@pytest.fixture
-def keyed_vector_model() -> KeyedVectors:
-
-    test_model = KeyedVectors.load("./wefe/datasets/data/test_model.kv")
-    return test_model
 
 
 @pytest.fixture
@@ -96,149 +88,6 @@ def mhd_ethnicity_definitional_sets(multiclass_debias_wordsets) -> List[List[str
 @pytest.fixture
 def mhd_ethnicity_equalize_sets(multiclass_debias_wordsets) -> List[List[str]]:
     return list(multiclass_debias_wordsets["ethnicity_analogy_templates"].values())
-
-
-# -------------------------------------------------------------------------------------
-# Queries
-# -------------------------------------------------------------------------------------
-
-
-@pytest.fixture
-def query_2t1a_1(weat_wordsets: Dict[str, List[str]]) -> Query:
-    weat_wordsets = load_weat()
-
-    query = Query(
-        [weat_wordsets["flowers"], weat_wordsets["insects"]],
-        [weat_wordsets["pleasant_5"]],
-        ["Flowers", "Insects"],
-        ["Pleasant"],
-    )
-    return query
-
-
-@pytest.fixture
-def query_2t2a_1(weat_wordsets: Dict[str, List[str]]) -> Query:
-    """Generate a Flower and Insects wrt Pleasant vs Unpleasant test query.
-
-    Parameters
-    ----------
-    weat_wordsets : Dict[str, List[str]]
-        The word sets used in WEAT original work.
-
-    Returns
-    -------
-    Query
-        The generated query.
-    """
-    query = Query(
-        [weat_wordsets["flowers"], weat_wordsets["insects"]],
-        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
-        ["Flowers", "Insects"],
-        ["Pleasant", "Unpleasant"],
-    )
-    return query
-
-
-@pytest.fixture
-def query_2t2a_uppercase(weat_wordsets: Dict[str, List[str]]) -> Query:
-    """Generate a Flower and Insects wrt Pleasant vs Unpleasant test query.
-
-    Parameters
-    ----------
-    weat_wordsets : Dict[str, List[str]]
-        The word sets used in WEAT original work.
-
-    Returns
-    -------
-    Query
-        The generated query.
-    """
-    query = Query(
-        [
-            [s.upper() for s in weat_wordsets["flowers"]],
-            [s.upper() for s in weat_wordsets["insects"]],
-        ],
-        [
-            [s.upper() for s in weat_wordsets["pleasant_5"]],
-            [s.upper() for s in weat_wordsets["unpleasant_5"]],
-        ],
-        ["Flowers", "Insects"],
-        ["Pleasant", "Unpleasant"],
-    )
-    return query
-
-
-@pytest.fixture
-def query_3t2a_1(weat_wordsets: Dict[str, List[str]]) -> Query:
-    query = Query(
-        [
-            weat_wordsets["flowers"],
-            weat_wordsets["insects"],
-            weat_wordsets["instruments"],
-        ],
-        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
-        ["Flowers", "Weapons", "Instruments"],
-        ["Pleasant", "Unpleasant"],
-    )
-
-    return query
-
-
-@pytest.fixture
-def query_4t2a_1(weat_wordsets: Dict[str, List[str]]) -> Query:
-    query = Query(
-        [
-            weat_wordsets["flowers"],
-            weat_wordsets["insects"],
-            weat_wordsets["instruments"],
-            weat_wordsets["weapons"],
-        ],
-        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
-        ["Flowers", "Insects", "Instruments", "Weapons"],
-        ["Pleasant", "Unpleasant"],
-    )
-
-    return query
-
-
-@pytest.fixture
-def query_1t4_1(weat_wordsets: Dict[str, List[str]]) -> Query:
-    query = Query(
-        [weat_wordsets["flowers"]],
-        [
-            weat_wordsets["pleasant_5"],
-            weat_wordsets["pleasant_9"],
-            weat_wordsets["unpleasant_5"],
-            weat_wordsets["unpleasant_9"],
-        ],
-        ["Flowers"],
-        ["Pleasant 5 ", "Pleasant 9", "Unpleasant 5", "Unpleasant 9"],
-    )
-    return query
-
-
-@pytest.fixture
-def query_2t1a_lost_vocab_1(weat_wordsets: Dict[str, List[str]]) -> Query:
-    query = Query(
-        [["bla", "asd"], weat_wordsets["insects"]],
-        [weat_wordsets["pleasant_5"]],
-        ["Flowers", "Insects"],
-        ["Pleasant"],
-    )
-
-    return query
-
-
-@pytest.fixture
-def query_2t2a_lost_vocab_1(weat_wordsets: Dict[str, List[str]]) -> Query:
-    query = Query(
-        [["bla", "asd"], weat_wordsets["insects"]],
-        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
-        ["Flowers", "Insects"],
-        ["Pleasant", "Unpleasant"],
-    )
-
-    return query
 
 
 # --------------------------------------------------------------------------------------

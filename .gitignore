@@ -90,3 +90,7 @@ conda_deploy/
 
 *.csv
 *.xls
+
+# coverage files
+cov.xml
+test-results/junit.xml

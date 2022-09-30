@@ -226,7 +226,7 @@ class Query:
     def dict(self) -> Dict[str, Any]:
         """Generates a dictionary from the Query data
 
-        This includes the target and attribute sets, as well as their names, 
+        This includes the target and attribute sets, as well as their names,
         the query name generated from them and the query template.
 
         Returns

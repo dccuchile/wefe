@@ -390,7 +390,6 @@ class DoubleHardDebias(BaseDebias):
         BaseDebias
             The debias method fitted.
         """
-        super().__init__(**fit_params)
 
         self.definitional_pairs = definitional_pairs
 

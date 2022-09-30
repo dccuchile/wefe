@@ -6,6 +6,19 @@ from wefe.datasets.datasets import load_weat
 from wefe.query import Query
 
 
+@pytest.fixture
+def weat_wordsets() -> Dict[str, List[str]]:
+    """Load the word sets used in WEAT original work.
+
+    Returns
+    -------
+    Dict[str, List[str]]
+        A dictionary that map a word set name to a set of words.
+    """
+    weat_wordsets = load_weat()
+    return weat_wordsets
+
+
 def test_create_query_input_checks():
 
     # target sets None

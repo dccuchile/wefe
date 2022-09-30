@@ -1,28 +1,24 @@
 .. -*- mode: rst -*-
 
-|ReadTheDocs|_ |GithubActions|_ |Conda|_ |CondaLatestRelease|_ |CondaVersion|_
+|License|_ |GithubActions|_ |ReadTheDocs|_ |Downloads|_ |Pypy|_ |CondaVersion|_
 
+.. |License| image:: https://img.shields.io/github/license/dccuchile/wefe
+.. _License: https://github.com/dccuchile/wefe/blob/master/LICENSE
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/wefe/badge/?version=latest
 .. _ReadTheDocs: https://wefe.readthedocs.io/en/latest/?badge=latest
 
-
 .. |GithubActions| image:: https://github.com/dccuchile/wefe/actions/workflows/ci.yaml/badge.svg?branch=master
-.. _GithubActions: https://github.com/dccuchile/wefe/actions/workflows/ci.yaml/badge.svg?branch=master
+.. _GithubActions: https://github.com/dccuchile/wefe/actions
 
+.. |Downloads| image:: https://pepy.tech/badge/wefe
+.. _Downloads: https://pepy.tech/project/wefe
 
-.. |Conda| image:: https://anaconda.org/pbadilla/wefe/badges/installer/conda.svg
-.. _Conda: https://anaconda.org/pbadilla/wefe/badges/installer/conda.svg
-
-
-.. |CondaLatestRelease| image:: https://anaconda.org/pbadilla/wefe/badges/latest_release_date.svg
-.. _CondaLatestRelease: https://anaconda.org/pbadilla/wefe/badges/latest_release_date.svg
-
+.. |Pypy| image:: https://badge.fury.io/py/wefe.svg
+.. _Pypy: https://pypi.org/project/wefe/
 
 .. |CondaVersion| image:: https://anaconda.org/pbadilla/wefe/badges/version.svg
-.. _CondaVersion: https://anaconda.org/pbadilla/wefe/badges/version.svg
-
-
+.. _CondaVersion: https://anaconda.org/pbadilla/wefe
 
 
 WEFE: The Word Embedding Fairness Evaluation Framework

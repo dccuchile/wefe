@@ -137,12 +137,16 @@ Version 0.4.0
   Now, the documentation is divided into user guide and theoretical framework
   The user guide does not contain theoretical information. 
   Instead, theoretical documentation can be found in the conceptual guides. 
-- Improved API documentation and examples.
+- Improved API documentation and examples. Added multilingual examples contributed 
+  by the community.
 - The user guides are fully executable because they are now on notebooks.
 - There was also an important improvement in the API documentation and in metrics and
   debias examples.
 - Improved library testing mechanisms for metrics and debias methods.
 - Fixed wrong repr of query. Now the sets are in the correct order.
+- Implemented repr for WordEmbeddingModel.
+- Testing CI moved from CircleCI to GithubActions.
+- License changed to MIT.
 
 Version 0.3.2
 -------------

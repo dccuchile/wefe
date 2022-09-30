@@ -113,7 +113,7 @@ it can also be used via :code:`FastTextKeyedVectors`.
 Flair
 =====
 
-WEFE does not yet support flair interfaces.
+WEFE does not support flair interfaces.
 However, you can use static embeddings of flair 
 (
 `Classic Word Embeddings <https://github.com/flairNLP/flair/blob/master/resources/docs/embeddings/CLASSIC_WORD_EMBEDDINGS.md>`_ 
@@ -121,13 +121,14 @@ However, you can use static embeddings of flair
 The following code is an example of this:
 
 >>> from flair.embeddings import WordEmbeddings
+>>> from wefe.utils import flair_to_gensim
 >>> 
->>> glove_embedding = WordEmbeddings('glove') # 100 dim glove
+>>> # could be any of the Classic Word Embeddings model list. 
+>>> flair_model_name = "glove"
 >>> 
->>> # extract KeyedVectors object
->>> glove_keyed_vectors = glove_embedding.precomputed_word_embeddings 
->>> glove_100 = WordEmbeddingModel(glove_keyed_vectors, 'glove-100')
+>>> flair_model = flair_to_gensim(WordEmbeddings(flair_model_name))
+>>> wefe_model = WordEmbeddingModel(flair_model, flair_model_name)
 >>> 
->>> result = weat.run_query(query, glove_100)
+>>> result = weat.run_query(query, wefe_model)
 >>> print(result)
 {'query_name': 'Male terms and Female terms wrt Career and Family', 'result': 1.0486683}

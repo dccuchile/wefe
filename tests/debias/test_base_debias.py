@@ -25,30 +25,36 @@ def test_check_transform_args_wrong_inputs(
 
     # type checking function
     with pytest.raises(
-        TypeError, match=r"model should be a WordEmbeddingModel instance, got .*",
+        TypeError,
+        match=r"model should be a WordEmbeddingModel instance, got .*",
     ):
         bd._check_transform_args(None)
 
     with pytest.raises(
-        TypeError, match=r"target should be None or a list of strings, got .*",
+        TypeError,
+        match=r"target should be None or a list of strings, got .*",
     ):
         bd._check_transform_args(model, target=1)
     with pytest.raises(
-        TypeError, match=r"All elements in target should be strings, .*",
+        TypeError,
+        match=r"All elements in target should be strings, .*",
     ):
         bd._check_transform_args(model, target=gender_specific + [10])
 
     with pytest.raises(
-        TypeError, match=r"ignore should be None or a list of strings, got .*",
+        TypeError,
+        match=r"ignore should be None or a list of strings, got .*",
     ):
         bd._check_transform_args(model, ignore=1)
     with pytest.raises(
-        TypeError, match=r"All elements in ignore should be strings, .*",
+        TypeError,
+        match=r"All elements in ignore should be strings, .*",
     ):
         bd._check_transform_args(model, ignore=gender_specific + [10])
 
     with pytest.raises(
-        TypeError, match=r"copy should be a bool, got .*",
+        TypeError,
+        match=r"copy should be a bool, got .*",
     ):
         bd._check_transform_args(model, copy=None)
 

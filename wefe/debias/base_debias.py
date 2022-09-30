@@ -8,8 +8,15 @@ from wefe.word_embedding_model import WordEmbeddingModel
 class BaseDebias:
     """Mixin class for implement any debias method in WEFE."""
 
+    # The name of the method.
+    name: str
+
     @abstractmethod
-    def fit(self, model: WordEmbeddingModel, **fit_params,) -> "BaseDebias":
+    def fit(
+        self,
+        model: WordEmbeddingModel,
+        **fit_params,
+    ) -> "BaseDebias":
         """Fit the transformation.
 
         Parameters
@@ -38,9 +45,10 @@ class BaseDebias:
         model : WordEmbeddingModel
             The word embedding model to debias.
         target : Optional[List[str]], optional
-            If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. In the case of provide `None`, the
-            debias will be performed on all words (except those specified in ignore).
+            If a set of words is specified in target, the debias method will be
+            performed only on the word embeddings of this set. In the case of provide
+            `None`, the debias will be performed on all words (except those specified
+            in ignore).
             by default `None`.
         ignore : Optional[List[str]], optional
             If target is `None` and a set of words is specified in ignore, the debias
@@ -148,7 +156,10 @@ class BaseDebias:
             raise TypeError(f"copy should be a bool, got {copy}.")
 
     def _check_sets_sizes(
-        self, sets: List[List[str]], set_name: str, set_size: Union[int, str],
+        self,
+        sets: List[List[str]],
+        set_name: str,
+        set_size: Union[int, str],
     ):
 
         if len(sets) == 0:

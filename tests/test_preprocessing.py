@@ -3,6 +3,7 @@ from typing import Dict, List
 
 import numpy as np
 import pytest
+from wefe.datasets.datasets import load_weat
 from wefe.preprocessing import (
     _warn_not_found_words,
     get_embeddings_from_query,
@@ -11,7 +12,86 @@ from wefe.preprocessing import (
     preprocess_word,
 )
 from wefe.query import Query
+from wefe.utils import load_test_model
 from wefe.word_embedding_model import WordEmbeddingModel
+
+
+@pytest.fixture
+def model() -> WordEmbeddingModel:
+    """Load a subset of Word2vec as a testing model.
+
+    Returns
+    -------
+    WordEmbeddingModel
+        The loaded testing model.
+    """
+    return load_test_model()
+
+
+@pytest.fixture
+def query_2t2a_1(weat_wordsets: Dict[str, List[str]]) -> Query:
+    """Generate a Flower and Insects wrt Pleasant vs Unpleasant test query.
+
+    Parameters
+    ----------
+    weat_wordsets : Dict[str, List[str]]
+        The word sets used in WEAT original work.
+
+    Returns
+    -------
+    Query
+        The generated query.
+    """
+    query = Query(
+        [weat_wordsets["flowers"], weat_wordsets["insects"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        ["Flowers", "Insects"],
+        ["Pleasant", "Unpleasant"],
+    )
+    return query
+
+
+@pytest.fixture
+def weat_wordsets() -> Dict[str, List[str]]:
+    """Load the word sets used in WEAT original work.
+
+    Returns
+    -------
+    Dict[str, List[str]]
+        A dictionary that map a word set name to a set of words.
+    """
+    weat_wordsets = load_weat()
+    return weat_wordsets
+
+
+@pytest.fixture
+def query_2t2a_uppercase(weat_wordsets: Dict[str, List[str]]) -> Query:
+    """Generate a Flower and Insects wrt Pleasant vs Unpleasant test query.
+
+    Parameters
+    ----------
+    weat_wordsets : Dict[str, List[str]]
+        The word sets used in WEAT original work.
+
+    Returns
+    -------
+    Query
+        The generated query.
+    """
+    query = Query(
+        [
+            [s.upper() for s in weat_wordsets["flowers"]],
+            [s.upper() for s in weat_wordsets["insects"]],
+        ],
+        [
+            [s.upper() for s in weat_wordsets["pleasant_5"]],
+            [s.upper() for s in weat_wordsets["unpleasant_5"]],
+        ],
+        ["Flowers", "Insects"],
+        ["Pleasant", "Unpleasant"],
+    )
+    return query
+
 
 # --------------------------------------------------------------------------------------
 # test preprocess_word
@@ -270,7 +350,8 @@ def test_get_embeddings_from_sets_type_checkings(model):
     # Test types and value checking.
 
     with pytest.raises(
-        TypeError, match=(r"model should be a WordEmbeddingModel instance, got None"),
+        TypeError,
+        match=(r"model should be a WordEmbeddingModel instance, got None"),
     ):
         get_embeddings_from_tuples(None, [["he"]])
 
@@ -311,19 +392,22 @@ def test_get_embeddings_from_sets_type_checkings(model):
         get_embeddings_from_tuples(model, [["she", 1]])
 
     with pytest.raises(
-        TypeError, match=r"sets_name should be a string or None, got:.*",
+        TypeError,
+        match=r"sets_name should be a string or None, got:.*",
     ):
         get_embeddings_from_tuples(model, [["she", "he"]], 0)
 
     with pytest.raises(
-        TypeError, match=r"warn_lost_sets should be a bool, got:.*",
+        TypeError,
+        match=r"warn_lost_sets should be a bool, got:.*",
     ):
         get_embeddings_from_tuples(
             model, [["she", "he"]], "definning", warn_lost_sets=None
         )
 
     with pytest.raises(
-        TypeError, match=r"verbose should be a bool, got:.*",
+        TypeError,
+        match=r"verbose should be a bool, got:.*",
     ):
         get_embeddings_from_tuples(
             model, [["she", "he"]], "definning", True, verbose=None
@@ -545,7 +629,9 @@ def test_get_embeddings_from_query(
 
 
 def test_get_embeddings_from_query_oov_warns(
-    caplog, model: WordEmbeddingModel, weat_wordsets: Dict[str, List[str]],
+    caplog,
+    model: WordEmbeddingModel,
+    weat_wordsets: Dict[str, List[str]],
 ):
     # check lost words warning when warn_not_found_words is True
 

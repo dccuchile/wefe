@@ -5,7 +5,6 @@ from typing import Any, Callable, Dict, List, Set, Tuple, Union
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -13,7 +12,7 @@ from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
 
 class WEAT(BaseMetric):
-    """Word Embedding Association Test (WEAT).
+    r"""Word Embedding Association Test (WEAT).
 
     The following description of the metric is WEFE's adaptation of what was presented
     in the original WEAT work "Semantics derived automatically from language corpora
@@ -27,47 +26,47 @@ class WEAT(BaseMetric):
 
     In formal terms, let :math:`T_1` and :math:`T_2` be two sets of target words of
     equal size, and :math:`A_1`, :math:`A_2` the two sets of attribute words.
-    Let :math:`\\cos(\\vec{a}, \\vec{b})` denote the cosine of the angle between the
-    vectors :math:`\\vec{a}` and :math:`\\vec{b}`. The test statistic is:
+    Let :math:`\cos(\vec{a}, \vec{b})` denote the cosine of the angle between the
+    vectors :math:`\vec{a}` and :math:`\vec{b}`. The test statistic is:
 
     .. math::
 
-        \\text{WEAT}(T_1,T_2,A_1,A_2) = \\sum_{x \\in T_1} s(x, A_1, A_2) -
-        \\sum_{y \\in T_2} s(y, A_1, A_2)
+        \text{WEAT}(T_1,T_2,A_1,A_2) = \sum_{x \in T_1} s(x, A_1, A_2) -
+        \sum_{y \in T_2} s(y, A_1, A_2)
 
     where
 
     .. math::
 
-        s(w, A, B)=\\text{mean}_{a \\in A} \\cos(\\vec{w}, \\vec{a}) -
-        \\text{mean}_{b \\in B} \\cos(\\vec{w},\\vec{b})
+        s(w, A, B)=\text{mean}_{a \in A} \cos(\vec{w}, \vec{a}) -
+        \text{mean}_{b \in B} \cos(\vec{w},\vec{b})
 
     :math:`s(w,A,B)` measures the association of :math:`w` with the
-    attributes, and :math:`\\text{WEAT}(T_1,T_2,A_1,A_2)` measures the differential
+    attributes, and :math:`\text{WEAT}(T_1,T_2,A_1,A_2)` measures the differential
     association of the two sets of target words with the attribute.
 
     This metric also contains a variant: WEAT Effect Size (WEAT-ES). This variant
     represents a normalized measure that quantifies how far apart the two distributions
-    of association between targets and attributes are. Iin practical terms, WEAT
+    of association between targets and attributes are. In practical terms, WEAT
     Effect Size makes the metric not dependent on the number of words used in each set.
 
     .. math::
 
-        \\text{WEAT-ES}(T_1,T_2,A_1,A_2) = \\frac{\\text{mean}_{x \\in T_1}\\,
-        s(x, A_1, A_2) - \\text{mean}_{y \\in T_2}\\, s(y, A_1, A_2) }
-        {\\text{std-dev}_{w \\in T_1 \\cup T_2}\\, s(w, A_1, A_2)}
+        \text{WEAT-ES}(T_1,T_2,A_1,A_2) = \frac{\text{mean}_{x \in T_1}\,
+        s(x, A_1, A_2) - \text{mean}_{y \in T_2}\, s(y, A_1, A_2) }
+        {\text{std-dev}_{w \in T_1 \cup T_2}\, s(w, A_1, A_2)}
 
     The permutation test measures the (un)likelihood of the null hypothesis by
     computing the probability that a random permutation of the attribute words would
     produce the observed (or greater) difference in sample mean.
 
     Let :math:`{(T_{1_i},T_{2_i})}_{i}` denote all the partitions of
-    :math:`T_1 \\cup T_2` into two sets of equal size. The one-sided p-value of the
+    :math:`T_1 \cup T_2` into two sets of equal size. The one-sided p-value of the
     permutation test is:
 
     .. math::
 
-        \\text{Pr}_{i}[s(T_{1_i}, T_{2_i}, A_1, A_2) > s(T_1, T_2, A_1, A_2)]
+        \text{Pr}_{i}[s(T_{1_i}, T_{2_i}, A_1, A_2) > s(T_1, T_2, A_1, A_2)]
 
     References
     ----------
@@ -214,8 +213,8 @@ class WEAT(BaseMetric):
 
         if verbose:
             logging.info(
-                f"Number of runs: {runs}, Permutations that pass the test function type:"
-                f"{count_pass_function}, p-value: {p_value}"
+                f"Number of runs: {runs}, Permutations that pass the test function "
+                f"type: {count_pass_function}, p-value: {p_value}"
             )
         return p_value
 
@@ -257,12 +256,12 @@ class WEAT(BaseMetric):
 
         p_value_test_type : {'left-sided', 'right-sided', 'two-sided}, optional
             When calculating the p-value, specify the type of test to be performed.
-            The options are 'left-sided', 'right-sided' and 'two-sided
+            The options are 'left-sided', 'right-sided' and 'two-sided'
             , by default 'right-sided'
 
         p_value_method : {'exact', 'approximate'}, optional
             When calculating the p-value, specify the method for calculating the
-            p-value. This can be 'exact 'and 'approximate'.
+            p-value. This can be 'exact' and 'approximate'.
             by default 'approximate'.
 
         p_value_iterations : int, optional
@@ -272,7 +271,7 @@ class WEAT(BaseMetric):
 
         p_value_verbose : bool, optional
             In case of calculating the p-value, specify if notification messages
-            will be logged during its calculation., by default False.
+            will be logged during its calculation, by default False.
 
         lost_vocabulary_threshold : float, optional
             Specifies the proportional limit of words that any set of the query is
@@ -301,7 +300,7 @@ class WEAT(BaseMetric):
                 titlecase.
             *   ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that
                 the accents of the words are eliminated. The stripping type can be
-                specified. True uses ‘unicode’ by default.
+                specified. True uses 'unicode' by default.
             *   ``preprocessor``: ``Callable``. It receives a function that operates
                 on each word. In the case of specifying a function, it overrides the
                 default preprocessor (i.e., the previous options stop working).
@@ -309,14 +308,14 @@ class WEAT(BaseMetric):
             A list of preprocessor options allows you to search for several
             variants of the words into the model. For example, the preprocessors
             ``[{}, {"lowercase": True, "strip_accents": True}]``
-            ``{}`` allows first to search for the original words in the vocabulary of
+            ``{}`` allows searching first for the original words in the vocabulary of
             the model. In case some of them are not found,
             ``{"lowercase": True, "strip_accents": True}`` is executed on these words
             and then they are searched in the model vocabulary.
 
         strategy : str, optional
             The strategy indicates how it will use the preprocessed words: 'first' will
-            include only the first transformed word found. all' will include all
+            include only the first transformed word found. 'all' will include all
             transformed words found, by default "first".
 
         normalize : bool, optional
@@ -364,19 +363,17 @@ class WEAT(BaseMetric):
         >>> model = load_test_model()
         >>>
         >>> # instance the metric and run the query
-        >>> WEAT().run_query(query, model) # doctest: +SKIP
+        >>> WEAT().run_query(query, model)
         {'query_name': 'Female terms and Male Terms wrt Family and Career',
         'result': 0.4634388245467562,
         'weat': 0.4634388245467562,
         'effect_size': 0.45076532408312986,
         'p_value': nan}
-        >>>
-        >>>
 
         If you want to return the effect size as result value, use
         `return_effect_size` parameter as `True` while running the query.
 
-        >>> WEAT().run_query(query, model, return_effect_size=True) # doctest: +SKIP
+        >>> WEAT().run_query(query, model, return_effect_size=True)
         {'query_name': 'Female terms and Male Terms wrt Family and Career',
         'result': 0.45076532408312986,
         'weat': 0.4634388245467562,
@@ -386,7 +383,7 @@ class WEAT(BaseMetric):
         If you want the embeddings to be normalized before calculating the metrics
         use the `normalize` parameter as `True` before executing the query.
 
-        >>> WEAT().run_query(query, model, normalize=True) # doctest: +SKIP
+        >>> WEAT().run_query(query, model, normalize=True)
         {'query_name': 'Female terms and Male Terms wrt Family and Career',
         'result': 0.4634388248814503,
         'weat': 0.4634388248814503,
@@ -397,8 +394,8 @@ class WEAT(BaseMetric):
         the permutation test and return its p-value. The argument
         `p_value_method='approximate'` indicates that the calculation of the
         permutation test will be approximate, i.e., not all possible permutations
-        will be generated.  Instead, random permutations of the attributes to test
         will be generated.
+        Instead, random permutations of the attributes to test will be generated.
         On the other hand, the argument `p_value_iterations`
         indicates the number of permutations that will be generated and tested.
 
@@ -408,7 +405,7 @@ class WEAT(BaseMetric):
         ...     calculate_p_value=True,
         ...     p_value_method="approximate",
         ...     p_value_iterations=10000,
-        ... )  # doctest: +SKIP
+        ... )
         {
             'query_name': 'Female terms and Male Terms wrt Family and Career',
             'result': 0.46343879750929773,

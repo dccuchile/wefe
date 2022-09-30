@@ -1,28 +1,24 @@
 .. -*- mode: rst -*-
 
-|ReadTheDocs|_ |CircleCI|_ |Conda|_ |CondaLatestRelease|_ |CondaVersion|_
+|License|_ |GithubActions|_ |ReadTheDocs|_ |Downloads|_ |Pypy|_ |CondaVersion|_
 
+.. |License| image:: https://img.shields.io/github/license/dccuchile/wefe
+.. _License: https://github.com/dccuchile/wefe/blob/master/LICENSE
 
 .. |ReadTheDocs| image:: https://readthedocs.org/projects/wefe/badge/?version=latest
 .. _ReadTheDocs: https://wefe.readthedocs.io/en/latest/?badge=latest
 
+.. |GithubActions| image:: https://github.com/dccuchile/wefe/actions/workflows/ci.yaml/badge.svg?branch=master
+.. _GithubActions: https://github.com/dccuchile/wefe/actions
 
-.. |CircleCI| image:: https://circleci.com/gh/dccuchile/wefe.svg?style=shield 
-.. _CircleCI: https://circleci.com/gh/dccuchile/wefe.svg?style=shield 
+.. |Downloads| image:: https://pepy.tech/badge/wefe
+.. _Downloads: https://pepy.tech/project/wefe
 
-
-.. |Conda| image:: https://anaconda.org/pbadilla/wefe/badges/installer/conda.svg
-.. _Conda: https://anaconda.org/pbadilla/wefe/badges/installer/conda.svg
-
-
-.. |CondaLatestRelease| image:: https://anaconda.org/pbadilla/wefe/badges/latest_release_date.svg
-.. _CondaLatestRelease: https://anaconda.org/pbadilla/wefe/badges/latest_release_date.svg
-
+.. |Pypy| image:: https://badge.fury.io/py/wefe.svg
+.. _Pypy: https://pypi.org/project/wefe/
 
 .. |CondaVersion| image:: https://anaconda.org/pbadilla/wefe/badges/version.svg
-.. _CondaVersion: https://anaconda.org/pbadilla/wefe/badges/version.svg
-
-
+.. _CondaVersion: https://anaconda.org/pbadilla/wefe
 
 
 WEFE: The Word Embedding Fairness Evaluation Framework
@@ -133,21 +129,34 @@ To compile the documentation, run:
 Changelog
 =========
 
-NEW DEVELOP VERSION
+Version 0.4.0
 -------------------
+- 3 new bias mitigation methods (debias) implemented: Double Hard Debias, Half
+  Sibling Regression and Repulsion Attraction Neutralization.
+- The library documentation of the library has been restructured. 
+  Now, the documentation is divided into user guide and theoretical framework
+  The user guide does not contain theoretical information. 
+  Instead, theoretical documentation can be found in the conceptual guides. 
+- Improved API documentation and examples. Added multilingual examples contributed 
+  by the community.
+- The user guides are fully executable because they are now on notebooks.
+- There was also an important improvement in the API documentation and in metrics and
+  debias examples.
+- Improved library testing mechanisms for metrics and debias methods.
 - Fixed wrong repr of query. Now the sets are in the correct order.
-- Greatly improved library testing mechanisms.
-- Improved project documentation. Now, the documentation is divided into user guide and
-  theoretical framework. In addition, the user guides are fully executable because they
-  are now on notebooks.
+- Implemented repr for WordEmbeddingModel.
+- Testing CI moved from CircleCI to GithubActions.
+- License changed to MIT.
 
 Version 0.3.2
 -------------
-- Fixed RNSB bug where the classification labels were interchanged and could produce erroneous results when the attributes are of different sizes.
+- Fixed RNSB bug where the classification labels were interchanged and could produce
+  erroneous results when the attributes are of different sizes.
 - Fixed RNSB replication notebook 
 - Update of WEFE case study scores. 
 - Improved documentation examples for WEAT, RNSB, RIPA.
-- Holdout parameter added to RNSB, which allows to indicate whether or not a holdout is performed when training the classifier.
+- Holdout parameter added to RNSB, which allows to indicate whether or not a holdout
+  is performed when training the classifier.
 - Improved printing of the RNSB evaluation.
 
 Version 0.3.1
@@ -155,16 +164,22 @@ Version 0.3.1
 - Update WEFE original case study
 - Hotfix: Several bug fixes for execute WEFE original Case Study.
 - fetch_eds top_n_race_occupations argument set to 10.
-- Preprocessing: get_embeddings_from_set now returns a list with the lost preprocessed words instead of the original ones.
+- Preprocessing: get_embeddings_from_set now returns a list with the lost
+  preprocessed words instead of the original ones.
 
 Version 0.3.0
 -------------
 - Implemented Bolukbasi et al. 2016 Hard Debias.
 - Implemented  Thomas Manzini et al. 2019 Multiclass Hard Debias.
 - Implemented a fetch function to retrieve gn-glove female-male word sets.
-- Moved the transformation logic of words, sets and queries to embeddings to its own module: preprocessing
-- Enhanced the preprocessor_args and secondary_preprocessor_args metric preprocessing parameters to an list of preprocessors `preprocessors` together with the parameter `strategy` indicating whether to consider all the transformed words (`'all'`) or only the first one encountered (`'first'`).
-- Renamed WordEmbeddingModel attributes ```model``` and ```model_name```  to ```wv``` and ```name``` respectively.
+- Moved the transformation logic of words, sets and queries to embeddings to its own
+  module: preprocessing
+- Enhanced the preprocessor_args and secondary_preprocessor_args metric
+  preprocessing parameters to an list of preprocessors `preprocessors` together with
+  the parameter `strategy` indicating whether to consider all the transformed words
+  (`'all'`) or only the first one encountered (`'first'`).
+- Renamed WordEmbeddingModel attributes ```model``` and ```model_name```  to
+  ```wv``` and ```name``` respectively.
 - Renamed every run_query ```word_embedding``` argument to ```model``` in every metric.
 
 
@@ -179,21 +194,30 @@ Version 0.2.1
 
 - Compatibility fixes.
 
-
 Version 0.2.0
 --------------
 
-- Renamed optional ```run_query``` parameter  ```warn_filtered_words``` to `warn_not_found_words`.
-- Added ```word_preprocessor_args``` parameter to ```run_query``` that allow specifying transformations prior to searching for words in word embeddings.
-- Added ```secondary_preprocessor_args``` parameter to ```run_query``` which allows specifying a second pre-processor transformation to words before searching them in word embeddings. It is not necessary to specify the first preprocessor to use this one.
-- Implemented ```__getitem__``` function in ```WordEmbeddingModel```. This method allows obtaining an embedding from a word from the model stored in the instance using indexers. 
+- Renamed optional ```run_query``` parameter  ```warn_filtered_words``` to 
+  `warn_not_found_words`.
+- Added ```word_preprocessor_args``` parameter to ```run_query``` that allow specifying
+  transformations prior to searching for words in word embeddings.
+- Added ```secondary_preprocessor_args``` parameter to ```run_query``` which allows 
+  specifying a second pre-processor transformation to words before searching them in
+  word embeddings. It is not necessary to specify the first preprocessor to use this
+  one.
+- Implemented ```__getitem__``` function in ```WordEmbeddingModel```. This method
+  allows obtaining an embedding from a word from the model stored in the instance
+  using indexers. 
 - Removed underscore from class and instance variable names.
-- Improved type and verification exception messages when creating objects and executing methods.
-- Fix an error that appeared when calculating rankings with two columns of aggregations with the same name.
+- Improved type and verification exception messages when creating objects and executing
+  methods.
+- Fix an error that appeared when calculating rankings with two columns of aggregations
+  with the same name.
 - Ranking correlations are now calculated using pandas ```corr``` method. 
 - Changed metric template, name and short_names to class variables.
 - Implemented ```random_state``` in RNSB to allow replication of the experiments.
-- run_query now returns as a result the default metric requested in the parameters and all calculated values that may be useful in the other variables of the dictionary.
+- run_query now returns as a result the default metric requested in the parameters
+  and all calculated values that may be useful in the other variables of the dictionary.
 - Fixed problem with api documentation: now it shows methods of the classes.
 - Implemented p-value for WEAT
 

@@ -69,7 +69,8 @@ class DoubleHardDebias(BaseDebias):
     >>> debiased_model = dhd.transform(
     ...     model=model, ignore=gender_specific
     ... )
-    Copy argument is True. Transform will attempt to create a copy of the original model. This may fail due to lack of memory.
+    Copy argument is True. Transform will attempt to create a copy of the original
+    model. This may fail due to lack of memory.
     Model copy created successfully.
 
     If you want the debiased to be performed over a specific set of words you can
@@ -78,7 +79,8 @@ class DoubleHardDebias(BaseDebias):
     >>> debiased_model = dhd.transform(
     ... model=model, target = ['doctor','nurse','programmer','teacher']
     ... )
-    Copy argument is True. Transform will attempt to create a copy of the original model. This may fail due to lack of memory.
+    Copy argument is True. Transform will attempt to create a copy of the original
+    model. This may fail due to lack of memory.
     Model copy created successfully.
 
     References
@@ -163,7 +165,9 @@ class DoubleHardDebias(BaseDebias):
         self.n_components = n_components
 
     def _check_sets_size(
-        self, sets: List[List[str]], set_name: str,
+        self,
+        sets: List[List[str]],
+        set_name: str,
     ):
 
         for idx, set_ in enumerate(sets):
@@ -176,7 +180,7 @@ class DoubleHardDebias(BaseDebias):
                     f"got {len(set_)} words, expected 2."
                 )
 
-    def _similarity(self, u: List[np.ndarray], v: List[np.ndarray]) -> np.array:
+    def _similarity(self, u: List[np.ndarray], v: List[np.ndarray]) -> np.ndarray:
         return 1 - pairwise_distances(u, v, metric="cosine")
 
     def _bias_by_projection(
@@ -290,7 +294,9 @@ class DoubleHardDebias(BaseDebias):
         return droped_frecuencies
 
     def _identify_bias_subspace(
-        self, defining_pairs_embeddings, verbose: bool = False,
+        self,
+        defining_pairs_embeddings,
+        verbose: bool = False,
     ) -> PCA:
 
         matrix = []
@@ -362,6 +368,7 @@ class DoubleHardDebias(BaseDebias):
         model: WordEmbeddingModel,
         definitional_pairs: List[List[str]],
         bias_representation: List[str],
+        **fit_params,
     ) -> BaseDebias:
         """Compute the bias direction and obtain the principal components of the entire
            set of vectors.
@@ -383,6 +390,7 @@ class DoubleHardDebias(BaseDebias):
         BaseDebias
             The debias method fitted.
         """
+
         self.definitional_pairs = definitional_pairs
 
         self._check_sets_sizes(self.definitional_pairs, "definitional", set_size=2)
@@ -429,8 +437,8 @@ class DoubleHardDebias(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: List[str] = None,
-        ignore: List[str] = [],
+        target: Optional[List[str]] = None,
+        ignore: Optional[List[str]] = [],
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Execute hard debias over the provided model.
@@ -459,7 +467,9 @@ class DoubleHardDebias(BaseDebias):
         """
         # check if the following attributes exist in the object.
         self._check_transform_args(
-            model=model, ignore=ignore, copy=copy,
+            model=model,
+            ignore=ignore,
+            copy=copy,
         )
         check_is_fitted(
             self,

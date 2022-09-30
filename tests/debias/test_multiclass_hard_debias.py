@@ -10,7 +10,8 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 def test_multiclass_hard_debias_param_checks(
-    model: WordEmbeddingModel, definitional_pairs: List[List[str]],
+    model: WordEmbeddingModel,
+    definitional_pairs: List[List[str]],
 ):
 
     with pytest.raises(
@@ -135,7 +136,11 @@ def test_multiclass_hard_debias_target_param(
         model,
         definitional_sets=mhd_gender_definitional_sets,
         equalize_sets=mhd_gender_equalize_sets,
-    ).transform(model, target=attribute_words, copy=True,)
+    ).transform(
+        model,
+        target=attribute_words,
+        copy=True,
+    )
 
     assert model.name == "test_w2v"
     assert gender_debiased_w2v.name == "test_w2v_debiased"

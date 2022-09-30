@@ -5,7 +5,6 @@ from typing import Dict, List, Optional
 
 import numpy as np
 from tqdm import tqdm
-
 from wefe.debias.base_debias import BaseDebias
 from wefe.preprocessing import get_embeddings_from_tuples
 from wefe.utils import check_is_fitted
@@ -13,7 +12,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 class HalfSiblingRegression(BaseDebias):
-    """Half Sibling Debias method.
+    r"""Half Sibling Debias method.
 
     This method proposes to learn spurious gender information via causal
     inference by utilizing the statistical dependency between gender-biased
@@ -40,7 +39,7 @@ class HalfSiblingRegression(BaseDebias):
 
     .. math::
 
-        W = ((V_d)^T V_d +  \\alpha I)^{-1} (V_d)^TV_n
+        W = ((V_d)^T V_d +  \alpha I)^{-1} (V_d)^TV_n
 
     2. Compute the gender information:
 
@@ -86,7 +85,8 @@ class HalfSiblingRegression(BaseDebias):
     ... )
     >>> # execute the debias on the words not included in the gender definition set
     >>> debiased_model = hsr.transform(model = model)
-    Copy argument is True. Transform will attempt to create a copy of the original model. This may fail due to lack of memory.
+    Copy argument is True. Transform will attempt to create a copy of the original
+    model. This may fail due to lack of memory.
     Model copy created successfully.
     >>>
     >>>
@@ -95,7 +95,8 @@ class HalfSiblingRegression(BaseDebias):
     >>> debiased_model = hsr.transform(
     ...     model=model, target=["doctor", "nurse", "programmer"]
     ... )
-    Copy argument is True. Transform will attempt to create a copy of the original model. This may fail due to lack of memory.
+    Copy argument is True. Transform will attempt to create a copy of the original
+    model. This may fail due to lack of memory.
     Model copy created successfully.
     >>>
     >>> # if you want to exclude a set of words from the debias process
@@ -103,7 +104,8 @@ class HalfSiblingRegression(BaseDebias):
     >>> debiased_model = hsr.transform(
     ...     model=model, ignore=["dress", "beard", "niece", "nephew"]
     ... )
-    Copy argument is True. Transform will attempt to create a copy of the original model. This may fail due to lack of memory.
+    Copy argument is True. Transform will attempt to create a copy of the original
+    model. This may fail due to lack of memory.
     Model copy created successfully.
 
     References

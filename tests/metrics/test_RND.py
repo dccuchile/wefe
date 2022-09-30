@@ -13,7 +13,7 @@ def check_RND_result_keys(results: Dict[str, Any]):
         "query_name",
         "result",
         "rnd",
-        "distances_by_word",
+        "distance_by_word",
     ]
 
 
@@ -25,7 +25,7 @@ def check_RND_result_values(results: Dict[str, Any]):
     assert isinstance(results["result"], np.number)
     assert isinstance(results["rnd"], np.number)
 
-    distances_by_word = results["distances_by_word"]
+    distances_by_word = results["distance_by_word"]
     assert isinstance(distances_by_word, dict)
     assert len(distances_by_word) > 0
     for word, distance in distances_by_word.items():
@@ -69,7 +69,10 @@ def test_RND_lost_vocabulary_threshold(
 ):
     rnd = RND()
 
-    result = rnd.run_query(query_2t1a_lost_vocab_1, model,)
+    result = rnd.run_query(
+        query_2t1a_lost_vocab_1,
+        model,
+    )
     check_RND_result_keys(result)
 
     assert result["query_name"] == "Flowers and Insects wrt Pleasant"
@@ -77,5 +80,5 @@ def test_RND_lost_vocabulary_threshold(
     assert np.isnan(result["result"])
     assert np.isnan(result["rnd"])
 
-    assert isinstance(result["distances_by_word"], dict)
-    assert len(result["distances_by_word"]) == 0
+    assert isinstance(result["distance_by_word"], dict)
+    assert len(result["distance_by_word"]) == 0

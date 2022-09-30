@@ -3,8 +3,7 @@ import logging
 from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
-from sklearn.feature_extraction.text import (strip_accents_ascii,
-                                             strip_accents_unicode)
+from sklearn.feature_extraction.text import strip_accents_ascii, strip_accents_unicode
 
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
@@ -34,8 +33,8 @@ def preprocess_word(
 
         - ```titlecase```: bool. Indicates if the words are transformed to titlecase.
 
-        - ```strip_accents```: `bool`, `{'ascii', 'unicode'}`: Specifies if the accents of
-          the words are eliminated. The stripping type can be
+        - ```strip_accents```: `bool`, `{'ascii', 'unicode'}`: Specifies if the
+          accents of the words are eliminated. The stripping type can be
           specified. True uses 'unicode' by default.
 
         - ```preprocessor```: Callable. It receives a function that operates on each
@@ -125,7 +124,7 @@ def get_embeddings_from_set(
             titlecase.
         *   ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that
             the accents of the words are eliminated. The stripping type can be
-            specified. True uses ‘unicode’ by default.
+            specified. True uses 'unicode' by default.
         *   ``preprocessor``: ``Callable``. It receives a function that operates
             on each word. In the case of specifying a function, it overrides the
             default preprocessor (i.e., the previous options stop working).
@@ -133,7 +132,7 @@ def get_embeddings_from_set(
         A list of preprocessor options allows you to search for several
         variants of the words into the model. For example, the preprocessors
         ``[{}, {"lowercase": True, "strip_accents": True}]``
-        ``{}`` allows first to search for the original words in the vocabulary of
+        ``{}`` allows searching first for the original words in the vocabulary of
         the model. In case some of them are not found,
         ``{"lowercase": True, "strip_accents": True}`` is executed on these words
         and then they are searched in the model vocabulary.
@@ -141,7 +140,7 @@ def get_embeddings_from_set(
 
     strategy : str, optional
         The strategy indicates how it will use the preprocessed words: 'first' will
-        include only the first transformed word found. all' will include all
+        include only the first transformed word found. 'all' will include all
         transformed words found, by default "first".
 
     normalize : bool, optional
@@ -171,8 +170,8 @@ def get_embeddings_from_set(
 
     if not isinstance(preprocessors, list):
         raise TypeError(
-            "preprocessors should be a list of dicts which contains preprocessor options"
-            f", got {preprocessors}."
+            "preprocessors should be a list of dicts which contains preprocessor "
+            f"options, got {preprocessors}."
         )
     if len(preprocessors) == 0:
         raise TypeError(
@@ -333,7 +332,7 @@ def get_embeddings_from_tuples(
             titlecase.
         *   ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that
             the accents of the words are eliminated. The stripping type can be
-            specified. True uses ‘unicode’ by default.
+            specified. True uses 'unicode' by default.
         *   ``preprocessor``: ``Callable``. It receives a function that operates
             on each word. In the case of specifying a function, it overrides the
             default preprocessor (i.e., the previous options stop working).
@@ -341,7 +340,7 @@ def get_embeddings_from_tuples(
         A list of preprocessor options allows you to search for several
         variants of the words into the model. For example, the preprocessors
         ``[{}, {"lowercase": True, "strip_accents": True}]``
-        ``{}`` allows first to search for the original words in the vocabulary of
+        ``{}`` allows searching first for the original words in the vocabulary of
         the model. In case some of them are not found,
         ``{"lowercase": True, "strip_accents": True}`` is executed on these words
         and then they are searched in the model vocabulary.
@@ -349,7 +348,7 @@ def get_embeddings_from_tuples(
 
     strategy : str, optional
         The strategy indicates how it will use the preprocessed words: 'first' will
-        include only the first transformed word found. all' will include all
+        include only the first transformed word found. 'all' will include all
         transformed words found, by default "first".
 
     normalize : bool, optional
@@ -501,7 +500,7 @@ def get_embeddings_from_query(
             titlecase.
         *   ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that
             the accents of the words are eliminated. The stripping type can be
-            specified. True uses ‘unicode’ by default.
+            specified. True uses 'unicode' by default.
         *   ``preprocessor``: ``Callable``. It receives a function that operates
             on each word. In the case of specifying a function, it overrides the
             default preprocessor (i.e., the previous options stop working).
@@ -509,7 +508,7 @@ def get_embeddings_from_query(
         A list of preprocessor options allows you to search for several
         variants of the words into the model. For example, the preprocessors
         ``[{}, {"lowercase": True, "strip_accents": True}]``
-        ``{}`` allows first to search for the original words in the vocabulary of
+        ``{}`` allows searching first for the original words in the vocabulary of
         the model. In case some of them are not found,
         ``{"lowercase": True, "strip_accents": True}`` is executed on these words
         and then they are searched in the model vocabulary.
@@ -517,7 +516,7 @@ def get_embeddings_from_query(
 
     strategy : str, optional
         The strategy indicates how it will use the preprocessed words: 'first' will
-        include only the first transformed word found. all' will include all
+        include only the first transformed word found. 'all' will include all
         transformed words found, by default "first".
 
     normalize : bool, optional

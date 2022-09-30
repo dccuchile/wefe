@@ -1,6 +1,6 @@
 """Repulsion Attraction Neutralization WEFE implementation."""
 from copy import deepcopy
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 import numpy as np
 from sklearn.decomposition import PCA
@@ -41,7 +41,7 @@ class RAN_Loss(nn.Module):
             repulsion_set: List[np.ndarray]
                 Set of embeddings to be repeled from word
             bias_direction: np.array
-        
+
         """
         super(RAN_Loss, self).__init__()
         self.w = w
@@ -142,7 +142,7 @@ class RAN(nn.Module):
 
 
 class RepulsionAttractionNeutralization(BaseDebias):
-    """Repulsion Attraction Neutralization method.
+    r"""Repulsion Attraction Neutralization method.
 
     .. warning::
 
@@ -188,7 +188,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     .. math::
 
-        F_r(w_d) =  \\sum |cos(w_d,n_i)| / |S|
+        F_r(w_d) =  \sum |cos(w_d,n_i)| / |S|
 
     .. math::
 
@@ -202,7 +202,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     .. math::
 
-        F(w_d) =  \\lambda_1 F_r(w_d) + \\lambda_2 F_a(w_d) + \\lambda_3 F_n(w_d)
+        F(w_d) =  \lambda_1 F_r(w_d) + \lambda_2 F_a(w_d) + \lambda_3 F_n(w_d)
 
     In the original implementation is define a preserve set :math:`(V_p)` corresponding
     to words for which gender carries semantic importance, this words are not
@@ -210,7 +210,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     In WEFE this words would be the ones included in the ignore parameter of the
     transform method. The words that are not present in :math:`V_p` are the ones to be
-    included in the debias process and form part of the debias set :math:`(V_d)`, 
+    included in the debias process and form part of the debias set :math:`(V_d)`,
     in WEFE this words can be specified in the target parameter of the transform method.
 
     Examples
@@ -239,7 +239,8 @@ class RepulsionAttractionNeutralization(BaseDebias):
     >>> debiased_model = ran.transform(
     ...    model = model, target = ['doctor','nurse','programmer']
     ... )
-    Copy argument is True. Transform will attempt to create a copyof the original model. This may fail due to lack of memory.
+    Copy argument is True. Transform will attempt to create a copyof the original model.
+    This may fail due to lack of memory.
     Model copy created successfully.
     >>> # if you don't want a set of words to be debiased include them in the ignore set
     >>> gender_specific = debiaswe_wordsets["gender_specific"]
@@ -332,7 +333,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
         self.learning_rate = learning_rate
 
     def _identify_bias_subspace(
-        self, defining_pairs_embeddings: List[EmbeddingDict], verbose: bool = False,
+        self,
+        defining_pairs_embeddings: List[EmbeddingDict],
+        verbose: bool = False,
     ) -> PCA:
 
         matrix = []
@@ -357,7 +360,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
         return pca
 
     def _check_sets_size(
-        self, sets: Sequence[Sequence[str]], set_name: str,
+        self,
+        sets: Sequence[Sequence[str]],
+        set_name: str,
     ):
 
         for idx, set_ in enumerate(sets):
@@ -443,7 +448,15 @@ class RepulsionAttractionNeutralization(BaseDebias):
         weights: List[float],
     ) -> torch.Tensor:
 
-        ran = RAN(model, word, w_b, w, repulsion_set, bias_direction, weights,)
+        ran = RAN(
+            model,
+            word,
+            w_b,
+            w,
+            repulsion_set,
+            bias_direction,
+            weights,
+        )
         optimizer = torch.optim.Adam(ran.parameters(), lr=learning_rate)
         for epoch in range(epochs):
             optimizer.zero_grad()
@@ -458,7 +471,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
         return torch.FloatTensor(np.array(v))
 
     def fit(
-        self, model: WordEmbeddingModel, definitional_pairs: Sequence[Sequence[str]],
+        self,
+        model: WordEmbeddingModel,
+        definitional_pairs: Sequence[Sequence[str]],
     ) -> BaseDebias:
         """Compute the bias direction.
 
@@ -501,7 +516,8 @@ class RepulsionAttractionNeutralization(BaseDebias):
             print("Identifying the bias subspace.")
 
         self.pca_ = self._identify_bias_subspace(
-            self.definitional_pairs_embeddings_, self.verbose,
+            self.definitional_pairs_embeddings_,
+            self.verbose,
         )
         self.bias_direction_ = self.pca_.components_[0]
         return self

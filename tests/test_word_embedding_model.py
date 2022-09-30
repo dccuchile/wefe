@@ -10,6 +10,13 @@ from wefe.word_embedding_model import WordEmbeddingModel
 gensim_version = semantic_version.Version.coerce(gensim.__version__)
 
 
+@pytest.fixture
+def test_keyed_vectors() -> KeyedVectors:
+
+    test_model = KeyedVectors.load("./wefe/datasets/data/test_model.kv")
+    return test_model
+
+
 def test__init__():
     # Test types verifications
 
@@ -62,11 +69,11 @@ def test__init__():
     assert model.vocab_prefix == "\\c\\en"
 
 
-def test__eq__(keyed_vector_model: gensim.models.KeyedVectors):
-    model_1 = WordEmbeddingModel(keyed_vector_model, "w2v")
-    model_2 = WordEmbeddingModel(keyed_vector_model, "w2v_2")
-    model_3_prefix_a = WordEmbeddingModel(keyed_vector_model, "w2v_3", vocab_prefix="a")
-    model_3_prefix_b = WordEmbeddingModel(keyed_vector_model, "w2v_3", vocab_prefix="b")
+def test__eq__(test_keyed_vectors: gensim.models.KeyedVectors):
+    model_1 = WordEmbeddingModel(test_keyed_vectors, "w2v")
+    model_2 = WordEmbeddingModel(test_keyed_vectors, "w2v_2")
+    model_3_prefix_a = WordEmbeddingModel(test_keyed_vectors, "w2v_3", vocab_prefix="a")
+    model_3_prefix_b = WordEmbeddingModel(test_keyed_vectors, "w2v_3", vocab_prefix="b")
 
     assert model_1 != ""
 
@@ -83,14 +90,17 @@ def test__eq__(keyed_vector_model: gensim.models.KeyedVectors):
     assert model_3_prefix_b != model_3_prefix_a
 
 
-def test__contains__(model: WordEmbeddingModel):
+def test__contains__(test_keyed_vectors: gensim.models.KeyedVectors):
+    model = WordEmbeddingModel(test_keyed_vectors, "w2v")
+
     assert "men" in model
     assert "asdf" not in model
     assert None not in model
     assert 0 not in model
 
 
-def test__getitem__(model: WordEmbeddingModel):
+def test__getitem__(test_keyed_vectors: gensim.models.KeyedVectors):
+    model = WordEmbeddingModel(test_keyed_vectors, "w2v")
 
     embedding = model["ASDF"]
     assert embedding is None
@@ -98,6 +108,33 @@ def test__getitem__(model: WordEmbeddingModel):
     embedding = model["career"]
     assert isinstance(embedding, np.ndarray)
     assert embedding.shape == (300,)
+
+
+def test__repr__(test_keyed_vectors: gensim.models.KeyedVectors):
+
+    model_1 = WordEmbeddingModel(test_keyed_vectors, "w2v")
+    model_1_no_name = WordEmbeddingModel(test_keyed_vectors)
+    model_1_prefix_a = WordEmbeddingModel(test_keyed_vectors, "w2v", vocab_prefix="a")
+    model_1_no_name_prefix_a = WordEmbeddingModel(test_keyed_vectors, vocab_prefix="a")
+
+    assert (
+        model_1.__repr__()
+        == "<WordEmbeddingModel named 'w2v' with 13013 word embeddings of 300 dims>"
+    )
+    assert model_1_no_name.__repr__() == (
+        "<WordEmbeddingModel 'Unnamed model' with 13013 word embeddings of 300 dims>"
+    )
+    assert model_1_prefix_a.__repr__() == (
+        "<WordEmbeddingModel named 'w2v' with 13013 word embeddings of 300 dims and"
+        " 'a' as word prefix>"
+    )
+    assert model_1_no_name_prefix_a.__repr__() == (
+        "<WordEmbeddingModel 'Unnamed model' with 13013 word embeddings of 300 dims "
+        "and 'a' as word prefix>"
+    )
+
+    del model_1.name
+    assert model_1.__repr__() == "<WordEmbeddingModel with wrong __repr__>"
 
 
 def test__init__with_w2v_model():
@@ -127,7 +164,9 @@ def test__init_with_fast_model():
 
 
 # -------------------------------------------------------------------------------------
-def test_normalize_embeddings(model: WordEmbeddingModel):
+def test_normalize_embeddings(test_keyed_vectors: gensim.models.KeyedVectors):
+    model = WordEmbeddingModel(test_keyed_vectors, "w2v")
+
     # test unnormalized embeddings
     for word in model.vocab:
         assert np.abs(np.linalg.norm(model[word]) - 1.0) > 0.000001
@@ -146,7 +185,8 @@ def test_normalize_embeddings(model: WordEmbeddingModel):
 
 
 # -------------------------------------------------------------------------------------
-def test_update_embedding(model: WordEmbeddingModel):
+def test_update_embedding(test_keyed_vectors: gensim.models.KeyedVectors):
+    model = WordEmbeddingModel(test_keyed_vectors, "w2v")
 
     new_embedding = np.ones(300, dtype=model.wv.vectors.dtype)
     model.update("The", new_embedding)
@@ -178,7 +218,9 @@ def test_update_embedding(model: WordEmbeddingModel):
 
 
 # -------------------------------------------------------------------------------------
-def test_update_embeddings(model):
+def test_update_embeddings(test_keyed_vectors: gensim.models.KeyedVectors):
+    model = WordEmbeddingModel(test_keyed_vectors, "w2v")
+
     words = ["The", "in"]
     embeddings = [np.ones(300, dtype=np.float32), np.ones(300, dtype=np.float32) * -1]
 
@@ -202,11 +244,13 @@ def test_update_embeddings(model):
         model.batch_update(None, embeddings)
 
     with pytest.raises(
-        TypeError, match=r"embeddings should be a list, tuple or np.array, got:.*",
+        TypeError,
+        match=r"embeddings should be a list, tuple or np.array, got:.*",
     ):
         model.batch_update(words, None)
 
     with pytest.raises(
-        ValueError, match=r"words and embeddings must have the same size, got:.*",
+        ValueError,
+        match=r"words and embeddings must have the same size, got:.*",
     ):
         model.batch_update(words + ["is"], embeddings)

@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class HardDebias(BaseDebias):
-    """Hard Debias debiasing method.
+    r"""Hard Debias debiasing method.
 
     Hard debias is a method that allows mitigating biases through geometric operations
     on embeddings.
@@ -38,7 +38,8 @@ class HardDebias(BaseDebias):
     First, it is defined a set of words that are correct to be related to the bias
     criterion: the *criterion specific gender words*.
     For example, in the case of gender, *gender specific* words are:
-    ``['he', 'his', 'He', 'her', 'she', 'him', 'him', 'She', 'man', 'women', 'men'...]``.
+    ``['he', 'his', 'He', 'her', 'she', 'him', 'him', 'She', 'man', 'women', 'men',
+    ...]``.
 
     Then, it is defined that all words outside this set should have no relation to the
     bias criterion and thus have the possibility of being biased. (e.g. for the case of
@@ -55,13 +56,13 @@ class HardDebias(BaseDebias):
 
     .. math::
 
-       \\text{bias_subspace} = \\frac{v \\cdot (v \\cdot u)}{(v \\cdot v)}
+       \text{bias subspace} = \frac{v \cdot (v \cdot u)}{(v \cdot v)}
 
     Then subtract the projection from the embedding.
 
     .. math::
 
-        u' = u - \\text{bias_subspace}
+        u' = u - \text{bias subspace}
 
     3. Equalizate the embeddings with respect to the bias direction.
     Given an equalization set (set of word pairs such as ``['she', 'he'],
@@ -139,7 +140,8 @@ class HardDebias(BaseDebias):
 
     References
     ----------
-    | [1]: Bolukbasi, T., Chang, K. W., Zou, J. Y., Saligrama, V., & Kalai, A. T. (2016).
+    | [1]: Bolukbasi, T., Chang, K. W., Zou, J. Y., Saligrama, V., & Kalai, A. T.
+           (2016).
     | Man is to computer programmer as woman is to homemaker? debiasing word embeddings.
     | Advances in Neural Information Processing Systems.
     | [2]: https://github.com/tolga-b/debiaswe
@@ -166,8 +168,8 @@ class HardDebias(BaseDebias):
             by default False.
         criterion_name : Optional[str], optional
             The name of the criterion for which the debias is being executed,
-            e.g., 'Gender'. This will indicate the name of the model returning transform,
-            by default None
+            e.g., 'Gender'. This will indicate the name of the model returning
+            transform, by default None
         """
         # check verbose
         if not isinstance(verbose, bool):
@@ -181,22 +183,10 @@ class HardDebias(BaseDebias):
         else:
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
-    def _check_sets_size(
-        self, sets: List[List[str]], set_name: str,
-    ):
-
-        for idx, set_ in enumerate(sets):
-            if len(set_) != 2:
-                adverb = "less" if len(set_) < 2 else "more"
-
-                raise ValueError(
-                    f"The {set_name} pair at position {idx} ({set_}) has {adverb} "
-                    f"words than allowed by {self.name}: "
-                    f"got {len(set_)} words, expected 2."
-                )
-
     def _identify_bias_subspace(
-        self, definning_pairs_embeddings: List[EmbeddingDict], verbose: bool = False,
+        self,
+        definning_pairs_embeddings: List[EmbeddingDict],
+        verbose: bool = False,
     ) -> PCA:
 
         matrix = []
@@ -285,7 +275,10 @@ class HardDebias(BaseDebias):
             ):
                 (
                     (word_a, embedding_a),
-                    (word_b, embedding_b,),
+                    (
+                        word_b,
+                        embedding_b,
+                    ),
                 ) = equalize_pair_embeddings.items()
 
                 y = self._drop((embedding_a + embedding_b) / 2, bias_direction)
@@ -353,7 +346,8 @@ class HardDebias(BaseDebias):
             print("Identifying the bias subspace.")
 
         self.pca_ = self._identify_bias_subspace(
-            self.definitional_pairs_embeddings_, self.verbose,
+            self.definitional_pairs_embeddings_,
+            self.verbose,
         )
         self.bias_direction_ = self.pca_.components_[0]
 
@@ -411,12 +405,13 @@ class HardDebias(BaseDebias):
         model : WordEmbeddingModel
             The word embedding model to debias.
         target : Optional[List[str]], optional
-            If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. If `None` is provided, the
-            debias will be performed on all words (except those specified in ignore).
+            If a set of words is specified in target, the debias method will be
+            performed only on the word embeddings of this set. If `None` is provided,
+            the debias will be performed on all words (except those specified in
+            ignore).
             Note that some words that are not in target may be modified due to the
             equalization process.
-            By default `None`. 
+            By default `None`.
         ignore : Optional[List[str]], optional
             If target is `None` and a set of words is specified in ignore, the debias
             method will perform the debias in all words except those specified in this
@@ -441,7 +436,10 @@ class HardDebias(BaseDebias):
         # Check types and if the method is fitted
 
         self._check_transform_args(
-            model=model, target=target, ignore=ignore, copy=copy,
+            model=model,
+            target=target,
+            ignore=ignore,
+            copy=copy,
         )
 
         # check if the following attributes exist in the object.
@@ -501,7 +499,9 @@ class HardDebias(BaseDebias):
             print("Equalizing embeddings.")
 
         self._equalize(
-            model, self.equalize_pairs_embeddings_, self.bias_direction_,
+            model,
+            self.equalize_pairs_embeddings_,
+            self.bias_direction_,
         )
 
         if self.verbose:

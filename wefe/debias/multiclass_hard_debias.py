@@ -29,7 +29,7 @@ class MulticlassHardDebias(BaseDebias):
         For more information on the use of mitigation methods, visit
         :ref:`bias mitigation` in the User Guide.
 
-    The following example shows how to run an ethnicity debias based on Black, 
+    The following example shows how to run an ethnicity debias based on Black,
     Asian and Caucasian groups.
 
     >>> from wefe.datasets import fetch_debias_multiclass, load_weat
@@ -116,7 +116,8 @@ class MulticlassHardDebias(BaseDebias):
             )
 
     def _identify_bias_subspace(
-        self, definning_sets_embeddings: List[EmbeddingDict],
+        self,
+        definning_sets_embeddings: List[EmbeddingDict],
     ) -> PCA:
 
         matrix = []
@@ -148,27 +149,6 @@ class MulticlassHardDebias(BaseDebias):
         for component in subspace:
             v_b += np.dot(vector.transpose(), component) * component
         return v_b
-
-    def _get_target(
-        self, model: WordEmbeddingModel, target: Optional[List[str]] = None,
-    ) -> List[str]:
-
-        definitional_words = np.array(self.definitional_sets_).flatten().tolist()
-
-        if target is not None:
-            # keep only words in the model's vocab.
-            target = list(
-                filter(
-                    lambda x: x in model.vocab and x not in definitional_words, target,
-                )
-            )
-        else:
-            # indicate that all words are canditates to neutralize.
-            target = list(
-                filter(lambda x: x not in definitional_words, model.vocab.keys(),)
-            )
-
-        return target
 
     def _neutralize(
         self,
@@ -277,7 +257,9 @@ class MulticlassHardDebias(BaseDebias):
         # Identify the bias subspace using the definning sets.
         if self.verbose:
             print("Identifying the bias subspace.")
-        self.pca_ = self._identify_bias_subspace(self.definitional_sets_embeddings_,)
+        self.pca_ = self._identify_bias_subspace(
+            self.definitional_sets_embeddings_,
+        )
         self.bias_subspace_ = self.pca_.components_[: self.pca_num_components_]
 
         # ------------------------------------------------------------------------------
@@ -311,9 +293,10 @@ class MulticlassHardDebias(BaseDebias):
         model : WordEmbeddingModel
             The word embedding model to debias.
         target : Optional[List[str]], optional
-            If a set of words is specified in target, the debias method will be performed
-            only on the word embeddings of this set. If `None` is provided, the
-            debias will be performed on all words (except those specified in ignore).
+            If a set of words is specified in target, the debias method will be
+            performed only on the word embeddings of this set. If `None` is provided,
+            the debias will be performed on all words (except those specified in
+            ignore).
             Note that some words that are not in target may be modified due to the
             equalization process.
             by default `None`.
@@ -338,7 +321,10 @@ class MulticlassHardDebias(BaseDebias):
             The debiased embedding model.
         """
         self._check_transform_args(
-            model=model, target=target, ignore=ignore, copy=copy,
+            model=model,
+            target=target,
+            ignore=ignore,
+            copy=copy,
         )
 
         check_is_fitted(

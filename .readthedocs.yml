@@ -1,9 +1,0 @@
-formats:
-  - epub
-  - pdf
-requirements_file: requirements.txt
-python:
-  version: 3.7
-  install:
-    - requirements: requirements.txt
-    - requirements: requirements-dev.txt  

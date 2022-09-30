@@ -2,7 +2,6 @@
 from typing import Dict, List
 
 import pytest
-
 from wefe.datasets.datasets import load_weat
 from wefe.query import Query
 
@@ -343,3 +342,153 @@ def test_wrong_target_and_attribute_sets_and_names(caplog):
             ["Flowers"],
             ["Pleasant", "asdf"],
         )
+
+
+def test_query__repr__():
+
+    weat_word_set = load_weat()
+    query = Query(
+        [weat_word_set["flowers"], weat_word_set["insects"]],
+        [weat_word_set["pleasant_5"]],
+        ["Flowers", "Insects"],
+        ["Pleasant"],
+    )
+
+    assert query.__repr__() == (
+        "<Query: Flowers and Insects wrt Pleasant\n- Target sets: [['aster', 'clover'"
+        ", 'hyacinth', 'marigold', 'poppy', 'azalea', 'crocus', 'iris', 'orchid',"
+        " 'rose', 'bluebell', 'daffodil', 'lilac', 'pansy', 'tulip', 'buttercup',"
+        " 'daisy', 'lily', 'peony', 'violet', 'carnation', 'gladiola', 'magnolia',"
+        " 'petunia', 'zinnia'], ['ant', 'caterpillar', 'flea', 'locust', 'spider',"
+        " 'bedbug', 'centipede', 'fly', 'maggot', 'tarantula', 'bee', 'cockroach',"
+        " 'gnat', 'mosquito', 'termite', 'beetle', 'cricket', 'hornet', 'moth',"
+        " 'wasp', 'blackfly', 'dragonfly', 'horsefly', 'roach', 'weevil']]\n-"
+        " Attribute sets:[['caress', 'freedom', 'health', 'love', 'peace', 'cheer',"
+        " 'friend', 'heaven', 'loyal', 'pleasure', 'diamond', 'gentle', 'honest',"
+        " 'lucky', 'rainbow', 'diploma', 'gift', 'honor', 'miracle', 'sunrise',"
+        " 'family', 'happy', 'laughter', 'paradise', 'vacation']]>"
+    )
+
+    query_2 = Query([[]], [])
+
+    assert (
+        query_2.__repr__()
+        == "<Query: Target set 0\n- Target sets: [[]]\n- Attribute sets:[]>"
+    )
+
+    del query.target_sets
+    assert query.__repr__() == "<Query with wrong __repr__>"
+
+
+def test_query_dict():
+
+    weat_word_set = load_weat()
+    query = Query(
+        [weat_word_set["flowers"], weat_word_set["insects"]],
+        [weat_word_set["pleasant_5"]],
+        ["Flowers", "Insects"],
+        ["Pleasant"],
+    )
+
+    assert query.dict() == {
+        "target_sets": [
+            [
+                "aster",
+                "clover",
+                "hyacinth",
+                "marigold",
+                "poppy",
+                "azalea",
+                "crocus",
+                "iris",
+                "orchid",
+                "rose",
+                "bluebell",
+                "daffodil",
+                "lilac",
+                "pansy",
+                "tulip",
+                "buttercup",
+                "daisy",
+                "lily",
+                "peony",
+                "violet",
+                "carnation",
+                "gladiola",
+                "magnolia",
+                "petunia",
+                "zinnia",
+            ],
+            [
+                "ant",
+                "caterpillar",
+                "flea",
+                "locust",
+                "spider",
+                "bedbug",
+                "centipede",
+                "fly",
+                "maggot",
+                "tarantula",
+                "bee",
+                "cockroach",
+                "gnat",
+                "mosquito",
+                "termite",
+                "beetle",
+                "cricket",
+                "hornet",
+                "moth",
+                "wasp",
+                "blackfly",
+                "dragonfly",
+                "horsefly",
+                "roach",
+                "weevil",
+            ],
+        ],
+        "attribute_sets": [
+            [
+                "caress",
+                "freedom",
+                "health",
+                "love",
+                "peace",
+                "cheer",
+                "friend",
+                "heaven",
+                "loyal",
+                "pleasure",
+                "diamond",
+                "gentle",
+                "honest",
+                "lucky",
+                "rainbow",
+                "diploma",
+                "gift",
+                "honor",
+                "miracle",
+                "sunrise",
+                "family",
+                "happy",
+                "laughter",
+                "paradise",
+                "vacation",
+            ]
+        ],
+        "target_sets_names": ["Flowers", "Insects"],
+        "attribute_sets_names": ["Pleasant"],
+        "query_name": "Flowers and Insects wrt Pleasant",
+        "template": (2, 1),
+    }
+
+    query_2 = Query([[]], [])
+
+    assert query_2.dict() == {
+        "target_sets": [[]],
+        "attribute_sets": [],
+        "target_sets_names": ["Target set 0"],
+        "attribute_sets_names": [],
+        "query_name": "Target set 0",
+        "template": (1, 0),
+    }

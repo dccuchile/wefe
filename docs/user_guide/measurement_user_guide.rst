@@ -40,10 +40,10 @@ Run a Query
 
 The following subsections explains how to run a simple query that
 measures gender bias on
-`Glove <https://nlp.stanford.edu/projects/glove/>`_. The example uses
-the Word Embedding Association Test (:class:`~wefe.metrics.WEAT.WEAT`) metric
-quantifying the bias in the embeddings model. Below we show the three usual steps for
-performing a query in WEFE:
+`Glove <https://nlp.stanford.edu/projects/glove/>`_. 
+The example uses the Word Embedding Association Test (:class:`~wefe.metrics.WEAT.WEAT`)
+metric quantifying the bias in the embeddings model. Below we show the three usual 
+steps for performing a query in WEFE:
 
 .. note::
 
@@ -68,6 +68,11 @@ WEFE bases all its operations on word embeddings using Gensim’s
 ``KeyedVectors`` interface. Any model that can be loaded using
 ``KeyedVectors`` will be compatible with WEFE. The following example uses a 25-dim pre-trained ``Glove`` model using a
 twitter dataset loaded using `gensim-data <https://github.com/RaRe-Technologies/gensim-data/>`_.
+
+
+.. note::
+    Visit `gensim-data repository<https://github.com/RaRe-Technologies/gensim-data#models>`_.  
+    to find the complete list of published pre-trained models ready to use.
 
 .. code:: ipython3
 

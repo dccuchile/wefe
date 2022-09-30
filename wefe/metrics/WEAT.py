@@ -363,19 +363,17 @@ class WEAT(BaseMetric):
         >>> model = load_test_model()
         >>>
         >>> # instance the metric and run the query
-        >>> WEAT().run_query(query, model) # doctest: +SKIP
+        >>> WEAT().run_query(query, model)
         {'query_name': 'Female terms and Male Terms wrt Family and Career',
         'result': 0.4634388245467562,
         'weat': 0.4634388245467562,
         'effect_size': 0.45076532408312986,
         'p_value': nan}
-        >>>
-        >>>
 
         If you want to return the effect size as result value, use
         `return_effect_size` parameter as `True` while running the query.
 
-        >>> WEAT().run_query(query, model, return_effect_size=True) # doctest: +SKIP
+        >>> WEAT().run_query(query, model, return_effect_size=True)
         {'query_name': 'Female terms and Male Terms wrt Family and Career',
         'result': 0.45076532408312986,
         'weat': 0.4634388245467562,
@@ -385,7 +383,7 @@ class WEAT(BaseMetric):
         If you want the embeddings to be normalized before calculating the metrics
         use the `normalize` parameter as `True` before executing the query.
 
-        >>> WEAT().run_query(query, model, normalize=True) # doctest: +SKIP
+        >>> WEAT().run_query(query, model, normalize=True)
         {'query_name': 'Female terms and Male Terms wrt Family and Career',
         'result': 0.4634388248814503,
         'weat': 0.4634388248814503,
@@ -396,8 +394,8 @@ class WEAT(BaseMetric):
         the permutation test and return its p-value. The argument
         `p_value_method='approximate'` indicates that the calculation of the
         permutation test will be approximate, i.e., not all possible permutations
-        will be generated.  Instead, random permutations of the attributes to test
         will be generated.
+        Instead, random permutations of the attributes to test will be generated.
         On the other hand, the argument `p_value_iterations`
         indicates the number of permutations that will be generated and tested.
 
@@ -407,7 +405,7 @@ class WEAT(BaseMetric):
         ...     calculate_p_value=True,
         ...     p_value_method="approximate",
         ...     p_value_iterations=10000,
-        ... )  # doctest: +SKIP
+        ... )
         {
             'query_name': 'Female terms and Male Terms wrt Family and Career',
             'result': 0.46343879750929773,

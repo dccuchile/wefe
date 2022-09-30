@@ -1,5 +1,5 @@
 from itertools import combinations
-from typing import Any, List, Union
+from typing import Any, Dict, List, Union
 
 import numpy as np
 
@@ -200,6 +200,13 @@ class Query:
         return True
 
     def __repr__(self) -> str:
+        """Generates a repr that shows the name, target and attributes of the query.
+
+        Returns
+        -------
+        str
+            The generated representation.
+        """
         try:
             repr_ = (
                 "<Query: "
@@ -211,8 +218,30 @@ class Query:
                 + ">"
             )
             return repr_
-        except:
-            return "<Query with no/wrong __repr__>"
+        except AttributeError:
+            # it can happen if some of the attributes (query_name, target_sets
+            # or attribute_sets) are not defined.
+            return "<Query with wrong __repr__>"
+
+    def dict(self) -> Dict[str, Any]:
+        """Generates a dictionary from the Query data
+
+        This includes the target and attribute sets, as well as their names, 
+        the query name generated from them and the query template.
+
+        Returns
+        -------
+        Dict[str, Any]
+            The dictionary generated with the query data.
+        """
+        return {
+            "target_sets": self.target_sets,
+            "attribute_sets": self.attribute_sets,
+            "target_sets_names": self.target_sets_names,
+            "attribute_sets_names": self.attribute_sets_names,
+            "query_name": self.query_name,
+            "template": self.template,
+        }
 
     def get_subqueries(self, new_template: tuple) -> list:
         """Generate the subqueries from this query using the given template"""

@@ -100,6 +100,33 @@ def test__getitem__(model: WordEmbeddingModel):
     assert embedding.shape == (300,)
 
 
+def test__repr__(keyed_vector_model: gensim.models.KeyedVectors):
+
+    model_1 = WordEmbeddingModel(keyed_vector_model, "w2v")
+    model_1_no_name = WordEmbeddingModel(keyed_vector_model)
+    model_1_prefix_a = WordEmbeddingModel(keyed_vector_model, "w2v", vocab_prefix="a")
+    model_1_no_name_prefix_a = WordEmbeddingModel(keyed_vector_model, vocab_prefix="a")
+
+    assert (
+        model_1.__repr__()
+        == "<WordEmbeddingModel named 'w2v' with 13013 word embeddings of 300 dims>"
+    )
+    assert model_1_no_name.__repr__() == (
+        "<WordEmbeddingModel 'Unnamed model' with 13013 word embeddings of 300 dims>"
+    )
+    assert model_1_prefix_a.__repr__() == (
+        "<WordEmbeddingModel named 'w2v' with 13013 word embeddings of 300 dims and"
+        " 'a' as word prefix>"
+    )
+    assert model_1_no_name_prefix_a.__repr__() == (
+        "<WordEmbeddingModel 'Unnamed model' with 13013 word embeddings of 300 dims "
+        "and 'a' as word prefix>"
+    )
+
+    del model_1.name
+    assert model_1.__repr__() == "<WordEmbeddingModel with wrong __repr__>"
+
+
 def test__init__with_w2v_model():
 
     if gensim_version.major >= 4:

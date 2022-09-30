@@ -168,6 +168,40 @@ class WordEmbeddingModel:
         """
         return key in self.vocab
 
+    def __repr__(self) -> str:
+        try:
+            if self.name == "Unnamed model" and self.vocab_prefix is not None:
+                return (
+                    "<WordEmbeddingModel 'Unnamed model' "
+                    f"with {self.wv.vectors.shape[0]}"
+                    f" word embeddings of {self.wv.vectors.shape[1]} dims"
+                    f" and '{self.vocab_prefix}' as word prefix>"
+                )
+
+            if self.name == "Unnamed model":
+                return (
+                    "<WordEmbeddingModel 'Unnamed model' "
+                    f"with {self.wv.vectors.shape[0]}"
+                    f" word embeddings of {self.wv.vectors.shape[1]} dims>"
+                )
+
+            if self.vocab_prefix is not None:
+                return (
+                    f"<WordEmbeddingModel named '{self.name}' with "
+                    f"{self.wv.vectors.shape[0]}"
+                    f" word embeddings of {self.wv.vectors.shape[1]} dims"
+                    f" and '{self.vocab_prefix}' as word prefix>"
+                )
+
+            return (
+                f"<WordEmbeddingModel named '{self.name}' with {self.wv.vectors.shape[0]}"
+                f" word embeddings of {self.wv.vectors.shape[1]} dims>"
+            )
+        except AttributeError:
+            # it can happen if some of the attributes (name or vocab_prefix) are not
+            # defined.
+            return "<WordEmbeddingModel with wrong __repr__>"
+
     def normalize(self):
         """Normalize word embeddings in the model by using the L2 norm.
 

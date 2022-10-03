@@ -54,13 +54,13 @@ Installation
 There are two different ways to install WEFE: 
 
 
-To install the package with ```pip```   ::
+To install the package with ``pip``  ::
 
     pip install wefe
 
 - With conda: 
 
-To install the package with ```conda```::
+To install the package with ``conda``::
 
     conda install -c pbadilla wefe 
 
@@ -77,8 +77,9 @@ These package will be installed along with the package, in case these have not a
 5. pandas
 6. gensim
 7. plotly
-8. semantic_version
+8. requests
 9. tqdm
+10. semantic_version
 
 Contributing
 ------------
@@ -88,7 +89,14 @@ You can download the code executing ::
     git clone https://github.com/dccuchile/wefe
 
 
-To contribute, visit the `Contributing <https://wefe.readthedocs.io/en/latest/contribute.html>`_ section in the documentation.
+To contribute, visit the `Contributing <https://wefe.readthedocs.io/en/latest/user_guide/contribute.html>`_ section in the documentation.
+
+Development Requirements
+------------------------
+
+To install the necessary dependencies for the development of WEFE, run ::
+
+    pip install -r requirements-dev.txt
 
 
 Testing
@@ -102,7 +110,7 @@ You can run all tests, first install pytest and pytest-cov::
 
 To run the test, execute::
 
-    pytest wefe
+    pytest tests
 
 To check the coverage, run::
 
@@ -117,7 +125,7 @@ Build the documentation
 -----------------------
 
 The documentation is created using sphinx. 
-It can be found in the doc folder at the root of the project.
+It can be found in the docs folder at the root of the project.
 To compile the documentation, run:
 
 .. code-block:: bash
@@ -125,6 +133,7 @@ To compile the documentation, run:
     cd doc
     make html 
 
+Then, you can visit the documentation at ``docs/_build/html/index.html``
 
 Changelog
 =========

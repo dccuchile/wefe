@@ -23,7 +23,15 @@ You can download the library by running the following command ::
 
 To contribute, simply create a pull request.
 Verify that your code is well documented, to implement unit tests and 
-follow the PEP8 coding style.
+follow the black coding style.
+
+Development Requirements
+------------------------
+
+To install the necessary dependencies for the development of WEFE, run ::
+
+    pip install -r requirements-dev.txt
+
 
 Testing
 =======
@@ -38,7 +46,7 @@ In order to run tests, you will first need to install
 
 To run the tests, execute::
 
-    pytest wefe
+    pytest tests
 
 To check the coverage, run::
 
@@ -60,7 +68,7 @@ To compile the documentation, run the following commands::
     cd doc
     make html 
 
------
+Then, you can visit the documentation at ``docs/_build/html/index.html``
 
 
 How to implement your own metric

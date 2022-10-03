@@ -28,7 +28,8 @@ follow the black coding style.
 Development Requirements
 ------------------------
 
-To install the necessary dependencies for the development of WEFE, run ::
+To install the necessary dependencies for the development, testing and compilation
+of WEFE documentation, run ::
 
     pip install -r requirements-dev.txt
 
@@ -36,13 +37,8 @@ To install the necessary dependencies for the development of WEFE, run ::
 Testing
 =======
 
-All unit tests are located in the wefe/test folder and are based on the 
+All unit tests are located in the wefe/tests folder and are based on the 
 ``pytest`` framework. 
-In order to run tests, you will first need to install 
-``pytest`` and ``pytest-cov``::
-
-    pip install -U pytest
-    pip install pytest-cov
 
 To run the tests, execute::
 
@@ -60,7 +56,7 @@ And then::
 Build the documentation
 =======================
 
-The documentation is created using sphinx. It can be found in the doc folder 
+The documentation is created using sphinx. It can be found in the docs folder 
 at the project's root folder.
 The documentation includes the API description and some tutorials.
 To compile the documentation, run the following commands::

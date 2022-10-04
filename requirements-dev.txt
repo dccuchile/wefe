@@ -1,6 +1,6 @@
 pytest>=7.0.0
-pytest-cov
-coverage
+pytest-cov==3.0.0
+coverage==6.4.2
 # flake8==5.0.4
 black==22.6.0
 isort==5.10.1

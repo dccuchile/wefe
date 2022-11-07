@@ -42,6 +42,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
     "sphinx.ext.napoleon",
+    "sphinx_copybutton",
 ]
 
 
@@ -148,7 +149,10 @@ html_theme = "sphinx_rtd_theme"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-# html_theme_options = {}
+html_theme_options = {
+    "logo_only": True,
+    "display_version": True,
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
@@ -158,16 +162,16 @@ html_theme = "sphinx_rtd_theme"
 # html_title = None
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-# html_short_title = None
+html_short_title = "WEFE Documentation"
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-# html_logo = None
+html_logo = "logos/WEFE_2_BLANCO.svg"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-# html_favicon = None
+html_favicon = "logos/WEFE.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -332,8 +336,12 @@ html_js_files = [
     "https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"
 ]
 
+# copybutton conf.
+copybutton_only_copy_prompt_lines = True
+copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
+copybutton_prompt_is_regexp = True
+
 
 def setup(app):
     # a copy button to copy snippet of code from the documentation
-    app.add_js_file("js/copybutton.js")
     app.add_css_file("css/theme_overrides.css")

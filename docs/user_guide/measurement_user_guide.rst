@@ -71,7 +71,7 @@ twitter dataset loaded using `gensim-data <https://github.com/RaRe-Technologies/
 
 
 .. note::
-    Visit `gensim-data repository<https://github.com/RaRe-Technologies/gensim-data#models>`_.  
+    Visit `gensim-data repository <https://github.com/RaRe-Technologies/gensim-data#models>`_.  
     to find the complete list of published pre-trained models ready to use.
 
 .. code:: ipython3

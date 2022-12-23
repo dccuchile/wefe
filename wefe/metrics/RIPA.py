@@ -112,7 +112,7 @@ class RIPA(BaseMetric):
         # calculating the ripa score for each attribute word with each target pair
         for word in range(len(attribute_embeddings_0)):
             ripa_scores[attributes[word]] = []
-            for index in range(target_length - 1):
+            for index in range(target_length):
                 bvec = self._b_vec(
                     target_embeddings_0[index], target_embeddings_1[index]
                 )

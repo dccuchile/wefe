@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Sequence
 import numpy as np
 from sklearn.decomposition import PCA
 from tqdm import tqdm
+
 from wefe.debias.base_debias import BaseDebias
 from wefe.preprocessing import EmbeddingDict, get_embeddings_from_tuples
 from wefe.utils import check_is_fitted

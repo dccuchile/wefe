@@ -3,6 +3,7 @@ from typing import Any, Callable, Dict, List, Union
 
 import numpy as np
 from scipy.spatial import distance
+
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -22,9 +23,10 @@ class MAC(BaseMetric):
         For each target set:
         For each word embedding in the target set:
             For each attribute set:
-                Calculate the cosine similarity of the target embedding and each attribute
-                embedding of the set.
-                Calculate the mean of the cosines similarities and store it in a array.
+                Calculate the cosine similarity of the target embedding and
+                each attribute embedding of the set.
+                Calculate the mean of the cosines similarities and store it in a
+                array.
         Average all the mean cosine similarities and return the calculated score.
 
     The closer the value is to 1, the less biased the query will be.
@@ -41,7 +43,7 @@ class MAC(BaseMetric):
     |      Minneapolis, Minnesota, June 2019. Association for Computational Linguistics.
     | [2]: https://github.com/TManzini/DebiasMulticlassWordEmbedding/blob/master/Debiasing/evalBias.py
 
-    """
+    """  # noqa: E501
 
     metric_template = ("n", "n")
     metric_name = "Mean Average Cosine Similarity"
@@ -267,7 +269,11 @@ class MAC(BaseMetric):
         >>> # instance the metric and run the query
         >>> MAC().run_query(ethnicity_query, model)
         {
-            "query_name": "Black words, White words and Asian words wrt Black biased words, White biased words and Asian biased words",
+            "query_name": (
+                "Black words, White words and Asian words wrt Black "
+                "biased words, White biased words and Asian biased "
+                "words"
+            ),
             "result": 0.9462675075454171,
             "mac": 0.9462675075454171,
             "targets_eval": {
@@ -310,6 +316,7 @@ class MAC(BaseMetric):
             },
         }
 
+
         We can also test words that represent religious groups and beliefs:
 
         >>> from wefe.word_embedding_model import WordEmbeddingModel
@@ -344,7 +351,10 @@ class MAC(BaseMetric):
         >>> # instance the metric and run the query
         >>> MAC().run_query(religion_query, model, warn_not_found_words=True)
         {
-            "query_name": "judaism, christianity and islam wrt jew biased words, christian biased words and musilm biased words",
+            "query_name": (
+                "judaism, christianity and islam wrt jew biased words,"
+                " christian biased words and musilm biased words"
+            ),
             "result": 0.8589896201628209,
             "mac": 0.8589896201628209,
             "targets_eval": {
@@ -431,8 +441,7 @@ class MAC(BaseMetric):
                 },
             },
         }
-
-        """
+        """  # noqa: E501
         # check the types of the provided arguments (only the defaults).
         self._check_input(query, model, locals())
 

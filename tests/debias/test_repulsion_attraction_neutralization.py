@@ -2,6 +2,7 @@
 from typing import Dict, List
 
 import numpy as np
+
 from wefe.debias.repulsion_attraction_neutralization import (
     RepulsionAttractionNeutralization,
 )

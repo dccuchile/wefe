@@ -1,11 +1,11 @@
 References
 ==========
 
-The intention of this section is to provide a list of the works on which WEFE 
-relies as well as a rough reference of works on measuring and mitigating bias 
-in word embeddings. 
+The intention of this section is to provide a list of the works on which WEFE
+relies as well as a rough reference of works on measuring and mitigating bias
+in word embeddings.
 
-Measurements and Case Studies 
+Measurements and Case Studies
 -----------------------------
 
 
@@ -35,11 +35,10 @@ A Survey on Bias and Fairness in Machine Learning
 - `Bakarov, A. (2018). A survey of word embeddings evaluation methods. arXiv preprint arXiv:1801.09536. <https://arxiv.org/pdf/1801.09536.pdf>`_
 - `Camacho-Collados, J., & Pilehvar, M. T. (2018). From word to sense embeddings: A survey on vector representations of meaning. Journal of Artificial Intelligence Research, 63, 743-788. <https://www.jair.org/index.php/jair/article/view/11259/26454>`_
 
-Bias in Contextualized Word Embeddings 
+Bias in Contextualized Word Embeddings
 
 - `Zhao, J., Wang, T., Yatskar, M., Cotterell, R., Ordonez, V., & Chang, K. W. (2019). Gender bias in contextualized word embeddings. arXiv preprint arXiv:1904.03310. <https://arxiv.org/pdf/1904.03310>`_
 - `Basta, C., Costa-jussà, M. R., & Casas, N. (2019). Evaluating the underlying gender bias in contextualized word embeddings. arXiv preprint arXiv:1904.08783. <https://arxiv.org/pdf/1904.08783>`_
 - `Kurita, K., Vyas, N., Pareek, A., Black, A. W., & Tsvetkov, Y. (2019). Measuring bias in contextualized word representations. arXiv preprint arXiv:1906.07337. <https://arxiv.org/pdf/1906.07337>`_
 - `Tan, Y. C., & Celis, L. E. (2019). Assessing social and intersectional biases in contextualized word representations. In Advances in Neural Information Processing Systems (pp. 13209-13220). <http://papers.nips.cc/paper/9479-assessing-social-and-intersectional-biases-in-contextualized-word-representations>`_
-- `Stereoset: A Measure of Bias in Language Models  <https://stereoset.mit.edu/>`_ 
-
+- `Stereoset: A Measure of Bias in Language Models  <https://stereoset.mit.edu/>`_

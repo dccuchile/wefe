@@ -3,6 +3,7 @@ from typing import Dict, List, Union
 
 import numpy as np
 import pytest
+
 from wefe.datasets.datasets import fetch_debias_multiclass, fetch_debiaswe, load_weat
 from wefe.query import Query
 from wefe.utils import load_test_model

@@ -194,7 +194,8 @@ class WordEmbeddingModel:
                 )
 
             return (
-                f"<WordEmbeddingModel named '{self.name}' with {self.wv.vectors.shape[0]}"
+                f"<WordEmbeddingModel named '{self.name}' "
+                f"with {self.wv.vectors.shape[0]}"
                 f" word embeddings of {self.wv.vectors.shape[1]} dims>"
             )
         except AttributeError:

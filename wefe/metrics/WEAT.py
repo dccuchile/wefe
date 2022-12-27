@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List, Set, Tuple, Union
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query

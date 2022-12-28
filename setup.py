@@ -2,14 +2,10 @@
 """The Word Embeddings Fairness Evaluation Framework"""
 
 import codecs
-import os
 
 from setuptools import find_packages, setup
 
-# get __version__ from _version.py
-ver_file = os.path.join("wefe", "_version.py")
-with open(ver_file) as f:
-    exec(f.read())
+import wefe
 
 DISTNAME = "wefe"
 DESCRIPTION = "The Word Embedding Fairness Evaluation Framework"
@@ -21,7 +17,7 @@ MAINTAINER_EMAIL = "pablo.badilla@ug.uchile.cl"
 URL = "https://github.com/dccuchile/wefe"
 LICENSE = "new BSD"
 DOWNLOAD_URL = "https://github.com/dccuchile/wefe"
-VERSION = __version__
+VERSION = wefe.__version__
 INSTALL_REQUIRES = [
     "numpy",
     "scipy",

@@ -57,38 +57,40 @@ class RIPA(BaseMetric):
     metric_name = "Relational Inner Product Association"
     metric_short_name = "RIPA"
 
-    def _b_vec(self, word1, word2):
+    def _b_vec(self, word_vec_1: np.ndarray, word_vec_2: np.ndarray) -> np.ndarray:
         # calculating the relation vector
-        vec = np.array(word1) - np.array(word2)
+        vec = np.array(word_vec_1) - np.array(word_vec_2)
         norm = np.linalg.norm(vec)
         return vec / norm
 
-    def _ripa_calc(self, word_vec, bvec):
+    def _ripa_calc(self, word_vec: np.ndarray, b_vec: np.ndarray) -> np.number:
         # calculating the dot product of the relation vector with the attribute
         # word vector
-        return np.dot(word_vec, bvec)
+        return np.dot(word_vec, b_vec)
 
     def _calc_metric(
-        self, target_embeddings, attribute_embeddings
-    ) -> Tuple[np.floating, Dict[str, Dict[str, np.floating]]]:
+        self,
+        target_embeddings: List[Dict[str, np.ndarray]],
+        attribute_embeddings: List[Dict[str, np.ndarray]],
+    ) -> Tuple[np.number, Dict[str, Dict[str, np.number]]]:
         """Calculate the metric.
 
         Parameters
         ----------
-        target_embeddings : np.array
+        target_embeddings :  List[Dict[str, np.ndarray]]
             An array with dicts. Each dict represents an target set.
             A dict is composed with a word and its embedding as key, value respectively.
-        attribute_embeddings : np.array
+        attribute_embeddings : List[Dict[str, np.ndarray]]
             An array with dicts. Each dict represents an attribute set.
             A dict is composed with a word and its embedding as key, value respectively.
 
         Returns
         -------
-        np.float
-            The value of the calculated metric, averaged across all the RIPA scores of
+        Tuple[np.float, Dict[str, Dict[str, np.float]]]
+            A tuple with:
+            - the value of the calculated metric, averaged across all the RIPA scores of
             the attributes.
-        dict
-            The mean value ± the standard deviation (across all target pairs) of the
+            - the mean value ± the standard deviation (across all target pairs) of the
             attribute word's RIPA score.
         """
         # word vectors from the embedding model for all the words in each of the

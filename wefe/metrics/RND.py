@@ -50,15 +50,15 @@ class RND(BaseMetric):
     ) -> float:
         if distance_type == "norm":
             return np.linalg.norm(np.subtract(vec1, vec2))
-        elif distance_type == "cos":
+        if distance_type == "cos":
             # c = np.dot(vec1, vec2) / np.linalg.norm(vec1) / np.linalg.norm(vec2)
             c = cosine_similarity([vec1], [vec2]).flatten()
             return c[0]
-        else:
-            raise ValueError(
-                'distance_type can be either "norm" or "cos", '
-                "got: {} ".format(distance_type)
-            )
+
+        raise ValueError(
+            'distance_type can be either "norm" or "cos", '
+            "got: {} ".format(distance_type)
+        )
 
     def __calc_rnd(
         self,

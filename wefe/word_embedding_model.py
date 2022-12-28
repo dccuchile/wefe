@@ -1,5 +1,5 @@
 """A Word Embedding contanier based on gensim BaseKeyedVectors."""
-from typing import Dict, Sequence, Union
+from typing import Any, Dict, Sequence, Union
 
 import gensim
 import numpy as np
@@ -25,7 +25,7 @@ class WordEmbeddingModel:
 
     def __init__(
         self, wv: BaseKeyedVectors, name: str = None, vocab_prefix: str = None
-    ):
+    ) -> None:
         """Initialize the word embedding model.
 
         Parameters
@@ -110,7 +110,7 @@ class WordEmbeddingModel:
         else:
             self.name = name
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         """Check if other is the same WordEmbeddingModel that self.
 
         Parameters
@@ -150,10 +150,10 @@ class WordEmbeddingModel:
         """
         if key in self.vocab:
             return self.wv[key]
-        else:
-            return None
 
-    def __contains__(self, key):
+        return None
+
+    def __contains__(self, key: str) -> bool:
         """Check if a word exists in the model's vocabulary.
 
         Parameters
@@ -169,6 +169,17 @@ class WordEmbeddingModel:
         return key in self.vocab
 
     def __repr__(self) -> str:
+        """Custom representation for WordEmbeddingModels.
+
+        Format:
+
+        <WordEmbeddingModel named {name} with {n_embeddings} of {dims} dims>
+
+        Returns
+        -------
+        str
+            The generated representation.
+        """
         try:
             if self.name == "Unnamed model" and self.vocab_prefix is not None:
                 return (
@@ -203,7 +214,7 @@ class WordEmbeddingModel:
             # defined.
             return "<WordEmbeddingModel with wrong __repr__>"
 
-    def normalize(self):
+    def normalize(self) -> None:
         """Normalize word embeddings in the model by using the L2 norm.
 
         Use the `init_sims` function of the gensim's `KeyedVectors` class.
@@ -216,7 +227,7 @@ class WordEmbeddingModel:
         else:
             raise TypeError("The model does not have the init_sims method implemented.")
 
-    def update(self, word: str, embedding: np.ndarray):
+    def update(self, word: str, embedding: np.ndarray) -> None:
         """Update the value of an embedding of the model.
 
         If the method is executed with a word that is not in the vocabulary, an
@@ -283,7 +294,7 @@ class WordEmbeddingModel:
         self,
         words: Sequence[str],
         embeddings: Union[Sequence[np.ndarray], np.ndarray],
-    ):
+    ) -> None:
         """Update a batch of embeddings.
 
         This method calls `update_embedding` method with each of the word-embedding

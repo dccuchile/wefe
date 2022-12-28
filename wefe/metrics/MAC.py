@@ -1,5 +1,5 @@
 """Mean Average Cosine Similarity (MAC) implementation."""
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Dict, List, Tuple, Union
 
 import numpy as np
 from scipy.spatial import distance
@@ -33,7 +33,6 @@ class MAC(BaseMetric):
 
     References
     ----------
-
     | [1]: Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
     |      Black is to Criminal as Caucasian is to Police: Detecting and Removing
            Multiclass Bias in Word Embeddings.
@@ -67,10 +66,14 @@ class MAC(BaseMetric):
         """
         return np.mean([distance.cosine(t, a_i) for a_i in A_j])
 
-    def _calc_mac(self, T, A):
+    def _calc_mac(
+        self,
+        T: Dict[str, Dict[str, np.ndarray]],
+        A: Dict[str, Dict[str, np.ndarray]],
+    ) -> Tuple[np.number, Dict[str, Dict[str, Dict[str, np.number]]]]:
 
         # dict that will store the s scores by target word and attribute set.
-        targets_eval = {}
+        targets_eval: Dict[str, Dict[str, Dict[str, np.number]]] = {}
         # list that will store the s scores
         targets_eval_scores = []
 

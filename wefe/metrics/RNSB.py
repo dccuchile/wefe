@@ -269,7 +269,9 @@ class RNSB(BaseMetric):
         # set the probabilities for each word in a dict.
         negative_sentiment_probabilities = {
             word: prob
-            for word, prob in zip(flatten_target_words, negative_probabilities)
+            for word, prob in zip(
+                flatten_target_words, negative_probabilities, strict=True
+            )
         }
 
         return kl_divergence, negative_sentiment_probabilities

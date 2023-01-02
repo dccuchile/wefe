@@ -18,10 +18,19 @@ select = [
     "A",
     "C",
     "Q",
-    "RET",
+    "S",
     "TID252",
     "SIM118",
     "ARG",
+    "PLC",
+    "PLE",
+    "PLR",
+    "PLW",
+    "PGH",
+    "TID",
+    "SIM",
+    "ICN",
+    "C4",
 
 ]
 
@@ -42,6 +51,7 @@ ignore = [
     "ANN002",
     "ANN003",
     "B006",
+    "B905",
 
 ]
 

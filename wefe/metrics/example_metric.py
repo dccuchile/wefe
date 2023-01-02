@@ -45,7 +45,6 @@ class ExampleMetric(BaseMetric):
         np.float
             The value of the calculated metric.
         """
-
         # get the embeddings from the dicts
         target_embeddings_0 = np.array(list(target_embeddings[0].values()))
         target_embeddings_1 = np.array(list(target_embeddings[1].values()))
@@ -65,9 +64,8 @@ class ExampleMetric(BaseMetric):
             target_embeddings_1_avg, attribute_embeddings_0_avg
         )
 
-        # subtract the distances
-        metric_result = dist_target_0_attr - dist_target_1_attr
-        return metric_result
+        # subtract the distances and return
+        return dist_target_0_attr - dist_target_1_attr
 
     def run_query(
         self,

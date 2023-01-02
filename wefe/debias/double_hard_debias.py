@@ -169,7 +169,7 @@ class DoubleHardDebias(BaseDebias):
         self,
         sets: List[List[str]],
         set_name: str,
-    ):
+    ) -> None:
 
         for idx, set_ in enumerate(sets):
             if len(set_) != 2:
@@ -296,7 +296,7 @@ class DoubleHardDebias(BaseDebias):
 
     def _identify_bias_subspace(
         self,
-        defining_pairs_embeddings,
+        defining_pairs_embeddings: List[Dict[str, np.ndarray]],
         verbose: bool = False,
     ) -> PCA:
 
@@ -310,7 +310,7 @@ class DoubleHardDebias(BaseDebias):
             for embedding in embedding_dict_pair.values():
                 # Substract the center of the pair to the embedding
                 matrix.append(embedding - center)
-        matrix = np.array(matrix)  # type: ignore
+        matrix = np.array(matrix)
 
         pca = PCA(**self.pca_args)
         pca.fit(matrix)
@@ -371,8 +371,7 @@ class DoubleHardDebias(BaseDebias):
         bias_representation: List[str],
         **fit_params,
     ) -> BaseDebias:
-        """Compute the bias direction and obtain the principal components of the entire
-           set of vectors.
+        """Compute the bias direction and get the principal components of the vectors.
 
         Parameters
         ----------
@@ -386,12 +385,12 @@ class DoubleHardDebias(BaseDebias):
         bias_representation: List[str]
             Two words that represents each bias group. In case of gender
             "he" and "she".
+
         Returns
         -------
         BaseDebias
             The debias method fitted.
         """
-
         self.definitional_pairs = definitional_pairs
 
         self._check_sets_sizes(self.definitional_pairs, "definitional", set_size=2)

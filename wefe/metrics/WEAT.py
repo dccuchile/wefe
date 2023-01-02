@@ -12,6 +12,25 @@ from wefe.query import Query
 from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
 
+def _left_sided_test_function(calculated: np.number, original: np.number) -> bool:
+    return calculated < original
+
+
+def _right_sided_test_function(calculated: np.number, original: np.number) -> bool:
+    return calculated > original
+
+
+def _two_sided_test_function(calculated: np.number, original: np.number) -> bool:
+    return np.abs(calculated) > original
+
+
+TEST_FUNCTION_DISPATCHER = {
+    "left-sided": _left_sided_test_function,
+    "right-sided": _right_sided_test_function,
+    "two-sided": _two_sided_test_function,
+}
+
+
 class WEAT(BaseMetric):
     r"""Word Embedding Association Test (WEAT).
 
@@ -145,27 +164,12 @@ class WEAT(BaseMetric):
                 f'p value method should be "exact", "approximate"' f", got {method}."
             )
 
-        # Choose the type of test to be calculated.
-        if test_type == "left-sided":
-
-            def test_function(calculated, original):
-                return calculated < original
-
-        elif test_type == "right-sided":
-
-            def test_function(calculated, original):
-                return calculated > original
-
-        elif test_type == "two-sided":
-
-            def test_function(calculated, original):
-                return np.abs(calculated) > original
-
-        else:
+        if test_type not in ["left-sided", "right-sided", "two-sided"]:
             raise Exception(
-                f'p value test type should be "left-sided", "right-sided" '
+                f'p value test_type should be "left-sided", "right-sided" '
                 f'or "two-sided", got {test_type}'
             )
+        test_function = TEST_FUNCTION_DISPATCHER[test_type]
 
         if not isinstance(iterations, (int, float)):
             raise TypeError(

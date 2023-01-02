@@ -145,7 +145,11 @@ class MulticlassHardDebias(BaseDebias):
 
         return pca
 
-    def _project_onto_subspace(self, vector, subspace):
+    def _project_onto_subspace(
+        self,
+        vector: np.ndarray,
+        subspace: np.ndarray,
+    ) -> np.ndarray:
         v_b = np.zeros_like(vector)
         for component in subspace:
             v_b += np.dot(vector.transpose(), component) * component
@@ -157,7 +161,7 @@ class MulticlassHardDebias(BaseDebias):
         bias_subspace: np.ndarray,
         target: Optional[List[str]],
         ignore: Optional[List[str]],
-    ):
+    ) -> None:
         if target is not None:
             target_ = set(target)
         else:
@@ -189,7 +193,7 @@ class MulticlassHardDebias(BaseDebias):
         model: WordEmbeddingModel,
         equalize_sets_embeddings: List[EmbeddingDict],
         bias_subspace: np.ndarray,
-    ):
+    ) -> None:
         for equalize_tuple_embeddings in equalize_sets_embeddings:
 
             words = equalize_tuple_embeddings.keys()

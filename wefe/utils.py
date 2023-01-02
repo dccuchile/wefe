@@ -22,7 +22,7 @@ from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-def check_is_fitted(estimator, attributes):
+def check_is_fitted(estimator, attributes) -> None:
     msg = (
         "This %(name)s instance is not fitted yet. Call 'fit' with "
         "appropriate arguments before using this debias method."
@@ -329,7 +329,7 @@ def run_queries(
 # -----------------------------------------------------------------------------
 
 
-def plot_queries_results(results: pd.DataFrame, by: str = "query"):
+def plot_queries_results(results: pd.DataFrame, by: str = "query") -> go.Figure:
     """Plot the results obtained by a run_queries execution.
 
     Parameters
@@ -338,7 +338,7 @@ def plot_queries_results(results: pd.DataFrame, by: str = "query"):
         A dataframe that contains the result of having executed run_queries
         with a set of queries and word embeddings.
     by : {'query', 'model'}, optional
-        The aggregation function , by default 'query'
+        The aggregation function , by default 'query
 
     Returns
     -------
@@ -407,7 +407,7 @@ def create_ranking(
     results_dataframes: List[pd.DataFrame],
     method: str = "first",
     ascending: bool = True,
-):
+) -> pd.DataFrame:
     """Create a ranking form the aggregated scores of the provided dataframes.
 
     The function will assume that the aggregated scores are in the last column
@@ -478,22 +478,25 @@ def create_ranking(
     return rankings
 
 
-def plot_ranking(
-    ranking: pd.DataFrame, title: str = "", use_metric_as_facet: bool = False
-):
-    def melt_df(results):
-        results = results.copy()
-        results["exp_name"] = results.index
-        id_vars = ["exp_name"]
-        cols = results.columns
-        values_vars = [col_name for col_name in cols if col_name not in id_vars]
-        melted_results = pd.melt(
-            results, id_vars=id_vars, value_vars=values_vars, var_name="Metric"
-        )
-        melted_results.columns = ["Embedding model", "Metric", "Ranking"]
-        return melted_results
+def _melt_df(results: pd.DataFrame) -> pd.DataFrame:
+    results = results.copy()
+    results["exp_name"] = results.index
+    id_vars = ["exp_name"]
+    cols = results.columns
+    values_vars = [col_name for col_name in cols if col_name not in id_vars]
+    melted_results = pd.melt(
+        results, id_vars=id_vars, value_vars=values_vars, var_name="Metric"
+    )
+    melted_results.columns = ["Embedding model", "Metric", "Ranking"]
+    return melted_results
 
-    melted_ranking = melt_df(ranking.copy(deep=True))
+
+def plot_ranking(
+    ranking: pd.DataFrame,
+    use_metric_as_facet: bool = False,
+) -> go.Figure:
+
+    melted_ranking = _melt_df(ranking.copy(deep=True))
 
     if use_metric_as_facet:
         fig = px.bar(
@@ -518,7 +521,7 @@ def plot_ranking(
 
     fig.update_layout(showlegend=False)
     fig.update_yaxes(title_text="")
-    fig.update_yaxes(tickfont=dict(size=10))
+    fig.update_yaxes(tickfont={"size": 10})
     # fig.for_each_trace(lambda t: t.update(name=t.name.split('=')[1]))
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[1]))
     return fig
@@ -530,7 +533,8 @@ def plot_ranking(
 
 
 def calculate_ranking_correlations(
-    rankings: pd.DataFrame, method="spearman"
+    rankings: pd.DataFrame,
+    method: str = "spearman",
 ) -> pd.DataFrame:
     """Calculate the correlation between the calculated rankings.
 
@@ -568,7 +572,11 @@ def calculate_ranking_correlations(
     return correlation_matrix
 
 
-def plot_ranking_correlations(correlation_matrix, title=""):
+def plot_ranking_correlations(
+    correlation_matrix: pd.DataFrame,
+    title: str = "",
+) -> go.Figure:
+
     fig = go.Figure(
         data=go.Heatmap(
             z=correlation_matrix,
@@ -580,7 +588,7 @@ def plot_ranking_correlations(correlation_matrix, title=""):
             colorscale="Darkmint",
         )
     )
-    fig.update_layout(title=title, font=dict(color="#000000"))
+    fig.update_layout(title=title, font={"color": "#000000"})
     return fig
 
 
@@ -604,18 +612,18 @@ def load_test_model() -> WordEmbeddingModel:
     return WordEmbeddingModel(test_model, "test_w2v")
 
 
-def print_doc_table(df):
+def print_doc_table(df: pd.DataFrame) -> None:
     from tabulate import tabulate
 
     df_2 = df.reset_index()
     print(tabulate(df_2, headers=df_2.columns, tablefmt="rst", showindex=False))
 
 
-def save_doc_image(fig, name):
+def save_doc_image(fig: go.Figure, name: str) -> None:
     fig.write_image(f"./doc/images/{name}.png", width=1200, height=600, scale=3)
 
 
-def flair_to_gensim(flair_embedding):
+def flair_to_gensim(flair_embedding) -> KeyedVectors:
     # load model from flair
 
     # hack to transform pytorch embedding to gensim's KeyedVectors

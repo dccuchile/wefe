@@ -1,3 +1,4 @@
+"""Module that implements the Query object."""
 from itertools import combinations
 from typing import Any, Dict, List, Union
 
@@ -13,7 +14,7 @@ class Query:
         attribute_sets: List[Any],
         target_sets_names: Union[List[str], None] = None,
         attribute_sets_names: Union[List[str], None] = None,
-    ):
+    ) -> None:
         """Initializes the container. It could include a name for each word set.
 
         Parameters
@@ -78,7 +79,6 @@ class Query:
         >>> query.query_name
         'Male terms and Female terms wrt Science terms'
         """
-
         # check input type
         if not isinstance(target_sets, (list, np.ndarray)):
             raise TypeError(
@@ -148,8 +148,7 @@ class Query:
                     "number of elements as target_sets_names "
                     f"(len={len(target_sets_names)})"
                 )
-            else:
-                self.target_sets_names = target_sets_names
+            self.target_sets_names = target_sets_names
 
         # set attribute and attribute sets names.
         if attribute_sets_names is None:
@@ -163,13 +162,33 @@ class Query:
                     "number of elements as attribute_sets_names "
                     f"(len={len(attribute_sets_names)})"
                 )
-            else:
-                self.attribute_sets_names = attribute_sets_names
+            self.attribute_sets_names = attribute_sets_names
 
         self.query_name = self._get_query_name()
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
+        """Check if some object is equal to this query.
 
+        Steps:
+        - Check other type.
+        - Compare template.
+        - Check if the number of target sets in both queries is equal.
+        - Check if the number of attribute sets in both queries is equal.
+        - Check if every target set is the same in both queries.
+        - Check if every attribute set is the same in both queries.
+        - Check if the names of the target sets are equal in both queries.
+        - Check if the names of the attribute sets are equal in both queries.
+
+        Parameters
+        ----------
+        other : Any
+            The object to compare.
+
+        Returns
+        -------
+        bool
+            True if other is the same query, False in any other case.
+        """
         if not isinstance(other, Query):
             return False
 
@@ -178,22 +197,35 @@ class Query:
         if self.template[1] != other.template[1]:
             return False
 
-        for target_set, other_target_set in zip(self.target_sets, other.target_sets):
+        if len(self.target_sets) != len(other.target_sets):
+            return False
+        if len(self.attribute_sets) != len(other.attribute_sets):
+            return False
+
+        for target_set, other_target_set in zip(
+            self.target_sets,
+            other.target_sets,
+        ):
             if target_set != other_target_set:
                 return False
 
         for attribute_set, other_attribute_set in zip(
-            self.attribute_sets, other.attribute_sets
+            self.attribute_sets,
+            other.attribute_sets,
         ):
             if attribute_set != other_attribute_set:
                 return False
 
-        for names, other_names in zip(self.target_sets_names, other.target_sets_names):
+        for names, other_names in zip(
+            self.target_sets_names,
+            other.target_sets_names,
+        ):
             if names != other_names:
                 return False
 
         for names, other_names in zip(
-            self.attribute_sets_names, other.attribute_sets_names
+            self.attribute_sets_names,
+            other.attribute_sets_names,
         ):
             if names != other_names:
                 return False
@@ -224,7 +256,7 @@ class Query:
             return "<Query with wrong __repr__>"
 
     def dict(self) -> Dict[str, Any]:
-        """Generates a dictionary from the Query data
+        """Generate a dictionary from the Query data.
 
         This includes the target and attribute sets, as well as their names,
         the query name generated from them and the query template.
@@ -244,7 +276,7 @@ class Query:
         }
 
     def get_subqueries(self, new_template: tuple) -> list:
-        """Generate the subqueries from this query using the given template"""
+        """Generate the subqueries from this query using the given template."""
         if not isinstance(new_template[0], int):
             raise TypeError(
                 "The new target cardinality (new_template[0]) must be int. "
@@ -321,7 +353,6 @@ class Query:
         str
             The name of the query.
         """
-
         target_sets_names = self.target_sets_names
         attribute_sets_names = self.attribute_sets_names
 

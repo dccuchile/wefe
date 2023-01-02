@@ -191,7 +191,12 @@ class HalfSiblingRegression(BaseDebias):
         debiased_vectors = non_bias_vectors - bias_information
         return debiased_vectors
 
-    def _get_indexes(self, model, target: List[str], non_bias: List[str]) -> List[int]:
+    def _get_indexes(
+        self,
+        model: WordEmbeddingModel,
+        target: List[str],
+        non_bias: List[str],
+    ) -> List[int]:
         return [non_bias.index(word) for word in target if word in model]
 
     def fit(
@@ -325,7 +330,7 @@ class HalfSiblingRegression(BaseDebias):
                 target = target
 
             elif ignore:
-                target = list(set(list(self.non_bias_dict.keys())) - set(ignore))
+                target = list(set(self.non_bias_dict.keys()) - set(ignore))
 
             indexes = self._get_indexes(model, target, list(self.non_bias_dict.keys()))
 

@@ -75,7 +75,6 @@ class HardDebias(BaseDebias):
 
     Examples
     --------
-
     .. note::
 
         For more information on the use of mitigation methods, visit
@@ -242,7 +241,7 @@ class HardDebias(BaseDebias):
         bias_direction: np.ndarray,
         target: Optional[List[str]],
         ignore: Optional[List[str]],
-    ):
+    ) -> None:
 
         if target is not None:
             target_ = set(target)
@@ -268,7 +267,7 @@ class HardDebias(BaseDebias):
         embedding_model: WordEmbeddingModel,
         equalize_pairs_embeddings: List[EmbeddingDict],
         bias_direction: np.ndarray,
-    ):
+    ) -> None:
         for equalize_pair_embeddings in equalize_pairs_embeddings:
             if (
                 isinstance(equalize_pair_embeddings, dict)

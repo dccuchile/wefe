@@ -256,7 +256,7 @@ def _check_lost_vocabulary_threshold(
     word_set: List[str],
     word_set_name: str,
     lost_vocabulary_threshold: float,
-):
+) -> None:
 
     if not isinstance(lost_vocabulary_threshold, (float, np.floating)):
         raise TypeError(
@@ -441,7 +441,7 @@ def get_embeddings_from_tuples(
         )
         raise Exception(msg)
 
-    elif verbose:
+    if verbose:
         print(
             f"{len(embedding_sets)}/{len(sets)} sets of "
             "words were correctly converted to sets of embeddings"

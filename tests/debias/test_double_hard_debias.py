@@ -3,6 +3,7 @@ from typing import Dict, List
 
 import numpy as np
 import pytest
+
 from wefe.debias.double_hard_debias import DoubleHardDebias
 from wefe.metrics import WEAT
 from wefe.query import Query

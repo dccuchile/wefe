@@ -15,7 +15,8 @@
 import os
 import sys
 
-import sphinx_rtd_theme
+# import sphinx
+# import sphinx_rtd_theme
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -51,7 +52,6 @@ extensions = [
 numpydoc_show_class_members = False
 
 # pngmath / imgmath compatibility layer for different sphinx versions
-import sphinx
 
 if os.environ.get("NO_MATHJAX"):
     extensions.append("sphinx.ext.imgmath")
@@ -93,7 +93,7 @@ copyright = "The WEFE Team"
 # built documents.
 #
 # The short X.Y version.
-from wefe import __version__
+from wefe import __version__  # noqa: E402
 
 # __version__ = '0.0.1'
 version = __version__
@@ -237,9 +237,9 @@ htmlhelp_basename = "wefe"
 
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
-    #'papersize': 'letterpaper',
+    # 'papersize': 'letterpaper',
     # The font size ('10pt', '11pt' or '12pt').
-    #'pointsize': '10pt',
+    # 'pointsize': '10pt',
     # Additional stuff for the LaTeX preamble.
     "preamble": r"""
         \usepackage{amsmath}\usepackage{amsfonts}\usepackage{bm}

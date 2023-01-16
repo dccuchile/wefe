@@ -1,3 +1,4 @@
+"""Base metric class that all metrics must extend.."""
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Dict, List, Tuple, Union
 
@@ -23,7 +24,7 @@ class BaseMetric(ABC):
     metric_short_name: str
 
     def _check_input(
-        self, query: Query, model: WordEmbeddingModel, locals: Dict[str, Any]
+        self, query: Query, model: WordEmbeddingModel, _locals: Dict[str, Any]
     ) -> None:
         """Check if Query and WordEmbeddingModel parameters are valid.
 
@@ -33,6 +34,8 @@ class BaseMetric(ABC):
             The query that the method will execute.
         model : WordEmbeddingModel
             A word embedding model.
+        _locals: Dict[str, Any]
+            The extra arguments of run_query.
 
         Raises
         ------
@@ -96,29 +99,29 @@ class BaseMetric(ABC):
                 )
             )
 
-        preprocessor_in_args = "preprocessor_args" in locals
-        secondary_preprocessor_in_args = "secondary_preprocessor_args" in locals
+        preprocessor_in_args = "preprocessor_args" in _locals
+        secondary_preprocessor_in_args = "secondary_preprocessor_args" in _locals
 
         if preprocessor_in_args and secondary_preprocessor_in_args:
             raise DeprecationWarning(
                 "preprocessor_args and secondary_preprocessor_args arguments are "
                 "deprecated. Use "
-                f'preprocessors=[{locals["preprocessor_args"]}, '
-                f'{locals["secondary_preprocessor_args"]}] '
+                f'preprocessors=[{_locals["preprocessor_args"]}, '
+                f'{_locals["secondary_preprocessor_args"]}] '
                 "instead.\n\nSee https://wefe.readthedocs.io/en/latest/user_guide_"
                 "measurement.html#word-preprocessors for more information."
             )
         if preprocessor_in_args:
             raise DeprecationWarning(
                 "preprocessor_args argument is deprecated. Use "
-                f'preprocessors=[{locals["preprocessor_args"]}] '
+                f'preprocessors=[{_locals["preprocessor_args"]}] '
                 "instead.\n\nSee https://wefe.readthedocs.io/en/latest/user_guide_"
                 "measurement.html#word-preprocessors for more information."
             )
         if secondary_preprocessor_in_args:
             raise DeprecationWarning(
                 "secondary_preprocessor_args is deprecated. Use "
-                f'preprocessors=[{{}}, {locals["secondary_preprocessor_args"]}] '
+                f'preprocessors=[{{}}, {_locals["secondary_preprocessor_args"]}] '
                 "instead.\n\nSee https://wefe.readthedocs.io/en/latest/user_guide_"
                 "measurement.html#word-preprocessors for more information."
             )

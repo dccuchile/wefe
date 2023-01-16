@@ -2,6 +2,7 @@
 from typing import List
 
 import pytest
+
 from wefe.debias.base_debias import BaseDebias
 from wefe.word_embedding_model import WordEmbeddingModel
 

@@ -2,6 +2,7 @@
 from typing import Any, Dict
 
 import numpy as np
+
 from wefe.metrics import WEAT
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel

@@ -116,19 +116,20 @@ class BaseDebias:
         target: Optional[List[str]] = None,
         ignore: Optional[List[str]] = None,
         copy: bool = True,
-    ):
-        # check model
+    ) -> None:
+        # check if model is a WordEmbeddingModel
         if not isinstance(model, WordEmbeddingModel):
             raise TypeError(
                 f"model should be a WordEmbeddingModel instance, got {model}."
             )
 
-        # check target
+        # check if target is a list
         if target is not None and not isinstance(target, list):
             raise TypeError(
                 f"target should be None or a list of strings, got {target}."
             )
 
+        # check if all elements of the list are strings
         if isinstance(target, list):
             for idx, word in enumerate(target):
                 if not isinstance(word, str):
@@ -137,12 +138,13 @@ class BaseDebias:
                         f", got: {word} at index {idx} "
                     )
 
-        # check ignore
+        # check ignore parameter type (none or list)
         if ignore is not None and not isinstance(ignore, list):
             raise TypeError(
                 f"ignore should be None or a list of strings, got {ignore}."
             )
 
+        # if ignore is a list, check that all its elements are string
         if isinstance(ignore, list):
             for idx, word in enumerate(ignore):
                 if not isinstance(word, str):
@@ -160,7 +162,7 @@ class BaseDebias:
         sets: List[List[str]],
         set_name: str,
         set_size: Union[int, str],
-    ):
+    ) -> None:
 
         if len(sets) == 0:
             raise ValueError("")

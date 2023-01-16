@@ -2,6 +2,7 @@
 from typing import Dict, List
 
 import pytest
+
 from wefe.datasets.datasets import load_weat
 from wefe.query import Query
 

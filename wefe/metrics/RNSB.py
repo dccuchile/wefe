@@ -9,6 +9,7 @@ from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
+
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -81,7 +82,7 @@ class RNSB(BaseMetric):
            Computational Linguistics, pages 1662–1667, 2019.
     | [2]: https://github.com/ChristopherSweeney/AIFairness/blob/master/python_notebooks/Measuring_and_Mitigating_Word_Embedding_Bias.ipynb
 
-    """
+    """  # noqa: E501
 
     metric_template = ("n", 2)
     metric_name = "Relative Negative Sentiment Bias"
@@ -90,11 +91,11 @@ class RNSB(BaseMetric):
     def _train_classifier(
         self,
         attribute_embeddings_dict: List[Dict[str, np.ndarray]],
-        estimator: BaseEstimator = LogisticRegression,
-        estimator_params: Dict[str, Any] = {"max_iter": 10000},
-        random_state: Union[int, None] = None,
-        holdout: bool = True,
-        print_model_evaluation: bool = False,
+        estimator: BaseEstimator,
+        estimator_params: Dict[str, Any],
+        random_state: Union[int, None],
+        holdout: bool,
+        print_model_evaluation: bool,
     ) -> Tuple[BaseEstimator, float]:
         """Train the sentiment classifier from the provided attribute embeddings.
 
@@ -113,6 +114,16 @@ class RNSB(BaseMetric):
         random_state : Union[int, None], optional
             A seed that allows making the execution of the query reproducible, by
             default None
+
+        holdout: bool, optional
+            True indicates that a holdout (split attributes in train/test sets) will
+            be executed before running the model training.
+            This option allows for evaluating the performance of the classifier
+            (can be printed using print_model_evaluation=True) at the cost of training
+            the classifier with fewer examples. False disables this functionality.
+            Note that holdout divides into 80% train and 20% test, performs a shuffle
+            and tries to maintain the original ratio of the classes via stratify param,
+            by default True.
 
         print_model_evaluation : bool, optional
             Indicates whether the classifier evaluation is printed after the
@@ -301,11 +312,11 @@ class RNSB(BaseMetric):
         model : WordEmbeddingModel
             A word embedding model.
 
-        estimator : BaseEstimator, optional
+        estimator : BaseEstimator
             A scikit-learn classifier class that implements predict_proba function,
             by default None,
 
-        estimator_params : dict, optional
+        estimator_params : dict
             Parameters that will use the classifier, by default { 'solver': 'liblinear',
             'max_iter': 10000, }
 
@@ -731,7 +742,13 @@ class RNSB(BaseMetric):
         ... )
         >>> results
         {
-            "query_name": "Target set 0, Target set 1, Target set 2, Target set 3, Target set 4, Target set 5, Target set 6, Target set 7, Target set 8, Target set 9, Target set 10, Target set 11, Target set 12, Target set 13 and Target set 14 wrt Positive words and Negative words",
+            "query_name": (
+                "Target set 0, Target set 1, Target set 2, Target set 3, "
+                "Target set 4, Target set 5, Target set 6, Target set 7, "
+                "Target set 8, Target set 9, Target set 10, Target set 11, "
+                "Target set 12, Target set 13 and Target set 14 "
+                "wrt Positive words and Negative words"
+            ),
             "result": 0.6313118439654091,
             "rnsb": 0.6313118439654091,
             "negative_sentiment_probabilities": {
@@ -769,6 +786,7 @@ class RNSB(BaseMetric):
                 "italian": 0.0027779616464207076,
             },
         }
+
 
 
         """

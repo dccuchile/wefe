@@ -3,6 +3,7 @@ from typing import Dict, List
 
 import numpy as np
 import pytest
+
 from wefe.datasets.datasets import load_weat
 from wefe.preprocessing import (
     _warn_not_found_words,

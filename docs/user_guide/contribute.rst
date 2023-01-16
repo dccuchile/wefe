@@ -2,9 +2,9 @@
 Contributing
 ============
 
-There are many ways to contribute to the library: 
+There are many ways to contribute to the library:
 
-- Implement new metrics. 
+- Implement new metrics.
 - Implement new mitigation methods.
 - Create more examples and use cases.
 - Help improve the documentation.
@@ -22,7 +22,7 @@ You can download the library by running the following command ::
 
 
 To contribute, simply create a pull request.
-Verify that your code is well documented, to implement unit tests and 
+Verify that your code is well documented, to implement unit tests and
 follow the black coding style.
 
 Development Requirements
@@ -37,8 +37,8 @@ of WEFE documentation, run ::
 Testing
 =======
 
-All unit tests are located in the wefe/tests folder and are based on the 
-``pytest`` framework. 
+All unit tests are located in the wefe/tests folder and are based on the
+``pytest`` framework.
 
 To run the tests, execute::
 
@@ -56,13 +56,13 @@ And then::
 Build the documentation
 =======================
 
-The documentation is created using sphinx. It can be found in the docs folder 
+The documentation is created using sphinx. It can be found in the docs folder
 at the project's root folder.
 The documentation includes the API description and some tutorials.
 To compile the documentation, run the following commands::
 
     cd doc
-    make html 
+    make html
 
 Then, you can visit the documentation at ``docs/_build/html/index.html``
 
@@ -71,7 +71,7 @@ How to implement your own metric
 ================================
 
 The following guide is intended to show how to implement a metric using WEFE.
-You can find a notebook version of this tutorial at the following 
+You can find a notebook version of this tutorial at the following
 `link <https://github.com/dccuchile/wefe/blob/master/wefe/examples/Contributing.ipynb/>`__.
 
 Create the class
@@ -98,10 +98,10 @@ Below are some examples of templates:
 
     # two target sets and one attribute set required to execute this metric.
     template_1 = (2, 1)
-    
+
     # two target sets and two attribute sets required to execute this metric.
     template_2 = (2, 2)
-    
+
     # one or more (unlimited) target sets and one attribute set required to execute this metric.
     template_3 = ('n', 1)
 
@@ -111,7 +111,7 @@ following code scheme:
 .. code:: python3
 
     from wefe.metrics.base_metric import BaseMetric
-        
+
     class ExampleMetric(BaseMetric):
         metric_template = (2, 1)
         metric_name = 'Example Metric'
@@ -128,7 +128,7 @@ operations before executing the mathematical calculations:
 Validate the parameters
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-This call checks the main parameters provided to the ``run_query`` and will raise an 
+This call checks the main parameters provided to the ``run_query`` and will raise an
 exception if it finds a problem with them.
 
 .. code:: python
@@ -156,7 +156,7 @@ This call transforms all the word sets of a query into embeddings.
 
 This step could return either:
 
--   ``None`` if any of the sets lost percentage more words than the number of words 
+-   ``None`` if any of the sets lost percentage more words than the number of words
     allowed by ``lost_vocabulary_threshold`` parameter (specified as percentage
     float). In this case the metric would be expected to return nan in its results.
 
@@ -187,24 +187,24 @@ like using the following query:
     from wefe.utils import load_test_model # a few embeddings of WEAT experiments
     from wefe.datasets.datasets import load_weat # the word sets of WEAT experiments
     from wefe.preprocessing import get_embeddings_from_query
-    
-        
+
+
     weat = load_weat()
     model = load_test_model()
-    
+
     flowers = weat['flowers']
     weapons = weat['weapons']
     pleasant = weat['pleasant_5']
     query = Query([flowers, weapons], [pleasant],
                 ['Flowers', 'Weapons'], ['Pleasant'])
-    
+
     embeddings = get_embeddings_from_query(
         model=model,
         query=query,
         # other params...
     )
     target_sets, attribute_sets = embeddings
-    
+
 
 If you inspect ``target_sets``, it would look like the following
 dictionary:
@@ -254,19 +254,19 @@ Using the steps previously seen, a sample metric is implemented:
     from typing import Any, Dict, Union, List, Callable
 
     import numpy as np
-    
+
     from wefe.metrics.base_metric import BaseMetric
     from wefe.query import Query
     from wefe.word_embedding_model import WordEmbeddingModel
-    
-    
+
+
     class ExampleMetric(BaseMetric):
-    
+
         # replace with the parameters of your metric
         metric_template = (2, 1) # cardinalities of the targets and attributes sets that your metric will accept.
-        metric_name = 'Example Metric' 
+        metric_name = 'Example Metric'
         metric_short_name = 'EM'
-    
+
         def run_query(
             self,
             query: Query,
@@ -280,17 +280,17 @@ Using the steps previously seen, a sample metric is implemented:
             **kwargs: Any,
         ) -> Dict[str, Any]:
             """Calculate the Example Metric metric over the provided parameters.
-    
+
             Parameters
             ----------
             query : Query
-                A Query object that contains the target and attribute word sets to 
+                A Query object that contains the target and attribute word sets to
                 be tested.
-    
+
             word_embedding : WordEmbeddingModel
-                A WordEmbeddingModel object that contains certain word embedding 
+                A WordEmbeddingModel object that contains certain word embedding
                 pretrained model.
-            
+
             lost_vocabulary_threshold : float, optional
                 Specifies the proportional limit of words that any set of the query is
                 allowed to lose when transforming its words into embeddings.
@@ -338,21 +338,21 @@ Using the steps previously seen, a sample metric is implemented:
 
             normalize : bool, optional
                 True indicates that embeddings will be normalized, by default False
-        
+
             warn_not_found_words : bool, optional
                 Specifies if the function will warn (in the logger)
                 the words that were not found in the model's vocabulary
                 , by default False.
-    
+
             Returns
             -------
             Dict[str, Any]
-                A dictionary with the query name, the resulting score of the metric, 
+                A dictionary with the query name, the resulting score of the metric,
                 and other scores.
             """
             # check the types of the provided arguments (only the defaults).
             self._check_input(query, model)
-    
+
             # transform query word sets into embeddings
             embeddings = get_embeddings_from_query(
                 model=model,
@@ -363,7 +363,7 @@ Using the steps previously seen, a sample metric is implemented:
                 normalize=normalize,
                 warn_not_found_words=warn_not_found_words,
             )
-    
+
             # if there is any/some set has less words than the allowed limit,
             # return the default value (nan)
             if embeddings is None:
@@ -375,22 +375,22 @@ Using the steps previously seen, a sample metric is implemented:
                     'results_by_word' : np.nan, # if available, values by word (optional)
                     # ...
                 }
-    
+
             # get the targets and attribute sets transformed into embeddings.
             target_sets, attribute_sets = embeddings
-    
+
             # commonly, you only will need the embeddings of the sets.
             # this can be obtained by using:
             target_embeddings = list(target_sets.values())
             attribute_embeddings = list(attribute_sets.values())
-    
-            
+
+
             """
             # From here, the code can vary quite a bit depending on what you need.
             # It is recommended to calculate the metric operations in another method(s).
-            results = calc_metric()        
-            
-            # The final step is to return query and result. 
+            results = calc_metric()
+
+            # The final step is to return query and result.
             # You can return other scores, metrics by word or metrics by set, etc.
             return {
                     'query_name': query.query_name, # the name of the evaluated query
@@ -401,7 +401,7 @@ Using the steps previously seen, a sample metric is implemented:
                     ...
                 }
             """
-    
+
 
 
 Implement the logic of the metric
@@ -425,61 +425,61 @@ the above.
 
     from scipy.spatial import distance
     import numpy as np
-    
+
     from wefe.metrics import BaseMetric
     from wefe.query import Query
     from wefe.word_embedding_model import WordEmbeddingModel
     from wefe.preprocessing import get_embeddings_from_query
-    
+
     class ExampleMetric(BaseMetric):
-    
+
         # replace with the parameters of your metric
         metric_template = (
             2, 1
         )  # cardinalities of the targets and attributes sets that your metric will accept.
         metric_name = 'Example Metric'
         metric_short_name = 'EM'
-    
+
         def _calc_metric(self, target_embeddings, attribute_embeddings):
             """Calculates the metric.
-    
+
              Parameters
              ----------
              target_embeddings : np.array
-                 An array with dicts. Each dict represents an target set. 
+                 An array with dicts. Each dict represents an target set.
                  A dict is composed with a word and its embedding as key, value respectively.
              attribute_embeddings : np.array
-                 An array with dicts. Each dict represents an attribute set. 
+                 An array with dicts. Each dict represents an attribute set.
                  A dict is composed with a word and its embedding as key, value respectively.
-    
+
              Returns
              -------
              np.float
                  The value of the calculated metric.
              """
-    
+
             # get the embeddings from the dicts
             target_embeddings_0 = np.array(list(target_embeddings[0].values()))
             target_embeddings_1 = np.array(list(target_embeddings[1].values()))
-    
+
             attribute_embeddings_0 = np.array(
                 list(attribute_embeddings[0].values()))
-    
+
             # calculate the average embedding by target and attribute set.
             target_embeddings_0_avg = np.mean(target_embeddings_0, axis=0)
             target_embeddings_1_avg = np.mean(target_embeddings_1, axis=0)
             attribute_embeddings_0_avg = np.mean(attribute_embeddings_0, axis=0)
-    
+
             # calculate the distances between the target sets and the attribute set
             dist_target_0_attr = distance.cosine(target_embeddings_0_avg,
                                                  attribute_embeddings_0_avg)
             dist_target_1_attr = distance.cosine(target_embeddings_1_avg,
                                                  attribute_embeddings_0_avg)
-    
+
             # subtract the distances
             metric_result = dist_target_0_attr - dist_target_1_attr
             return metric_result
-    
+
         def run_query(
             self,
             query: Query,
@@ -493,26 +493,26 @@ the above.
             **kwargs: Any,
         ) -> Dict[str, Any]:
             """Calculate the Example Metric metric over the provided parameters.
-    
+
             Parameters
             ----------
             query : Query
-                A Query object that contains the target and attribute word sets to 
+                A Query object that contains the target and attribute word sets to
                 be tested.
-    
+
             word_embedding : WordEmbeddingModel
-                A WordEmbeddingModel object that contains certain word embedding 
+                A WordEmbeddingModel object that contains certain word embedding
                 pretrained model.
-            
+
             lost_vocabulary_threshold : float, optional
                 Specifies the proportional limit of words that any set of the query is
                 allowed to lose when transforming its words into embeddings.
                 In the case that any set of the query loses proportionally more words
                 than this limit, the result values will be np.nan, by default 0.2
-    
+
             preprocessors : List[Dict[str, Union[str, bool, Callable]]]
                 A list with preprocessor options.
-    
+
                 A ``preprocessor`` is a dictionary that specifies what processing(s) are
                 performed on each word before its looked up in the model vocabulary.
                 For example, the ``preprocessor``
@@ -520,9 +520,9 @@ the above.
                 and remove the accent from each word before searching for them in the
                 model vocabulary. Note that an empty dictionary ``{}`` indicates that no
                 preprocessing is done.
-    
+
                 The possible options for a preprocessor are:
-    
+
                 *   ``lowercase``: ``bool``. Indicates that the words are transformed to
                     lowercase.
                 *   ``uppercase``: ``bool``. Indicates that the words are transformed to
@@ -535,36 +535,36 @@ the above.
                 *   ``preprocessor``: ``Callable``. It receives a function that operates
                     on each word. In the case of specifying a function, it overrides the
                     default preprocessor (i.e., the previous options stop working).
-    
+
                 A list of preprocessor options allows searching for several
                 variants of the words into the model. For example, the preprocessors
                 ``[{}, {"lowercase": True, "strip_accents": True}]``
-                ``{}`` allows searching first for the original words in the vocabulary of the model. 
-                In case some of them are not found, ``{"lowercase": True, "strip_accents": True}`` 
+                ``{}`` allows searching first for the original words in the vocabulary of the model.
+                In case some of them are not found, ``{"lowercase": True, "strip_accents": True}``
                 is executed on these words and then they are searched in the model vocabulary.
-    
+
             strategy : str, optional
                 The strategy indicates how it will use the preprocessed words: 'first' will
                 include only the first transformed word found. 'all' will include all
                 transformed words found, by default "first".
-    
+
             normalize : bool, optional
                 True indicates that embeddings will be normalized, by default False
-    
+
             warn_not_found_words : bool, optional
                 Specifies if the function will warn (in the logger)
                 the words that were not found in the model's vocabulary
                 , by default False.
-    
+
             Returns
             -------
             Dict[str, Any]
-                A dictionary with the query name, the resulting score of the metric, 
+                A dictionary with the query name, the resulting score of the metric,
                 and other scores.
             """
             # check the types of the provided arguments (only the defaults).
             self._check_input(query, model)
-    
+
             # transform query word sets into embeddings
             embeddings = get_embeddings_from_query(
                 model=model,
@@ -575,7 +575,7 @@ the above.
                 normalize=normalize,
                 warn_not_found_words=warn_not_found_words,
             )
-    
+
             # if there is any/some set has less words than the allowed limit,
             # return the default value (nan)
             if embeddings is None:
@@ -587,17 +587,17 @@ the above.
                     'results_by_word' : np.nan, # if available, values by word (optional)
                     # ...
                 }
-    
+
             # get the targets and attribute sets transformed into embeddings.
             target_sets, attribute_sets = embeddings
-    
+
             # commonly, you only will need the embeddings of the sets.
             # this can be obtained by using:
             target_embeddings = list(target_sets.values())
             attribute_embeddings = list(attribute_sets.values())
-    
+
             result = self._calc_metric(target_embeddings, attribute_embeddings)
-    
+
             # return the results.
             return {"query_name": query.query_name, "result": result, 'em': result}
 
@@ -608,24 +608,24 @@ Now, let us try it out:
     from wefe.query import Query
     from wefe.utils import load_weat_w2v  # a few embeddings of WEAT experiments
     from wefe.datasets.datasets import load_weat  # the word sets of WEAT experiments
-    
+
     weat = load_weat()
     model = WordEmbeddingModel(load_weat_w2v(), 'weat_w2v', '')
-    
+
     flowers = weat['flowers']
     weapons = weat['weapons']
     pleasant = weat['pleasant_5']
     query = Query([flowers, weapons], [pleasant], ['Flowers', 'Weapons'],
                     ['Pleasant'])
-    
-    
+
+
     results = ExampleMetric().run_query(query, model)
     print(results)
 
 .. parsed-literal::
 
     {'query_name': 'Flowers and Weapons wrt Pleasant', 'result': -0.10210171341896057, 'em': -0.10210171341896057}
-    
+
 
 We have completely defined a new metric. Congratulations!
 
@@ -648,18 +648,18 @@ Some comments regarding the implementation of new metrics:
     distances folder of the
     `repository <https://github.com/dccuchile/wefe/blob/master/wefe/metrics/example_metric.py/>`__.
 
-    
+
 Mitigation Method Implementation Guide
 ======================================
 
 
 The main idea when implementing a mitigation method is that it has to follow the logic
-of the transformations in scikit-learn. 
-That is, you must separate the logic of the calculation of the mitigation 
-transformation (`fit`) with the application of the transformation on the model 
+of the transformations in scikit-learn.
+That is, you must separate the logic of the calculation of the mitigation
+transformation (`fit`) with the application of the transformation on the model
 (`transform`).
 
-In practical terms, every WEFE transformation must extend the `BaseDebias` class. 
+In practical terms, every WEFE transformation must extend the `BaseDebias` class.
 `BaseDebias` has two abstract methods that must be implemented: `fit` and `transform`.
 
 
@@ -667,9 +667,9 @@ Fit
 ---
 
 
-`fit` is the method in charge of calculating the bias mitigation transformation 
+`fit` is the method in charge of calculating the bias mitigation transformation
 that will be subsequently applied to the model.
-`BaseDebias` implements it as an abstract method that requires only one argument: 
+`BaseDebias` implements it as an abstract method that requires only one argument:
 `model`, which expects a `WordEmbeddingModel` instance.
 
 .. code:: python3
@@ -690,12 +690,12 @@ that will be subsequently applied to the model.
         raise NotImplementedError()
 
 
-The idea of requesting model at this point is that the calculation of the 
+The idea of requesting model at this point is that the calculation of the
 transformation commonly requires some words from the model vocabulary.
 
-As each bias mitigation method is different, it is expected that these can receive more 
+As each bias mitigation method is different, it is expected that these can receive more
 parameters than those listed above. In, `HardDebias`, `fit` is defined using the default
-parameter `model` plus `definitional_pairs` and `equalize_pairs`, which are 
+parameter `model` plus `definitional_pairs` and `equalize_pairs`, which are
 specific to `HardDebias`:
 
 .. code:: python3
@@ -783,8 +783,8 @@ in `fit` on the embedding model. It must always receive the same 4 arguments:
   only on the word embeddings of this set. If `None` is provided, the
   debias will be performed on all words (except those specified in ignore).
   by default `None`.
-- `ignore`: A set of words or None. If target is `None` and a set of words is specified 
-- in ignore, the debias method will perform the debias in all words except those 
+- `ignore`: A set of words or None. If target is `None` and a set of words is specified
+- in ignore, the debias method will perform the debias in all words except those
 - specified in this set, by default `None`.
 - `copy`: If `True`, the debias will be performed on a copy of the model.
   If `False`, the debias will be applied on the same model delivered, causing
@@ -839,13 +839,13 @@ method.
 Some useful initial checks and operations for this method:
 
 - The arguments can be checked through the `_check_transform_args` `BaseDebias` method.
-- You can also check whether the method is trained or not using the `check_is_fitted` 
-  method. This is a wrapper of the original scikit-learn that can be imported from the 
+- You can also check whether the method is trained or not using the `check_is_fitted`
+  method. This is a wrapper of the original scikit-learn that can be imported from the
   utils module.
-- In case `copy` argument is `True`, you must duplicate the model and work on the 
+- In case `copy` argument is `True`, you must duplicate the model and work on the
   replica. It is recommended to use `deepcopy` of the `copy` module for such purposes.
 
-The following code segment (obtained from `HardDebias`) shows an example of how to 
+The following code segment (obtained from `HardDebias`) shows an example of how to
 execute the points mentioned above:
 
 .. code:: python
@@ -919,8 +919,8 @@ execute the points mentioned above:
             )
 
 Unfortunately it is impossible to cover much more without losing generality.
-However, we recommend checking the code structure shown in `HardDebias` or 
-`MulticlassHardDebias` classes to guide you through the process of implementing a new 
+However, we recommend checking the code structure shown in `HardDebias` or
+`MulticlassHardDebias` classes to guide you through the process of implementing a new
 mitigation method.
 You can also open an issue in the repository to comment on any questions you may have
 in the implementation.

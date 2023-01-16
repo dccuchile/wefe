@@ -11,19 +11,20 @@ import pkg_resources
 def fetch_eds(
     occupations_year: int = 2015, top_n_race_occupations: int = 10
 ) -> Dict[str, List[str]]:
-    """Fetch the word sets used in the experiments of the work *Word Embeddings
-    *Quantify 100 Years Of Gender And Ethnic Stereotypes*.
+    """Fetch the sets of words used in the experiments of the _Word Embeddings
+       Quantify 100 Years Of Gender And Ethnic Stereotypes_ work.
 
-    This dataset includes gender (male, female), ethnicity (asian, black, white) and
-    religion (christianity and islam) and adjetives (appearence, intelligence,
-    otherization, sensitive) word sets.
+    This dataset includes the following word sets:
+    - gender: male, female.
+    - ethnicity: asian, black, white.
+    - religion: christianity, judaism and islam.
+    - adjetives: appearence, intelligence, otherization, sensitive.
 
     References
     ----------
-    Word Embeddings quantify 100 years of gender and ethnic stereotypes.
-    Garg, N., Schiebinger, L., Jurafsky, D., & Zou, J. (2018). Proceedings of
-    the National Academy of Sciences, 115(16), E3635-E3644.
-
+    | [1]: Word Embeddings quantify 100 years of gender and ethnic stereotypes.
+    |      Garg, N., Schiebinger, L., Jurafsky, D., & Zou, J. (2018).
+    |      Proceedings of the National Academy of Sciences, 115(16), E3635-E3644.
 
     Parameters
     ----------
@@ -42,8 +43,7 @@ def fetch_eds(
     -------
     dict
         A dictionary with the word sets.
-    """
-
+    """  # noqa: D205
     EDS_BASE_URL = (
         "https://raw.githubusercontent.com/nikhgarg/"
         "EmbeddingDynamicStereotypes/master/data/"
@@ -157,19 +157,17 @@ def fetch_debiaswe() -> Dict[str, Union[List[str], list]]:
 
     References
     ----------
-
-    Man is to Computer Programmer as Woman is to Homemaker?
-    Debiasing Word Embeddings by Tolga Bolukbasi, Kai-Wei Chang, James Zou,
-    Venkatesh Saligrama, and Adam Kalai.
-    Proceedings of NIPS 2016.
+    | [1]: Man is to Computer Programmer as Woman is to Homemaker?
+    |      Debiasing Word Embeddings by Tolga Bolukbasi, Kai-Wei Chang, James Zou,
+           Venkatesh Saligrama, and Adam Kalai.
+    |      Proceedings of NIPS 2016.
 
     Returns
     -------
-    dict
+    Dict[str, Union[List[str], list]]
         A dictionary in which each key correspond to the name of the set and
         its values correspond to the word set.
-    """
-
+    """  # noqa: D205
     DEBIAS_WE_BASE_URL = (
         "https://raw.githubusercontent.com/tolga-b/debiaswe/master/data/"
     )
@@ -201,7 +199,7 @@ def fetch_debiaswe() -> Dict[str, Union[List[str], list]]:
     ) as json_file:
         professions = json.loads(json_file.read().decode())
 
-    word_sets_dict = {
+    return {
         "male_terms": male_words,
         "female_terms": female_words,
         "definitional_pairs": definitional_pairs,
@@ -209,8 +207,6 @@ def fetch_debiaswe() -> Dict[str, Union[List[str], list]]:
         "gender_specific": gender_specific,
         "professions": professions,
     }
-
-    return word_sets_dict
 
 
 def load_bingliu() -> Dict[str, List[str]]:
@@ -247,17 +243,15 @@ def load_bingliu() -> Dict[str, List[str]]:
         word.decode("latin-1").strip() for word in bingliu_pos_bytes.readlines()
     ][30:]
 
-    bingliu_lexicon = {
+    return {
         "positive_words": positive_words,
         "negative_words": negative_words,
     }
 
-    return bingliu_lexicon
-
 
 def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
     """Fetch the word sets used in the paper Black Is To Criminals as Caucasian
-    Is To Police: Detecting And Removing Multiclass Bias In Word Embeddings.
+       Is To Police: Detecting And Removing Multiclass Bias In Word Embeddings.
 
     This dataset contains gender (male, female), ethnicity (asian, black, white) and
     religion (christianity, judaism and islam) word sets.
@@ -284,9 +278,7 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
     dict
         A dictionary in which each key correspond to the name of the set and
         its values correspond to the word set.
-
-    """
-
+    """  # noqa: D205, E501
     BASE_URL = (
         "https://raw.githubusercontent.com/TManzini/"
         "DebiasMulticlassWordEmbedding/master/Debiasing/data/vocab/"
@@ -345,7 +337,7 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
 
         religion_eval_target = religion["eval_targets"]
 
-    word_sets_dict = {
+    return {
         # preprocessed word sets
         "male_terms": male_terms,
         "female_terms": female_terms,
@@ -374,7 +366,6 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
         "ethnicity_eval_target": ethnicity_eval_target,
         "religion_eval_target": religion_eval_target,
     }
-    return word_sets_dict
 
 
 def fetch_gn_glove() -> Dict[str, List[str]]:
@@ -382,17 +373,17 @@ def fetch_gn_glove() -> Dict[str, List[str]]:
 
     This dataset contain two sets of 221 female and male related words.
 
-    Reference
-    ---------
-    Zhao, J., Zhou, Y., Li, Z., Wang, W., & Chang, K. W. (2018, January). Learning
-    Gender-Neutral Word Embeddings. In EMNLP.
+    References
+    ----------
+    | [1]: Zhao, J., Zhou, Y., Li, Z., Wang, W., & Chang, K. W. (2018, January).
+    |      Learning Gender-Neutral Word Embeddings.
+    |      In EMNLP.
 
     Returns
     -------
     Dict[str, List[str]]
         A dictionary with male and female word sets.
     """
-
     BASE_URL = "https://raw.githubusercontent.com/uclanlp/gn_glove/master/wordlist/"
     FILES = [
         "female_word_file.txt",
@@ -408,38 +399,37 @@ def fetch_gn_glove() -> Dict[str, List[str]]:
         male_terms = file.read().decode().split("\n")
         male_terms = list(filter(lambda x: x != "", male_terms))
 
-    word_sets_dict = {
+    return {
         "male_terms": male_terms,
         "female_terms": female_terms,
     }
-    return word_sets_dict
 
 
 def load_weat() -> Dict[str, List[str]]:
-    """Load the word sets used in the paper *Semantics Derived Automatically*
-    *From Language Corpora Contain Human-Like Biases*.
-    It includes gender (male, female), ethnicity (black, white)
-    and pleasant, unpleasant word sets, among others.
+    """Load the word sets used in the experiments of the
+       _Semantics Derived Automatically From Language Corpora Contain Human-Like Biases_
+       work.
+
+    It includes the following word sets:
+    - gender (male, female)
+    - ethnicity (black, white)
+    - pleasant, unpleasant
+    - among others.
 
     References
     ----------
-
-    Semantics derived automatically from language corpora contain human-like
-    biases.
-    Caliskan, A., Bryson, J. J., & Narayanan, A. (2017).
-    Science, 356(6334), 183-186.
+    | [1]: Semantics derived automatically from language corpora contain human-like
+           biases.
+    | Caliskan, A., Bryson, J. J., & Narayanan, A. (2017).
+    | Science, 356(6334), 183-186.
 
     Returns
     -------
     word_sets_dict : dict
         A dictionary with the word sets.
-
-
-    """
+    """  # noqa: D205
     resource_package = __name__
     resource_path = "/".join(("data", "WEAT.json"))
     weat_data = pkg_resources.resource_string(resource_package, resource_path)
 
-    data = json.loads(weat_data.decode())
-
-    return data
+    return json.loads(weat_data.decode())

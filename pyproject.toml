@@ -1,0 +1,79 @@
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 88
+
+[tool.ruff]
+select = [
+    "E",
+    "F",
+    "W",
+    "I",
+    "D",
+    "YTT",
+    "ANN",
+    "S",
+    "B",
+    "A",
+    "C",
+    "Q",
+    "S",
+    "TID252",
+    "SIM118",
+    "ARG",
+    "PLC",
+    "PLE",
+    "PLR",
+    "PLW",
+    "PGH",
+    "TID",
+    "SIM",
+    "ICN",
+    "C4",
+
+]
+
+ignore = [
+    "ANN101",
+    "S101",
+    "BLE001",
+    "ANN401",
+    "D107",
+    "D203",
+    "D212",
+    "D213",
+    "D402",
+    "D413",
+    "D415",
+    "D416",
+    "D417",
+    "ANN002",
+    "ANN003",
+    "B006",
+    "B905",
+
+]
+
+line-length = 88
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]

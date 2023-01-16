@@ -5,10 +5,30 @@ from typing import Any, Callable, Dict, List, Set, Tuple, Union
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
 from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
+
+
+def _left_sided_test_function(calculated: np.number, original: np.number) -> bool:
+    return calculated < original
+
+
+def _right_sided_test_function(calculated: np.number, original: np.number) -> bool:
+    return calculated > original
+
+
+def _two_sided_test_function(calculated: np.number, original: np.number) -> bool:
+    return np.abs(calculated) > original
+
+
+TEST_FUNCTION_DISPATCHER = {
+    "left-sided": _left_sided_test_function,
+    "right-sided": _right_sided_test_function,
+    "two-sided": _two_sided_test_function,
+}
 
 
 class WEAT(BaseMetric):
@@ -80,18 +100,35 @@ class WEAT(BaseMetric):
     metric_name = "Word Embedding Association Test"
     metric_short_name = "WEAT"
 
-    def _calc_s(self, w, A, B) -> np.number:
+    def _calc_s(
+        self,
+        w: np.ndarray,
+        A: np.ndarray,
+        B: np.ndarray,
+    ) -> np.number:
 
         A_mean_sim = np.mean(cosine_similarity([w], A), dtype=np.float64)
         B_mean_sim = np.mean(cosine_similarity([w], B), dtype=np.float64)
         return A_mean_sim - B_mean_sim
 
-    def _calc_weat(self, X, Y, A, B) -> np.number:
+    def _calc_weat(
+        self,
+        X: np.ndarray,
+        Y: np.ndarray,
+        A: np.ndarray,
+        B: np.ndarray,
+    ) -> np.number:
         first_term = np.sum([self._calc_s(x, A, B) for x in X], dtype=np.float64)
         second_term = np.sum([self._calc_s(y, A, B) for y in Y], dtype=np.float64)
         return first_term - second_term
 
-    def _calc_effect_size(self, X, Y, A, B) -> np.number:
+    def _calc_effect_size(
+        self,
+        X: np.ndarray,
+        Y: np.ndarray,
+        A: np.ndarray,
+        B: np.ndarray,
+    ) -> np.number:
         first_term = np.mean([self._calc_s(x, A, B) for x in X], dtype=np.float64)
         second_term = np.mean([self._calc_s(y, A, B) for y in Y], dtype=np.float64)
 
@@ -110,7 +147,7 @@ class WEAT(BaseMetric):
         method: str,
         test_type: str,
         verbose: bool,
-    ):
+    ) -> np.number:
         # TODO: Add joblib or other library to parallelize this function.
         # TODO: Test this function
         # TODO: Implement exact and bootstrap methods
@@ -127,27 +164,12 @@ class WEAT(BaseMetric):
                 f'p value method should be "exact", "approximate"' f", got {method}."
             )
 
-        # Choose the type of test to be calculated.
-        if test_type == "left-sided":
-
-            def test_function(calculated, original):
-                return calculated < original
-
-        elif test_type == "right-sided":
-
-            def test_function(calculated, original):
-                return calculated > original
-
-        elif test_type == "two-sided":
-
-            def test_function(calculated, original):
-                return np.abs(calculated) > original
-
-        else:
+        if test_type not in ["left-sided", "right-sided", "two-sided"]:
             raise Exception(
-                f'p value test type should be "left-sided", "right-sided" '
+                f'p value test_type should be "left-sided", "right-sided" '
                 f'or "two-sided", got {test_type}'
             )
+        test_function = TEST_FUNCTION_DISPATCHER[test_type]
 
         if not isinstance(iterations, (int, float)):
             raise TypeError(
@@ -158,8 +180,8 @@ class WEAT(BaseMetric):
             raise TypeError(f"verbose should be bool instance, got {verbose}.")
 
         # get attribute embeddings
-        attribute_0 = list(attribute_embeddings[0].values())
-        attribute_1 = list(attribute_embeddings[1].values())
+        attribute_0 = np.array(list(attribute_embeddings[0].values()))
+        attribute_1 = np.array(list(attribute_embeddings[1].values()))
 
         # generate the pool of target and attribute embeddings.
         target_0_dict, target_1_dict = target_embeddings
@@ -446,10 +468,10 @@ class WEAT(BaseMetric):
         target_embeddings = list(target_sets.values())
         attribute_embeddings = list(attribute_sets.values())
 
-        target_0 = list(target_embeddings[0].values())
-        target_1 = list(target_embeddings[1].values())
-        attribute_0 = list(attribute_embeddings[0].values())
-        attribute_1 = list(attribute_embeddings[1].values())
+        target_0 = np.array(list(target_embeddings[0].values()))
+        target_1 = np.array(list(target_embeddings[1].values()))
+        attribute_0 = np.array(list(attribute_embeddings[0].values()))
+        attribute_1 = np.array(list(attribute_embeddings[1].values()))
 
         # if the requested value is the effect size:
         weat_effect_size = self._calc_effect_size(

@@ -2,9 +2,9 @@
 Loading Embeddings From Different Sources
 =========================================
 
-WEFE depends on gensim's :code:`KeyedVectors` to operate the word 
+WEFE depends on gensim's :code:`KeyedVectors` to operate the word
 embeddings models.
-Therefore, any embedding you want to experiment with must be a model loaded 
+Therefore, any embedding you want to experiment with must be a model loaded
 through gensim's APIs or any library that extends it.
 
 In technical terms, the minimum requirement for WEFE to operate with a model
@@ -24,14 +24,14 @@ to be used in the following sections.
 >>> from wefe.word_embedding_model import WordEmbeddingModel
 >>> from wefe.metrics.WEAT import WEAT
 >>> from wefe.datasets.datasets import load_weat
->>> 
+>>>
 >>> # load the weat word sets
 >>> word_sets = load_weat()
->>> 
+>>>
 >>> # create the query
 >>> query = Query([word_sets['male_terms'], word_sets['female_terms']],
 >>>               [word_sets['career'], word_sets['family']],
->>>               ['Male terms', 'Female terms'], 
+>>>               ['Male terms', 'Female terms'],
 >>>               ['Career', 'Family'])
 >>>
 >>> # instantiate the metric
@@ -40,19 +40,19 @@ to be used in the following sections.
 Load from Gensim API
 ====================
 
-Gensim provides an 
-`extensive list of pre-trained models <https://github.com/RaRe-Technologies/gensim-data#models>`_ 
+Gensim provides an
+`extensive list of pre-trained models <https://github.com/RaRe-Technologies/gensim-data#models>`_
 that can be used directly. Below we show an example of use.
 
 >>> import gensim.downloader as api
->>> 
+>>>
 >>> # Load from gensim.downloader some model, for example: glove-twitter-25
 >>> glove_25_keyed_vectors = api.load('glove-twitter-25')
->>> 
+>>>
 >>> # The resulting object is already a BaseKeyedVectors subclass object.
 >>> # so we can wrap directly using .
 >>> glove_25_model = WordEmbeddingModel(glove_25_keyed_vectors, 'glove-25')
->>> 
+>>>
 >>> # Execute the query
 >>> result = weat.run_query(query, glove_25_model)
 >>> print(result)
@@ -67,8 +67,8 @@ As we said before, any model that is loaded with gensim and extends
 In this section we will see how to load a word2vec model and Fasttext.
 
 .. note::
-  Gensim is not directly compatible with glove model file format. 
-  However, they provide a 
+  Gensim is not directly compatible with glove model file format.
+  However, they provide a
   `script <https://radimrehurek.com/gensim/scripts/glove2word2vec.html>`_
   that allows you to transform any glove model into a word2vec format.
 
@@ -81,10 +81,10 @@ The procedure is quite simple: first we download word2vec binary file from its s
 and then we load it using the :code:`KeyedVectors.load_word2vec_format` function.
 
 >>> from gensim.models import KeyedVectors
->>> 
+>>>
 >>> w2v_embeddings = KeyedVectors.load_word2vec_format("/path/to/your/embeddings/model", binary=True)
 >>> word2vec = WordEmbeddingModel(w2v_embeddings, 'word2vec')
->>> 
+>>>
 >>> result = weat.run_query(query, word2vec)
 >>> result
 {'query_name': 'Male terms and Female terms wrt Career and Family',
@@ -98,15 +98,15 @@ The same method works for :code:`Fasttext`.
 
 >>> from gensim.models import KeyedVectors
 >>> fast_embeddings = KeyedVectors.load_word2vec_format('path/to/fast/embeddings.vec')
->>> 
+>>>
 >>> fast = WordEmbeddingModel(fast_embeddings, 'fast')
 >>> result = weat.run_query(query, fast)
->>> 
+>>>
 >>> result
 {'query_name': 'Male terms and Female terms wrt Career and Family',
  'result': 0.34870023}
 
-While we load FastText here as :code:`KeyedVectors` (i.e., in word2vec format), 
+While we load FastText here as :code:`KeyedVectors` (i.e., in word2vec format),
 it can also be used via :code:`FastTextKeyedVectors`.
 
 
@@ -114,21 +114,21 @@ Flair
 =====
 
 WEFE does not support flair interfaces.
-However, you can use static embeddings of flair 
+However, you can use static embeddings of flair
 (
-`Classic Word Embeddings <https://github.com/flairNLP/flair/blob/master/resources/docs/embeddings/CLASSIC_WORD_EMBEDDINGS.md>`_ 
+`Classic Word Embeddings <https://github.com/flairNLP/flair/blob/master/resources/docs/embeddings/CLASSIC_WORD_EMBEDDINGS.md>`_
 ) which are based on gensim's :code:`KeyedVectors`, to load embedding models.
 The following code is an example of this:
 
 >>> from flair.embeddings import WordEmbeddings
 >>> from wefe.utils import flair_to_gensim
->>> 
->>> # could be any of the Classic Word Embeddings model list. 
+>>>
+>>> # could be any of the Classic Word Embeddings model list.
 >>> flair_model_name = "glove"
->>> 
+>>>
 >>> flair_model = flair_to_gensim(WordEmbeddings(flair_model_name))
 >>> wefe_model = WordEmbeddingModel(flair_model, flair_model_name)
->>> 
+>>>
 >>> result = weat.run_query(query, wefe_model)
 >>> print(result)
 {'query_name': 'Male terms and Female terms wrt Career and Family', 'result': 1.0486683}

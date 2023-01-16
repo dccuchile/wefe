@@ -29,19 +29,19 @@ WEFE: The Word Embedding Fairness Evaluation Framework
   :alt: WEFE Logo
   :align: center
 
-*Word Embedding Fairness Evaluation* (WEFE) is an open source library for 
-measuring an mitigating bias in word embedding models. 
-It generalizes many existing fairness metrics into a unified framework and 
+*Word Embedding Fairness Evaluation* (WEFE) is an open source library for
+measuring an mitigating bias in word embedding models.
+It generalizes many existing fairness metrics into a unified framework and
 provides a standard interface for:
 
 - Encapsulating existing fairness metrics from previous work and designing
   new ones.
 - Encapsulating the test words used by fairness metrics into standard
   objects called queries.
-- Computing a fairness metric on a given pre-trained word embedding model 
+- Computing a fairness metric on a given pre-trained word embedding model
   using user-given queries.
 
-WEFE also standardizes the process of mitigating bias through an interface similar 
+WEFE also standardizes the process of mitigating bias through an interface similar
 to the ``scikit-learn`` ``fit-transform``.
 This standardization separates the mitigation process into two stages:
 
@@ -55,18 +55,18 @@ The official documentation can be found at this `link <https://wefe.readthedocs.
 Installation
 ============
 
-There are two different ways to install WEFE: 
+There are two different ways to install WEFE:
 
 
 To install the package with ``pip``  ::
 
     pip install wefe
 
-- With conda: 
+- With conda:
 
 To install the package with ``conda``::
 
-    conda install -c pbadilla wefe 
+    conda install -c pbadilla wefe
 
 
 Requirements
@@ -107,8 +107,8 @@ of WEFE documentation, run ::
 Testing
 -------
 
-All unit tests are in the wefe/tests folder. It uses ``pytest`` as a framework to 
-run them. 
+All unit tests are in the wefe/tests folder. It uses ``pytest`` as a framework to
+run them.
 
 To run the test, execute::
 
@@ -126,14 +126,14 @@ And then::
 Build the documentation
 -----------------------
 
-The documentation is created using sphinx. 
+The documentation is created using sphinx.
 It can be found in the docs folder at the root of the project.
 To compile the documentation, run:
 
 .. code-block:: bash
 
     cd docs
-    make html 
+    make html
 
 Then, you can visit the documentation at ``docs/_build/html/index.html``
 
@@ -144,11 +144,11 @@ Version 0.4.0
 -------------------
 - 3 new bias mitigation methods (debias) implemented: Double Hard Debias, Half
   Sibling Regression and Repulsion Attraction Neutralization.
-- The library documentation of the library has been restructured. 
+- The library documentation of the library has been restructured.
   Now, the documentation is divided into user guide and theoretical framework
-  The user guide does not contain theoretical information. 
-  Instead, theoretical documentation can be found in the conceptual guides. 
-- Improved API documentation and examples. Added multilingual examples contributed 
+  The user guide does not contain theoretical information.
+  Instead, theoretical documentation can be found in the conceptual guides.
+- Improved API documentation and examples. Added multilingual examples contributed
   by the community.
 - The user guides are fully executable because they are now on notebooks.
 - There was also an important improvement in the API documentation and in metrics and
@@ -163,8 +163,8 @@ Version 0.3.2
 -------------
 - Fixed RNSB bug where the classification labels were interchanged and could produce
   erroneous results when the attributes are of different sizes.
-- Fixed RNSB replication notebook 
-- Update of WEFE case study scores. 
+- Fixed RNSB replication notebook
+- Update of WEFE case study scores.
 - Improved documentation examples for WEAT, RNSB, RIPA.
 - Holdout parameter added to RNSB, which allows to indicate whether or not a holdout
   is performed when training the classifier.
@@ -208,23 +208,23 @@ Version 0.2.1
 Version 0.2.0
 --------------
 
-- Renamed optional ```run_query``` parameter  ```warn_filtered_words``` to 
+- Renamed optional ```run_query``` parameter  ```warn_filtered_words``` to
   `warn_not_found_words`.
 - Added ```word_preprocessor_args``` parameter to ```run_query``` that allow specifying
   transformations prior to searching for words in word embeddings.
-- Added ```secondary_preprocessor_args``` parameter to ```run_query``` which allows 
+- Added ```secondary_preprocessor_args``` parameter to ```run_query``` which allows
   specifying a second pre-processor transformation to words before searching them in
   word embeddings. It is not necessary to specify the first preprocessor to use this
   one.
 - Implemented ```__getitem__``` function in ```WordEmbeddingModel```. This method
   allows obtaining an embedding from a word from the model stored in the instance
-  using indexers. 
+  using indexers.
 - Removed underscore from class and instance variable names.
 - Improved type and verification exception messages when creating objects and executing
   methods.
 - Fix an error that appeared when calculating rankings with two columns of aggregations
   with the same name.
-- Ranking correlations are now calculated using pandas ```corr``` method. 
+- Ranking correlations are now calculated using pandas ```corr``` method.
 - Changed metric template, name and short_names to class variables.
 - Implemented ```random_state``` in RNSB to allow replication of the experiments.
 - run_query now returns as a result the default metric requested in the parameters
@@ -239,21 +239,21 @@ Citation
 
 Please cite the following paper if using this package in an academic publication:
 
-P. Badilla, F. Bravo-Marquez, and J. Pérez 
+P. Badilla, F. Bravo-Marquez, and J. Pérez
 `WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the
-29th International Joint Conference on Artificial Intelligence and the 17th 
+29th International Joint Conference on Artificial Intelligence and the 17th
 Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. <https://www.ijcai.org/Proceedings/2020/60>`_
 
 Bibtex:
 
-.. code-block:: latex 
+.. code-block:: latex
 
     @InProceedings{wefe2020,
         title     = {WEFE: The Word Embeddings Fairness Evaluation Framework},
         author    = {Badilla, Pablo and Bravo-Marquez, Felipe and Pérez, Jorge},
         booktitle = {Proceedings of the Twenty-Ninth International Joint Conference on
                    Artificial Intelligence, {IJCAI-20}},
-        publisher = {International Joint Conferences on Artificial Intelligence Organization},             
+        publisher = {International Joint Conferences on Artificial Intelligence Organization},
         pages     = {430--436},
         year      = {2020},
         month     = {7},
@@ -274,12 +274,12 @@ Contributors
 ------------
 
 
-We thank all our contributors who have allowed WEFE to grow, especially 
-`stolenpyjak <https://github.com/stolenpyjak/>`_ and 
+We thank all our contributors who have allowed WEFE to grow, especially
+`stolenpyjak <https://github.com/stolenpyjak/>`_ and
 `mspl13 <https://github.com/mspl13/>`_ for implementing new metrics.
 
-We also thank `alan-cueva <https://github.com/alan-cueva/>`_ for initiating the development 
-of metrics for contextualized embedding models and 
+We also thank `alan-cueva <https://github.com/alan-cueva/>`_ for initiating the development
+of metrics for contextualized embedding models and
 `harshvr15 <https://github.com/harshvr15/>`_ for the examples of multi-language bias measurement.
 
 Thank you very much 😊!

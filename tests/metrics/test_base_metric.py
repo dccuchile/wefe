@@ -1,4 +1,5 @@
 import pytest
+
 from wefe.metrics.base_metric import BaseMetric
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel

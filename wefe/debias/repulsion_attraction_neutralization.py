@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Sequence
 import numpy as np
 from sklearn.decomposition import PCA
 from tqdm import tqdm
+
 from wefe.debias.base_debias import BaseDebias
 from wefe.preprocessing import EmbeddingDict, get_embeddings_from_tuples
 from wefe.utils import check_is_fitted
@@ -12,7 +13,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 try:
     import torch
-    import torch.nn as nn
+    from torch import nn
 except ModuleNotFoundError:
     raise ModuleNotFoundError(
         "PyTorch is required to run RepulsionAttractionNeutralization method. "
@@ -49,7 +50,7 @@ class RAN_Loss(nn.Module):
         self.repulsion_set = repulsion_set
         self.bias_direction = bias_direction
 
-    def _repulsion(self):
+    def _repulsion(self) -> torch.Tensor:
         if not isinstance(self.repulsion_set, bool):
             cos_similarity = self._cosine_similarity(self.w_b, self.repulsion_set)
             repulsion = torch.abs(cos_similarity).mean(dim=0)
@@ -70,7 +71,12 @@ class RAN_Loss(nn.Module):
         neutralization = torch.abs(self.w_b.dot(self.bias_direction)).mean(dim=0)
         return neutralization
 
-    def _objective_function(self, w1, w2, w3) -> torch.Tensor:
+    def _objective_function(
+        self,
+        w1: np.number,
+        w2: np.number,
+        w3: np.number,
+    ) -> torch.Tensor:
         return (
             self._repulsion() * w1
             + self._attraction() * w2
@@ -94,7 +100,7 @@ class RAN(nn.Module):
         w: np.ndarray,
         repulsion_set: List[np.ndarray],
         bias_direction: np.ndarray,
-        weights=[0.33, 0.33, 0.33],
+        weights: Sequence = [0.33, 0.33, 0.33],
     ) -> None:
         """Initialize a RAN instance.
 
@@ -111,7 +117,7 @@ class RAN(nn.Module):
             repulsion_set: List[np.ndarray]
                 Set of embeddings to be repeled from word
             bias_direction: np.array
-            weights: list, optional
+            weights: Sequence, optional
                 weights λi that determine the relative importance of one
                 objective function (repulsion, attraction, neutralization)
                 over another. by Defaults [0.33, 0.33, 0.33].
@@ -121,6 +127,7 @@ class RAN(nn.Module):
         self.model = model
         self.word = word
         self.w = torch.FloatTensor(np.array(w)).requires_grad_(True)
+
         if len(repulsion_set) == 0:
             self.repulsion_set = False
         else:
@@ -136,7 +143,7 @@ class RAN(nn.Module):
 
         self.loss = RAN_Loss(self.w, self.w_b, self.repulsion_set, self.bias_direction)
 
-    def _forward(self):
+    def _forward(self) -> torch.Tensor:
         w1, w2, w3 = self.weights
         return self.loss._objective_function(w1, w2, w3)
 
@@ -363,7 +370,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         self,
         sets: Sequence[Sequence[str]],
         set_name: str,
-    ):
+    ) -> None:
 
         for idx, set_ in enumerate(sets):
             if len(set_) != 2:
@@ -458,7 +465,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             weights,
         )
         optimizer = torch.optim.Adam(ran.parameters(), lr=learning_rate)
-        for epoch in range(epochs):
+        for _ in range(epochs):
             optimizer.zero_grad()
             out = ran._forward()
             out.backward()

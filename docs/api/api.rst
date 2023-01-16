@@ -85,7 +85,7 @@ Preprocessing
 =============
 
 
-The following functions allow transforming sets of words and queries to embeddings. 
+The following functions allow transforming sets of words and queries to embeddings.
 The documentation of the functions in this section are intended as a guide for WEFE developers.
 
 .. autosummary::
@@ -101,7 +101,7 @@ The documentation of the functions in this section are intended as a guide for W
 Utils
 =====
 
-Collection of assorted utils. 
+Collection of assorted utils.
 
 .. autosummary::
    :toctree: generated/

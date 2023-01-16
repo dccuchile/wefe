@@ -19,7 +19,7 @@ using the package to measure bias. The following sections show:
     To accurately study and reduce biases contained in word embeddings, queries may
     contain words that could be offensive to certain groups or individuals.
     The relationships studied between these words DO NOT represent the
-    ideas, thoughts or beliefs of the authors of this library. 
+    ideas, thoughts or beliefs of the authors of this library.
     This warning applies to all documentation.
 
 .. note::
@@ -32,7 +32,7 @@ using the package to measure bias. The following sections show:
 .. note::
 
     For a list of metrics implemented in WEFE, refer to the
-    :ref:`metrics section<metrics-API>` of the API reference.  
+    :ref:`metrics section<metrics-API>` of the API reference.
 
 
 Run a Query
@@ -40,9 +40,9 @@ Run a Query
 
 The following subsections explains how to run a simple query that
 measures gender bias on
-`Glove <https://nlp.stanford.edu/projects/glove/>`_. 
+`Glove <https://nlp.stanford.edu/projects/glove/>`_.
 The example uses the Word Embedding Association Test (:class:`~wefe.metrics.WEAT.WEAT`)
-metric quantifying the bias in the embeddings model. Below we show the three usual 
+metric quantifying the bias in the embeddings model. Below we show the three usual
 steps for performing a query in WEFE:
 
 .. note::
@@ -51,9 +51,9 @@ steps for performing a query in WEFE:
     between two sets of target words (sets of words intended to denote a social
     groups as men and women) and two sets of attribute words (sets of words
     representing some attitude, characteristic, trait, occupational field,
-    etc. that can be associated with individuals from any social group). 
+    etc. that can be associated with individuals from any social group).
 
-    The closer its value is to 0, the less biased the model is. 
+    The closer its value is to 0, the less biased the model is.
 
     Visit the metrics documentation (:class:`~wefe.metrics.WEAT.WEAT`) for more information.
 
@@ -71,18 +71,18 @@ twitter dataset loaded using `gensim-data <https://github.com/RaRe-Technologies/
 
 
 .. note::
-    Visit `gensim-data repository <https://github.com/RaRe-Technologies/gensim-data#models>`_.  
+    Visit `gensim-data repository <https://github.com/RaRe-Technologies/gensim-data#models>`_.
     to find the complete list of published pre-trained models ready to use.
 
 .. code:: ipython3
 
     import gensim.downloader as api
-    
+
     from wefe.datasets import load_weat
     from wefe.metrics import WEAT
     from wefe.query import Query
     from wefe.word_embedding_model import WordEmbeddingModel
-    
+
     twitter_25 = api.load("glove-twitter-25")
     # WordEmbeddingModel receives as first argument a KeyedVectors model
     # and the second argument the model name.
@@ -132,7 +132,7 @@ included in the ``datasets`` module.
         target_sets_names=["Female terms", "Male Terms"],
         attribute_sets_names=["Family", "Careers"],
     )
-    
+
     gender_query
 
 
@@ -205,7 +205,7 @@ warn errors or modify which calculation method the metric use.
 
 .. note::
 
-    Each metric implements the ``run_query`` method with different arguments. 
+    Each metric implements the ``run_query`` method with different arguments.
     Visit their API documentation for more information.
 
 
@@ -286,7 +286,7 @@ to find the names in the model vocabulary.
 
     # load the weat word sets.
     word_sets = load_weat()
-    
+
     # print a set of european american common names.
     print(word_sets["european_american_names_5"])
 
@@ -348,11 +348,11 @@ names with respect to pleasant and unpleasant attributes.
 Word Preprocessors
 ~~~~~~~~~~~~~~~~~~
 
-Any ``run_query`` method allows preprocessing each word before they are searched in the model's 
+Any ``run_query`` method allows preprocessing each word before they are searched in the model's
 vocabulary through the parameter ``preprocessors`` (list of one or more preprocessor).
 This parameter accepts a list of individual preprocessors, which are defined below:
 
-A ``preprocessor`` is a dictionary that specifies what processing(s) are 
+A ``preprocessor`` is a dictionary that specifies what processing(s) are
 performed on each word before its looked up in the model vocabulary.
 For example, the ``preprocessor``
 ``{'lowecase': True, 'strip_accents': True}`` allows you to lowercase
@@ -367,20 +367,20 @@ The possible options for a preprocessor are:
 -  ``titlecase``: ``bool``. Indicates that the words are transformed to titlecase.
 -  ``strip_accents``: ``bool``, ``{'ascii', 'unicode'}``: Specifies that the accents of the words
    are eliminated. The stripping type can be specified. True uses 'unicode' by default.
--  ``preprocessor``: ``Callable``. It receives a function that operates on each word. 
-   In the case of specifying a function, it overrides the default preprocessor 
+-  ``preprocessor``: ``Callable``. It receives a function that operates on each word.
+   In the case of specifying a function, it overrides the default preprocessor
    (i.e., the previous options stop working).
 
 
 A list of preprocessor options allows searching for several
 variants of the words into the model. For example, the preprocessors
 ``[{}, {"lowercase": True, "strip_accents": True}]``
-``{}`` allows searching first for the original words in the vocabulary of the model. 
-In case some of them are not found, ``{"lowercase": True, "strip_accents": True}`` 
+``{}`` allows searching first for the original words in the vocabulary of the model.
+In case some of them are not found, ``{"lowercase": True, "strip_accents": True}``
 is executed on these words and then they are searched in the model vocabulary.
 
-By default (in case there is more than one preprocessor in the list) the first 
-preprocessed word found in the embeddings model is used. 
+By default (in case there is more than one preprocessor in the list) the first
+preprocessed word found in the embeddings model is used.
 This behavior can be controlled by the ``strategy`` parameter of ``run_query``.
 
 In the following example, we provide a list with only one
@@ -440,7 +440,7 @@ that converts to lowercase and removes accents.
         ],
         warn_not_found_words=True,
     )
-    
+
     result
 
 
@@ -484,7 +484,7 @@ lowercase words without accents.
         ],
         warn_not_found_words=True,
     )
-    
+
     result
 
 
@@ -525,7 +525,7 @@ preprocessors. This can be controlled by specifying the parameter
         strategy="all",
         warn_not_found_words=True,
     )
-    
+
     result
 
 
@@ -570,7 +570,7 @@ dataset. The queries are executed using :class:`~wefe.metrics.WEAT.WEAT` metric.
 .. code:: ipython3
 
     import gensim.downloader as api
-    
+
     from wefe.datasets import load_weat
     from wefe.metrics import RNSB, WEAT
     from wefe.query import Query
@@ -589,9 +589,9 @@ dimensions.
     model_1 = WordEmbeddingModel(api.load("glove-twitter-25"), "glove twitter dim=25")
     model_2 = WordEmbeddingModel(api.load("glove-twitter-50"), "glove twitter dim=50")
     model_3 = WordEmbeddingModel(api.load("glove-twitter-100"), "glove twitter dim=100")
-    
+
     models = [model_1, model_2, model_3]
-    
+
 
 
 Load the word sets and create the queries
@@ -605,7 +605,7 @@ three queries are intended to measure gender bias.
 
     # Load the WEAT word sets
     word_sets = load_weat()
-    
+
     # Create gender queries
     gender_query_1 = Query(
         [word_sets["male_terms"], word_sets["female_terms"]],
@@ -613,21 +613,21 @@ three queries are intended to measure gender bias.
         ["Male terms", "Female terms"],
         ["Career", "Family"],
     )
-    
+
     gender_query_2 = Query(
         [word_sets["male_terms"], word_sets["female_terms"]],
         [word_sets["science"], word_sets["arts"]],
         ["Male terms", "Female terms"],
         ["Science", "Arts"],
     )
-    
+
     gender_query_3 = Query(
         [word_sets["male_terms"], word_sets["female_terms"]],
         [word_sets["math"], word_sets["arts_2"]],
         ["Male terms", "Female terms"],
         ["Math", "Arts"],
     )
-    
+
     gender_queries = [gender_query_1, gender_query_2, gender_query_3]
 
 
@@ -674,11 +674,11 @@ set of queries through the parameter ``queries_set_name``.
         .dataframe tbody tr th:only-of-type {
             vertical-align: middle;
         }
-    
+
         .dataframe tbody tr th {
             vertical-align: top;
         }
-    
+
         .dataframe thead th {
             text-align: right;
         }
@@ -747,7 +747,7 @@ words before searching for them in the models’ vocabularies.
         metric_params={"preprocessors": [{"lowercase": True}]},
         queries_set_name="Gender Queries",
     )
-    
+
     WEAT_gender_results
 
 
@@ -760,11 +760,11 @@ words before searching for them in the models’ vocabularies.
         .dataframe tbody tr th:only-of-type {
             vertical-align: middle;
         }
-    
+
         .dataframe tbody tr th {
             vertical-align: top;
         }
-    
+
         .dataframe thead th {
             text-align: right;
         }
@@ -821,7 +821,7 @@ a ``run_queries`` execution into a `plotly <https://plotly.com/python/>`_ barplo
 .. code:: ipython3
 
     from wefe.utils import plot_queries_results, run_queries
-    
+
     # Plot the results
     plot_queries_results(WEAT_gender_results).show()
 
@@ -860,8 +860,8 @@ the results dataframe. The aggregation functions available are:
     Notice that some functions are more appropriate for certain metrics. For
     metrics returning only positive numbers, all the previous aggregation
     functions would be OK. In contrast, metrics that return real values
-    (e.g., :class:`~wefe.metrics.WEAT.WEAT` , :class:`~wefe.metrics.RND.RND` , etc…), 
-    aggregation functions such as sum would make positive and negative outputs to cancel 
+    (e.g., :class:`~wefe.metrics.WEAT.WEAT` , :class:`~wefe.metrics.RND.RND` , etc…),
+    aggregation functions such as sum would make positive and negative outputs to cancel
     each other.
 
 .. code:: ipython3
@@ -888,11 +888,11 @@ the results dataframe. The aggregation functions available are:
         .dataframe tbody tr th:only-of-type {
             vertical-align: middle;
         }
-    
+
         .dataframe tbody tr th {
             vertical-align: top;
         }
-    
+
         .dataframe thead th {
             text-align: right;
         }
@@ -981,11 +981,11 @@ results using the parameter ``return_only_aggregation``
         .dataframe tbody tr th:only-of-type {
             vertical-align: middle;
         }
-    
+
         .dataframe tbody tr th {
             vertical-align: top;
         }
-    
+
         .dataframe thead th {
             text-align: right;
         }
@@ -1051,8 +1051,8 @@ To show these problems, suppose we have:
 -   Three ``Glove`` models of 25, 50 and 100 dimensions trained on the same
     twitter dataset.
 
-Then we run :func:`~wefe.utils.run_queries` on this set of model-queries using 
-:class:`~wefe.metrics.WEAT.WEAT`, and to corroborate the results obtained, we also use 
+Then we run :func:`~wefe.utils.run_queries` on this set of model-queries using
+:class:`~wefe.metrics.WEAT.WEAT`, and to corroborate the results obtained, we also use
 Relative Negative Sentiment Bias (:class:`~wefe.metrics.RNSB.RNSB`).
 
 1.  The first problem occurs when the bias scores obtained from one set
@@ -1145,9 +1145,9 @@ Gender Bias Model Ranking
         ["Male terms", "Female terms"],
         ["Math", "Arts"],
     )
-    
+
     gender_queries = [gender_query_1, gender_query_2, gender_query_3]
-    
+
     # run the queries using WEAT
     WEAT_gender_results = run_queries(
         WEAT,
@@ -1158,7 +1158,7 @@ Gender Bias Model Ranking
         return_only_aggregation=True,
         queries_set_name="Gender Queries",
     )
-    
+
     # run the queries using WEAT effect size
     WEAT_EZ_gender_results = run_queries(
         WEAT,
@@ -1169,7 +1169,7 @@ Gender Bias Model Ranking
         return_only_aggregation=True,
         queries_set_name="Gender Queries",
     )
-    
+
     # run the queries using RNSB
     RNSB_gender_results = run_queries(
         RNSB,
@@ -1189,12 +1189,12 @@ values.
 .. code:: ipython3
 
     from wefe.utils import create_ranking
-    
+
     # create the ranking
     gender_ranking = create_ranking(
         [WEAT_gender_results, WEAT_EZ_gender_results, RNSB_gender_results]
     )
-    
+
     gender_ranking
 
 
@@ -1207,11 +1207,11 @@ values.
         .dataframe tbody tr th:only-of-type {
             vertical-align: middle;
         }
-    
+
         .dataframe tbody tr th {
             vertical-align: top;
         }
-    
+
         .dataframe thead th {
             text-align: right;
         }
@@ -1261,7 +1261,7 @@ Ethnicity Bias Model Ranking
 
 .. code:: ipython3
 
-    
+
     # define the queries
     ethnicity_query_1 = Query(
         [word_sets["european_american_names_5"], word_sets["african_american_names_5"]],
@@ -1269,16 +1269,16 @@ Ethnicity Bias Model Ranking
         ["European Names", "African Names"],
         ["Pleasant", "Unpleasant"],
     )
-    
+
     ethnicity_query_2 = Query(
         [word_sets["european_american_names_7"], word_sets["african_american_names_7"]],
         [word_sets["pleasant_9"], word_sets["unpleasant_9"]],
         ["European Names", "African Names"],
         ["Pleasant 2", "Unpleasant 2"],
     )
-    
+
     ethnicity_queries = [ethnicity_query_1, ethnicity_query_2]
-    
+
     # run the queries using WEAT
     WEAT_ethnicity_results = run_queries(
         WEAT,
@@ -1289,7 +1289,7 @@ Ethnicity Bias Model Ranking
         return_only_aggregation=True,
         queries_set_name="Ethnicity Queries",
     )
-    
+
     # run the queries using WEAT effect size
     WEAT_EZ_ethnicity_results = run_queries(
         WEAT,
@@ -1300,7 +1300,7 @@ Ethnicity Bias Model Ranking
         return_only_aggregation=True,
         queries_set_name="Ethnicity Queries",
     )
-    
+
     # run the queries using RNSB
     RNSB_ethnicity_results = run_queries(
         RNSB,
@@ -1319,7 +1319,7 @@ Ethnicity Bias Model Ranking
     ethnicity_ranking = create_ranking(
         [WEAT_ethnicity_results, WEAT_EZ_gender_results, RNSB_ethnicity_results]
     )
-    
+
     ethnicity_ranking
 
 
@@ -1333,11 +1333,11 @@ Ethnicity Bias Model Ranking
         .dataframe tbody tr th:only-of-type {
             vertical-align: middle;
         }
-    
+
         .dataframe tbody tr th {
             vertical-align: top;
         }
-    
+
         .dataframe thead th {
             text-align: right;
         }
@@ -1394,7 +1394,7 @@ a different criterion-metric ranking.
 .. code:: ipython3
 
     from wefe.utils import plot_ranking
-    
+
     fig = plot_ranking(gender_ranking)
     fig.show()
 
@@ -1419,10 +1419,10 @@ Correlating Rankings
 Having obtained rankings by metric for each embeddings, it would be
 ideal to see and analyze the degree of agreement between them.
 
-A high concordance between the rankings allows us to state with some certainty that 
-all metrics evaluated the embedding models in a similar way and therefore, 
+A high concordance between the rankings allows us to state with some certainty that
+all metrics evaluated the embedding models in a similar way and therefore,
 that the ordering of embeddings by bias calculated makes sense.
-On the other hand, a low degree of agreement shows the opposite: the rankings do not 
+On the other hand, a low degree of agreement shows the opposite: the rankings do not
 allow to clearly establish which embedding is less biased than another.
 
 The level of concordance of the rankings can be evaluated by calculating
@@ -1432,7 +1432,7 @@ calculate the correlations between rankings.
 .. code:: ipython3
 
     from wefe.utils import calculate_ranking_correlations, plot_ranking_correlations
-    
+
     correlations = calculate_ranking_correlations(gender_ranking)
     correlations
 
@@ -1447,11 +1447,11 @@ calculate the correlations between rankings.
         .dataframe tbody tr th:only-of-type {
             vertical-align: middle;
         }
-    
+
         .dataframe tbody tr th {
             vertical-align: top;
         }
-    
+
         .dataframe thead th {
             text-align: right;
         }
@@ -1493,7 +1493,7 @@ calculate the correlations between rankings.
 .. note::
 
     ``calculate_ranking_correlations`` uses the ``corr()`` ``pandas``
-    dataframe method. The type of correlation that is calculated can be changed 
+    dataframe method. The type of correlation that is calculated can be changed
     through the method parameter. The available options are:
     ``'pearson'``, ``'spearman'``, ``'kendall'``. By default, the spearman
     correlation is calculated.
@@ -1515,11 +1515,11 @@ In this example, Kendall’s correlation is used.
         .dataframe tbody tr th:only-of-type {
             vertical-align: middle;
         }
-    
+
         .dataframe tbody tr th {
             vertical-align: top;
         }
-    
+
         .dataframe thead th {
             text-align: right;
         }
@@ -1573,4 +1573,3 @@ WEFE also provides a function for graphing the correlations:
 
 
 In this case, only two of the three rankings show similar results.
-

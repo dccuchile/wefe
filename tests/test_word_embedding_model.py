@@ -5,6 +5,7 @@ import pytest
 import semantic_version
 from gensim.models import FastText, KeyedVectors, Word2Vec
 from gensim.test.utils import common_texts
+
 from wefe.word_embedding_model import WordEmbeddingModel
 
 gensim_version = semantic_version.Version.coerce(gensim.__version__)

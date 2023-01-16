@@ -1,8 +1,9 @@
 """Mean Average Cosine Similarity (MAC) implementation."""
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Dict, List, Tuple, Union
 
 import numpy as np
 from scipy.spatial import distance
+
 from wefe.metrics.base_metric import BaseMetric
 from wefe.preprocessing import get_embeddings_from_query
 from wefe.query import Query
@@ -22,16 +23,16 @@ class MAC(BaseMetric):
         For each target set:
         For each word embedding in the target set:
             For each attribute set:
-                Calculate the cosine similarity of the target embedding and each attribute
-                embedding of the set.
-                Calculate the mean of the cosines similarities and store it in a array.
+                Calculate the cosine similarity of the target embedding and
+                each attribute embedding of the set.
+                Calculate the mean of the cosines similarities and store it in a
+                array.
         Average all the mean cosine similarities and return the calculated score.
 
     The closer the value is to 1, the less biased the query will be.
 
     References
     ----------
-
     | [1]: Thomas Manzini, Lim Yao Chong,Alan W Black, and Yulia Tsvetkov.
     |      Black is to Criminal as Caucasian is to Police: Detecting and Removing
            Multiclass Bias in Word Embeddings.
@@ -41,7 +42,7 @@ class MAC(BaseMetric):
     |      Minneapolis, Minnesota, June 2019. Association for Computational Linguistics.
     | [2]: https://github.com/TManzini/DebiasMulticlassWordEmbedding/blob/master/Debiasing/evalBias.py
 
-    """
+    """  # noqa: E501
 
     metric_template = ("n", "n")
     metric_name = "Mean Average Cosine Similarity"
@@ -65,10 +66,14 @@ class MAC(BaseMetric):
         """
         return np.mean([distance.cosine(t, a_i) for a_i in A_j])
 
-    def _calc_mac(self, T, A):
+    def _calc_mac(
+        self,
+        T: Dict[str, Dict[str, np.ndarray]],
+        A: Dict[str, Dict[str, np.ndarray]],
+    ) -> Tuple[np.number, Dict[str, Dict[str, Dict[str, np.number]]]]:
 
         # dict that will store the s scores by target word and attribute set.
-        targets_eval = {}
+        targets_eval: Dict[str, Dict[str, Dict[str, np.number]]] = {}
         # list that will store the s scores
         targets_eval_scores = []
 
@@ -267,7 +272,11 @@ class MAC(BaseMetric):
         >>> # instance the metric and run the query
         >>> MAC().run_query(ethnicity_query, model)
         {
-            "query_name": "Black words, White words and Asian words wrt Black biased words, White biased words and Asian biased words",
+            "query_name": (
+                "Black words, White words and Asian words wrt Black "
+                "biased words, White biased words and Asian biased "
+                "words"
+            ),
             "result": 0.9462675075454171,
             "mac": 0.9462675075454171,
             "targets_eval": {
@@ -310,6 +319,7 @@ class MAC(BaseMetric):
             },
         }
 
+
         We can also test words that represent religious groups and beliefs:
 
         >>> from wefe.word_embedding_model import WordEmbeddingModel
@@ -344,7 +354,10 @@ class MAC(BaseMetric):
         >>> # instance the metric and run the query
         >>> MAC().run_query(religion_query, model, warn_not_found_words=True)
         {
-            "query_name": "judaism, christianity and islam wrt jew biased words, christian biased words and musilm biased words",
+            "query_name": (
+                "judaism, christianity and islam wrt jew biased words,"
+                " christian biased words and musilm biased words"
+            ),
             "result": 0.8589896201628209,
             "mac": 0.8589896201628209,
             "targets_eval": {
@@ -431,8 +444,7 @@ class MAC(BaseMetric):
                 },
             },
         }
-
-        """
+        """  # noqa: E501
         # check the types of the provided arguments (only the defaults).
         self._check_input(query, model, locals())
 

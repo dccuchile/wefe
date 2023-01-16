@@ -3,6 +3,7 @@ from typing import Dict, List
 
 import numpy as np
 import pytest
+
 from wefe.debias.half_sibling_regression import HalfSiblingRegression
 from wefe.metrics import WEAT
 from wefe.query import Query

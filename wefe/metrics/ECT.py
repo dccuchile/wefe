@@ -36,7 +36,6 @@ class ECT(BaseMetric):
 
     References
     ----------
-
     | [1]: Dev, S., & Phillips, J. (2019, April). Attenuating Bias in Word vectors.
     | [2]: https://github.com/sunipa/Attenuating-Bias-in-Word-Vec
     """

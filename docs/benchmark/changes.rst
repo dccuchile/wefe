@@ -2,6 +2,17 @@
 Differences between IJCAI version and Current version
 =====================================================
 
+An initial iteration of the present software was constructed to execute the experiments
+in our previous IJCAI publication titled "WEFE: The word embeddings fairness
+evaluation framework" authored by Badilla, P., Bravo-Marquez, F., & Pérez, J. (2020)
+presented at the International Joint Conferences on Artificial Intelligence.
+
+It is pertinent to note that the primary focus of the IJCAI publication was the
+conceptual framework of evaluating bias rather than the software's development.
+The main differences between the previous version and the current one are discussed
+below.
+
+
 The most noticeable change we can mention with respect to the IJCAI
 version and the current version is the full implementation of a new
 debiasing methods module. It includes 5 methods of debiasing:

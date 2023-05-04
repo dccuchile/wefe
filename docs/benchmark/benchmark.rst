@@ -1139,7 +1139,7 @@ The following table summarizes the main differences between the
 libraries analyzed in this benchmark study.
 
  ==================================================== ========================================= ========================================================== ========================================== ====================================
-                                                       WEFE                                      FEE                                                        Responsibly                                EmbeddingBiasScores
+ -                                                     WEFE                                      FEE                                                        Responsibly                                EmbeddingBiasScores
  ==================================================== ========================================= ========================================================== ========================================== ====================================
   Implemented   Metrics                                7                                         7                                                          3                                          6
   Implemented   Mitigation Algorithms                  5                                         3                                                          1                                          0

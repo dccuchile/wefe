@@ -1111,15 +1111,13 @@ SAME             ✖    ✖   ✖           ✔
 Generalized WEAT ✖    ✖   ✖           ✔
 ================ ==== === =========== ===================
 
-The table exclusively focuses on metrics that directly compute from word
-embeddings (WE) using predefined word sets. As a result, it omits
-metrics that are not compatible with the wefe interface such as:
+The table exclusively focuses on metrics that directly compute from word embeddings
+(WE) using predefined word sets. As a result, it omits the following metrics:
 
--  IndirectBias, a metric that accepts as input only two words and the
-   gender direction, previously calculated in a distinct operation.
--  GIPE, PMN, and Proximity Bias, which evaluate WE models before and
-   after debiasing with auxiliary mitigation methods.
--  SemBias, which is an analogy evaluation dataset.
+- IndirectBias, a metric that accepts as input only two words and the gender
+  direction, previously calculated in a distinct operation.
+- GIPE, PMN, and Proximity Bias, which evaluate WE models before and after debiasing
+  with auxiliary mitigation methods.
 
 Mitigation algorithms
 ~~~~~~~~~~~~~~~~~~~~~

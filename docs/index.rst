@@ -49,6 +49,13 @@ the detailed API documentation and extensive examples.
 
 .. toctree::
    :maxdepth: 2
+   :caption: Benchmark and Changes
+
+   benchmark/benchmark.rst
+   benchmark/changes.rst
+
+.. toctree::
+   :maxdepth: 2
    :caption: Contributing
 
    user_guide/contribute.rst

@@ -519,8 +519,8 @@ supporting the same number of number of word sets).
 
 
 
-2. Fair Embedding Engine
-~~~~~~~~~~~~~~~~~~~~~~~~
+Fair Embedding Engine
+~~~~~~~~~~~~~~~~~~~~~
 
 In the case of Fair Embedding Engine, the WE model is passed in the
 metric instantiation. Then, the output value of the metric is computed
@@ -1042,8 +1042,8 @@ interface
 
 
 
-1. Responsibly
-~~~~~~~~~~~~~~
+Responsibly
+~~~~~~~~~~~
 
 In Responsibly the embedding model is provided during the instantiation
 of the ``GenderBiasWe`` class. Definitional pairs cannot be provided by

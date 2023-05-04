@@ -140,6 +140,14 @@ Then, you can visit the documentation at ``docs/_build/html/index.html``
 Changelog
 =========
 
+Version 0.4.1
+-------------------
+
+- Fixed a bug where the last pair of target words in RIPA was not included.
+- Added a benchmark that compares WEFE with another measurement and bias mitigation
+  libraries in the documentation.
+- Added a library changes since original paper release page in the documentation.
+
 Version 0.4.0
 -------------------
 - 3 new bias mitigation methods (debias) implemented: Double Hard Debias, Half

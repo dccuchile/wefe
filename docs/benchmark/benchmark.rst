@@ -519,8 +519,8 @@ supporting the same number of number of word sets).
 
 
 
-2. Fair Embedding Engine
-~~~~~~~~~~~~~~~~~~~~~~~~
+Fair Embedding Engine
+~~~~~~~~~~~~~~~~~~~~~
 
 In the case of Fair Embedding Engine, the WE model is passed in the
 metric instantiation. Then, the output value of the metric is computed
@@ -833,8 +833,8 @@ family vs. career).
         "relatives",
     ]
 
-1. WEFE
-~~~~~~~
+WEFE
+~~~~
 
 WEFE defines a standardized framework for executing bias mitigation
 algorithms based on the scikit-learn fit transform interface.
@@ -968,8 +968,8 @@ methods implemented in the library.
     Repulsion Attraction Neutralization debiased model WEAT evaluation:  0.26007230998948216
 
 
-1. Fair Embedding Engine
-~~~~~~~~~~~~~~~~~~~~~~~~
+Fair Embedding Engine
+~~~~~~~~~~~~~~~~~~~~~
 
 The Fair Embedding Engine (FEE) requires the embedding model to be
 passed during instantiation of the algorithm. It currently does not
@@ -1042,8 +1042,8 @@ interface
 
 
 
-1. Responsibly
-~~~~~~~~~~~~~~
+Responsibly
+~~~~~~~~~~~
 
 In Responsibly the embedding model is provided during the instantiation
 of the ``GenderBiasWe`` class. Definitional pairs cannot be provided by
@@ -1063,8 +1063,8 @@ such as ``twitter-25``.
     gender_bias_we = GenderBiasWE(word2vec)  # instance the GenderBiasWE
     gender_bias_we.debias(neutral_words=targets)  # apply the debias
 
-4. EmbeddingBiasScore
-~~~~~~~~~~~~~~~~~~~~~
+EmbeddingBiasScore
+~~~~~~~~~~~~~~~~~~
 
 The library does not implement mitigation methods, so it is not included
 in this comparison.
@@ -1111,15 +1111,13 @@ SAME             ✖    ✖   ✖           ✔
 Generalized WEAT ✖    ✖   ✖           ✔
 ================ ==== === =========== ===================
 
-The table exclusively focuses on metrics that directly compute from word
-embeddings (WE) using predefined word sets. As a result, it omits
-metrics that are not compatible with the wefe interface such as:
+The table exclusively focuses on metrics that directly compute from word embeddings
+(WE) using predefined word sets. As a result, it omits the following metrics:
 
--  IndirectBias, a metric that accepts as input only two words and the
-   gender direction, previously calculated in a distinct operation.
--  GIPE, PMN, and Proximity Bias, which evaluate WE models before and
-   after debiasing with auxiliary mitigation methods.
--  SemBias, which is an analogy evaluation dataset.
+- IndirectBias, a metric that accepts as input only two words and the gender
+  direction, previously calculated in a distinct operation.
+- GIPE, PMN, and Proximity Bias, which evaluate WE models before and after debiasing
+  with auxiliary mitigation methods.
 
 Mitigation algorithms
 ~~~~~~~~~~~~~~~~~~~~~
@@ -1140,47 +1138,15 @@ Conclusion
 The following table summarizes the main differences between the
 libraries analyzed in this benchmark study.
 
-+-------------+-----------+--------------------+------------+---------+
-|             | WEFE      | FEE                | Responsibl | Embeddi |
-|             |           |                    | y          | ngBiasS |
-|             |           |                    |            | cores   |
-+=============+===========+====================+============+=========+
-| Implemented | 7         | 7                  | 3          | 6       |
-| Metrics     |           |                    |            |         |
-+-------------+-----------+--------------------+------------+---------+
-| Implemented | 5         | 3                  | 1          | 0       |
-| Mitigation  |           |                    |            |         |
-| Algorithms  |           |                    |            |         |
-+-------------+-----------+--------------------+------------+---------+
-| Extensible  | Easy      | Easy               | Difficult, | Easy    |
-|             |           |                    | not very   |         |
-|             |           |                    | modular.   |         |
-+-------------+-----------+--------------------+------------+---------+
-| Well-define | ✔         | ✖                  | ✖          | ✔       |
-| d           |           |                    |            |         |
-| interface   |           |                    |            |         |
-| for metrics |           |                    |            |         |
-+-------------+-----------+--------------------+------------+---------+
-| Well-define | ✔         | ✖                  | ✖          | ✖       |
-| d           |           |                    |            |         |
-| interface   |           |                    |            |         |
-| for         |           |                    |            |         |
-| mitigation  |           |                    |            |         |
-| algorithms  |           |                    |            |         |
-+-------------+-----------+--------------------+------------+---------+
-| Lastest     | January   | October 2020       | April 2021 | April   |
-| update      | 2023      |                    |            | 2023    |
-+-------------+-----------+--------------------+------------+---------+
-| Installatio | Easy: pip | No instructions.   | Only with  | Only    |
-| n           | or conda  | It can be          | pip.       | from    |
-|             |           | installed from the | Presents   | the     |
-|             |           | repository         | problems   | reposit |
-|             |           |                    |            | ory     |
-+-------------+-----------+--------------------+------------+---------+
-| Documentati | Extensive | Almost no          | Limited    | No      |
-| on          | documenta | documentation      | documentat | documen |
-|             | tion      |                    | ion        | tation, |
-|             | with      |                    | with some  | only    |
-|             | examples  |                    | examples   | example |
-|             |           |                    |            | s.      |
-+-------------+-----------+--------------------+------------+---------+
+ ==================================================== ========================================= ========================================================== ========================================== ====================================
+ Item                                                 WEFE                                      FEE                                                        Responsibly                                EmbeddingBiasScores
+ ==================================================== ========================================= ========================================================== ========================================== ====================================
+  Implemented   Metrics                                7                                         7                                                          3                                          6
+  Implemented   Mitigation Algorithms                  5                                         3                                                          1                                          0
+  Extensible                                           Easy                                      Easy                                                       Difficult,   not very modular.             Easy
+  Well-defined   interface for metrics                 ✔                                         ✖                                                          ✖                                          ✔
+  Well-defined   interface for mitigation algorithms   ✔                                         ✖                                                          ✖                                          ✖
+  Lastest update                                       January 2023                              October 2020                                               April 2021                                 April 2023
+  Installation                                         Easy:   pip or conda                      No instructions. It can be installed from the repository   Only   with pip. Presents problems         Only   from the repository
+  Documentation                                        Extensive   documentation with examples   Almost   no documentation                                  Limited documentation with some examples   No   documentation, only examples.
+ ==================================================== ========================================= ========================================================== ========================================== ====================================

@@ -2,7 +2,7 @@ pytest>=7.0.0
 pytest-cov==3.0.0
 coverage==7.2.5
 # flake8==5.0.4
-urllib3==1.26.15
+urllib3==1.26.17
 black==23.3.0
 isort==5.11.5
 mypy==1.2.0

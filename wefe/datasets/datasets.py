@@ -422,6 +422,25 @@ def load_weat() -> Dict[str, List[str]]:
            biases.
     | Caliskan, A., Bryson, J. J., & Narayanan, A. (2017).
     | Science, 356(6334), 183-186.
+    | [2]: Measuring individual differences in implicit cognition: The implicit
+           association test.
+    | Greenwald, A. G., McGhee, D. E., & Schwartz, J. L. K. (1998).
+    | Journal of Personality and Social Psychology, 74(6), 1464-1480.
+    | [3]: Are Emily and Greg More Employable Than Lakisha and Jamal? A Field
+           Experiment on Labor Market Discrimination.
+    | Bertrand, M., & Mullainathan, S. (2004).
+    | American Economic Review, 94(4), 991-1013.
+    | [4]: Harvesting implicit group attitudes and beliefs from a demonstration web
+           site.
+    | Nosek, B. A., Banaji, M. R., & Greenwald, A. G. (2002).
+    | Group Dynamics: Theory, Research, and Practice, 6(1), 101-115.
+    | [5]: Math = male, me = female, therefore math ≠ me.
+    | Nosek, B. A., Banaji, M. R., & Greenwald, A. G. (2002).
+    | Journal of Personality and Social Psychology, 83(1), 44-59.
+    | [6]: Implicit and Explicit Stigmatizing Attitudes and Stereotypes About
+           Depression.
+    | Monteith, L. L., & Pettit, J. W. (2011).
+    | Journal of Social and Clinical Psychology, 30(5), 484-505.
 
     Returns
     -------

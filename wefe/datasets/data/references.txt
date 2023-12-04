@@ -1,0 +1,10 @@
+WEAT.json
+    flowers, insects, pleasant_5, unpleasant_5a, instruments, weapons, european_american_names_5, african_american_names_5, and unpleasant_5b: Greenwald, A. G., McGhee, D. E., & Schwartz, J. L. K. (1998). Measuring individual differences in implicit cognition: The implicit association test. Journal of Personality and Social Psychology, 74(6), 1464–1480. https://doi.org/10.1037/0022-3514.74.6.1464
+
+    european_american_names_7 and african_american_names_7: Bertrand, M., & Mullainathan, S. (2004). Are Emily and Greg More Employable Than Lakisha and Jamal? A Field Experiment on Labor Market Discrimination. American Economic Review, 94(4), 991–1013. https://doi.org/10.1257/0002828042002561
+
+    pleasant_9, unpleasant_9, male_names, female_names, career, family, math, arts, male_terms, female_terms, young_people_names, and old_people_names: Nosek, B. A., Banaji, M. R., & Greenwald, A. G. (2002). Harvesting implicit group attitudes and beliefs from a demonstration web site. Group Dynamics: Theory, Research, and Practice, 6(1), 101–115. https://doi.org/10.1037/1089-2699.6.1.101
+
+    science, arts_2, male_terms_2, and female_terms_2: Nosek, B. A., Banaji, M. R., & Greenwald, A. G. (2002). Math = male, me = female, therefore math ≠ me. Journal of Personality and Social Psychology, 83(1), 44–59. https://doi.org/10.1037/0022-3514.83.1.44
+
+    mental_disease, physical_disease, temporary, and permanent: Monteith, L. L., & Pettit, J. W. (2011). Implicit and Explicit Stigmatizing Attitudes and Stereotypes About Depression. Journal of Social and Clinical Psychology, 30(5), 484–505. https://doi.org/10.1521/jscp.2011.30.5.484

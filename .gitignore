@@ -94,3 +94,6 @@ conda_deploy/
 # coverage files
 cov.xml
 test-results/junit.xml
+
+# pyenv
+.python-version

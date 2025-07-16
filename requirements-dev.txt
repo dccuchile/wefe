@@ -1,17 +1,18 @@
-pytest>=7.0.0
-pytest-cov==3.0.0
-coverage==7.2.5
-# flake8==5.0.4
-urllib3==1.26.18
 black==23.3.0
+coverage==7.2.5
+docutils==0.18
+ipython==7.34.0
 isort==5.11.5
 mypy==1.2.0
+numpydoc==1.5.0
+pre-commit>=4.2.0
+pytest>=7.0.0
+pytest-cov==3.0.0
+ruff==0.0.264
 Sphinx==5.3.0
+sphinx-copybutton==0.5.2
 sphinx-gallery==0.13.0
 sphinx-rtd-theme==1.2.0
-sphinx-copybutton==0.5.2
-numpydoc==1.5.0
-docutils==0.18
 torch==1.13.1
-ipython==7.34.0
-ruff==0.0.264
+# flake8==5.0.4
+urllib3==1.26.18

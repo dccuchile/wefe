@@ -1,5 +1,6 @@
 """RND metric testing"""
-from typing import Any, Dict
+
+from typing import Any
 
 import numpy as np
 import pytest
@@ -9,7 +10,7 @@ from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-def check_RND_result_keys(results: Dict[str, Any]):
+def check_RND_result_keys(results: dict[str, Any]):
     assert list(results.keys()) == [
         "query_name",
         "result",
@@ -18,7 +19,7 @@ def check_RND_result_keys(results: Dict[str, Any]):
     ]
 
 
-def check_RND_result_values(results: Dict[str, Any]):
+def check_RND_result_values(results: dict[str, Any]):
     # note: this checking only applies when the result is not np.nan.
     assert isinstance(results["query_name"], str)
 

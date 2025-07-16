@@ -1,5 +1,4 @@
 """Double Hard Debias (DHD) test set."""
-from typing import Dict, List
 
 import numpy as np
 import pytest
@@ -11,9 +10,8 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 def test_double_hard_debias_checks(
-    model: WordEmbeddingModel, definitional_pairs: List[List[str]]
+    model: WordEmbeddingModel, definitional_pairs: list[list[str]]
 ):
-
     with pytest.raises(
         TypeError,
         match=r"verbose should be a bool, got .*",
@@ -75,10 +73,9 @@ def test_double_hard_debias(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    definitional_pairs: List[List[str]],
-    gender_specific: List[str],
+    definitional_pairs: list[list[str]],
+    gender_specific: list[str],
 ):
-
     weat = WEAT()
 
     dhd = DoubleHardDebias(
@@ -111,8 +108,8 @@ def test_double_hard_debias_target_param(
     gender_query_1: Query,
     gender_query_2: Query,
     control_query_1: Query,
-    definitional_pairs: List[List[str]],
-    weat_wordsets: Dict[str, List[str]],
+    definitional_pairs: list[list[str]],
+    weat_wordsets: dict[str, list[str]],
 ):
     weat = WEAT()
 
@@ -159,8 +156,8 @@ def test_multiclass_hard_debias_ignore_param(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    definitional_pairs: List[List[str]],
-    weat_wordsets: Dict[str, List[str]],
+    definitional_pairs: list[list[str]],
+    weat_wordsets: dict[str, list[str]],
 ):
     weat = WEAT()
     dhd = DoubleHardDebias(
@@ -197,8 +194,8 @@ def test_double_hard_debias_copy_param(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    definitional_pairs: List[List[str]],
-    gender_specific: List[str],
+    definitional_pairs: list[list[str]],
+    gender_specific: list[str],
 ):
     weat = WEAT()
     # Since we will mutate the original model in the test, we calculate WEAT scores
@@ -234,11 +231,10 @@ def test_double_hard_debias_copy_param(
 
 def test_multiclass_hard_debias_verbose(
     model: WordEmbeddingModel,
-    definitional_pairs: List[List[str]],
-    gender_specific: List[str],
+    definitional_pairs: list[list[str]],
+    gender_specific: list[str],
     capsys,
 ):
-
     # -----------------------------------------------------------------
     # Test verbose
     dhd = DoubleHardDebias(verbose=True)

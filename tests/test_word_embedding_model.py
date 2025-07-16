@@ -1,4 +1,5 @@
 """Tests of the word embedding model module."""
+
 import gensim
 import numpy as np
 import pytest
@@ -13,7 +14,6 @@ gensim_version = semantic_version.Version.coerce(gensim.__version__)
 
 @pytest.fixture
 def test_keyed_vectors() -> KeyedVectors:
-
     test_model = KeyedVectors.load("./wefe/datasets/data/test_model.kv")
     return test_model
 
@@ -112,7 +112,6 @@ def test__getitem__(test_keyed_vectors: gensim.models.KeyedVectors):
 
 
 def test__repr__(test_keyed_vectors: gensim.models.KeyedVectors):
-
     model_1 = WordEmbeddingModel(test_keyed_vectors, "w2v")
     model_1_no_name = WordEmbeddingModel(test_keyed_vectors)
     model_1_prefix_a = WordEmbeddingModel(test_keyed_vectors, "w2v", vocab_prefix="a")
@@ -139,7 +138,6 @@ def test__repr__(test_keyed_vectors: gensim.models.KeyedVectors):
 
 
 def test__init__with_w2v_model():
-
     if gensim_version.major >= 4:
         w2v = Word2Vec(common_texts, vector_size=100, window=5, min_count=1, workers=-1)
     else:
@@ -151,7 +149,6 @@ def test__init__with_w2v_model():
 
 
 def test__init_with_fast_model():
-
     if gensim_version.major >= 4:
         fast = FastText(
             vector_size=4, window=3, min_count=1, sentences=common_texts, epochs=10

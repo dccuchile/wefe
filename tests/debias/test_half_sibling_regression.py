@@ -1,5 +1,4 @@
 """Half Sibling Regression (HSR) test set."""
-from typing import Dict, List
 
 import numpy as np
 import pytest
@@ -22,7 +21,7 @@ def test_half_sibling_regression_class(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    gender_specific: List[str],
+    gender_specific: list[str],
 ):
     weat = WEAT()
 
@@ -54,8 +53,8 @@ def test_half_sibling_regression_target_param(
     gender_query_1: Query,
     gender_query_2: Query,
     control_query_1: Query,
-    gender_specific: List[str],
-    weat_wordsets: Dict[str, List[str]],
+    gender_specific: list[str],
+    weat_wordsets: dict[str, list[str]],
 ):
     weat = WEAT()
 
@@ -98,8 +97,8 @@ def test_half_sibling_regression_ignore_param(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    gender_specific: List[str],
-    weat_wordsets: Dict[str, List[str]],
+    gender_specific: list[str],
+    weat_wordsets: dict[str, list[str]],
 ):
     weat = WEAT()
 
@@ -141,7 +140,7 @@ def test_double_hard_debias_copy_param(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    gender_specific: List[str],
+    gender_specific: list[str],
 ):
     weat = WEAT()
     # Since we will mutate the original model in the test, we calculate WEAT scores
@@ -176,10 +175,9 @@ def test_double_hard_debias_copy_param(
 
 def test_verbose(
     model: WordEmbeddingModel,
-    gender_specific: List[str],
+    gender_specific: list[str],
     capsys,
 ):
-
     # -----------------------------------------------------------------
     # Test verbose
     hsr = HalfSiblingRegression(verbose=True)

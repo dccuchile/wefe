@@ -1,7 +1,8 @@
 """Word Embedding Assosiation Test (WEAT) metric implementation."""
+
 import logging
 import math
-from typing import Any, Callable, Dict, List, Set, Tuple, Union
+from typing import Any, Callable, Union
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -94,6 +95,7 @@ class WEAT(BaseMetric):
     |      Semantics derived automatically from language corpora contain human-like
            biases.
     |      Science, 356(6334):183–186, 2017.
+
     """
 
     metric_template = (2, 2)
@@ -106,7 +108,6 @@ class WEAT(BaseMetric):
         A: np.ndarray,
         B: np.ndarray,
     ) -> np.number:
-
         A_mean_sim = np.mean(cosine_similarity([w], A), dtype=np.float64)
         B_mean_sim = np.mean(cosine_similarity([w], B), dtype=np.float64)
         return A_mean_sim - B_mean_sim
@@ -140,8 +141,8 @@ class WEAT(BaseMetric):
 
     def _calc_p_value(
         self,
-        target_embeddings: List[EmbeddingDict],
-        attribute_embeddings: List[EmbeddingDict],
+        target_embeddings: list[EmbeddingDict],
+        attribute_embeddings: list[EmbeddingDict],
         original_score: np.number,
         iterations: int,
         method: str,
@@ -161,7 +162,7 @@ class WEAT(BaseMetric):
             raise NotImplementedError
         if method != "approximate":
             raise Exception(
-                f'p value method should be "exact", "approximate"' f", got {method}."
+                f'p value method should be "exact", "approximate", got {method}.'
             )
 
         if test_type not in ["left-sided", "right-sided", "two-sided"]:
@@ -173,7 +174,7 @@ class WEAT(BaseMetric):
 
         if not isinstance(iterations, (int, float)):
             raise TypeError(
-                f"p value iterations should be int instance, " f"got {iterations}."
+                f"p value iterations should be int instance, got {iterations}."
             )
 
         if not isinstance(verbose, bool):
@@ -186,7 +187,7 @@ class WEAT(BaseMetric):
         # generate the pool of target and attribute embeddings.
         target_0_dict, target_1_dict = target_embeddings
         pool_target_sets = {**target_0_dict, **target_1_dict}
-        pool_target_words: List[str] = list(pool_target_sets.keys())
+        pool_target_words: list[str] = list(pool_target_sets.keys())
 
         len_target_0 = len(target_0_dict)
         number_of_target_words = len(pool_target_words)
@@ -194,7 +195,7 @@ class WEAT(BaseMetric):
         total_permutations = math.factorial(number_of_target_words)
         runs = np.min((iterations, total_permutations))
 
-        permutations_seen: Set[Tuple] = set()
+        permutations_seen: set[tuple] = set()
 
         if verbose:
             logging.info(
@@ -251,13 +252,13 @@ class WEAT(BaseMetric):
         p_value_iterations: int = 10000,
         p_value_verbose: bool = False,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
         *args: Any,
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate the WEAT metric over the provided parameters.
 
         Parameters

@@ -1,5 +1,4 @@
 """Hard Debias (HD) test sets."""
-from typing import Dict, List
 
 import numpy as np
 import pytest
@@ -12,9 +11,8 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 def test_hard_debias_param_checks(
     model: WordEmbeddingModel,
-    definitional_pairs: List[List[str]],
+    definitional_pairs: list[list[str]],
 ):
-
     with pytest.raises(
         TypeError,
         match=r"verbose should be a bool, got .*",
@@ -50,11 +48,10 @@ def test_hard_debias_class(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    definitional_pairs: List[List[str]],
-    equalize_pairs: List[List[str]],
-    gender_specific: List[str],
+    definitional_pairs: list[list[str]],
+    equalize_pairs: list[list[str]],
+    gender_specific: list[str],
 ):
-
     weat = WEAT()
 
     # -----------------------------------------------------------------
@@ -93,9 +90,9 @@ def test_hard_debias_target_param(
     gender_query_1: Query,
     gender_query_2: Query,
     control_query_1: Query,
-    weat_wordsets: Dict[str, List[str]],
-    definitional_pairs: List[List[str]],
-    equalize_pairs: List[List[str]],
+    weat_wordsets: dict[str, list[str]],
+    definitional_pairs: list[list[str]],
+    equalize_pairs: list[list[str]],
 ):
     weat = WEAT()
     hd = HardDebias(criterion_name="gender")
@@ -140,9 +137,9 @@ def test_hard_debias_ignore_param(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    weat_wordsets: Dict[str, List[str]],
-    definitional_pairs: List[List[str]],
-    equalize_pairs: List[List[str]],
+    weat_wordsets: dict[str, list[str]],
+    definitional_pairs: list[list[str]],
+    equalize_pairs: list[list[str]],
 ):
     weat = WEAT()
     hd = HardDebias(verbose=True, criterion_name="gender")
@@ -181,9 +178,9 @@ def test_hard_debias_verbose_param(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    definitional_pairs: List[List[str]],
-    equalize_pairs: List[List[str]],
-    gender_specific: List[str],
+    definitional_pairs: list[list[str]],
+    equalize_pairs: list[list[str]],
+    gender_specific: list[str],
     capsys,
 ):
     weat = WEAT()
@@ -229,9 +226,9 @@ def test_hard_debias_copy_param(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    definitional_pairs: List[List[str]],
-    equalize_pairs: List[List[str]],
-    gender_specific: List[str],
+    definitional_pairs: list[list[str]],
+    equalize_pairs: list[list[str]],
+    gender_specific: list[str],
 ):
     weat = WEAT()
     # Since we will mutate the original model in the test, we calculate WEAT scores

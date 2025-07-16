@@ -1,6 +1,8 @@
 """Repulsion Attraction Neutralization WEFE implementation."""
+
+from collections.abc import Sequence
 from copy import deepcopy
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Optional
 
 import numpy as np
 from sklearn.decomposition import PCA
@@ -28,7 +30,7 @@ class RAN_Loss(nn.Module):
         self,
         w_b: np.ndarray,
         w: np.ndarray,
-        repulsion_set: List[np.ndarray],
+        repulsion_set: list[np.ndarray],
         bias_direction: np.ndarray,
     ) -> None:
         """Initialize a RAN_Loss instance.
@@ -44,7 +46,7 @@ class RAN_Loss(nn.Module):
             bias_direction: np.array
 
         """
-        super(RAN_Loss, self).__init__()
+        super().__init__()
         self.w = w
         self.w_b = nn.Parameter(w_b)
         self.repulsion_set = repulsion_set
@@ -98,7 +100,7 @@ class RAN(nn.Module):
         word: str,
         w_b: np.ndarray,
         w: np.ndarray,
-        repulsion_set: List[np.ndarray],
+        repulsion_set: list[np.ndarray],
         bias_direction: np.ndarray,
         weights: Sequence = [0.33, 0.33, 0.33],
     ) -> None:
@@ -121,8 +123,9 @@ class RAN(nn.Module):
                 weights λi that determine the relative importance of one
                 objective function (repulsion, attraction, neutralization)
                 over another. by Defaults [0.33, 0.33, 0.33].
+
         """
-        super(RAN, self).__init__()
+        super().__init__()
 
         self.model = model
         self.word = word
@@ -263,6 +266,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
       in Word Embeddings. CoRR,abs/2006.01938, 2020.
     | https://arxiv.org/abs/2006.01938
     | [2]: https://github.com/TimeTraveller-San/RAN-Debias
+
     """
 
     name = "Repulsion attraction Neutralization"
@@ -270,14 +274,14 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     def __init__(
         self,
-        pca_args: Dict[str, Any] = {"n_components": 10},
+        pca_args: dict[str, Any] = {"n_components": 10},
         verbose: bool = False,
         criterion_name: Optional[str] = None,
         epochs: int = 300,
         theta: float = 0.05,
         n_neighbours: int = 100,
         learning_rate: float = 0.01,
-        weights: List[float] = [0.33, 0.33, 0.33],
+        weights: list[float] = [0.33, 0.33, 0.33],
     ) -> None:
         """Initialize a Repulsion Attraction Neutralization Debias instance.
 
@@ -307,6 +311,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             By default 0.01
         weights: List[float], optional
             List of the 3 initial weights to be used. By default [0.33,0.33,0.33]
+
         """
         # check verbose
         if not isinstance(verbose, bool):
@@ -331,7 +336,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             raise TypeError(f"n_neighbours should be a int, got {n_neighbours}.")
         self.n_neighbours = n_neighbours
 
-        if not isinstance(weights, List):
+        if not isinstance(weights, list):
             raise TypeError(f"weights should be a list, got {weights}.")
         self.weights = weights
 
@@ -341,13 +346,11 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     def _identify_bias_subspace(
         self,
-        defining_pairs_embeddings: List[EmbeddingDict],
+        defining_pairs_embeddings: list[EmbeddingDict],
         verbose: bool = False,
     ) -> PCA:
-
         matrix = []
         for embedding_dict_pair in defining_pairs_embeddings:
-
             # Get the center of the current defining pair.
             pair_embeddings = np.array(list(embedding_dict_pair.values()))
             center = np.mean(pair_embeddings, axis=0)
@@ -362,7 +365,9 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
         if verbose:
             explained_variance = pca.explained_variance_ratio_
-            print(f"PCA variance explained: {explained_variance[0:pca.n_components_]}")
+            print(
+                f"PCA variance explained: {explained_variance[0 : pca.n_components_]}"
+            )
 
         return pca
 
@@ -371,7 +376,6 @@ class RepulsionAttractionNeutralization(BaseDebias):
         sets: Sequence[Sequence[str]],
         set_name: str,
     ) -> None:
-
         for idx, set_ in enumerate(sets):
             if len(set_) != 2:
                 adverb = "less" if len(set_) < 2 else "more"
@@ -396,7 +400,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
 
     def _get_neighbours(
         self, model: WordEmbeddingModel, word: str, n_neighbours: int
-    ) -> List[str]:
+    ) -> list[str]:
         similar_words = model.wv.most_similar(positive=word, topn=n_neighbours)
         similar_words = list(list(zip(*similar_words))[0])
         return similar_words
@@ -408,7 +412,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         bias_direction: np.ndarray,
         theta: float,
         n_neighbours: int,
-    ) -> List[np.ndarray]:
+    ) -> list[np.ndarray]:
         r"""Obtain the embeddings of the words that should be repealed from word arg.
 
         These words are the n_neighbours more similar to "word" whose indirect bias is
@@ -431,6 +435,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         -------
         List[np.ndarray]
             The list of embeddings that compose the repulsion set.
+
         """
         neighbours = self._get_neighbours(model, word, n_neighbours)
         repulsion_set = []
@@ -449,12 +454,11 @@ class RepulsionAttractionNeutralization(BaseDebias):
         w: np.ndarray,
         w_b: np.ndarray,
         bias_direction: np.ndarray,
-        repulsion_set: List[np.ndarray],
+        repulsion_set: list[np.ndarray],
         learning_rate: float,
         epochs: int,
-        weights: List[float],
+        weights: list[float],
     ) -> torch.Tensor:
-
         ran = RAN(
             model,
             word,
@@ -498,6 +502,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         -------
         BaseDebias
             The debias method fitted.
+
         """
         # Check arguments types
         self._check_sets_size(definitional_pairs, "definitional")
@@ -532,8 +537,8 @@ class RepulsionAttractionNeutralization(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[List[str]] = None,
-        ignore: Optional[List[str]] = [],
+        target: Optional[list[str]] = None,
+        ignore: Optional[list[str]] = [],
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Execute Repulsion Attraction Neutralization Debias over the provided model.
@@ -560,6 +565,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             raise to `MemoryError`, by default True.
         WordEmbeddingModel
             The debiased embedding model.
+
         """
         # check if the following attributes exist in the object.
         check_is_fitted(

@@ -1,7 +1,7 @@
 """Half Sibling Regression WEFE implementation."""
 
 from copy import deepcopy
-from typing import Dict, List, Optional
+from typing import Optional
 
 import numpy as np
 from tqdm import tqdm
@@ -121,6 +121,7 @@ class HalfSiblingRegression(BaseDebias):
            and Jonas Peters.
     |      Modeling confounding by half-sibling regression.
     |      Proceedings of the National Academy of Sciences, 113(27):7391–7398, 2016
+
     """
 
     name = "Half Sibling Regression"
@@ -142,6 +143,7 @@ class HalfSiblingRegression(BaseDebias):
             The name of the criterion for which the debias is being executed,
             e.g., 'Gender'. This will indicate the name of the model returning
             transform, by default None
+
         """
         # check verbose
         if not isinstance(verbose, bool):
@@ -155,16 +157,14 @@ class HalfSiblingRegression(BaseDebias):
             raise ValueError(f"criterion_name should be str, got: {criterion_name}")
 
     def _get_bias_vectors(
-        self, model: WordEmbeddingModel, bias_definitional_words: List[str]
+        self, model: WordEmbeddingModel, bias_definitional_words: list[str]
     ) -> np.ndarray:
-
         vectors = [model[word] for word in bias_definitional_words if word in model]
         return np.asarray(vectors)
 
     def _get_non_bias_dict(
-        self, model: WordEmbeddingModel, non_bias: List[str]
-    ) -> Dict[str, np.ndarray]:
-
+        self, model: WordEmbeddingModel, non_bias: list[str]
+    ) -> dict[str, np.ndarray]:
         dictionary = get_embeddings_from_tuples(
             model=model, sets=[non_bias], sets_name="non_bias", normalize=False
         )
@@ -173,7 +173,6 @@ class HalfSiblingRegression(BaseDebias):
     def _compute_weigth_matrix(
         self, bias_vectors: np.ndarray, non_bias_vectors: np.ndarray, alpha: float
     ) -> np.ndarray:
-
         a = bias_vectors.T @ bias_vectors + alpha * np.eye(bias_vectors.shape[1])
         b = bias_vectors.T @ non_bias_vectors
         weight_matrix = np.linalg.inv(a) @ b
@@ -194,15 +193,15 @@ class HalfSiblingRegression(BaseDebias):
     def _get_indexes(
         self,
         model: WordEmbeddingModel,
-        target: List[str],
-        non_bias: List[str],
-    ) -> List[int]:
+        target: list[str],
+        non_bias: list[str],
+    ) -> list[int]:
         return [non_bias.index(word) for word in target if word in model]
 
     def fit(
         self,
         model: WordEmbeddingModel,
-        definitional_words: List[str],
+        definitional_words: list[str],
         alpha: float = 60,
     ) -> BaseDebias:
         """Compute the weight matrix and the bias information.
@@ -221,6 +220,7 @@ class HalfSiblingRegression(BaseDebias):
         -------
         BaseDebias
             The debias method fitted.
+
         """
         self.bias_definitional_words = definitional_words
         self.non_bias = list(
@@ -257,8 +257,8 @@ class HalfSiblingRegression(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[List[str]] = None,
-        ignore: Optional[List[str]] = None,
+        target: Optional[list[str]] = None,
+        ignore: Optional[list[str]] = None,
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Substracts the gender information from vectors.
@@ -292,6 +292,7 @@ class HalfSiblingRegression(BaseDebias):
         -------
         WordEmbeddingModel
             The debiased embedding model.
+
         """
         # check if the following attributes exist in the object.
         check_is_fitted(

@@ -51,7 +51,6 @@ def test_validate_old_preprocessor_args_inputs(
     model: WordEmbeddingModel,
     query_2t2a_1: Query,
 ):
-
     # instance test metric
     BaseMetric.__abstractmethods__ = frozenset()
     base_metric = BaseMetric()
@@ -100,7 +99,6 @@ def test_validate_old_preprocessor_args_inputs(
 
 
 def test_run_query(model: WordEmbeddingModel, query_2t2a_1: Query):
-
     # disable abstract methods.
     BaseMetric.__abstractmethods__ = frozenset()
     base_metric = BaseMetric()

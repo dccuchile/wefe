@@ -91,7 +91,6 @@ def queries_and_models():
 
 
 def test_run_query_input_validation(queries_and_models):
-
     # -----------------------------------------------------------------
     # Input checks
     # -----------------------------------------------------------------
@@ -117,7 +116,7 @@ def test_run_query_input_validation(queries_and_models):
 
     with pytest.raises(
         TypeError,
-        match="word_embeddings_models parameter must be a list or a " "numpy array*",
+        match="word_embeddings_models parameter must be a list or a numpy array*",
     ):
         run_queries(WEAT, gender_queries, None)
 
@@ -154,7 +153,7 @@ def test_run_query_input_validation(queries_and_models):
 
     with pytest.raises(
         TypeError,
-        match="run_experiment_params must be a dict with a params" " for the metric*",
+        match="run_experiment_params must be a dict with a params for the metric*",
     ):
         run_queries(WEAT, gender_queries, models, metric_params=None)
 
@@ -187,7 +186,7 @@ def test_run_queries(queries_and_models):
     def check_results_types(results, only_negative=False):
         for row in results.values:
             for value in row:
-                assert isinstance(value, np.float_)
+                assert isinstance(value, np.float64)
                 if only_negative:
                     assert value <= 0
 
@@ -410,7 +409,6 @@ def test_run_queries(queries_and_models):
 
 
 def test_rank_results(queries_and_models):
-
     gender_queries, negative_test_queries, models = queries_and_models
 
     results_gender = run_queries(
@@ -439,15 +437,13 @@ def test_rank_results(queries_and_models):
 
     with pytest.raises(
         TypeError,
-        match="All elements of results_dataframes must be a pandas "
-        "Dataframe instance*",
+        match="All elements of results_dataframes must be a pandas Dataframe instance*",
     ):
         create_ranking([None, results_gender, results_negative])
 
     with pytest.raises(
         TypeError,
-        match="All elements of results_dataframes must be a pandas "
-        "Dataframe instance*",
+        match="All elements of results_dataframes must be a pandas Dataframe instance*",
     ):
         create_ranking([results_gender, results_negative, 2])
 
@@ -481,7 +477,6 @@ def test_rank_results(queries_and_models):
 
 
 def test_correlations(queries_and_models):
-
     gender_queries, negative_test_queries, models = queries_and_models
     results_gender = run_queries(
         WEAT,

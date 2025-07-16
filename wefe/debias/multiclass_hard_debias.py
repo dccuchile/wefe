@@ -1,7 +1,8 @@
 """Multiclass Hard Debias WEFE implementation."""
+
 import logging
 from copy import deepcopy
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import numpy as np
 from sklearn.decomposition import PCA
@@ -71,11 +72,12 @@ class MulticlassHardDebias(BaseDebias):
     | Association for Computational Linguistics: Human Language Technologies,
     | Volume 1 (Long and Short Papers) (pp. 615-621).
     | [2]: https://github.com/TManzini/DebiasMulticlassWordEmbedding
+
     """
 
     def __init__(
         self,
-        pca_args: Dict[str, Any] = {"n_components": 10},
+        pca_args: dict[str, Any] = {"n_components": 10},
         verbose: bool = False,
         criterion_name: Optional[str] = None,
     ) -> None:
@@ -93,6 +95,7 @@ class MulticlassHardDebias(BaseDebias):
             The name of the criterion for which the debias is being executed,
             e.g. 'Gender'. This will indicate the name of the model returning transform,
             by default None
+
         """
         # check pca args
         if not isinstance(pca_args, dict):
@@ -118,12 +121,10 @@ class MulticlassHardDebias(BaseDebias):
 
     def _identify_bias_subspace(
         self,
-        definning_sets_embeddings: List[EmbeddingDict],
+        definning_sets_embeddings: list[EmbeddingDict],
     ) -> PCA:
-
         matrix = []
         for definning_set_dict in definning_sets_embeddings:
-
             # Get the center of the current definning pair.
             set_embeddings = np.array(list(definning_set_dict.values()))
             center = np.mean(set_embeddings, axis=0)
@@ -159,8 +160,8 @@ class MulticlassHardDebias(BaseDebias):
         self,
         model: WordEmbeddingModel,
         bias_subspace: np.ndarray,
-        target: Optional[List[str]],
-        ignore: Optional[List[str]],
+        target: Optional[list[str]],
+        ignore: Optional[list[str]],
     ) -> None:
         if target is not None:
             target_ = set(target)
@@ -191,11 +192,10 @@ class MulticlassHardDebias(BaseDebias):
     def _equalize(
         self,
         model: WordEmbeddingModel,
-        equalize_sets_embeddings: List[EmbeddingDict],
+        equalize_sets_embeddings: list[EmbeddingDict],
         bias_subspace: np.ndarray,
     ) -> None:
         for equalize_tuple_embeddings in equalize_sets_embeddings:
-
             words = equalize_tuple_embeddings.keys()
             embeddings = np.array(list(equalize_tuple_embeddings.values()))
 
@@ -206,7 +206,7 @@ class MulticlassHardDebias(BaseDebias):
             # discard the projection from the mean
             upsilon = mean - mean_b
 
-            for (word, embedding) in zip(words, embeddings):
+            for word, embedding in zip(words, embeddings):
                 v_b = self._project_onto_subspace(embedding, bias_subspace)
                 frac = (v_b - mean_b) / np.linalg.norm(v_b - mean_b)
                 new_v = upsilon + np.sqrt(1 - np.sum(np.square(upsilon))) * frac
@@ -215,8 +215,8 @@ class MulticlassHardDebias(BaseDebias):
     def fit(
         self,
         model: WordEmbeddingModel,
-        definitional_sets: List[List[str]],
-        equalize_sets: List[List[str]],
+        definitional_sets: list[list[str]],
+        equalize_sets: list[list[str]],
     ) -> BaseDebias:
         """Compute the bias direction and obtains the equalize embedding pairs.
 
@@ -241,6 +241,7 @@ class MulticlassHardDebias(BaseDebias):
         -------
         BaseDebias
             The debias method fitted.
+
         """
         # ------------------------------------------------------------------------------:
         # Obtain the embedding of the definitional sets.
@@ -287,8 +288,8 @@ class MulticlassHardDebias(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[List[str]] = None,
-        ignore: Optional[List[str]] = None,
+        target: Optional[list[str]] = None,
+        ignore: Optional[list[str]] = None,
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Execute Multiclass Hard Debias over the provided model.
@@ -324,6 +325,7 @@ class MulticlassHardDebias(BaseDebias):
         -------
         WordEmbeddingModel
             The debiased embedding model.
+
         """
         self._check_transform_args(
             model=model,

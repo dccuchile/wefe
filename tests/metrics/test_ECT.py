@@ -1,5 +1,6 @@
 """ECT metric testing."""
-from typing import Any, Dict
+
+from typing import Any
 
 import numpy as np
 
@@ -8,7 +9,7 @@ from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-def check_ECT_result_keys(results: Dict[str, Any]):
+def check_ECT_result_keys(results: dict[str, Any]):
     assert list(results.keys()) == [
         "query_name",
         "result",
@@ -16,7 +17,7 @@ def check_ECT_result_keys(results: Dict[str, Any]):
     ]
 
 
-def check_ECT_result_values(results: Dict[str, Any]):
+def check_ECT_result_values(results: dict[str, Any]):
     # note: this checking only applies when the result is not np.nan.
     assert isinstance(results["query_name"], str)
 
@@ -27,7 +28,6 @@ def check_ECT_result_values(results: Dict[str, Any]):
 
 
 def test_ECT(model: WordEmbeddingModel, query_2t1a_1: Query):
-
     ect = ECT()
     results = ect.run_query(query_2t1a_1, model)
 

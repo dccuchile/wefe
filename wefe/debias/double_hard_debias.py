@@ -1,7 +1,8 @@
 """Double Hard Debias WEFE implementation."""
+
 import operator
 from copy import deepcopy
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -91,6 +92,7 @@ class DoubleHardDebias(BaseDebias):
     |      Double-Hard Debias: Tailoring Word Embeddings for GenderBias Mitigation.
     |      CoRR, abs/2005.00965, 2020.https://arxiv.org/abs/2005.00965.
     | [2]: https://github.com/uvavision/Double-Hard-Debias
+
     """
 
     name = "Double Hard Debias"
@@ -98,7 +100,7 @@ class DoubleHardDebias(BaseDebias):
 
     def __init__(
         self,
-        pca_args: Dict[str, Any] = {"n_components": 10},
+        pca_args: dict[str, Any] = {"n_components": 10},
         verbose: bool = False,
         criterion_name: Optional[str] = None,
         incremental_pca: bool = True,
@@ -132,6 +134,7 @@ class DoubleHardDebias(BaseDebias):
             Numbers of components of PCA to be used to explore the one that
             reduces bias the most. Usually the best one is close to embedding
             dimension/100. By default 4.
+
         """
         # check verbose
         if not isinstance(verbose, bool):
@@ -167,10 +170,9 @@ class DoubleHardDebias(BaseDebias):
 
     def _check_sets_size(
         self,
-        sets: List[List[str]],
+        sets: list[list[str]],
         set_name: str,
     ) -> None:
-
         for idx, set_ in enumerate(sets):
             if len(set_) != 2:
                 adverb = "less" if len(set_) < 2 else "more"
@@ -181,17 +183,16 @@ class DoubleHardDebias(BaseDebias):
                     f"got {len(set_)} words, expected 2."
                 )
 
-    def _similarity(self, u: List[np.ndarray], v: List[np.ndarray]) -> np.ndarray:
+    def _similarity(self, u: list[np.ndarray], v: list[np.ndarray]) -> np.ndarray:
         return 1 - pairwise_distances(u, v, metric="cosine")
 
     def _bias_by_projection(
         self,
         model: WordEmbeddingModel,
-        target: List[str],
-        ignore: List[str],
-        bias_representation: List[str],
-    ) -> Dict[str, float]:
-
+        target: list[str],
+        ignore: list[str],
+        bias_representation: list[str],
+    ) -> dict[str, float]:
         word1 = model[bias_representation[0]]
         word2 = model[bias_representation[1]]
         if target:
@@ -216,11 +217,11 @@ class DoubleHardDebias(BaseDebias):
     def get_target_words(
         self,
         model: WordEmbeddingModel,
-        target: List[str],
-        ignore: List[str],
+        target: list[str],
+        ignore: list[str],
         n_words: int,
-        bias_representation: List[str],
-    ) -> List[str]:
+        bias_representation: list[str],
+    ) -> list[str]:
         """Obtain target words to be debiased.
 
         This is done by searching the "n_words" most biased words by obtaining the
@@ -242,6 +243,7 @@ class DoubleHardDebias(BaseDebias):
         -------
         List[str]
             List of target words for each bias group
+
         """
         similarities = self._bias_by_projection(
             model, target, ignore, bias_representation
@@ -260,7 +262,7 @@ class DoubleHardDebias(BaseDebias):
 
     def _drop_frecuency_features(
         self, components: int, model: WordEmbeddingModel
-    ) -> Dict[str, np.ndarray]:
+    ) -> dict[str, np.ndarray]:
         """Remove the frequency features from the embeddings.
 
         This is done by removing a component from the ones obtain by the PCA over the
@@ -278,6 +280,7 @@ class DoubleHardDebias(BaseDebias):
         -------
         Dict[str, np.ndarray]
             The new embeddings for the target words.
+
         """
         droped_frecuencies = {}
 
@@ -296,13 +299,11 @@ class DoubleHardDebias(BaseDebias):
 
     def _identify_bias_subspace(
         self,
-        defining_pairs_embeddings: List[Dict[str, np.ndarray]],
+        defining_pairs_embeddings: list[dict[str, np.ndarray]],
         verbose: bool = False,
     ) -> PCA:
-
         matrix = []
         for embedding_dict_pair in defining_pairs_embeddings:
-
             # Get the center of the current defining pair.
             pair_embeddings = np.array(list(embedding_dict_pair.values()))
             center = np.mean(pair_embeddings, axis=0)
@@ -317,15 +318,16 @@ class DoubleHardDebias(BaseDebias):
 
         if verbose:
             explained_variance = pca.explained_variance_ratio_
-            print(f"PCA variance explained: {explained_variance[0:pca.n_components_]}")
+            print(
+                f"PCA variance explained: {explained_variance[0 : pca.n_components_]}"
+            )
 
         return pca
 
     def _drop(self, u: np.ndarray, v: np.ndarray) -> np.ndarray:
         return u - v * u.dot(v) / v.dot(v)
 
-    def _debias(self, words_dict: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
-
+    def _debias(self, words_dict: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
         for word in tqdm(words_dict):
             embedding = words_dict[word]
             debias_embedding = self._drop(embedding, self.bias_direction)
@@ -348,12 +350,11 @@ class DoubleHardDebias(BaseDebias):
 
     def _kmeans_eval(
         self,
-        embeddings_dict: Dict[str, np.ndarray],
-        y_true: List[int],
+        embeddings_dict: dict[str, np.ndarray],
+        y_true: list[int],
         n_words: int,
         n_cluster: int = 2,
     ) -> float:
-
         embeddings = [
             embeddings_dict[word] for word in self.target_words[0 : 2 * n_words]
         ]
@@ -367,8 +368,8 @@ class DoubleHardDebias(BaseDebias):
     def fit(
         self,
         model: WordEmbeddingModel,
-        definitional_pairs: List[List[str]],
-        bias_representation: List[str],
+        definitional_pairs: list[list[str]],
+        bias_representation: list[str],
         **fit_params,
     ) -> BaseDebias:
         """Compute the bias direction and get the principal components of the vectors.
@@ -390,6 +391,7 @@ class DoubleHardDebias(BaseDebias):
         -------
         BaseDebias
             The debias method fitted.
+
         """
         self.definitional_pairs = definitional_pairs
 
@@ -437,8 +439,8 @@ class DoubleHardDebias(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[List[str]] = None,
-        ignore: Optional[List[str]] = [],
+        target: Optional[list[str]] = None,
+        ignore: Optional[list[str]] = [],
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Execute hard debias over the provided model.
@@ -464,6 +466,7 @@ class DoubleHardDebias(BaseDebias):
         -------
         WordEmbeddingModel
             The debiased embedding model.
+
         """
         # check if the following attributes exist in the object.
         self._check_transform_args(

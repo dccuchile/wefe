@@ -1,5 +1,6 @@
 """WEAT metric testing."""
-from typing import Any, Dict
+
+from typing import Any
 
 import numpy as np
 
@@ -8,7 +9,7 @@ from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-def check_WEAT_result_keys(results: Dict[str, Any]):
+def check_WEAT_result_keys(results: dict[str, Any]):
     assert list(results.keys()) == [
         "query_name",
         "result",
@@ -18,7 +19,7 @@ def check_WEAT_result_keys(results: Dict[str, Any]):
     ]
 
 
-def check_WEAT_result_values(results: Dict[str, Any]):
+def check_WEAT_result_values(results: dict[str, Any]):
     # note: this checking only applies when the result is not np.nan.
     assert isinstance(results["query_name"], str)
 
@@ -47,7 +48,6 @@ def test_WEAT(model: WordEmbeddingModel, query_2t2a_1: Query):
 
 
 def test_WEAT_effect_size(model: WordEmbeddingModel, query_2t2a_1: Query):
-
     weat = WEAT()
 
     results = weat.run_query(query_2t2a_1, model, return_effect_size=True)

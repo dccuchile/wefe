@@ -1,5 +1,4 @@
 """Base debias testing."""
-from typing import List
 
 import pytest
 
@@ -8,7 +7,6 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 
 def test_base_debias():
-
     bd = BaseDebias()
     with pytest.raises(NotImplementedError):
         bd.fit(None)
@@ -19,9 +17,8 @@ def test_base_debias():
 
 
 def test_check_transform_args_wrong_inputs(
-    model: WordEmbeddingModel, gender_specific: List[str]
+    model: WordEmbeddingModel, gender_specific: list[str]
 ):
-
     bd = BaseDebias()
 
     # type checking function
@@ -68,9 +65,8 @@ def test_check_transform_args_wrong_inputs(
 
 
 def test_check_transform_args_ok_inputs(
-    model: WordEmbeddingModel, gender_specific: List[str]
+    model: WordEmbeddingModel, gender_specific: list[str]
 ):
-
     bd = BaseDebias()
     bd._check_transform_args(
         model=model, target=gender_specific, ignore=["some", "words"], copy=True

@@ -1,5 +1,4 @@
-"""
-A collection of WEFE utility functions.
+"""A collection of WEFE utility functions.
 
 This file contains functions for to process to massively execute queries, aggregate them
 through rankings and graph these results.
@@ -7,7 +6,7 @@ through rankings and graph these results.
 
 import copy
 import logging
-from typing import Callable, List, Type, Union
+from typing import Callable, Union
 
 import numpy as np
 import pandas as pd
@@ -51,8 +50,8 @@ AGGREGATION_FUNCTION_NAMES = {
 
 
 def generate_subqueries_from_queries_list(
-    metric: BaseMetric, queries: List[Query]
-) -> List[Query]:
+    metric: BaseMetric, queries: list[Query]
+) -> list[Query]:
     """Generate a list of subqueries from queries.
 
     Parameters
@@ -66,6 +65,7 @@ def generate_subqueries_from_queries_list(
     -------
     List[Query]
         A list with all the generated subqueries.
+
     """
     # instance metric
     metric_ = metric()
@@ -76,18 +76,12 @@ def generate_subqueries_from_queries_list(
             subqueries += query.get_subqueries(metric_.metric_template)
         except Exception as e:
             logging.warning(
-                "Query in index {} ({}) can not be splitted in subqueries "
-                "with the {} metric template = {}. Exception: \n{}".format(
-                    query_idx,
-                    query.query_name,
-                    metric_.metric_name,
-                    metric_.metric_template,
-                    e,
-                )
+                f"Query in index {query_idx} ({query.query_name}) can not be splitted in subqueries "
+                f"with the {metric_.metric_name} metric template = {metric_.metric_template}. Exception: \n{e}"
             )
 
     # remove duplicates (o(n^2)...)
-    filtered_subqueries: List[Query] = []
+    filtered_subqueries: list[Query] = []
     for subquery in subqueries:
         duplicated = False
         for filtered_subquery in filtered_subqueries:
@@ -101,9 +95,9 @@ def generate_subqueries_from_queries_list(
 
 
 def run_queries(
-    metric: Type[BaseMetric],
-    queries: List[Query],
-    models: List[WordEmbeddingModel],
+    metric: type[BaseMetric],
+    queries: list[Query],
+    models: list[WordEmbeddingModel],
     queries_set_name: str = "Unnamed queries set",
     lost_vocabulary_threshold: float = 0.2,
     metric_params: dict = {},
@@ -159,6 +153,7 @@ def run_queries(
         and the columns the experiment name.
         Each cell represents the result of run a metric using a specific word
         embedding model and query.
+
     """
     # check inputs:
 
@@ -169,50 +164,44 @@ def run_queries(
     # queries handling
     if not isinstance(queries, (list, np.ndarray)):
         raise TypeError(
-            "queries parameter must be a list or a numpy array. given: {}".format(
-                queries
-            )
+            f"queries parameter must be a list or a numpy array. given: {queries}"
         )
     if len(queries) == 0:
         raise Exception(
-            "queries list must have at least one query instance. given: {}".format(
-                queries
-            )
+            f"queries list must have at least one query instance. given: {queries}"
         )
 
     for idx, query in enumerate(queries):
         if query is None or not isinstance(query, Query):
             raise TypeError(
-                "item on index {} must be a Query instance. given: {}".format(
-                    idx, query
-                )
+                f"item on index {idx} must be a Query instance. given: {query}"
             )
 
     # word vectors wrappers handling
     if not isinstance(models, (list, np.ndarray)):
         raise TypeError(
             "word_embeddings_models parameter must be a list or a numpy array."
-            " given: {}".format(models)
+            f" given: {models}"
         )
 
     if len(models) == 0:
         raise Exception(
             "word_embeddings_models parameter must be a non empty list or "
-            "numpy array. given: {}".format(models)
+            f"numpy array. given: {models}"
         )
 
     for idx, model in enumerate(models):
         if model is None or not isinstance(model, WordEmbeddingModel):
             raise TypeError(
-                "item on index {} must be a WordEmbeddingModel instance. "
-                "given: {}".format(idx, model)
+                f"item on index {idx} must be a WordEmbeddingModel instance. "
+                f"given: {model}"
             )
 
     # experiment name handling
     if not isinstance(queries_set_name, str) or queries_set_name == "":
         raise TypeError(
             "When queries_set_name parameter is provided, it must be a "
-            "non-empty string. given: {}".format(queries_set_name)
+            f"non-empty string. given: {queries_set_name}"
         )
 
     # metric_params handling
@@ -225,7 +214,7 @@ def run_queries(
     if not isinstance(aggregate_results, bool):
         raise TypeError(
             "aggregate_results parameter must be a bool value. Given:"
-            "{}".format(aggregate_results)
+            f"{aggregate_results}"
         )
 
     # aggregation function:
@@ -242,9 +231,7 @@ def run_queries(
     # average_with_abs_values handling
     if not isinstance(return_only_aggregation, bool):
         raise TypeError(
-            "return_only_aggregation param must be boolean. Given: {}".format(
-                return_only_aggregation
-            )
+            f"return_only_aggregation param must be boolean. Given: {return_only_aggregation}"
         )
 
     if generate_subqueries:
@@ -272,9 +259,7 @@ def run_queries(
 
     except Exception as e:
         raise Exception(
-            "Error during executing the query {} on the model {}: {}".format(
-                query.query_name, model.name, str(e)
-            )
+            f"Error during executing the query {query.query_name} on the model {model.name}: {str(e)}"
         )
 
     # get original column order
@@ -288,7 +273,6 @@ def run_queries(
     )
 
     if aggregate_results:
-
         # if the aggregation function is one of the preimplemented functions.
         if (
             isinstance(aggregation_function, str)
@@ -305,9 +289,7 @@ def run_queries(
             aggregated_results_name = "custom aggregation"
 
         # generate the new aggregation column name.
-        aggregation_column_name = "{}: {} {} score".format(
-            metric_instance.metric_short_name, queries_set_name, aggregated_results_name
-        )
+        aggregation_column_name = f"{metric_instance.metric_short_name}: {queries_set_name} {aggregated_results_name} score"
 
         # set the aggregation column name.
         aggregated_results = pd.DataFrame(
@@ -349,11 +331,12 @@ def plot_queries_results(results: pd.DataFrame, by: str = "query") -> go.Figure:
     ------
     TypeError
         if results is not a instance of pandas DataFrame.
+
     """
     if not isinstance(results, pd.DataFrame):
         raise TypeError(
             "results must be a pandas DataFrame, result of having executed "
-            "running_queries. Given: {}".format(results)
+            f"running_queries. Given: {results}"
         )
 
     results_copy = results.copy(deep=True)
@@ -404,7 +387,7 @@ def plot_queries_results(results: pd.DataFrame, by: str = "query") -> go.Figure:
 
 
 def create_ranking(
-    results_dataframes: List[pd.DataFrame],
+    results_dataframes: list[pd.DataFrame],
     method: str = "first",
     ascending: bool = True,
 ) -> pd.DataFrame:
@@ -443,19 +426,18 @@ def create_ranking(
         If there is no average column in some result Dataframe.
     TypeError
         If some element of results_dataframes is not a pandas DataFrame.
+
     """
     # check the input.
     for idx, results_df in enumerate(results_dataframes):
         if not isinstance(results_df, pd.DataFrame):
             raise TypeError(
                 "All elements of results_dataframes must be a pandas "
-                "Dataframe instance. Got {} at position {}".format(
-                    type(results_df), idx
-                )
+                f"Dataframe instance. Got {type(results_df)} at position {idx}"
             )
 
     # get the avg_scores columns and merge into one dataframe
-    aggregation_columns: List[pd.DataFrame] = []
+    aggregation_columns: list[pd.DataFrame] = []
 
     for result in results_dataframes:
         aggregation_columns.append(result[result.columns[-1]])
@@ -469,7 +451,7 @@ def create_ranking(
         count = 0
         for idx, name in enumerate(no_duplicated_column_names):
             if name == duplicated_name:
-                no_duplicated_column_names[idx] = "{} ({})".format(name, idx + 1)
+                no_duplicated_column_names[idx] = f"{name} ({idx + 1})"
                 count += 1
 
     avg_scores = pd.concat(aggregation_columns, axis=1)
@@ -495,7 +477,6 @@ def plot_ranking(
     ranking: pd.DataFrame,
     use_metric_as_facet: bool = False,
 ) -> go.Figure:
-
     melted_ranking = _melt_df(ranking.copy(deep=True))
 
     if use_metric_as_facet:
@@ -561,11 +542,12 @@ def calculate_ranking_correlations(
     -------
     pd.DataFrame
         A dataframe with the calculated correlations.
+
     """
     if not isinstance(rankings, pd.DataFrame):
         raise TypeError(
             "rankings parameter must be a pandas DataFrame result of having "
-            "executed create_rankings. Given: {}".format(rankings)
+            f"executed create_rankings. Given: {rankings}"
         )
 
     correlation_matrix = rankings.corr(method=method)
@@ -576,7 +558,6 @@ def plot_ranking_correlations(
     correlation_matrix: pd.DataFrame,
     title: str = "",
 ) -> go.Figure:
-
     fig = go.Figure(
         data=go.Heatmap(
             z=correlation_matrix,
@@ -599,6 +580,7 @@ def load_test_model() -> WordEmbeddingModel:
     -------
     WordEmbeddingModel
         The loaded model
+
     """
     from gensim.models import KeyedVectors
 

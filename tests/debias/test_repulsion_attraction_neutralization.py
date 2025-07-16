@@ -1,5 +1,4 @@
 """Repulsion Attraction Neutralization tests set."""
-from typing import Dict, List
 
 import numpy as np
 
@@ -16,8 +15,8 @@ def test_hard_debias_target_param(
     gender_query_1: Query,
     gender_query_2: Query,
     control_query_1: Query,
-    weat_wordsets: Dict[str, List[str]],
-    definitional_pairs: List[List[str]],
+    weat_wordsets: dict[str, list[str]],
+    definitional_pairs: list[list[str]],
 ):
     weat = WEAT()
 

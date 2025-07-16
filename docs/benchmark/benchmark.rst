@@ -1096,28 +1096,30 @@ methods they implement to date.
 Fairness Metrics
 ~~~~~~~~~~~~~~~~
 
-================ ==== === =========== ===================
-Metric           WEFE FEE Responsibly EmbeddingBiasScores
-================ ==== === =========== ===================
-WEAT             ✔    ✔   ✔           ✔
-WEAT ES          ✔    ✖   ✖           ✖
-RNSB             ✔    ✖   ✖           ✖
-RIPA             ✔    ✖   ✖           ✔
-ECT              ✔    ✖   ✖           ✖
-RND              ✔    ✖   ✖           ✖
-MAC              ✔    ✖   ✖           ✔
-Direct Bias      ✖    ✔   ✔           ✔
-SAME             ✖    ✖   ✖           ✔
-Generalized WEAT ✖    ✖   ✖           ✔
-================ ==== === =========== ===================
+=================== ========================= ==== === =========== ===================
+Metric              Implementable in WEFE     WEFE FEE Responsibly EmbeddingBiasScores
+=================== ========================= ==== === =========== ===================
+WEAT                ✔                         ✔    ✔   ✔           ✔
+WEAT ES             ✔                         ✔    ✖   ✖           ✖
+RNSB                ✔                         ✔    ✖   ✖           ✖
+RIPA                ✔                         ✔    ✖   ✖           ✔
+ECT                 ✔                         ✔    ✖   ✖           ✖
+RND                 ✔                         ✔    ✖   ✖           ✖
+MAC                 ✔                         ✔    ✖   ✖           ✔
+Direct Bias         ✔                         ✖    ✔   ✔           ✔
+SAME                ✔                         ✖    ✖   ✖           ✔
+Generalized WEAT    ✔                         ✖    ✖   ✖           ✔
+IndirectBias        ✖                         ✖    ✖   ✔           ✖
+GIPE                ✖                         ✖    ✔   ✖           ✖
+PMN                 ✖                         ✖    ✔   ✖           ✖
+Proximity Bias      ✖                         ✖    ✔   ✖           ✖
+=================== ========================= ==== === =========== ===================
 
-The table exclusively focuses on metrics that directly compute from word embeddings
-(WE) using predefined word sets. As a result, it omits the following metrics:
+The following metrics are not compatible with WEFE because they do not align with the abstractions defined by the framework:
 
-- IndirectBias, a metric that accepts as input only two words and the gender
-  direction, previously calculated in a distinct operation.
-- GIPE, PMN, and Proximity Bias, which evaluate WE models before and after debiasing
-  with auxiliary mitigation methods.
+- IndirectBias, which accepts only two words and a gender direction as input, relying on a previously calculated bias direction.
+- GIPE, PMN, and Proximity Bias, which evaluate word embedding models before and after debiasing using auxiliary mitigation methods.
+
 
 Mitigation algorithms
 ~~~~~~~~~~~~~~~~~~~~~
@@ -1146,7 +1148,7 @@ libraries analyzed in this benchmark study.
   Extensible                                           Easy                                      Easy                                                       Difficult,   not very modular.             Easy
   Well-defined   interface for metrics                 ✔                                         ✖                                                          ✖                                          ✔
   Well-defined   interface for mitigation algorithms   ✔                                         ✖                                                          ✖                                          ✖
-  Lastest update                                       January 2023                              October 2020                                               April 2021                                 April 2023
+  Lastest update                                       July 2025                                 October 2020                                               April 2021                                 April 2023
   Installation                                         Easy:   pip or conda                      No instructions. It can be installed from the repository   Only   with pip. Presents problems         Only   from the repository
   Documentation                                        Extensive   documentation with examples   Almost   no documentation                                  Limited documentation with some examples   No   documentation, only examples.
  ==================================================== ========================================= ========================================================== ========================================== ====================================

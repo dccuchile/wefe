@@ -89,7 +89,8 @@ class Query:
 
         if not isinstance(attribute_sets, (list, np.ndarray)):
             raise TypeError(
-                f"attribute_sets must be a numpy array or list. Given: {type(attribute_sets)}"
+                f"attribute_sets must be a numpy array or list. "
+                f"Given: {type(attribute_sets)}"
             )
 
         # check input array sizes
@@ -291,8 +292,9 @@ class Query:
 
         if new_template[0] > self.template[0]:
             raise Exception(
-                "The new target cardinality (new_template[0]) must be equal or"
-                f" less than the original target set cardinality. Given: {new_template[0]}"
+                "The new target cardinality (new_template[0]) must be equal or "
+                "less than the original target set cardinality. "
+                f"Given: {new_template[0]}"
             )
         if new_template[1] > self.template[1]:
             raise Exception(

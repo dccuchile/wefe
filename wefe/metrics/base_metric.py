@@ -74,9 +74,11 @@ class BaseMetric(ABC):
             and query.template[0] != self.metric_template[0]
         ):
             raise Exception(
-                f"The cardinality of the set of target words of the '{query.query_name}' "
-                f"query does not match with the cardinality required by {self.metric_short_name}. "
-                f"Provided query: {query.template[0]}, metric: {self.metric_template[0]}."
+                f"The cardinality of the set of target words of the "
+                f"'{query.query_name}' query does not match with the cardinality "
+                f"required by {self.metric_short_name}. "
+                f"Provided query: {query.template[0]}, "
+                f"metric: {self.metric_template[0]}."
             )
 
         # check the cardinality of the attribute sets of the provided query
@@ -87,7 +89,8 @@ class BaseMetric(ABC):
             raise Exception(
                 "The cardinality of the set of attribute words of the "
                 f"'{query.query_name}' query does not match with the cardinality "
-                f"required by {self.metric_short_name}. Provided query: {query.template[1]}, metric: {self.metric_template[1]}."
+                f"required by {self.metric_short_name}. Provided query: "
+                f"{query.template[1]}, metric: {self.metric_template[1]}."
             )
 
         preprocessor_in_args = "preprocessor_args" in _locals

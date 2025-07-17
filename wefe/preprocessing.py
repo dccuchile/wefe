@@ -243,8 +243,8 @@ def _warn_not_found_words(
     if warn_not_found_words:
         if len(not_found_words) > 0:
             logging.warning(
-                f"The following words from set '{set_name}' do not exist within the vocabulary "
-                f"of {model_name}: {not_found_words}"
+                f"The following words from set '{set_name}' do not exist within the "
+                f"vocabulary of {model_name}: {not_found_words}"
             )
 
 
@@ -269,8 +269,9 @@ def _check_lost_vocabulary_threshold(
     # threshold, log and return False
     if percentage_of_lost_words > lost_vocabulary_threshold:
         logging.warning(
-            f"The transformation of '{word_set_name}' into {model.name} embeddings lost proportionally more "
-            f"words than specified in 'lost_words_threshold': {round(percentage_of_lost_words, 2)} lost with respect "
+            f"The transformation of '{word_set_name}' into {model.name} embeddings "
+            f"lost proportionally more words than specified in 'lost_words_threshold': "
+            f"{round(percentage_of_lost_words, 2)} lost with respect "
             f"to {lost_vocabulary_threshold} maximum loss allowed."
         )
         return True
@@ -604,9 +605,9 @@ def get_embeddings_from_query(
     #  the case, return None
     if some_set_lost_more_words_than_threshold:
         logging.error(
-            f"At least one set of '{query.query_name}' query has proportionally fewer embeddings "
-            f"than allowed by the lost_vocabulary_threshold parameter ({lost_vocabulary_threshold}). "
-            "This query will return np.nan."
+            f"At least one set of '{query.query_name}' query has proportionally fewer "
+            "embeddings than allowed by the lost_vocabulary_threshold parameter "
+            f"({lost_vocabulary_threshold}). This query will return np.nan."
         )
         return None
 

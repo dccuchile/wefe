@@ -191,9 +191,12 @@ class RNSB(BaseMetric):
             score = estimator.score(X_embeddings_test, y_test)
 
             if print_model_evaluation:
-                print(
-                    f"Classification Report:\n{classification_report(y_test, y_pred, labels=estimator.classes_)}"
+                report = classification_report(
+                    y_test,
+                    y_pred,
+                    labels=estimator.classes_,
                 )
+                print(f"Classification Report:\n{report}")
         else:
             estimator = estimator(**estimator_params)
             estimator.fit(attributes_embeddings, attributes_labels)

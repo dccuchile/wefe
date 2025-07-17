@@ -522,7 +522,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
             verbose=self.verbose,
         )
 
-        # ------------------------------------------------------------------------------:
+        # -----------------------------------------------------------------------------:
         # Identify the bias subspace using the defining pairs.
         if self.verbose:
             print("Identifying the bias subspace.")

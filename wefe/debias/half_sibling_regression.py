@@ -244,7 +244,7 @@ class HalfSiblingRegression(BaseDebias):
             alpha=self.alpha,
         )
 
-        # ------------------------------------------------------------------------------:
+        # -----------------------------------------------------------------------------:
         # Compute the approximated bias information
         if self.verbose:
             print("Computing bias information")

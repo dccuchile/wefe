@@ -243,7 +243,7 @@ class MulticlassHardDebias(BaseDebias):
             The debias method fitted.
 
         """
-        # ------------------------------------------------------------------------------:
+        # -----------------------------------------------------------------------------:
         # Obtain the embedding of the definitional sets.
         self._check_sets_sizes(definitional_sets, set_name="definitional", set_size="n")
 
@@ -259,7 +259,7 @@ class MulticlassHardDebias(BaseDebias):
             verbose=self.verbose,
         )
 
-        # ------------------------------------------------------------------------------:
+        # -----------------------------------------------------------------------------:
         # Identify the bias subspace using the definning sets.
         if self.verbose:
             print("Identifying the bias subspace.")

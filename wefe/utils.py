@@ -76,8 +76,9 @@ def generate_subqueries_from_queries_list(
             subqueries += query.get_subqueries(metric_.metric_template)
         except Exception as e:
             logging.warning(
-                f"Query in index {query_idx} ({query.query_name}) can not be splitted in subqueries "
-                f"with the {metric_.metric_name} metric template = {metric_.metric_template}. Exception: \n{e}"
+                f"Query in index {query_idx} ({query.query_name}) can not be splitted "
+                f"in subqueries with the {metric_.metric_name} metric template = "
+                f"{metric_.metric_template}. Exception: \n{e}"
             )
 
     # remove duplicates (o(n^2)...)
@@ -231,7 +232,8 @@ def run_queries(
     # average_with_abs_values handling
     if not isinstance(return_only_aggregation, bool):
         raise TypeError(
-            f"return_only_aggregation param must be boolean. Given: {return_only_aggregation}"
+            "return_only_aggregation param must be boolean. "
+            f"Given: {return_only_aggregation}"
         )
 
     if generate_subqueries:
@@ -259,8 +261,9 @@ def run_queries(
 
     except Exception as e:
         raise Exception(
-            f"Error during executing the query {query.query_name} on the model {model.name}: {str(e)}"
-        )
+            f"Error during executing the query {query.query_name} on "
+            f"the model {model.name}: {str(e)}"
+        ) from e
 
     # get original column order
     # reorder the results in a legible table
@@ -289,7 +292,10 @@ def run_queries(
             aggregated_results_name = "custom aggregation"
 
         # generate the new aggregation column name.
-        aggregation_column_name = f"{metric_instance.metric_short_name}: {queries_set_name} {aggregated_results_name} score"
+        aggregation_column_name = (
+            f"{metric_instance.metric_short_name}: {queries_set_name} "
+            f"{aggregated_results_name} score"
+        )
 
         # set the aggregation column name.
         aggregated_results = pd.DataFrame(

@@ -345,7 +345,7 @@ class HardDebias(BaseDebias):
             verbose=self.verbose,
         )
 
-        # ------------------------------------------------------------------------------:
+        # -----------------------------------------------------------------------------:
         # Identify the bias subspace using the definning pairs.
         if self.verbose:
             print("Identifying the bias subspace.")
@@ -356,7 +356,7 @@ class HardDebias(BaseDebias):
         )
         self.bias_direction_ = self.pca_.components_[0]
 
-        # ------------------------------------------------------------------------------:
+        # -----------------------------------------------------------------------------:
         # Obtain the equalization pairs.
 
         # if equalize pairs are none, set the definitional pairs as the pairs

@@ -9,7 +9,7 @@ from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-def test_half_sibling_checks(model):
+def test_half_sibling_checks(model) -> None:
     with pytest.raises(
         TypeError,
         match=r"verbose should be a bool, got .*",
@@ -22,7 +22,7 @@ def test_half_sibling_regression_class(
     gender_query_1: Query,
     gender_query_2: Query,
     gender_specific: list[str],
-):
+) -> None:
     weat = WEAT()
 
     hsr = HalfSiblingRegression(
@@ -55,7 +55,7 @@ def test_half_sibling_regression_target_param(
     control_query_1: Query,
     gender_specific: list[str],
     weat_wordsets: dict[str, list[str]],
-):
+) -> None:
     weat = WEAT()
 
     hsr = HalfSiblingRegression(
@@ -99,7 +99,7 @@ def test_half_sibling_regression_ignore_param(
     gender_query_2: Query,
     gender_specific: list[str],
     weat_wordsets: dict[str, list[str]],
-):
+) -> None:
     weat = WEAT()
 
     hsr = HalfSiblingRegression(
@@ -141,7 +141,7 @@ def test_double_hard_debias_copy_param(
     gender_query_1: Query,
     gender_query_2: Query,
     gender_specific: list[str],
-):
+) -> None:
     weat = WEAT()
     # Since we will mutate the original model in the test, we calculate WEAT scores
     # before debiasing with the original model.
@@ -177,7 +177,7 @@ def test_verbose(
     model: WordEmbeddingModel,
     gender_specific: list[str],
     capsys,
-):
+) -> None:
     # -----------------------------------------------------------------
     # Test verbose
     hsr = HalfSiblingRegression(verbose=True)

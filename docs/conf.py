@@ -341,6 +341,6 @@ copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: 
 copybutton_prompt_is_regexp = True
 
 
-def setup(app):
+def setup(app) -> None:
     # a copy button to copy snippet of code from the documentation
     app.add_css_file("css/theme_overrides.css")

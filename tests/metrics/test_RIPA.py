@@ -9,11 +9,11 @@ from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-def check_RIPA_result_keys(results: dict[str, Any]):
+def check_RIPA_result_keys(results: dict[str, Any]) -> None:
     assert list(results.keys()) == ["query_name", "result", "ripa", "word_values"]
 
 
-def check_RIPA_result_values(results: dict[str, Any]):
+def check_RIPA_result_values(results: dict[str, Any]) -> None:
     # note: this checking only applies when the result is not np.nan.
     assert isinstance(results["query_name"], str)
 
@@ -28,7 +28,7 @@ def check_RIPA_result_values(results: dict[str, Any]):
         assert isinstance(word_value["std"], (np.number, float))
 
 
-def test_RIPA(model: WordEmbeddingModel, query_2t1a_1: Query):
+def test_RIPA(model: WordEmbeddingModel, query_2t1a_1: Query) -> None:
     ripa = RIPA()
 
     results = ripa.run_query(query_2t1a_1, model)

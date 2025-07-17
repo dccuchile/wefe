@@ -6,7 +6,7 @@ from wefe.debias.base_debias import BaseDebias
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-def test_base_debias():
+def test_base_debias() -> None:
     bd = BaseDebias()
     with pytest.raises(NotImplementedError):
         bd.fit(None)
@@ -18,7 +18,7 @@ def test_base_debias():
 
 def test_check_transform_args_wrong_inputs(
     model: WordEmbeddingModel, gender_specific: list[str]
-):
+) -> None:
     bd = BaseDebias()
 
     # type checking function
@@ -66,7 +66,7 @@ def test_check_transform_args_wrong_inputs(
 
 def test_check_transform_args_ok_inputs(
     model: WordEmbeddingModel, gender_specific: list[str]
-):
+) -> None:
     bd = BaseDebias()
     bd._check_transform_args(
         model=model, target=gender_specific, ignore=["some", "words"], copy=True

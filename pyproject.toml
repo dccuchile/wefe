@@ -1,24 +1,5 @@
 [tool.ruff]
-select = [
-    # Error codes
-    "E",    # pycodestyle errors
-    "F",    # pyflakes
-    "I",    # isort
-    "YTT",  # flake8-type-checking
-    "B",    # flake8-bugbear
-    "C4",   # flake8-comprehensions
-    "T10",  # flake8-debugger
-    "ISC",  # flake8-implicit-str-concat
-    "PT",   # flake8-pytest-style
-    "Q",    # flake8-quotes
-    "TID",  # flake8-tidy-imports
-    "NPY",  # numpy-specific rules
-    "PD",   # pandas-vet
-    "UP",   # flake8-unused-parameter
-]
 
-ignore = []
-line-length = 88
 exclude = [
     ".bzr",
     ".direnv",
@@ -40,3 +21,27 @@ exclude = [
     "node_modules",
     "venv",
 ]
+
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "YTT", # flake8-type-checking
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "T10", # flake8-debugger
+    "ISC", # flake8-implicit-str-concat
+    "PT",  # flake8-pytest-style
+    "Q",   # flake8-quotes
+    "TID", # flake8-tidy-imports
+    "NPY", # numpy-specific rules
+    "PD",  # pandas-vet
+    "UP",  # flake8-unused-parameter
+]
+
+ignore = ["B006"]

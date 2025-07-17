@@ -20,7 +20,7 @@ def weat_wordsets() -> dict[str, list[str]]:
     return weat_wordsets
 
 
-def test_create_query_input_checks():
+def test_create_query_input_checks() -> None:
     # target sets None
     with pytest.raises(TypeError, match="target_sets must be a*"):
         Query(None, None)
@@ -72,7 +72,7 @@ def test_create_query_input_checks():
         Query([["a"], ["b"]], [["a"], ["b", 2]])
 
 
-def test_create_query():
+def test_create_query() -> None:
     weat_wordsets = load_weat()
 
     flowers = weat_wordsets["flowers"]
@@ -100,7 +100,7 @@ def test_create_query():
     assert query.attribute_sets_names == ["Pleasant", "Unpleasant"]
 
 
-def test_eq():
+def test_eq() -> None:
     weat = load_weat()
 
     flowers = weat["flowers"]
@@ -145,8 +145,8 @@ def test_eq():
     big_query_1 = Query([flowers, insects, weapons], [pleasant_1, unpleasant_1])
     big_query_2 = Query([flowers, insects], [pleasant_1, unpleasant_1, unpleasant_2])
 
-    query != big_query_1
-    query != big_query_2
+    assert query != big_query_1
+    assert query != big_query_2
 
     # names
     query_bad_name_1 = Query(
@@ -179,7 +179,7 @@ def test_eq():
     assert query_bad_name_4 != query
 
 
-def test_templates(weat_wordsets: dict[str, list[str]]):
+def test_templates(weat_wordsets: dict[str, list[str]]) -> None:
     flowers = weat_wordsets["flowers"]
     insects = weat_wordsets["insects"]
     weapons = weat_wordsets["weapons"]
@@ -244,7 +244,7 @@ def test_templates(weat_wordsets: dict[str, list[str]]):
         assert attribute_name == subquery.attribute_sets_names
 
 
-def test_generate_query_name():
+def test_generate_query_name() -> None:
     weat_word_set = load_weat()
     query = Query(
         [weat_word_set["flowers"], weat_word_set["insects"]],
@@ -321,7 +321,7 @@ def test_generate_query_name():
     )
 
 
-def test_wrong_target_and_attribute_sets_and_names(caplog):
+def test_wrong_target_and_attribute_sets_and_names(caplog) -> None:
     weat_word_set = load_weat()
 
     with pytest.raises(
@@ -352,7 +352,7 @@ def test_wrong_target_and_attribute_sets_and_names(caplog):
         )
 
 
-def test_query__repr__():
+def test_query__repr__() -> None:
     weat_word_set = load_weat()
     query = Query(
         [weat_word_set["flowers"], weat_word_set["insects"]],
@@ -387,7 +387,7 @@ def test_query__repr__():
     assert query.__repr__() == "<Query with wrong __repr__>"
 
 
-def test_query_dict():
+def test_query_dict() -> None:
     weat_word_set = load_weat()
     query = Query(
         [weat_word_set["flowers"], weat_word_set["insects"]],

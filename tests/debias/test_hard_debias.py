@@ -12,7 +12,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 def test_hard_debias_param_checks(
     model: WordEmbeddingModel,
     definitional_pairs: list[list[str]],
-):
+) -> None:
     with pytest.raises(
         TypeError,
         match=r"verbose should be a bool, got .*",
@@ -51,7 +51,7 @@ def test_hard_debias_class(
     definitional_pairs: list[list[str]],
     equalize_pairs: list[list[str]],
     gender_specific: list[str],
-):
+) -> None:
     weat = WEAT()
 
     # -----------------------------------------------------------------
@@ -93,7 +93,7 @@ def test_hard_debias_target_param(
     weat_wordsets: dict[str, list[str]],
     definitional_pairs: list[list[str]],
     equalize_pairs: list[list[str]],
-):
+) -> None:
     weat = WEAT()
     hd = HardDebias(criterion_name="gender")
 
@@ -140,7 +140,7 @@ def test_hard_debias_ignore_param(
     weat_wordsets: dict[str, list[str]],
     definitional_pairs: list[list[str]],
     equalize_pairs: list[list[str]],
-):
+) -> None:
     weat = WEAT()
     hd = HardDebias(verbose=True, criterion_name="gender")
 
@@ -182,7 +182,7 @@ def test_hard_debias_verbose_param(
     equalize_pairs: list[list[str]],
     gender_specific: list[str],
     capsys,
-):
+) -> None:
     weat = WEAT()
     # -----------------------------------------------------------------
     # Test verbose
@@ -229,7 +229,7 @@ def test_hard_debias_copy_param(
     definitional_pairs: list[list[str]],
     equalize_pairs: list[list[str]],
     gender_specific: list[str],
-):
+) -> None:
     weat = WEAT()
     # Since we will mutate the original model in the test, we calculate WEAT scores
     # before debiasing with the original model.

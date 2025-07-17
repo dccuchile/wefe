@@ -19,7 +19,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 gensim_version = semantic_version.Version.coerce(gensim.__version__)
 
 
-def test_load_weat_w2v():
+def test_load_weat_w2v() -> None:
     test_model = load_test_model()
     assert isinstance(test_model, WordEmbeddingModel)
     assert isinstance(test_model.wv, KeyedVectors)
@@ -36,7 +36,7 @@ def test_load_weat_w2v():
 
 
 @pytest.fixture
-def queries_and_models():
+def queries_and_models() -> tuple[list[Query], list[Query], list[WordEmbeddingModel]]:
     word_sets = load_weat()
 
     # Create gender queries
@@ -90,7 +90,7 @@ def queries_and_models():
     return gender_queries, negative_test_queries, models
 
 
-def test_run_query_input_validation(queries_and_models):
+def test_run_query_input_validation(queries_and_models) -> None:
     # -----------------------------------------------------------------
     # Input checks
     # -----------------------------------------------------------------
@@ -182,11 +182,11 @@ def test_run_query_input_validation(queries_and_models):
         run_queries(WEAT, gender_queries, models, return_only_aggregation=None)
 
 
-def test_run_queries(queries_and_models):
-    def check_results_types(results, only_negative=False):
-        for row in results.values:
+def test_run_queries(queries_and_models) -> None:
+    def check_results_types(results, only_negative=False) -> None:
+        for row in results.to_numpy():
             for value in row:
-                assert isinstance(value, np.float64)
+                assert isinstance(value, float)
                 if only_negative:
                     assert value <= 0
 
@@ -243,7 +243,7 @@ def test_run_queries(queries_and_models):
         WEAT, gender_queries + [dummy_query_1], models, lost_vocabulary_threshold=0.1
     )
     assert results.shape == (3, 4)
-    assert results.isnull().any().any()
+    assert results.isna().any().any()
     check_results_types(results)
 
     # metric param...
@@ -272,8 +272,8 @@ def test_run_queries(queries_and_models):
     )
     assert results.shape == (3, 3)
     check_results_types(results)
-    agg = results.values[:, 2]
-    values = results.values[:, 0:2]
+    agg = results.to_numpy()[:, 2]
+    values = results.to_numpy()[:, 0:2]
     calc_agg = np.mean(values, axis=1)
     assert np.array_equal(agg, calc_agg)
 
@@ -287,8 +287,8 @@ def test_run_queries(queries_and_models):
     )
     assert results.shape == (3, 3)
     check_results_types(results)
-    agg = results.values[:, 2]
-    values = results.values[:, 0:2]
+    agg = results.to_numpy()[:, 2]
+    values = results.to_numpy()[:, 0:2]
     calc_agg = np.mean(np.abs(values), axis=1)
     assert np.array_equal(agg, calc_agg)
 
@@ -302,8 +302,8 @@ def test_run_queries(queries_and_models):
     )
     assert results.shape == (3, 3)
     check_results_types(results)
-    agg = results.values[:, 2]
-    values = results.values[:, 0:2]
+    agg = results.to_numpy()[:, 2]
+    values = results.to_numpy()[:, 0:2]
     calc_agg = np.sum(values, axis=1)
     assert np.array_equal(agg, calc_agg)
 
@@ -317,8 +317,8 @@ def test_run_queries(queries_and_models):
     )
     assert results.shape == (3, 3)
     check_results_types(results)
-    agg = results.values[:, 2]
-    values = results.values[:, 0:2]
+    agg = results.to_numpy()[:, 2]
+    values = results.to_numpy()[:, 0:2]
     calc_agg = np.sum(np.abs(values), axis=1)
     assert np.array_equal(agg, calc_agg)
 
@@ -332,8 +332,8 @@ def test_run_queries(queries_and_models):
     )
     assert results.shape == (3, 3)
     check_results_types(results, only_negative=True)
-    agg = results.values[:, 2]
-    values = results.values[:, 0:2]
+    agg = results.to_numpy()[:, 2]
+    values = results.to_numpy()[:, 0:2]
     calc_agg = -np.mean(np.abs(values), axis=1)
     assert np.array_equal(agg, calc_agg)
 
@@ -408,7 +408,7 @@ def test_run_queries(queries_and_models):
     assert results.columns[-1] == "RND: Gender queries average of abs values score"
 
 
-def test_rank_results(queries_and_models):
+def test_rank_results(queries_and_models) -> None:
     gender_queries, negative_test_queries, models = queries_and_models
 
     results_gender = run_queries(
@@ -471,12 +471,13 @@ def test_rank_results(queries_and_models):
     assert ranking.shape == (3, 3)
     assert expected_ranking.equals(ranking)
 
-    for row in ranking.values:
+    for row in ranking.to_numpy():
         for val in row:
-            assert val <= 3 and val >= 1
+            assert val <= 3
+            assert val >= 1
 
 
-def test_correlations(queries_and_models):
+def test_correlations(queries_and_models) -> None:
     gender_queries, negative_test_queries, models = queries_and_models
     results_gender = run_queries(
         WEAT,

@@ -210,9 +210,9 @@ class WEAT(BaseMetric):
                 logging.info(f"WEAT p-value: {len(permutations_seen)} / {runs} runs")
 
             permutation = tuple(
-                np.random.choice(
-                    pool_target_words, size=number_of_target_words
-                ).tolist()
+                np.random.default_rng()
+                .choice(pool_target_words, size=number_of_target_words, replace=False)
+                .tolist()
             )
             if permutation not in permutations_seen:
                 X_i_words = list(permutation[0:len_target_0])
@@ -252,7 +252,7 @@ class WEAT(BaseMetric):
         p_value_iterations: int = 10000,
         p_value_verbose: bool = False,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] | None = None,
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,

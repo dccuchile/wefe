@@ -9,7 +9,7 @@ from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-def check_ECT_result_keys(results: dict[str, Any]):
+def check_ECT_result_keys(results: dict[str, Any]) -> None:
     assert list(results.keys()) == [
         "query_name",
         "result",
@@ -17,7 +17,7 @@ def check_ECT_result_keys(results: dict[str, Any]):
     ]
 
 
-def check_ECT_result_values(results: dict[str, Any]):
+def check_ECT_result_values(results: dict[str, Any]) -> None:
     # note: this checking only applies when the result is not np.nan.
     assert isinstance(results["query_name"], str)
 
@@ -27,7 +27,7 @@ def check_ECT_result_values(results: dict[str, Any]):
     assert -1 <= results["ect"] <= 1
 
 
-def test_ECT(model: WordEmbeddingModel, query_2t1a_1: Query):
+def test_ECT(model: WordEmbeddingModel, query_2t1a_1: Query) -> None:
     ect = ECT()
     results = ect.run_query(query_2t1a_1, model)
 
@@ -38,7 +38,7 @@ def test_ECT(model: WordEmbeddingModel, query_2t1a_1: Query):
 
 def test_ECT_lost_vocabulary_threshold(
     model: WordEmbeddingModel, query_2t1a_lost_vocab_1: Query
-):
+) -> None:
     # test metric with a target set that loses more words than allowed.
     ect = ECT()
     results = ect.run_query(query_2t1a_lost_vocab_1, model)

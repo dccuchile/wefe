@@ -267,7 +267,7 @@ def run_queries(
 
     # get original column order
     # reorder the results in a legible table
-    pivoted_results = pd.DataFrame(results).pivot(
+    pivoted_results = pd.DataFrame(results).pivot_table(
         index="model_name", columns="query_name", values="result"
     )
     pivoted_results = pivoted_results.reindex(

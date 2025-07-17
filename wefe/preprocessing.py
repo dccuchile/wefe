@@ -87,7 +87,7 @@ def preprocess_word(
 def get_embeddings_from_set(
     model: WordEmbeddingModel,
     word_set: Sequence[str],
-    preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+    preprocessors: list[dict[str, Union[str, bool, Callable]]],
     strategy: str = "first",
     normalize: bool = False,
     verbose: bool = False,
@@ -282,7 +282,7 @@ def get_embeddings_from_tuples(
     model: WordEmbeddingModel,
     sets: Sequence[Sequence[str]],
     sets_name: Union[str, None] = None,
-    preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+    preprocessors: list[dict[str, Union[str, bool, Callable]]] | None = None,
     strategy: str = "first",
     normalize: bool = False,
     discard_incomplete_sets: bool = True,
@@ -446,7 +446,7 @@ def get_embeddings_from_query(
     model: WordEmbeddingModel,
     query: Query,
     lost_vocabulary_threshold: float = 0.2,
-    preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+    preprocessors: list[dict[str, Union[str, bool, Callable]]] | None = None,
     strategy: str = "first",
     normalize: bool = False,
     warn_not_found_words: bool = False,
@@ -471,7 +471,7 @@ def get_embeddings_from_query(
         In the case that any set of the query loses proportionally more words
         than this limit, this method will return None.
 
-    preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+    preprocessors : List[Dict[str, Union[str, bool, Callable]]] | None
         A list with preprocessor options.
 
         A ``preprocessor`` is a dictionary that specifies what processing(s) are
@@ -546,7 +546,7 @@ def get_embeddings_from_query(
         not_found_words, obtained_embeddings = get_embeddings_from_set(
             model=model,
             word_set=target_set,
-            preprocessors=preprocessors,
+            preprocessors=[{}] if preprocessors is None else preprocessors,
             strategy=strategy,
             normalize=normalize,
             verbose=verbose,

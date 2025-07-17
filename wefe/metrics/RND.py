@@ -95,9 +95,9 @@ class RND(BaseMetric):
             # by word
             distance_by_words[attribute_words[attribute_word_index]] = current_distance
 
-        sorted_distance_by_word = {
-            k: v for k, v in sorted(distance_by_words.items(), key=lambda item: item[1])
-        }
+        sorted_distance_by_word = dict(
+            sorted(distance_by_words.items(), key=lambda item: item[1])
+        )
 
         # calculate the average of the distances and return
         mean_distance = sum_of_distances / len(distance_by_words)
@@ -109,7 +109,7 @@ class RND(BaseMetric):
         model: WordEmbeddingModel,
         distance: str = "norm",
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] | None = None,
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,

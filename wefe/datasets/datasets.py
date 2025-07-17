@@ -78,7 +78,7 @@ def fetch_eds(
     # turn the dataframe into a python dict without nan.
     for dataset_name in word_sets_dict:
         word_sets_dict[dataset_name] = list(
-            filter(lambda x: not pd.isnull(x), word_sets_dict[dataset_name])
+            filter(lambda x: not pd.isna(x), word_sets_dict[dataset_name])
         )
 
     # ---- Occupations by Gender ----
@@ -96,13 +96,13 @@ def fetch_eds(
     male_occupations = gender_occupations[
         gender_occupations["Male"] >= gender_occupations["Female"]
     ]
-    male_occupations = male_occupations["Occupation"].values.tolist()
+    male_occupations = male_occupations["Occupation"].to_numpy().tolist()
 
     # get female occupations
     female_occupations = gender_occupations[
         gender_occupations["Male"] < gender_occupations["Female"]
     ]
-    female_occupations = female_occupations["Occupation"].values.tolist()
+    female_occupations = female_occupations["Occupation"].to_numpy().tolist()
 
     word_sets_dict["male_occupations"] = male_occupations
     word_sets_dict["female_occupations"] = female_occupations
@@ -114,25 +114,29 @@ def fetch_eds(
     occupations_white = (
         occupations_filtered.sort_values("white")
         .head(top_n_race_occupations)[["Occupation"]]
-        .values.T[0]
+        .to_numpy()
+        .T[0]
         .tolist()
     )
     occupations_black = (
         occupations_filtered.sort_values("black")
         .head(top_n_race_occupations)[["Occupation"]]
-        .values.T[0]
+        .to_numpy()
+        .T[0]
         .tolist()
     )
     occupations_asian = (
         occupations_filtered.sort_values("asian")
         .head(top_n_race_occupations)[["Occupation"]]
-        .values.T[0]
+        .to_numpy()
+        .T[0]
         .tolist()
     )
     occupations_hispanic = (
         occupations_filtered.sort_values("hispanic")
         .head(top_n_race_occupations)[["Occupation"]]
-        .values.T[0]
+        .to_numpy()
+        .T[0]
         .tolist()
     )
 

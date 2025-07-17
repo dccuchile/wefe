@@ -11,7 +11,7 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 def test_double_hard_debias_checks(
     model: WordEmbeddingModel, definitional_pairs: list[list[str]]
-):
+) -> None:
     with pytest.raises(
         TypeError,
         match=r"verbose should be a bool, got .*",
@@ -75,7 +75,7 @@ def test_double_hard_debias(
     gender_query_2: Query,
     definitional_pairs: list[list[str]],
     gender_specific: list[str],
-):
+) -> None:
     weat = WEAT()
 
     dhd = DoubleHardDebias(
@@ -110,7 +110,7 @@ def test_double_hard_debias_target_param(
     control_query_1: Query,
     definitional_pairs: list[list[str]],
     weat_wordsets: dict[str, list[str]],
-):
+) -> None:
     weat = WEAT()
 
     dhd = DoubleHardDebias(
@@ -158,7 +158,7 @@ def test_multiclass_hard_debias_ignore_param(
     gender_query_2: Query,
     definitional_pairs: list[list[str]],
     weat_wordsets: dict[str, list[str]],
-):
+) -> None:
     weat = WEAT()
     dhd = DoubleHardDebias(
         verbose=True,
@@ -196,7 +196,7 @@ def test_double_hard_debias_copy_param(
     gender_query_2: Query,
     definitional_pairs: list[list[str]],
     gender_specific: list[str],
-):
+) -> None:
     weat = WEAT()
     # Since we will mutate the original model in the test, we calculate WEAT scores
     # before debiasing with the original model.
@@ -234,7 +234,7 @@ def test_multiclass_hard_debias_verbose(
     definitional_pairs: list[list[str]],
     gender_specific: list[str],
     capsys,
-):
+) -> None:
     # -----------------------------------------------------------------
     # Test verbose
     dhd = DoubleHardDebias(verbose=True)

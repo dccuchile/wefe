@@ -9,7 +9,7 @@ from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-def check_RNSB_result_keys(results: dict[str, Any]):
+def check_RNSB_result_keys(results: dict[str, Any]) -> None:
     assert list(results.keys()) == [
         "query_name",
         "result",
@@ -19,7 +19,7 @@ def check_RNSB_result_keys(results: dict[str, Any]):
     ]
 
 
-def check_RNSB_result_values(results: dict[str, Any]):
+def check_RNSB_result_values(results: dict[str, Any]) -> None:
     # note: this checking only applies when the result is not np.nan.
     assert isinstance(results["query_name"], str)
 
@@ -49,7 +49,7 @@ def check_RNSB_result_values(results: dict[str, Any]):
     assert len(negative_sentiment_probabilities) == len(negative_sentiment_distribution)
 
 
-def test_RNSB_base(model: WordEmbeddingModel, query_2t2a_1: Query):
+def test_RNSB_base(model: WordEmbeddingModel, query_2t2a_1: Query) -> None:
     rnsb = RNSB()
     results = rnsb.run_query(query_2t2a_1, model)
     check_RNSB_result_keys(results)
@@ -57,7 +57,7 @@ def test_RNSB_base(model: WordEmbeddingModel, query_2t2a_1: Query):
     assert results["query_name"] == "Flowers and Insects wrt Pleasant and Unpleasant"
 
 
-def test_RNSB_more_targets(model: WordEmbeddingModel, query_4t2a_1: Query):
+def test_RNSB_more_targets(model: WordEmbeddingModel, query_4t2a_1: Query) -> None:
     rnsb = RNSB()
     results = rnsb.run_query(query_4t2a_1, model)
     check_RNSB_result_keys(results)
@@ -70,7 +70,7 @@ def test_RNSB_more_targets(model: WordEmbeddingModel, query_4t2a_1: Query):
 
 def test_RNSB_print_model_evaluation(
     capsys, model: WordEmbeddingModel, query_2t2a_1: Query
-):
+) -> None:
     rnsb = RNSB()
     results = rnsb.run_query(query_2t2a_1, model, print_model_evaluation=True)
     check_RNSB_result_keys(results)
@@ -83,7 +83,7 @@ def test_RNSB_print_model_evaluation(
     assert results["query_name"] == "Flowers and Insects wrt Pleasant and Unpleasant"
 
 
-def test_RNSB_no_holdout(capsys, model: WordEmbeddingModel, query_2t2a_1: Query):
+def test_RNSB_no_holdout(capsys, model: WordEmbeddingModel, query_2t2a_1: Query) -> None:
     rnsb = RNSB()
     results = rnsb.run_query(
         query_2t2a_1, model, holdout=False, print_model_evaluation=True
@@ -100,7 +100,7 @@ def test_RNSB_no_holdout(capsys, model: WordEmbeddingModel, query_2t2a_1: Query)
 
 def test_RNSB_lost_vocabulary_threshold(
     model: WordEmbeddingModel, query_2t2a_lost_vocab_1: Query
-):
+) -> None:
     rnsb = RNSB()
     results = rnsb.run_query(query_2t2a_lost_vocab_1, model)
 
@@ -116,7 +116,7 @@ def test_RNSB_lost_vocabulary_threshold(
     assert results["query_name"] == "Flowers and Insects wrt Pleasant and Unpleasant"
 
 
-def test_RNSB_with_random_state(model: WordEmbeddingModel, query_2t2a_1: Query):
+def test_RNSB_with_random_state(model: WordEmbeddingModel, query_2t2a_1: Query) -> None:
     rnsb = RNSB()
     results_1 = rnsb.run_query(query_2t2a_1, model, random_state=42)
     check_RNSB_result_keys(results_1)

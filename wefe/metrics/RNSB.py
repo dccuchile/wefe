@@ -271,10 +271,9 @@ class RNSB(BaseMetric):
         ]
 
         # set the probabilities for each word in a dict.
-        negative_sentiment_probabilities = {
-            word: prob
-            for word, prob in zip(flatten_target_words, negative_probabilities)
-        }
+        negative_sentiment_probabilities = dict(
+            zip(flatten_target_words, negative_probabilities)
+        )
 
         return kl_divergence, negative_sentiment_probabilities
 
@@ -283,13 +282,13 @@ class RNSB(BaseMetric):
         query: Query,
         model: WordEmbeddingModel,
         estimator: BaseEstimator = LogisticRegression,
-        estimator_params: dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},
+        estimator_params: dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},  # noqa: B006
         n_iterations: int = 1,
         random_state: Union[int, None] = None,
         holdout: bool = True,
         print_model_evaluation: bool = False,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] | None = None,
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,

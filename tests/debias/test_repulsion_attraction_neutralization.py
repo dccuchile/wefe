@@ -17,7 +17,7 @@ def test_hard_debias_target_param(
     control_query_1: Query,
     weat_wordsets: dict[str, list[str]],
     definitional_pairs: list[list[str]],
-):
+) -> None:
     weat = WEAT()
 
     attribute_words = weat_wordsets["career"] + weat_wordsets["family"]

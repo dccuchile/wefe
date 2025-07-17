@@ -16,11 +16,11 @@ from wefe.word_embedding_model import WordEmbeddingModel
 try:
     import torch
     from torch import nn
-except ModuleNotFoundError:
+except ModuleNotFoundError as e:
     raise ModuleNotFoundError(
         "PyTorch is required to run RepulsionAttractionNeutralization method. "
         "Visit https://pytorch.org/ to install it."
-    )
+    ) from e
 
 
 class RAN_Loss(nn.Module):

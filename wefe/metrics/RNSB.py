@@ -288,7 +288,7 @@ class RNSB(BaseMetric):
         holdout: bool = True,
         print_model_evaluation: bool = False,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] | None = None,
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,

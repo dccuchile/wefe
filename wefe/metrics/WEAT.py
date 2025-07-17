@@ -252,7 +252,7 @@ class WEAT(BaseMetric):
         p_value_iterations: int = 10000,
         p_value_verbose: bool = False,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] | None = None,
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,

@@ -36,7 +36,9 @@ def check_RND_result_values(results: dict[str, Any]) -> None:
         assert len(word) > 0
 
 
-def test_RND_with_euclidean_distance(model: WordEmbeddingModel, query_2t1a_1: Query) -> None:
+def test_RND_with_euclidean_distance(
+    model: WordEmbeddingModel, query_2t1a_1: Query
+) -> None:
     # note: the euclidean distance is the default distance.
     rnd = RND()
     result = rnd.run_query(query_2t1a_1, model)
@@ -46,7 +48,9 @@ def test_RND_with_euclidean_distance(model: WordEmbeddingModel, query_2t1a_1: Qu
     assert result["query_name"] == "Flowers and Insects wrt Pleasant"
 
 
-def test_RND_with_cosine_distance(model: WordEmbeddingModel, query_2t1a_1: Query) -> None:
+def test_RND_with_cosine_distance(
+    model: WordEmbeddingModel, query_2t1a_1: Query
+) -> None:
     rnd = RND()
     result = rnd.run_query(query_2t1a_1, model, distance="cos")
 

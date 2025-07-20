@@ -1,6 +1,6 @@
 """Relative Norm Distance (RND) metric implementation."""
 
-from typing import Any, Callable, Union
+from typing import Any, Callable
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -109,7 +109,7 @@ class RND(BaseMetric):
         model: WordEmbeddingModel,
         distance: str = "norm",
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, str | bool | Callable]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
@@ -130,7 +130,7 @@ class RND(BaseMetric):
             Specifies which type of distance will be calculated. It could be:
             {norm, cos} , by default 'norm'.
 
-        preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+        preprocessors : list[dict[str, str | bool | Callable]]
             A list with preprocessor options.
 
             A ``preprocessor`` is a dictionary that specifies what processing(s) are
@@ -261,8 +261,12 @@ class RND(BaseMetric):
 
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, model, locals())
-
+        self._check_input(
+            query=query,
+            model=model,
+            lost_vocabulary_threshold=lost_vocabulary_threshold,
+            warn_not_found_words=warn_not_found_words,
+        )
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
             model=model,

@@ -57,7 +57,9 @@ def test_WEAT_effect_size(model: WordEmbeddingModel, query_2t2a_1: Query) -> Non
     assert results["result"] == results["effect_size"]
 
 
-def test_WEAT_left_sided_p_value(model: WordEmbeddingModel, query_2t2a_1: Query) -> None:
+def test_WEAT_left_sided_p_value(
+    model: WordEmbeddingModel, query_2t2a_1: Query
+) -> None:
     weat = WEAT()
 
     results = weat.run_query(
@@ -72,7 +74,9 @@ def test_WEAT_left_sided_p_value(model: WordEmbeddingModel, query_2t2a_1: Query)
     assert isinstance(results["p_value"], float)
 
 
-def test_WEAT_right_sided_p_value(model: WordEmbeddingModel, query_2t2a_1: Query) -> None:
+def test_WEAT_right_sided_p_value(
+    model: WordEmbeddingModel, query_2t2a_1: Query
+) -> None:
     weat = WEAT()
 
     results = weat.run_query(

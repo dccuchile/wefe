@@ -284,11 +284,11 @@ class RNSB(BaseMetric):
         estimator: BaseEstimator = LogisticRegression,
         estimator_params: dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},  # noqa: B006
         n_iterations: int = 1,
-        random_state: Union[int, None] = None,
+        random_state: int | None = None,
         holdout: bool = True,
         print_model_evaluation: bool = False,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, str | bool | Callable]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
@@ -352,7 +352,7 @@ class RNSB(BaseMetric):
             Indicates whether the classifier evaluation is printed after the
             training process is completed, by default False
 
-        preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+        preprocessors : list[dict[str, str | bool | Callable]]
             A list with preprocessor options.
 
             A ``preprocessor`` is a dictionary that specifies what processing(s) are
@@ -794,8 +794,12 @@ class RNSB(BaseMetric):
 
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, model, locals())
-
+        self._check_input(
+            query=query,
+            model=model,
+            lost_vocabulary_threshold=lost_vocabulary_threshold,
+            warn_not_found_words=warn_not_found_words,
+        )
         if n_iterations > 1 and random_state is not None:
             raise ValueError(
                 "It is not possible to specify random_state together with n_iterations"

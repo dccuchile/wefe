@@ -134,7 +134,12 @@ exception if it finds a problem with them.
 .. code:: python
 
     # check the types of the provided arguments.
-    self._check_input(query, model)
+    self._check_input(
+            query=query,
+            model=model,
+            lost_vocabulary_threshold=lost_vocabulary_threshold,
+            warn_not_found_words=warn_not_found_words,
+        )
 
 Transform the Query to Embeddings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -351,7 +356,12 @@ Using the steps previously seen, a sample metric is implemented:
                 and other scores.
             """
             # check the types of the provided arguments (only the defaults).
-            self._check_input(query, model)
+            self._check_input(
+                query=query,
+                model=model,
+                lost_vocabulary_threshold=lost_vocabulary_threshold,
+                warn_not_found_words=warn_not_found_words,
+            )
 
             # transform query word sets into embeddings
             embeddings = get_embeddings_from_query(
@@ -563,8 +573,12 @@ the above.
                 and other scores.
             """
             # check the types of the provided arguments (only the defaults).
-            self._check_input(query, model)
-
+            self._check_input(
+                query=query,
+                model=model,
+                lost_vocabulary_threshold=lost_vocabulary_threshold,
+                warn_not_found_words=warn_not_found_words,
+            )
             # transform query word sets into embeddings
             embeddings = get_embeddings_from_query(
                 model=model,

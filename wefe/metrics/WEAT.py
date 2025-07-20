@@ -2,7 +2,7 @@
 
 import logging
 import math
-from typing import Any, Callable, Union
+from typing import Any, Callable
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -13,19 +13,23 @@ from wefe.query import Query
 from wefe.word_embedding_model import EmbeddingDict, WordEmbeddingModel
 
 
-def _left_sided_test_function(calculated: np.number, original: np.number) -> bool:
-    return calculated < original
+def _left_sided_test_function(calculated: np.float64, original: np.float64) -> bool:
+    """Check if the calculated value is less than the original."""
+    return bool(calculated < original)
 
 
-def _right_sided_test_function(calculated: np.number, original: np.number) -> bool:
-    return calculated > original
+def _right_sided_test_function(calculated: np.float64, original: np.float64) -> bool:
+    """Check if the calculated value is greater than the original."""
+    return bool(calculated > original)
 
 
-def _two_sided_test_function(calculated: np.number, original: np.number) -> bool:
+def _two_sided_test_function(calculated: np.float64, original: np.float64) -> bool:
+    """Check if the absolute calculated value is greater than the original."""
     return np.abs(calculated) > original
 
 
-TEST_FUNCTION_DISPATCHER = {
+# A dispatcher to select the correct test function based on a string identifier.
+TEST_FUNCTION_DISPATCHER: dict[str, Callable[[np.float64, np.float64], bool]] = {
     "left-sided": _left_sided_test_function,
     "right-sided": _right_sided_test_function,
     "two-sided": _two_sided_test_function,
@@ -108,8 +112,8 @@ class WEAT(BaseMetric):
         A: np.ndarray,
         B: np.ndarray,
     ) -> np.number:
-        A_mean_sim = np.mean(cosine_similarity([w], A), dtype=np.float64)
-        B_mean_sim = np.mean(cosine_similarity([w], B), dtype=np.float64)
+        A_mean_sim = np.mean(cosine_similarity(np.array([w]), A), dtype=np.float64)
+        B_mean_sim = np.mean(cosine_similarity(np.array([w]), B), dtype=np.float64)
         return A_mean_sim - B_mean_sim
 
     def _calc_weat(
@@ -130,11 +134,18 @@ class WEAT(BaseMetric):
         A: np.ndarray,
         B: np.ndarray,
     ) -> np.number:
-        first_term = np.mean([self._calc_s(x, A, B) for x in X], dtype=np.float64)
-        second_term = np.mean([self._calc_s(y, A, B) for y in Y], dtype=np.float64)
+        first_term = np.mean(
+            np.array([self._calc_s(x, A, B) for x in X], dtype=np.float64)
+        )
+        second_term = np.mean(
+            np.array([self._calc_s(y, A, B) for y in Y], dtype=np.float64)
+        )
 
         std_dev = np.std(
-            [self._calc_s(w, A, B) for w in np.concatenate((X, Y))], dtype=np.float64
+            np.array(
+                [self._calc_s(w, A, B) for w in np.concatenate((X, Y))],
+                dtype=np.float64,
+            )
         )
 
         return (first_term - second_term) / std_dev
@@ -252,12 +263,10 @@ class WEAT(BaseMetric):
         p_value_iterations: int = 10000,
         p_value_verbose: bool = False,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, str | bool | Callable]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
-        *args: Any,
-        **kwargs: Any,
     ) -> dict[str, Any]:
         """Calculate the WEAT metric over the provided parameters.
 
@@ -302,7 +311,7 @@ class WEAT(BaseMetric):
             In the case that any set of the query loses proportionally more words
             than this limit, the result values will be np.nan, by default 0.2
 
-        preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+        preprocessors : list[dict[str, str | bool | Callable]]
             A list with preprocessor options.
 
             A ``preprocessor`` is a dictionary that specifies what processing(s) are
@@ -439,8 +448,12 @@ class WEAT(BaseMetric):
 
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, model, locals())
-
+        self._check_input(
+            query=query,
+            model=model,
+            lost_vocabulary_threshold=lost_vocabulary_threshold,
+            warn_not_found_words=warn_not_found_words,
+        )
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
             model=model,

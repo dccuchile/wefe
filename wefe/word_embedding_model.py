@@ -1,20 +1,25 @@
 """A Word Embedding contanier based on gensim BaseKeyedVectors."""
 
 from collections.abc import Sequence
-from typing import Any, Union
+from typing import Any
 
 import gensim
 import numpy as np
 import semantic_version
+from numpy.typing import NDArray
 
-gensim_version = semantic_version.Version.coerce(gensim.__version__)
-if gensim_version.major >= 4:
+GENSIM_VERSION = semantic_version.Version.coerce(gensim.__version__)
+GENSIM_V4_OR_GREATER = GENSIM_VERSION.major >= 4  # type: ignore
+
+if GENSIM_V4_OR_GREATER:
     from gensim.models import KeyedVectors as BaseKeyedVectors
 else:
-    from gensim.models.keyedvectors import BaseKeyedVectors
+    # In older versions, BaseKeyedVectors is in a different location.
+    from gensim.models.keyedvectors import BaseKeyedVectors  # type: ignore
 
-
-EmbeddingDict = dict[str, np.ndarray]
+# --- Type Aliases ---
+# Using NDArray for better type hinting with NumPy arrays.
+EmbeddingDict = dict[str, NDArray[np.float64]]
 EmbeddingSets = dict[str, EmbeddingDict]
 
 
@@ -26,7 +31,10 @@ class WordEmbeddingModel:
     """
 
     def __init__(
-        self, wv: BaseKeyedVectors, name: str = None, vocab_prefix: str = None
+        self,
+        wv: BaseKeyedVectors,
+        name: str | None = None,
+        vocab_prefix: str | None = None,
     ) -> None:
         """Initialize the word embedding model.
 
@@ -67,43 +75,27 @@ class WordEmbeddingModel:
         >>> print(model.vocab_prefix)
         /en/
 
-
-        Attributes
-        ----------
-        wv : BaseKeyedVectors
-            The model.
-        vocab :
-            The vocabulary of the model (a dict with the words that have an associated
-            embedding in the model).
-        model_name : str
-            The name of the model.
-        vocab_prefix : str
-            A prefix that will be concatenated with each word of the vocab
-            of the model.
-
         """
         # Type checking
         if not isinstance(wv, BaseKeyedVectors):
             raise TypeError(
-                f"wv should be an instance of gensim's BaseKeyedVectors, got {wv}."
+                f"wv must be an instance of gensim's BaseKeyedVectors, "
+                f"but got {type(wv)}."
             )
-
-        if not isinstance(name, (str, type(None))):
-            raise TypeError(f"name should be a string or None, got {name}.")
-
-        if not isinstance(vocab_prefix, (str, type(None))):
+        if name is not None and not isinstance(name, str):
+            raise TypeError(f"name must be a string or None, but got {type(name)}.")
+        if vocab_prefix is not None and not isinstance(vocab_prefix, str):
             raise TypeError(
-                f"vocab_prefix should be a string or None, got {vocab_prefix}"
+                f"vocab_prefix must be a string or None, but got {type(vocab_prefix)}."
             )
 
         # Assign the attributes
         self.wv = wv
 
-        # Obtain the vocabulary
-        if gensim_version.major == 4:
-            self.vocab = wv.key_to_index
+        if GENSIM_V4_OR_GREATER:
+            self.vocab = self.wv.key_to_index
         else:
-            self.vocab = wv.vocab
+            self.vocab = self.wv.vocab
 
         self.vocab_prefix = vocab_prefix
         if name is None:
@@ -136,8 +128,12 @@ class WordEmbeddingModel:
             return False
         return True
 
-    def __getitem__(self, key: str) -> Union[np.ndarray, None]:
-        """Given a word, returns its associated embedding or none if it does not exist.
+    def __len__(self) -> int:
+        """Return the number of words in the vocabulary."""
+        return len(self.vocab)
+
+    def __getitem__(self, key: str) -> NDArray[np.float64]:
+        """Retrieve the embedding for a word.
 
         Parameters
         ----------
@@ -146,22 +142,29 @@ class WordEmbeddingModel:
 
         Returns
         -------
-        Union[np.ndarray, None]
-            The embedding associated with the word or none if none if the word does not
-            exist in the model.
+        np.ndarray
+            The embedding associated with the word.
+
+        Raises
+        ------
+        KeyError
+            If the word is not in the vocabulary.
 
         """
-        if key in self.vocab:
-            return self.wv[key]
+        if not isinstance(key, str):
+            raise TypeError(f"key must be a string, but got {type(key)}.")
 
-        return None
+        if key not in self.vocab:
+            raise KeyError(f"word '{key}' not in model vocab.")
 
-    def __contains__(self, key: str) -> bool:
-        """Check if a word exists in the model's vocabulary.
+        return self.wv[key]
+
+    def __contains__(self, key) -> bool:
+        """Check if a word is in the model's vocabulary.
 
         Parameters
         ----------
-        key : str
+        key
             Some word.
 
         Returns
@@ -173,7 +176,7 @@ class WordEmbeddingModel:
         return key in self.vocab
 
     def __repr__(self) -> str:
-        """Custom representation for WordEmbeddingModels.
+        """Generate a string representation of the WordEmbeddingModel.
 
         Format:
 
@@ -219,20 +222,40 @@ class WordEmbeddingModel:
             # defined.
             return "<WordEmbeddingModel with wrong __repr__>"
 
-    def normalize(self) -> None:
-        """Normalize word embeddings in the model by using the L2 norm.
+    def get(self, word: str, default: Any | None = None) -> NDArray[np.float64] | None:
+        """Retrieve a word's embedding, returning a default value if not found."""
+        return self.wv[word] if word in self else default
 
-        Use the `init_sims` function of the gensim's `KeyedVectors` class.
-        **Warning**: This operation is inplace. In other words, it replaces the
-        embeddings with their L2 normalized versions.
+    def normalize(self) -> None:
+        """Normalize the word vectors to unit L2 length.
+
+        This method uses the underlying gensim functionality to perform
+        L2 normalization. The model's vectors are modified in-place.
+        **Warning**: This is a destructive operation.
+
+
+        Raises
+        ------
+        AttributeError
+            If the underlying model does not support normalization.
 
         """
-        if hasattr(self.wv, "init_sims"):
+        # Gensim 4+ has a more direct way to get normalized vectors.
+        # To maintain the "inplace" behavior, we re-assign the vectors.
+        if hasattr(self.wv, "get_normed_vectors"):
+            self.wv.vectors = self.wv.get_normed_vectors()
+            # Ensure the norms are also updated for similarity calculations
+            if GENSIM_V4_OR_GREATER:
+                self.wv.fill_norms(force=True)
+        elif hasattr(self.wv, "init_sims"):
             self.wv.init_sims(replace=True)
         else:
-            raise TypeError("The model does not have the init_sims method implemented.")
+            raise AttributeError(
+                "The underlying gensim model does not have a "
+                "known normalization method ('get_normed_vectors' or 'init_sims')."
+            )
 
-    def update(self, word: str, embedding: np.ndarray) -> None:
+    def update(self, word: str, embedding: NDArray[np.float64]) -> None:
         """Update the value of an embedding of the model.
 
         If the method is executed with a word that is not in the vocabulary, an
@@ -241,11 +264,10 @@ class WordEmbeddingModel:
         Parameters
         ----------
         word : str
-            The word whose embedding will be replaced. This word must be in the model's
-            vocabulary.
-        embedding : np.ndarray
-            An embedding representing the word. It must have the same dimensions and
-            data type as the model embeddings.
+            The word to update. It must already exist in the vocabulary.
+        embedding : NDArray[np.float64]
+            The new embedding for the word. Must match the model's vector size
+            and dtype.
 
         Raises
         ------
@@ -263,18 +285,13 @@ class WordEmbeddingModel:
 
         """
         if not isinstance(word, str):
-            raise TypeError(
-                f"word should be a string, got {word} with type {type(word)}."
-            )
-
+            raise TypeError(f"Word must be a string, but got {type(word)}.")
         if word not in self:
-            raise ValueError(f"word '{word}' not in model vocab.")
-
+            raise ValueError(f"Word '{word}' is not in the model's vocabulary.")
         if not isinstance(embedding, np.ndarray):
             raise TypeError(
-                f"'{word}' new embedding should be a np.array, got {type(embedding)}."
+                f"Embedding must be a NumPy array, but got {type(embedding)}."
             )
-
         embedding_size = embedding.shape[0]
         if self.wv.vector_size != embedding_size:
             raise ValueError(
@@ -288,64 +305,179 @@ class WordEmbeddingModel:
                 f"({self.wv.vectors.dtype})."
             )
 
-        if gensim_version.major >= 4:
-            word_index = self.wv.key_to_index[word]
+        if GENSIM_V4_OR_GREATER:
+            idx = self.wv.key_to_index[word]
         else:
-            word_index = self.wv.vocab[word].index
-
-        self.wv.vectors[word_index] = embedding
+            idx = self.wv.vocab[word].index
+        self.wv.vectors[idx] = embedding.astype(self.wv.vectors.dtype)
 
     def batch_update(
         self,
         words: Sequence[str],
-        embeddings: Union[Sequence[np.ndarray], np.ndarray],
+        embeddings: Sequence[np.ndarray] | np.ndarray,
     ) -> None:
-        """Update a batch of embeddings.
+        """Update a batch of embeddings in the model.
 
-        This method calls `update_embedding` method with each of the word-embedding
-        pairs.
-        All words must be in the vocabulary, otherwise an exception will be thrown.
-        Note that both `words` and `embeddings` must have the same number of elements,
-        otherwise the method will raise an exception.
+        This method updates the embeddings for a given sequence of words efficiently
+        by leveraging NumPy's advanced indexing. All validations (word existence,
+        embedding shape, and data type) are performed collectively before any
+        modifications are applied to the model. This ensures atomicity: either all
+        updates succeed, or none do.
 
         Parameters
         ----------
         words : Sequence[str]
-            A sequence (list, tuple or np.array) that contains the words whose
-            representations will be updated.
-
-        embeddings : Union[Sequence[np.ndarray], np.array],
-            A sequence (list or tuple) or a np.array of embeddings or an np.array that
-            contains all the new embeddings. The embeddings must have the same size and
-            data type as the model.
+            A sequence (list, tuple, or np.ndarray) containing the words whose
+            representations will be updated. All words must already exist in
+            the model's vocabulary and must be strings.
+        embeddings : Union[Sequence[np.ndarray], np.ndarray]
+            A sequence (list or tuple) of NumPy arrays, or a 2D NumPy array, that
+            contains all the new embeddings. Each embedding must be a 1D NumPy
+            array with the same size and data type as the model's embeddings.
+            The length of `embeddings` must match the length of `words`.
 
         Raises
         ------
         TypeError
-            if words is not a list
-        TypeError
-            if embeddings is not an np.ndarray
-        Exception
-            if words collection has not the same size of the embedding array.
+            If `words` is not a sequence of strings, or if `embeddings` is not
+            a sequence of NumPy arrays or a single NumPy array.
+            Also, if individual elements within `words` are not strings, or elements
+            within `embeddings` are not NumPy arrays.
+        ValueError
+            If `words` and `embeddings` do not have the same number of elements.
+            If any word in `words` is not found in the model's vocabulary.
+            If any embedding has a different dimension than the model's embeddings.
+            If any embedding has a data type incompatible with the model's embeddings.
 
+        Examples
+        --------
+        >>> from gensim.test.utils import common_texts
+        >>> from gensim.models import Word2Vec
+        >>> from wefe.word_embedding_model import WordEmbeddingModel
+        >>> import numpy as np
+
+        >>> # Create a dummy WordEmbeddingModel
+        >>> kv_model = Word2Vec(common_texts, vector_size=10, min_count=1).wv
+        >>> model = WordEmbeddingModel(kv_model, 'Dummy Model')
+        >>> original_embedding_the = model['the']
+        >>> original_embedding_system = model['system']
+
+        >>> # Prepare words and new embeddings
+        >>> words_to_update = ['the', 'system']
+        >>> new_embeddings = [
+        ...     np.zeros(10, dtype=model.wv.vectors.dtype),
+        ...     np.ones(10, dtype=model.wv.vectors.dtype)
+        ... ]
+
+        >>> # Update embeddings
+        >>> model.batch_update(words_to_update, new_embeddings)
+
+        >>> # Verify updates
+        >>> assert np.all(model['the'] == np.zeros(10))
+        >>> assert np.all(model['system'] == np.ones(10))
+
+        >>> # Test with missing word (will raise error)
+        >>> try:
+        ...     model.batch_update(['nonexistent_word'], [np.zeros(10)])
+        ... except ValueError as e:
+        ...     print(e)
+        The following words are not in the model's vocabulary: nonexistent_word.
         """
+        # Initial type and length validation for the input containers
         if not isinstance(words, (list, tuple, np.ndarray)):
             raise TypeError(
-                "words argument should be a list, tuple or np.array of strings, "
-                f"got {type(words)}."
+                f"words argument should be a list, tuple or np.array of strings, "
+                f"but got {type(words)}."
             )
-
         if not isinstance(embeddings, (list, tuple, np.ndarray)):
             raise TypeError(
-                "embeddings should be a list, tuple or np.array, "
-                f"got: {type(embeddings)}"
+                "embeddings argument should be a list, tuple or np.array of NumPy arrays, "
+                f"but got {type(embeddings)}."
             )
-
         if len(words) != len(embeddings):
             raise ValueError(
-                "words and embeddings must have the same size, got: "
-                f"len(words) = {len(words)}, len(embeddings) = {len(embeddings)}"
+                "words and embeddings must have the same number of elements, "
+                f"but got {len(words)} words and {len(embeddings)} embeddings."
             )
 
-        for idx, word in enumerate(words):
-            self.update(word, embeddings[idx])
+        # 1. Validate 'words' elements and collect their indices
+        missing_words = []
+        word_indices = []
+        for word in words:
+            if not isinstance(word, str):
+                raise TypeError(
+                    f"All elements in 'words' must be strings, but found a {type(word)}."
+                )
+            if word not in self.vocab:
+                missing_words.append(word)
+            else:
+                # Get the index based on gensim version
+                if GENSIM_V4_OR_GREATER:
+                    word_indices.append(self.wv.key_to_index[word])
+                else:
+                    word_indices.append(self.wv.vocab[word].index)
+
+        if missing_words:
+            raise ValueError(
+                f"The following words are not in the model's vocabulary: "
+                f"{', '.join(missing_words)}."
+            )
+
+        # Convert collected indices to a NumPy array for advanced indexing
+        np_word_indices = np.array(word_indices, dtype=int)
+
+        # Define expected properties for the embeddings based on the model
+        expected_vector_size = self.wv.vector_size
+        model_dtype = self.wv.vectors.dtype
+
+        # 2. Validate and prepare 'embeddings' for batch update
+        embeddings_to_update: np.ndarray
+
+        # If 'embeddings' is already a 2D NumPy array, perform checks directly on it.
+        if isinstance(embeddings, np.ndarray):
+            if embeddings.ndim != 2 or embeddings.shape[1] != expected_vector_size:
+                raise ValueError(
+                    f"Input embeddings array has shape {embeddings.shape}, "
+                    f"but expected a 2D array with {expected_vector_size} columns "
+                    f"(model's vector size {expected_vector_size})."
+                )
+            if not np.issubdtype(
+                embeddings.dtype, model_dtype
+            ):  # Check if source dtype can be cast to target dtype
+                raise ValueError(
+                    f"Input embeddings array dtype ({embeddings.dtype}) cannot be safely "
+                    f"cast to model's dtype ({model_dtype})."
+                )
+            # Ensure correct dtype for assignment; copy=False avoids copy if already correct
+            embeddings_to_update = embeddings.astype(model_dtype, copy=False)
+        else:  # Handle Sequence of np.ndarray
+            temp_embeddings_list = []
+            for i, emb in enumerate(embeddings):
+                # Ensure each element is a NumPy array
+                if not isinstance(emb, np.ndarray):
+                    raise TypeError(
+                        f"Embedding at index {i} ('{words[i]}') is not a NumPy array, "
+                        f"but got {type(emb)}."
+                    )
+                # Ensure each embedding has the correct dimension (1D) and size
+                if emb.ndim != 1 or emb.shape[0] != expected_vector_size:
+                    raise ValueError(
+                        f"Embedding at index {i} ('{words[i]}') has shape {emb.shape} "
+                        f"which is different from the model's embedding size "
+                        f"({expected_vector_size},)."
+                    )
+                # Ensure data type compatibility
+                if not np.issubdtype(
+                    emb.dtype, model_dtype
+                ):  # Check if source dtype can be cast to target dtype
+                    raise ValueError(
+                        f"Embedding at index {i} ('{words[i]}') with dtype ({emb.dtype}) "
+                        f"cannot be safely cast to model's dtype ({model_dtype})."
+                    )
+                temp_embeddings_list.append(emb)  # Collect validated embeddings
+
+            # Convert the list of validated embeddings to a single 2D NumPy array
+            embeddings_to_update = np.array(temp_embeddings_list, dtype=model_dtype)
+
+        # 3. Perform the batch update using advanced indexing
+        self.wv.vectors[np_word_indices] = embeddings_to_update

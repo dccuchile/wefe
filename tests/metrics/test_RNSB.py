@@ -83,7 +83,9 @@ def test_RNSB_print_model_evaluation(
     assert results["query_name"] == "Flowers and Insects wrt Pleasant and Unpleasant"
 
 
-def test_RNSB_no_holdout(capsys, model: WordEmbeddingModel, query_2t2a_1: Query) -> None:
+def test_RNSB_no_holdout(
+    capsys, model: WordEmbeddingModel, query_2t2a_1: Query
+) -> None:
     rnsb = RNSB()
     results = rnsb.run_query(
         query_2t2a_1, model, holdout=False, print_model_evaluation=True

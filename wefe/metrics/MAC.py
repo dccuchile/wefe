@@ -1,6 +1,6 @@
 """Mean Average Cosine Similarity (MAC) implementation."""
 
-from typing import Any, Callable, Union
+from typing import Any, Callable
 
 import numpy as np
 from scipy.spatial import distance
@@ -106,7 +106,7 @@ class MAC(BaseMetric):
         query: Query,
         model: WordEmbeddingModel,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, str | bool | Callable]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
@@ -124,7 +124,7 @@ class MAC(BaseMetric):
         model : WordEmbeddingModel
             A word embedding model.
 
-        preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+        preprocessors : list[dict[str, str | bool | Callable]]
             A list with preprocessor options.
 
             A ``preprocessor`` is a dictionary that specifies what processing(s) are
@@ -448,8 +448,12 @@ class MAC(BaseMetric):
 
         """  # noqa: E501
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, model, locals())
-
+        self._check_input(
+            query=query,
+            model=model,
+            lost_vocabulary_threshold=lost_vocabulary_threshold,
+            warn_not_found_words=warn_not_found_words,
+        )
         # transform query word sets into embeddings
         embeddings = get_embeddings_from_query(
             model=model,

@@ -445,10 +445,11 @@ class WordEmbeddingModel:
                 embeddings.dtype, model_dtype
             ):  # Check if source dtype can be cast to target dtype
                 raise ValueError(
-                    f"Input embeddings array dtype ({embeddings.dtype}) cannot be safely "
-                    f"cast to model's dtype ({model_dtype})."
+                    f"Input embeddings array dtype ({embeddings.dtype}) cannot be "
+                    f"safely cast to model's dtype ({model_dtype})."
                 )
-            # Ensure correct dtype for assignment; copy=False avoids copy if already correct
+            # Ensure correct dtype for assignment; copy=False avoids copy if
+            # already correct
             embeddings_to_update = embeddings.astype(model_dtype, copy=False)
         else:  # Handle Sequence of np.ndarray
             temp_embeddings_list = []
@@ -471,7 +472,8 @@ class WordEmbeddingModel:
                     emb.dtype, model_dtype
                 ):  # Check if source dtype can be cast to target dtype
                     raise ValueError(
-                        f"Embedding at index {i} ('{words[i]}') with dtype ({emb.dtype}) "
+                        f"Embedding at index {i} ('{words[i]}') with dtype "
+                        f"({emb.dtype}) "
                         f"cannot be safely cast to model's dtype ({model_dtype})."
                     )
                 temp_embeddings_list.append(emb)  # Collect validated embeddings

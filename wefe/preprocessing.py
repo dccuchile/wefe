@@ -202,7 +202,10 @@ def get_embeddings_from_set(
             preprocessed_word = preprocess_word(
                 word, options=preprocessor, vocab_prefix=model.vocab_prefix
             )
-            embedding = model[preprocessed_word]
+            try:
+                embedding = model[preprocessed_word]
+            except KeyError:
+                embedding = None
 
             if embedding is not None:
                 selected_embeddings[preprocessed_word] = embedding

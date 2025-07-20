@@ -391,8 +391,8 @@ class WordEmbeddingModel:
             )
         if not isinstance(embeddings, (list, tuple, np.ndarray)):
             raise TypeError(
-                "embeddings argument should be a list, tuple or np.array of NumPy arrays, "
-                f"but got {type(embeddings)}."
+                "embeddings argument should be a list, tuple or np.array of "
+                f"NumPy arrays, but got {type(embeddings)}."
             )
         if len(words) != len(embeddings):
             raise ValueError(
@@ -406,7 +406,8 @@ class WordEmbeddingModel:
         for word in words:
             if not isinstance(word, str):
                 raise TypeError(
-                    f"All elements in 'words' must be strings, but found a {type(word)}."
+                    f"All elements in 'words' must be strings, but found a "
+                    f"{type(word)}."
                 )
             if word not in self.vocab:
                 missing_words.append(word)

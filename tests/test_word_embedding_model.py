@@ -327,7 +327,10 @@ def test_update_embeddings(
     # Check for non-numpy embedding in embeddings
     with pytest.raises(
         TypeError,
-        match=r"Embedding at index 1 \('in'\) is not a NumPy array, but got <class 'int'>.",
+        match=(
+            r"Embedding at index 1 \('in'\) is not a NumPy array, but "
+            r"got <class 'int'>."
+        ),
     ):
         model.batch_update(words=words, embeddings=[embeddings[0], 1])
 

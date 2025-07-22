@@ -202,7 +202,7 @@ def get_embeddings_from_set(
             preprocessed_word = preprocess_word(
                 word, options=preprocessor, vocab_prefix=model.vocab_prefix
             )
-            embedding = model[preprocessed_word]
+            embedding = model[preprocessed_word] if preprocessed_word in model else None  # noqa: SIM401
 
             if embedding is not None:
                 selected_embeddings[preprocessed_word] = embedding

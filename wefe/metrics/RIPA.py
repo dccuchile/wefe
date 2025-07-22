@@ -1,5 +1,6 @@
 """Relational Inner Product Association Test."""
-from typing import Any, Callable, Dict, List, Tuple, Union
+
+from typing import Any, Callable, Union
 
 import numpy as np
 
@@ -70,9 +71,9 @@ class RIPA(BaseMetric):
 
     def _calc_metric(
         self,
-        target_embeddings: List[Dict[str, np.ndarray]],
-        attribute_embeddings: List[Dict[str, np.ndarray]],
-    ) -> Tuple[np.number, Dict[str, Dict[str, np.number]]]:
+        target_embeddings: list[dict[str, np.ndarray]],
+        attribute_embeddings: list[dict[str, np.ndarray]],
+    ) -> tuple[np.number, dict[str, dict[str, np.number]]]:
         """Calculate the metric.
 
         Parameters
@@ -92,6 +93,7 @@ class RIPA(BaseMetric):
             the attributes.
             - the mean value ± the standard deviation (across all target pairs) of the
             attribute word's RIPA score.
+
         """
         # word vectors from the embedding model for all the words in each of the
         # target sets
@@ -106,7 +108,7 @@ class RIPA(BaseMetric):
             attribute_embeddings[0].keys()
         )  # list of all the attribute words
 
-        ripa_scores: Dict[str, list] = {}
+        ripa_scores: dict[str, list] = {}
 
         ripa_oa_mean = []
         ripa_oa_std = []
@@ -145,13 +147,13 @@ class RIPA(BaseMetric):
         query: Query,
         model: WordEmbeddingModel,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
         *args: Any,
-        **kwargs: Any
-    ) -> Dict[str, Any]:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Calculate the Example Metric metric over the provided parameters.
 
         Parameters

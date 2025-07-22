@@ -1,6 +1,7 @@
 """Contains a base class for implement any debias method in WEFE."""
+
 from abc import abstractmethod
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from wefe.word_embedding_model import WordEmbeddingModel
 
@@ -34,8 +35,8 @@ class BaseDebias:
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[List[str]] = None,
-        ignore: Optional[List[str]] = None,
+        target: Optional[list[str]] = None,
+        ignore: Optional[list[str]] = None,
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Perform the debiasing method over the model provided.
@@ -66,14 +67,15 @@ class BaseDebias:
         -------
         WordEmbeddingModel
             The debiased word embedding model.
+
         """
         raise NotImplementedError()
 
     def fit_transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[List[str]] = None,
-        ignore: Optional[List[str]] = None,
+        target: Optional[list[str]] = None,
+        ignore: Optional[list[str]] = None,
         copy: bool = True,
         **fit_params,
     ) -> WordEmbeddingModel:
@@ -105,6 +107,7 @@ class BaseDebias:
         -------
         WordEmbeddingModel
             The debiased word embedding model.
+
         """
         return self.fit(model, **fit_params).transform(
             model, target=target, ignore=ignore, copy=copy
@@ -113,8 +116,8 @@ class BaseDebias:
     def _check_transform_args(
         self,
         model: WordEmbeddingModel,
-        target: Optional[List[str]] = None,
-        ignore: Optional[List[str]] = None,
+        target: Optional[list[str]] = None,
+        ignore: Optional[list[str]] = None,
         copy: bool = True,
     ) -> None:
         # check if model is a WordEmbeddingModel
@@ -159,17 +162,15 @@ class BaseDebias:
 
     def _check_sets_sizes(
         self,
-        sets: List[List[str]],
+        sets: list[list[str]],
         set_name: str,
         set_size: Union[int, str],
     ) -> None:
-
         if len(sets) == 0:
             raise ValueError("")
 
         # case fixed set_size.
         if isinstance(set_size, int):
-
             for idx, set_ in enumerate(sets):
                 if len(set_) != set_size:
                     adverb = "less" if len(set_) < set_size else "more"

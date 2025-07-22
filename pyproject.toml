@@ -1,61 +1,5 @@
-[tool.isort]
-profile = "black"
-
-[tool.black]
-line-length = 88
-
 [tool.ruff]
-select = [
-    "E",
-    "F",
-    "W",
-    "I",
-    "D",
-    "YTT",
-    "ANN",
-    "S",
-    "B",
-    "A",
-    "C",
-    "Q",
-    "S",
-    "TID252",
-    "SIM118",
-    "ARG",
-    "PLC",
-    "PLE",
-    "PLR",
-    "PLW",
-    "PGH",
-    "TID",
-    "SIM",
-    "ICN",
-    "C4",
 
-]
-
-ignore = [
-    "ANN101",
-    "S101",
-    "BLE001",
-    "ANN401",
-    "D107",
-    "D203",
-    "D212",
-    "D213",
-    "D402",
-    "D413",
-    "D415",
-    "D416",
-    "D417",
-    "ANN002",
-    "ANN003",
-    "B006",
-    "B905",
-
-]
-
-line-length = 88
 exclude = [
     ".bzr",
     ".direnv",
@@ -77,3 +21,30 @@ exclude = [
     "node_modules",
     "venv",
 ]
+
+line-length = 88
+indent-width = 4
+
+[tool.ruff.lint]
+
+select = [
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "E",   # pycodestyle errors
+    "I",   # isort
+    "UP",  # pyupgrade
+    "C4",  # flake8-comprehensions
+    "ISC", # flake8-implicit-str-concat
+    "ICN", # flake8-import-conventions
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "YTT", # flake8-2020
+    "B",   # flake8-bugbear
+    "T10", # flake8-debugger
+    "PT",  # flake8-pytest-style
+    "Q",   # flake8-quotes
+    "NPY", # numpy-specific rules
+    "PD",  # pandas-vet
+]
+
+ignore = ["B006"]

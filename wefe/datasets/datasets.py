@@ -1,7 +1,8 @@
 """Module with functions to load datasets and sets of words related to bias."""
+
 import json
 import urllib.request
-from typing import Dict, List, Union
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -10,7 +11,7 @@ import pkg_resources
 
 def fetch_eds(
     occupations_year: int = 2015, top_n_race_occupations: int = 10
-) -> Dict[str, List[str]]:
+) -> dict[str, list[str]]:
     """Fetch the sets of words used in the experiments of the _Word Embeddings
        Quantify 100 Years Of Gender And Ethnic Stereotypes_ work.
 
@@ -43,6 +44,7 @@ def fetch_eds(
     -------
     dict
         A dictionary with the word sets.
+
     """  # noqa: D205
     EDS_BASE_URL = (
         "https://raw.githubusercontent.com/nikhgarg/"
@@ -76,7 +78,7 @@ def fetch_eds(
     # turn the dataframe into a python dict without nan.
     for dataset_name in word_sets_dict:
         word_sets_dict[dataset_name] = list(
-            filter(lambda x: not pd.isnull(x), word_sets_dict[dataset_name])
+            filter(lambda x: not pd.isna(x), word_sets_dict[dataset_name])
         )
 
     # ---- Occupations by Gender ----
@@ -94,13 +96,13 @@ def fetch_eds(
     male_occupations = gender_occupations[
         gender_occupations["Male"] >= gender_occupations["Female"]
     ]
-    male_occupations = male_occupations["Occupation"].values.tolist()
+    male_occupations = male_occupations["Occupation"].to_numpy().tolist()
 
     # get female occupations
     female_occupations = gender_occupations[
         gender_occupations["Male"] < gender_occupations["Female"]
     ]
-    female_occupations = female_occupations["Occupation"].values.tolist()
+    female_occupations = female_occupations["Occupation"].to_numpy().tolist()
 
     word_sets_dict["male_occupations"] = male_occupations
     word_sets_dict["female_occupations"] = female_occupations
@@ -112,25 +114,29 @@ def fetch_eds(
     occupations_white = (
         occupations_filtered.sort_values("white")
         .head(top_n_race_occupations)[["Occupation"]]
-        .values.T[0]
+        .to_numpy()
+        .T[0]
         .tolist()
     )
     occupations_black = (
         occupations_filtered.sort_values("black")
         .head(top_n_race_occupations)[["Occupation"]]
-        .values.T[0]
+        .to_numpy()
+        .T[0]
         .tolist()
     )
     occupations_asian = (
         occupations_filtered.sort_values("asian")
         .head(top_n_race_occupations)[["Occupation"]]
-        .values.T[0]
+        .to_numpy()
+        .T[0]
         .tolist()
     )
     occupations_hispanic = (
         occupations_filtered.sort_values("hispanic")
         .head(top_n_race_occupations)[["Occupation"]]
-        .values.T[0]
+        .to_numpy()
+        .T[0]
         .tolist()
     )
 
@@ -150,7 +156,7 @@ def fetch_eds(
     return word_sets_dict
 
 
-def fetch_debiaswe() -> Dict[str, Union[List[str], list]]:
+def fetch_debiaswe() -> dict[str, Union[list[str], list]]:
     """Fetch the word sets used in the paper Man is to Computer Programmer as
     Woman is to Homemaker? from the source. It includes gender (male, female)
     terms and related word sets.
@@ -166,7 +172,8 @@ def fetch_debiaswe() -> Dict[str, Union[List[str], list]]:
     -------
     Dict[str, Union[List[str], list]]
         A dictionary in which each key correspond to the name of the set and
-        its values correspond to the word set.
+        its to_numpy() correspond to the word set.
+
     """  # noqa: D205
     DEBIAS_WE_BASE_URL = (
         "https://raw.githubusercontent.com/tolga-b/debiaswe/master/data/"
@@ -209,7 +216,7 @@ def fetch_debiaswe() -> Dict[str, Union[List[str], list]]:
     }
 
 
-def load_bingliu() -> Dict[str, List[str]]:
+def load_bingliu() -> dict[str, list[str]]:
     """Load the Bing-Liu sentiment lexicon.
 
     References
@@ -223,6 +230,7 @@ def load_bingliu() -> Dict[str, List[str]]:
     -------
     dict
         A dictionary with the positive and negative words.
+
     """
     # extract the file
     resource_package = __name__
@@ -249,7 +257,7 @@ def load_bingliu() -> Dict[str, List[str]]:
     }
 
 
-def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
+def fetch_debias_multiclass() -> dict[str, Union[list[str], list]]:
     """Fetch the word sets used in the paper Black Is To Criminals as Caucasian
        Is To Police: Detecting And Removing Multiclass Bias In Word Embeddings.
 
@@ -277,7 +285,8 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
     -------
     dict
         A dictionary in which each key correspond to the name of the set and
-        its values correspond to the word set.
+        its to_numpy() correspond to the word set.
+
     """  # noqa: D205, E501
     BASE_URL = (
         "https://raw.githubusercontent.com/TManzini/"
@@ -368,7 +377,7 @@ def fetch_debias_multiclass() -> Dict[str, Union[List[str], list]]:
     }
 
 
-def fetch_gn_glove() -> Dict[str, List[str]]:
+def fetch_gn_glove() -> dict[str, list[str]]:
     """Fetch the word sets used in the paper Learning Gender-Neutral Word Embeddings.
 
     This dataset contain two sets of 221 female and male related words.
@@ -383,6 +392,7 @@ def fetch_gn_glove() -> Dict[str, List[str]]:
     -------
     Dict[str, List[str]]
         A dictionary with male and female word sets.
+
     """
     BASE_URL = "https://raw.githubusercontent.com/uclanlp/gn_glove/master/wordlist/"
     FILES = [
@@ -405,7 +415,7 @@ def fetch_gn_glove() -> Dict[str, List[str]]:
     }
 
 
-def load_weat() -> Dict[str, List[str]]:
+def load_weat() -> dict[str, list[str]]:
     """Load the word sets used in the experiments of the
        _Semantics Derived Automatically From Language Corpora Contain Human-Like Biases_
        work.
@@ -427,6 +437,7 @@ def load_weat() -> Dict[str, List[str]]:
     -------
     word_sets_dict : dict
         A dictionary with the word sets.
+
     """  # noqa: D205
     resource_package = __name__
     resource_path = "/".join(("data", "WEAT.json"))

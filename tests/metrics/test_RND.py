@@ -1,5 +1,6 @@
-"""RND metric testing"""
-from typing import Any, Dict
+"""RND metric testing."""
+
+from typing import Any
 
 import numpy as np
 import pytest
@@ -9,7 +10,7 @@ from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-def check_RND_result_keys(results: Dict[str, Any]):
+def check_RND_result_keys(results: dict[str, Any]) -> None:
     assert list(results.keys()) == [
         "query_name",
         "result",
@@ -18,7 +19,7 @@ def check_RND_result_keys(results: Dict[str, Any]):
     ]
 
 
-def check_RND_result_values(results: Dict[str, Any]):
+def check_RND_result_values(results: dict[str, Any]) -> None:
     # note: this checking only applies when the result is not np.nan.
     assert isinstance(results["query_name"], str)
 
@@ -35,7 +36,9 @@ def check_RND_result_values(results: Dict[str, Any]):
         assert len(word) > 0
 
 
-def test_RND_with_euclidean_distance(model: WordEmbeddingModel, query_2t1a_1: Query):
+def test_RND_with_euclidean_distance(
+    model: WordEmbeddingModel, query_2t1a_1: Query
+) -> None:
     # note: the euclidean distance is the default distance.
     rnd = RND()
     result = rnd.run_query(query_2t1a_1, model)
@@ -45,7 +48,9 @@ def test_RND_with_euclidean_distance(model: WordEmbeddingModel, query_2t1a_1: Qu
     assert result["query_name"] == "Flowers and Insects wrt Pleasant"
 
 
-def test_RND_with_cosine_distance(model: WordEmbeddingModel, query_2t1a_1: Query):
+def test_RND_with_cosine_distance(
+    model: WordEmbeddingModel, query_2t1a_1: Query
+) -> None:
     rnd = RND()
     result = rnd.run_query(query_2t1a_1, model, distance="cos")
 
@@ -56,7 +61,7 @@ def test_RND_with_cosine_distance(model: WordEmbeddingModel, query_2t1a_1: Query
 
 def test_RND_wrong_distance_type_parameter(
     model: WordEmbeddingModel, query_2t1a_1: Query
-):
+) -> None:
     rnd = RND()
 
     with pytest.raises(
@@ -67,7 +72,7 @@ def test_RND_wrong_distance_type_parameter(
 
 def test_RND_lost_vocabulary_threshold(
     model: WordEmbeddingModel, query_2t1a_lost_vocab_1: Query
-):
+) -> None:
     rnd = RND()
 
     result = rnd.run_query(

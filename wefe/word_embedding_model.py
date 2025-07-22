@@ -1,5 +1,7 @@
 """A Word Embedding contanier based on gensim BaseKeyedVectors."""
-from typing import Any, Dict, Sequence, Union
+
+from collections.abc import Sequence
+from typing import Any, Union
 
 import gensim
 import numpy as np
@@ -12,8 +14,8 @@ else:
     from gensim.models.keyedvectors import BaseKeyedVectors
 
 
-EmbeddingDict = Dict[str, np.ndarray]
-EmbeddingSets = Dict[str, EmbeddingDict]
+EmbeddingDict = dict[str, np.ndarray]
+EmbeddingSets = dict[str, EmbeddingDict]
 
 
 class WordEmbeddingModel:
@@ -83,16 +85,15 @@ class WordEmbeddingModel:
         # Type checking
         if not isinstance(wv, BaseKeyedVectors):
             raise TypeError(
-                "wv should be an instance of gensim's BaseKeyedVectors"
-                ", got {}.".format(wv)
+                f"wv should be an instance of gensim's BaseKeyedVectors, got {wv}."
             )
 
         if not isinstance(name, (str, type(None))):
-            raise TypeError("name should be a string or None, got {}.".format(name))
+            raise TypeError(f"name should be a string or None, got {name}.")
 
         if not isinstance(vocab_prefix, (str, type(None))):
             raise TypeError(
-                "vocab_prefix should be a string or None, got {}".format(vocab_prefix)
+                f"vocab_prefix should be a string or None, got {vocab_prefix}"
             )
 
         # Assign the attributes
@@ -123,6 +124,7 @@ class WordEmbeddingModel:
         bool
             True if other is a WordEmbeddingModel that have the same model, model_name
             and vocab_prefix . False in any other case
+
         """
         if not isinstance(other, WordEmbeddingModel):
             return False
@@ -130,9 +132,7 @@ class WordEmbeddingModel:
             return False
         if self.name != other.name:
             return False
-        if self.vocab_prefix != other.vocab_prefix:
-            return False
-        return True
+        return self.vocab_prefix == other.vocab_prefix
 
     def __getitem__(self, key: str) -> Union[np.ndarray, None]:
         """Given a word, returns its associated embedding or none if it does not exist.
@@ -147,6 +147,7 @@ class WordEmbeddingModel:
         Union[np.ndarray, None]
             The embedding associated with the word or none if none if the word does not
             exist in the model.
+
         """
         if key in self.vocab:
             return self.wv[key]
@@ -165,6 +166,7 @@ class WordEmbeddingModel:
         -------
         bool
             True if the word exists in the model's vocabulary.
+
         """
         return key in self.vocab
 
@@ -179,6 +181,7 @@ class WordEmbeddingModel:
         -------
         str
             The generated representation.
+
         """
         try:
             if self.name == "Unnamed model" and self.vocab_prefix is not None:
@@ -255,6 +258,7 @@ class WordEmbeddingModel:
         ValueError
             if the dtype of the embedding values is not the same as the model's
             embeddings.
+
         """
         if not isinstance(word, str):
             raise TypeError(
@@ -266,8 +270,7 @@ class WordEmbeddingModel:
 
         if not isinstance(embedding, np.ndarray):
             raise TypeError(
-                f"'{word}' new embedding should be a np.array,"
-                f" got {type(embedding)}."
+                f"'{word}' new embedding should be a np.array, got {type(embedding)}."
             )
 
         embedding_size = embedding.shape[0]
@@ -322,6 +325,7 @@ class WordEmbeddingModel:
             if embeddings is not an np.ndarray
         Exception
             if words collection has not the same size of the embedding array.
+
         """
         if not isinstance(words, (list, tuple, np.ndarray)):
             raise TypeError(

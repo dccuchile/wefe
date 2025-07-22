@@ -1,6 +1,7 @@
 """Relative Negative Sentiment Bias (RNSB) metric implementation."""
+
 import logging
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Union
 
 import numpy as np
 import pandas as pd
@@ -90,13 +91,13 @@ class RNSB(BaseMetric):
 
     def _train_classifier(
         self,
-        attribute_embeddings_dict: List[Dict[str, np.ndarray]],
+        attribute_embeddings_dict: list[dict[str, np.ndarray]],
         estimator: BaseEstimator,
-        estimator_params: Dict[str, Any],
+        estimator_params: dict[str, Any],
         random_state: Union[int, None],
         holdout: bool,
         print_model_evaluation: bool,
-    ) -> Tuple[BaseEstimator, float]:
+    ) -> tuple[BaseEstimator, float]:
         """Train the sentiment classifier from the provided attribute embeddings.
 
         Parameters
@@ -133,6 +134,7 @@ class RNSB(BaseMetric):
         -------
         Tuple[BaseEstimator, float]
             The trained classifier and the accuracy obtained by the model.
+
         """
         # when random_state is not none, set it on classifier params.
         if random_state is not None:
@@ -163,8 +165,8 @@ class RNSB(BaseMetric):
             )
             X_embeddings_train, X_embeddings_test, y_train, y_test = split
 
-            num_train_negative_examples = np.count_nonzero((y_train == -1))
-            num_train_positive_examples = np.count_nonzero((y_train == 1))
+            num_train_negative_examples = np.count_nonzero(y_train == -1)
+            num_train_positive_examples = np.count_nonzero(y_train == 1)
 
             # Check the number of train and test examples.
             if num_train_positive_examples == 1:
@@ -189,11 +191,10 @@ class RNSB(BaseMetric):
             score = estimator.score(X_embeddings_test, y_test)
 
             if print_model_evaluation:
-                print(
-                    "Classification Report:\n{}".format(
-                        classification_report(y_test, y_pred, labels=estimator.classes_)
-                    )
+                report = classification_report(
+                    y_test, y_pred, labels=estimator.classes_
                 )
+                print(f"Classification Report:\n{report}")
         else:
             estimator = estimator(**estimator_params)
             estimator.fit(attributes_embeddings, attributes_labels)
@@ -205,9 +206,9 @@ class RNSB(BaseMetric):
 
     def _calc_rnsb(
         self,
-        target_embeddings_dict: List[Dict[str, np.ndarray]],
+        target_embeddings_dict: list[dict[str, np.ndarray]],
         classifier: BaseEstimator,
-    ) -> Tuple[np.float_, dict]:
+    ) -> tuple[np.float64, dict]:
         """Calculate the RNSB metric.
 
         Parameters
@@ -222,6 +223,7 @@ class RNSB(BaseMetric):
         Tuple[np.float_, dict]
             return the calculated kl_divergence and
             negative_sentiment_probabilities in that order.
+
         """
         # join the embeddings and the word sets in their respective arrays
         target_embeddings_sets = [
@@ -267,10 +269,9 @@ class RNSB(BaseMetric):
         ]
 
         # set the probabilities for each word in a dict.
-        negative_sentiment_probabilities = {
-            word: prob
-            for word, prob in zip(flatten_target_words, negative_probabilities)
-        }
+        negative_sentiment_probabilities = dict(
+            zip(flatten_target_words, negative_probabilities)
+        )
 
         return kl_divergence, negative_sentiment_probabilities
 
@@ -279,19 +280,19 @@ class RNSB(BaseMetric):
         query: Query,
         model: WordEmbeddingModel,
         estimator: BaseEstimator = LogisticRegression,
-        estimator_params: Dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},
+        estimator_params: dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},
         n_iterations: int = 1,
         random_state: Union[int, None] = None,
         holdout: bool = True,
         print_model_evaluation: bool = False,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
         *args: Any,
-        **kwargs: Any
-    ) -> Dict[str, Any]:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Calculate the RNSB metric over the provided parameters.
 
         Note if you want to use with Bing Liu dataset, you have to pass
@@ -836,7 +837,6 @@ class RNSB(BaseMetric):
         # calculate the scores for each iteration
         for i in range(n_iterations):
             try:
-
                 if print_model_evaluation and (i > 0 and i < 2):
                     print(
                         "When n_iterations > 1, only the first evaluation is printed."

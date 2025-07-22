@@ -1,5 +1,4 @@
 """Multiclass Hard Debias (MHD) test sets."""
-from typing import Dict, List
 
 import numpy as np
 import pytest
@@ -12,9 +11,8 @@ from wefe.word_embedding_model import WordEmbeddingModel
 
 def test_multiclass_hard_debias_param_checks(
     model: WordEmbeddingModel,
-    definitional_pairs: List[List[str]],
-):
-
+    definitional_pairs: list[list[str]],
+) -> None:
     with pytest.raises(
         ValueError,
         match=(
@@ -47,9 +45,9 @@ def test_multiclass_hard_debias_with_gender(
     gender_query_1: Query,
     gender_query_2: Query,
     gender_query_3: Query,
-    mhd_gender_definitional_sets: List[List[str]],
-    mhd_gender_equalize_sets: List[List[str]],
-):
+    mhd_gender_definitional_sets: list[list[str]],
+    mhd_gender_equalize_sets: list[list[str]],
+) -> None:
     weat = WEAT()
 
     # note that the original paper applies the debias over all words
@@ -89,9 +87,9 @@ def test_multiclass_hard_debias_with_gender(
 def test_multiclass_hard_debias_with_ethnicity(
     model: WordEmbeddingModel,
     ethnicity_query_1: Query,
-    mhd_ethnicity_definitional_sets: List[List[str]],
-    mhd_ethnicity_equalize_sets: List[List[str]],
-):
+    mhd_ethnicity_definitional_sets: list[list[str]],
+    mhd_ethnicity_equalize_sets: list[list[str]],
+) -> None:
     weat = WEAT()
 
     mhd = MulticlassHardDebias(verbose=True, criterion_name="ethnicity")
@@ -119,10 +117,10 @@ def test_multiclass_hard_debias_target_param(
     gender_query_1: Query,
     gender_query_2: Query,
     control_query_1: Query,
-    mhd_gender_definitional_sets: List[List[str]],
-    mhd_gender_equalize_sets: List[List[str]],
-    weat_wordsets: Dict[str, List[str]],
-):
+    mhd_gender_definitional_sets: list[list[str]],
+    mhd_gender_equalize_sets: list[list[str]],
+    weat_wordsets: dict[str, list[str]],
+) -> None:
     weat = WEAT()
     # -----------------------------------------------------------------
     # Test target param
@@ -177,10 +175,10 @@ def test_multiclass_hard_debias_ignore_param(
     gender_query_1: Query,
     gender_query_2: Query,
     control_query_1: Query,
-    mhd_gender_definitional_sets: List[List[str]],
-    mhd_gender_equalize_sets: List[List[str]],
-    weat_wordsets: Dict[str, List[str]],
-):
+    mhd_gender_definitional_sets: list[list[str]],
+    mhd_gender_equalize_sets: list[list[str]],
+    weat_wordsets: dict[str, list[str]],
+) -> None:
     weat = WEAT()
     # -----------------------------------------------------------------
     # Test ignore param
@@ -220,9 +218,9 @@ def test_multiclass_hard_debias_copy_param(
     model: WordEmbeddingModel,
     gender_query_1: Query,
     gender_query_2: Query,
-    mhd_gender_definitional_sets: List[List[str]],
-    mhd_gender_equalize_sets: List[List[str]],
-):
+    mhd_gender_definitional_sets: list[list[str]],
+    mhd_gender_equalize_sets: list[list[str]],
+) -> None:
     weat = WEAT()
     # Since we will mutate the original model in the test, we calculate WEAT scores
     # before debiasing with the original model.

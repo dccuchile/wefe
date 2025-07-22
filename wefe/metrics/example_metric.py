@@ -1,6 +1,6 @@
 """An example of how to implement metrics in WEFE."""
 
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Union
 
 import numpy as np
 from scipy.spatial import distance
@@ -24,8 +24,8 @@ class ExampleMetric(BaseMetric):
 
     def _calc_metric(
         self,
-        target_embeddings: List[EmbeddingDict],
-        attribute_embeddings: List[EmbeddingDict],
+        target_embeddings: list[EmbeddingDict],
+        attribute_embeddings: list[EmbeddingDict],
     ) -> float:
         """Calculate the metric.
 
@@ -44,6 +44,7 @@ class ExampleMetric(BaseMetric):
         -------
         np.float
             The value of the calculated metric.
+
         """
         # get the embeddings from the dicts
         target_embeddings_0 = np.array(list(target_embeddings[0].values()))
@@ -74,13 +75,13 @@ class ExampleMetric(BaseMetric):
         # any parameter that you need
         # ...,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
         *args: Any,
-        **kwargs: Any
-    ) -> Dict[str, Any]:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Calculate the Example Metric metric over the provided parameters.
 
         Parameters
@@ -148,6 +149,7 @@ class ExampleMetric(BaseMetric):
         Dict[str, Any]
             A dictionary with the query name, the resulting score of the metric,
             and other scores.
+
         """
         # check the types of the provided arguments (only the defaults).
         self._check_input(query, model, kwargs)

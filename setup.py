@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-"""The Word Embeddings Fairness Evaluation Framework"""
+"""The Word Embeddings Fairness Evaluation Framework."""
 
 import codecs
 

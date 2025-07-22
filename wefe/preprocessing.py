@@ -1,6 +1,8 @@
 """Module with utilities that ease the transformation of word sets to embeddings."""
+
 import logging
-from typing import Callable, Dict, List, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
+from typing import Callable, Optional, Union
 
 import numpy as np
 from sklearn.feature_extraction.text import strip_accents_ascii, strip_accents_unicode
@@ -8,13 +10,13 @@ from sklearn.feature_extraction.text import strip_accents_ascii, strip_accents_u
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
-EmbeddingDict = Dict[str, np.ndarray]
-EmbeddingSets = Dict[str, EmbeddingDict]
+EmbeddingDict = dict[str, np.ndarray]
+EmbeddingSets = dict[str, EmbeddingDict]
 
 
 def preprocess_word(
     word: str,
-    options: Dict[str, Union[str, bool, Callable]] = {},
+    options: dict[str, Union[str, bool, Callable]] = {},
     vocab_prefix: Optional[str] = None,
 ) -> str:
     """pre-processes a word before it is searched in the model's vocabulary.
@@ -48,8 +50,9 @@ def preprocess_word(
     -------
     str
         The pre-processed word according to the given parameters.
+
     """
-    preprocessor = options.get("preprocessor", None)
+    preprocessor = options.get("preprocessor")
 
     # if the preprocessor is specified, it takes precedence over all other operations.
     if preprocessor is not None and callable(preprocessor):
@@ -84,11 +87,11 @@ def preprocess_word(
 def get_embeddings_from_set(
     model: WordEmbeddingModel,
     word_set: Sequence[str],
-    preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+    preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
     strategy: str = "first",
     normalize: bool = False,
     verbose: bool = False,
-) -> Tuple[List[str], Dict[str, np.ndarray]]:
+) -> tuple[list[str], dict[str, np.ndarray]]:
     """Transform a sequence of words into dictionary that maps word - word embedding.
 
     The method discard out words that are not in the model's vocabulary
@@ -155,6 +158,7 @@ def get_embeddings_from_set(
     Tuple[List[str], Dict[str, np.ndarray]]
         A tuple containing the words that could not be found and a dictionary with
         the found words and their corresponding embeddings.
+
     """
     # ----------------------------------------------------------------------------------
     # type verifications.
@@ -164,8 +168,7 @@ def get_embeddings_from_set(
 
     if not isinstance(word_set, (list, tuple, np.ndarray)):
         raise TypeError(
-            "word_set should be a list, tuple or np.array of strings"
-            f", got {word_set}."
+            f"word_set should be a list, tuple or np.array of strings, got {word_set}."
         )
 
     if not isinstance(preprocessors, list):
@@ -195,7 +198,6 @@ def get_embeddings_from_set(
     not_found_words = []
 
     for word in word_set:
-
         for preprocessor in preprocessors:
             preprocessed_word = preprocess_word(
                 word, options=preprocessor, vocab_prefix=model.vocab_prefix
@@ -229,39 +231,33 @@ def get_embeddings_from_set(
 
 def _warn_not_found_words(
     warn_not_found_words: bool,
-    not_found_words: List[str],
+    not_found_words: list[str],
     model_name: str,
     set_name: str,
 ) -> None:
-
     if not isinstance(warn_not_found_words, bool):
         raise TypeError(
-            "warn_not_found_words should be a boolean, got {}.".format(
-                warn_not_found_words
-            )
+            f"warn_not_found_words should be a boolean, got {warn_not_found_words}."
         )
 
-    if warn_not_found_words:
-
-        if len(not_found_words) > 0:
-            logging.warning(
-                "The following words from set '{}' do not exist within the vocabulary "
-                "of {}: {}".format(set_name, model_name, not_found_words)
-            )
+    if warn_not_found_words and len(not_found_words) > 0:
+        logging.warning(
+            f"The following words from set '{set_name}' do not exist within the "
+            f"vocabulary of {model_name}: {not_found_words}"
+        )
 
 
 def _check_lost_vocabulary_threshold(
     model: WordEmbeddingModel,
     embeddings: EmbeddingDict,
-    word_set: List[str],
+    word_set: list[str],
     word_set_name: str,
     lost_vocabulary_threshold: float,
 ) -> None:
-
     if not isinstance(lost_vocabulary_threshold, (float, np.floating)):
         raise TypeError(
             "lost_vocabulary_threshold should be float, "
-            "got {}.".format(lost_vocabulary_threshold)
+            f"got {lost_vocabulary_threshold}."
         )
 
     remaining_words = list(embeddings.keys())
@@ -272,14 +268,10 @@ def _check_lost_vocabulary_threshold(
     # threshold, log and return False
     if percentage_of_lost_words > lost_vocabulary_threshold:
         logging.warning(
-            "The transformation of '{}' into {} embeddings lost proportionally more "
-            "words than specified in 'lost_words_threshold': {} lost with respect "
-            "to {} maximum loss allowed.".format(
-                word_set_name,
-                model.name,
-                round(percentage_of_lost_words, 2),
-                lost_vocabulary_threshold,
-            )
+            f"The transformation of '{word_set_name}' into {model.name} embeddings "
+            f"lost proportionally more words than specified in 'lost_words_threshold': "
+            f"{round(percentage_of_lost_words, 2)} lost with respect to "
+            f"{lost_vocabulary_threshold} maximum loss allowed."
         )
         return True
     return False
@@ -289,13 +281,13 @@ def get_embeddings_from_tuples(
     model: WordEmbeddingModel,
     sets: Sequence[Sequence[str]],
     sets_name: Union[str, None] = None,
-    preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+    preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
     strategy: str = "first",
     normalize: bool = False,
     discard_incomplete_sets: bool = True,
     warn_lost_sets: bool = True,
     verbose: bool = False,
-) -> List[EmbeddingDict]:
+) -> list[EmbeddingDict]:
     """Given a sequence of word sets, obtain their corresponding embeddings.
 
     Parameters
@@ -372,6 +364,7 @@ def get_embeddings_from_tuples(
     List[EmbeddingDict]
         A list of dictionaries. Each dictionary contains as keys a pair of words
         and as values their associated embeddings.
+
     """
     if not isinstance(sets, (list, tuple, np.ndarray)):
         raise TypeError(
@@ -400,11 +393,10 @@ def get_embeddings_from_tuples(
     if not isinstance(verbose, bool):
         raise TypeError(f"verbose should be a bool, got: {type(verbose)}")
 
-    embedding_sets: List[EmbeddingDict] = []
+    embedding_sets: list[EmbeddingDict] = []
 
     # For each definitional pair:
     for set_idx, set_ in enumerate(sets):
-
         # Transform the pair to a embedding dict.
         # idea: (word_1, word_2) -> {'word_1': embedding, 'word_2'.: embedding}
         # TODO: Add identifier of the set that is being transformed.
@@ -423,7 +415,6 @@ def get_embeddings_from_tuples(
             )
         else:
             if normalize:
-
                 for word in embedding_pair:
                     embedding = embedding_pair[word]
                     normalized_embedding = embedding / np.linalg.norm(embedding)
@@ -454,12 +445,12 @@ def get_embeddings_from_query(
     model: WordEmbeddingModel,
     query: Query,
     lost_vocabulary_threshold: float = 0.2,
-    preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+    preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
     strategy: str = "first",
     normalize: bool = False,
     warn_not_found_words: bool = False,
     verbose: bool = False,
-) -> Union[Tuple[EmbeddingSets, EmbeddingSets], None]:
+) -> Union[tuple[EmbeddingSets, EmbeddingSets], None]:
     """Obtain the word vectors associated with the provided Query.
 
     The words that does not appears in the word embedding pretrained model
@@ -537,10 +528,11 @@ def get_embeddings_from_query(
         A tuple of dictionaries containing the targets and attribute sets or None
         in case there is a set that has proportionally less embeddings than it was
         allowed to lose.
+
     """
     # Type check
     if not isinstance(query, Query):
-        raise TypeError("query should be an instance of Query, got {}.".format(query))
+        raise TypeError(f"query should be an instance of Query, got {query}.")
 
     some_set_lost_more_words_than_threshold: bool = False
 
@@ -582,7 +574,6 @@ def get_embeddings_from_query(
     for attribute_set, attribute_set_name in zip(
         query.attribute_sets, query.attribute_sets_names
     ):
-
         not_found_words, obtained_embeddings = get_embeddings_from_set(
             model=model,
             word_set=attribute_set,
@@ -613,11 +604,9 @@ def get_embeddings_from_query(
     #  the case, return None
     if some_set_lost_more_words_than_threshold:
         logging.error(
-            "At least one set of '{}' query has proportionally fewer embeddings "
-            "than allowed by the lost_vocabulary_threshold parameter ({}). "
-            "This query will return np.nan.".format(
-                query.query_name, lost_vocabulary_threshold
-            )
+            f"At least one set of '{query.query_name}' query has proportionally fewer "
+            f"embeddings than allowed by the lost_vocabulary_threshold parameter "
+            f"({lost_vocabulary_threshold}). This query will return np.nan."
         )
         return None
 

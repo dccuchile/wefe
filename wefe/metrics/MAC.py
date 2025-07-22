@@ -1,5 +1,6 @@
 """Mean Average Cosine Similarity (MAC) implementation."""
-from typing import Any, Callable, Dict, List, Tuple, Union
+
+from typing import Any, Callable, Union
 
 import numpy as np
 from scipy.spatial import distance
@@ -63,17 +64,17 @@ class MAC(BaseMetric):
         float
             The mean cosine similarity between the target embedding and the attribute
             set calculated.
+
         """
         return np.mean([distance.cosine(t, a_i) for a_i in A_j])
 
     def _calc_mac(
         self,
-        T: Dict[str, Dict[str, np.ndarray]],
-        A: Dict[str, Dict[str, np.ndarray]],
-    ) -> Tuple[np.number, Dict[str, Dict[str, Dict[str, np.number]]]]:
-
+        T: dict[str, dict[str, np.ndarray]],
+        A: dict[str, dict[str, np.ndarray]],
+    ) -> tuple[np.number, dict[str, dict[str, dict[str, np.number]]]]:
         # dict that will store the s scores by target word and attribute set.
-        targets_eval: Dict[str, Dict[str, Dict[str, np.number]]] = {}
+        targets_eval: dict[str, dict[str, dict[str, np.number]]] = {}
         # list that will store the s scores
         targets_eval_scores = []
 
@@ -105,13 +106,13 @@ class MAC(BaseMetric):
         query: Query,
         model: WordEmbeddingModel,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
         *args: Any,
-        **kwargs: Any
-    ) -> Dict[str, Any]:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Calculate the MAC metric over the provided parameters.
 
         Parameters
@@ -444,6 +445,7 @@ class MAC(BaseMetric):
                 },
             },
         }
+
         """  # noqa: E501
         # check the types of the provided arguments (only the defaults).
         self._check_input(query, model, locals())

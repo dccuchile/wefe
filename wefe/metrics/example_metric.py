@@ -1,6 +1,6 @@
 """An example of how to implement metrics in WEFE."""
 
-from typing import Any, Callable, Union
+from typing import Any, Callable
 
 import numpy as np
 from scipy.spatial import distance
@@ -75,7 +75,7 @@ class ExampleMetric(BaseMetric):
         # any parameter that you need
         # ...,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, str | bool | Callable]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
@@ -99,7 +99,7 @@ class ExampleMetric(BaseMetric):
             In the case that any set of the query loses proportionally more words
             than this limit, the result values will be np.nan, by default 0.2
 
-        preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+        preprocessors : list[dict[str, str | bool | Callable]]
             A list with preprocessor options.
 
             A dictionary of preprocessing options is a dictionary that specifies what

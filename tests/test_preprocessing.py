@@ -233,7 +233,7 @@ def test_get_embeddings_from_set_with_oov(model: WordEmbeddingModel) -> None:
     assert len(not_found_words) == 1
 
     assert list(embeddings.keys()) == ["man", "woman"]
-    assert ["not_a_word_"] == not_found_words
+    assert not_found_words == ["not_a_word_"]
 
     assert np.array_equal(model["man"], embeddings["man"])
     assert np.array_equal(model["woman"], embeddings["woman"])
@@ -328,7 +328,7 @@ def test_get_embeddings_from_set_prep_strategy_all(model: WordEmbeddingModel) ->
     assert list(embeddings.keys()) == ["man", "MAN", "Man", "woman", "WOMAN", "Woman"]
     assert not_found_words == ["WoMan"]
 
-    assert [np.array_equal(model[k], embeddings[k]) for k in embeddings.keys()]
+    assert [np.array_equal(model[k], embeddings[k]) for k in embeddings]
 
 
 def test_get_embeddings_from_set_with_normalization(model: WordEmbeddingModel) -> None:

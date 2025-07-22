@@ -52,7 +52,7 @@ def preprocess_word(
         The pre-processed word according to the given parameters.
 
     """
-    preprocessor = options.get("preprocessor", None)
+    preprocessor = options.get("preprocessor")
 
     # if the preprocessor is specified, it takes precedence over all other operations.
     if preprocessor is not None and callable(preprocessor):
@@ -87,7 +87,7 @@ def preprocess_word(
 def get_embeddings_from_set(
     model: WordEmbeddingModel,
     word_set: Sequence[str],
-    preprocessors: list[dict[str, Union[str, bool, Callable]]],
+    preprocessors: list[dict[str, str | bool | Callable]],
     strategy: str = "first",
     normalize: bool = False,
     verbose: bool = False,
@@ -106,7 +106,7 @@ def get_embeddings_from_set(
     word_set : Sequence[str]
         A sequence with the words that this function will convert to embeddings.
 
-    preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+    preprocessors : list[dict[str, str | bool | Callable]]
         A list with preprocessor options.
 
         A ``preprocessor`` is a dictionary that specifies what processing(s) are
@@ -243,12 +243,11 @@ def _warn_not_found_words(
             f"warn_not_found_words should be a boolean, got {warn_not_found_words}."
         )
 
-    if warn_not_found_words:
-        if len(not_found_words) > 0:
-            logging.warning(
-                f"The following words from set '{set_name}' do not exist within the "
-                f"vocabulary of {model_name}: {not_found_words}"
-            )
+    if warn_not_found_words and len(not_found_words) > 0:
+        logging.warning(
+            f"The following words from set '{set_name}' do not exist within the "
+            f"vocabulary of {model_name}: {not_found_words}"
+        )
 
 
 def _check_lost_vocabulary_threshold(
@@ -257,7 +256,7 @@ def _check_lost_vocabulary_threshold(
     word_set: list[str],
     word_set_name: str,
     lost_vocabulary_threshold: float,
-) -> None:
+) -> bool:
     if not isinstance(lost_vocabulary_threshold, (float, np.floating)):
         raise TypeError(
             "lost_vocabulary_threshold should be float, "
@@ -284,8 +283,8 @@ def _check_lost_vocabulary_threshold(
 def get_embeddings_from_tuples(
     model: WordEmbeddingModel,
     sets: Sequence[Sequence[str]],
+    preprocessors: list[dict[str, str | bool | Callable]],
     sets_name: Union[str, None] = None,
-    preprocessors: list[dict[str, Union[str, bool, Callable]]] | None = None,
     strategy: str = "first",
     normalize: bool = False,
     discard_incomplete_sets: bool = True,
@@ -307,7 +306,7 @@ def get_embeddings_from_tuples(
         This parameter is used only for printing.
         by default None
 
-    preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+    preprocessors : list[dict[str, str | bool | Callable]]
         A list with preprocessor options.
 
         A ``preprocessor`` is a dictionary that specifies what processing(s) are
@@ -448,8 +447,8 @@ def get_embeddings_from_tuples(
 def get_embeddings_from_query(
     model: WordEmbeddingModel,
     query: Query,
-    lost_vocabulary_threshold: float = 0.2,
-    preprocessors: list[dict[str, Union[str, bool, Callable]]] | None = None,
+    lost_vocabulary_threshold: float,
+    preprocessors: list[dict[str, str | bool | Callable]],
     strategy: str = "first",
     normalize: bool = False,
     warn_not_found_words: bool = False,
@@ -474,7 +473,7 @@ def get_embeddings_from_query(
         In the case that any set of the query loses proportionally more words
         than this limit, this method will return None.
 
-    preprocessors : List[Dict[str, Union[str, bool, Callable]]] | None
+    preprocessors : list[dict[str, str | bool | Callable]]
         A list with preprocessor options.
 
         A ``preprocessor`` is a dictionary that specifies what processing(s) are

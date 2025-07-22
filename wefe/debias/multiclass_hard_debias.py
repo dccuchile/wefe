@@ -107,10 +107,7 @@ class MulticlassHardDebias(BaseDebias):
         self.pca_args = pca_args
         self.verbose = verbose
 
-        if "n_components" in pca_args:
-            self.pca_num_components_ = pca_args["n_components"]
-        else:
-            self.pca_num_components_ = 10
+        self.pca_num_components_ = pca_args.get("n_components", 10)
 
         if criterion_name is None or isinstance(criterion_name, str):
             self.criterion_name_ = criterion_name
@@ -163,15 +160,9 @@ class MulticlassHardDebias(BaseDebias):
         target: Optional[list[str]],
         ignore: Optional[list[str]],
     ) -> None:
-        if target is not None:
-            target_ = set(target)
-        else:
-            target_ = set(model.vocab.keys())
+        target_ = set(target) if target is not None else set(model.vocab.keys())
 
-        if ignore is not None and target is None:
-            ignore_ = set(ignore)
-        else:
-            ignore_ = set()
+        ignore_ = set(ignore) if ignore is not None and target is None else set()
 
         # filtering the defitional sets in order to ignore these words in the
         # neutralization.

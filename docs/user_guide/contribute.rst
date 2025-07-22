@@ -277,7 +277,7 @@ Using the steps previously seen, a sample metric is implemented:
             query: Query,
             model: WordEmbeddingModel,
             lost_vocabulary_threshold: float = 0.2,
-            preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+            preprocessors: list[dict[str, str | bool | Callable]] = [{}],
             strategy: str = "first",
             normalize: bool = False,
             warn_not_found_words: bool = False,
@@ -302,7 +302,7 @@ Using the steps previously seen, a sample metric is implemented:
                 In the case that any set of the query loses proportionally more words
                 than this limit, the result values will be np.nan, by default 0.2
 
-            preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+            preprocessors : list[dict[str, str | bool | Callable]]
                 A list with preprocessor options.
 
                 A ``preprocessor`` is a dictionary that specifies what processing(s) are
@@ -495,7 +495,7 @@ the above.
             query: Query,
             model: WordEmbeddingModel,
             lost_vocabulary_threshold: float = 0.2,
-            preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+            preprocessors: list[dict[str, str | bool | Callable]] = [{}],
             strategy: str = "first",
             normalize: bool = False,
             warn_not_found_words: bool = False,
@@ -520,7 +520,7 @@ the above.
                 In the case that any set of the query loses proportionally more words
                 than this limit, the result values will be np.nan, by default 0.2
 
-            preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+            preprocessors : list[dict[str, str | bool | Callable]]
                 A list with preprocessor options.
 
                 A ``preprocessor`` is a dictionary that specifies what processing(s) are

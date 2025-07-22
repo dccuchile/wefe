@@ -1,4 +1,4 @@
-"""RND metric testing"""
+"""RND metric testing."""
 
 from typing import Any
 

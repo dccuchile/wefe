@@ -347,10 +347,7 @@ def plot_queries_results(results: pd.DataFrame, by: str = "query") -> go.Figure:
 
     results_copy = results.copy(deep=True)
 
-    if by == "model":
-        results_copy = results_copy
-    else:
-        results_copy = results_copy.T
+    results_copy = results_copy if by == "model" else results_copy.T
 
     results_copy["query_name"] = results_copy.index
 

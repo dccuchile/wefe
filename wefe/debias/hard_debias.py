@@ -246,15 +246,9 @@ class HardDebias(BaseDebias):
         target: Optional[list[str]],
         ignore: Optional[list[str]],
     ) -> None:
-        if target is not None:
-            target_ = set(target)
-        else:
-            target_ = set(model.vocab.keys())
+        target_ = set(target) if target is not None else set(model.vocab.keys())
 
-        if ignore is not None and target is None:
-            ignore_ = set(ignore)
-        else:
-            ignore_ = set()
+        ignore_ = set(ignore) if ignore is not None and target is None else set()
 
         for word in tqdm(target_):
             if word not in ignore_ and word in model.vocab:

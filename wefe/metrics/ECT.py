@@ -1,6 +1,6 @@
 """Embedding Coherence Test metric implementation."""
 
-from typing import Any, Callable, Union
+from typing import Any, Callable
 
 import numpy as np
 from scipy.spatial.distance import cosine
@@ -52,7 +52,7 @@ class ECT(BaseMetric):
         query: Query,
         model: WordEmbeddingModel,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, str | bool | Callable]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
@@ -70,7 +70,7 @@ class ECT(BaseMetric):
         model : WordEmbeddingModel
             A word embedding model.
 
-        preprocessors : List[Dict[str, Union[str, bool, Callable]]]
+        preprocessors : list[dict[str, str | bool | Callable]]
             A list with preprocessor options.
 
             A ``preprocessor`` is a dictionary that specifies what processing(s) are

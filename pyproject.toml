@@ -28,20 +28,23 @@ indent-width = 4
 [tool.ruff.lint]
 
 select = [
-    "E",   # pycodestyle errors
     "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "E",   # pycodestyle errors
     "I",   # isort
-    "YTT", # flake8-type-checking
-    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
     "C4",  # flake8-comprehensions
-    "T10", # flake8-debugger
     "ISC", # flake8-implicit-str-concat
+    "ICN", # flake8-import-conventions
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "YTT", # flake8-2020
+    "B",   # flake8-bugbear
+    "T10", # flake8-debugger
     "PT",  # flake8-pytest-style
     "Q",   # flake8-quotes
-    "TID", # flake8-tidy-imports
     "NPY", # numpy-specific rules
     "PD",  # pandas-vet
-    "UP",  # flake8-unused-parameter
 ]
 
 ignore = ["B006"]

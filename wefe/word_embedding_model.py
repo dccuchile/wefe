@@ -124,9 +124,7 @@ class WordEmbeddingModel:
             return False
         if self.name != other.name:
             return False
-        if self.vocab_prefix != other.vocab_prefix:
-            return False
-        return True
+        return self.vocab_prefix == other.vocab_prefix
 
     def __len__(self) -> int:
         """Return the number of words in the vocabulary."""
@@ -382,6 +380,7 @@ class WordEmbeddingModel:
         ... except ValueError as e:
         ...     print(e)
         The following words are not in the model's vocabulary: nonexistent_word.
+
         """
         # Initial type and length validation for the input containers
         if not isinstance(words, (list, tuple, np.ndarray)):

@@ -2,7 +2,7 @@
 
 import logging
 from collections.abc import Sequence
-from typing import Callable, Optional, Union
+from typing import Callable, Literal, Optional, Union
 
 import numpy as np
 from sklearn.feature_extraction.text import strip_accents_ascii, strip_accents_unicode
@@ -25,7 +25,7 @@ def preprocess_word(
     ----------
     word : str
         Word to be preprocessed.
-    options : Dict[str, Union[str, bool, Callable]], optional
+    options : Dict[str, Union[str, bool, Callable]]
         Dictionary with arguments that specifies how the words will be preprocessed,
         The available word preprocessing options are as follows:
 
@@ -88,7 +88,7 @@ def get_embeddings_from_set(
     model: WordEmbeddingModel,
     word_set: Sequence[str],
     preprocessors: list[dict[str, str | bool | Callable]],
-    strategy: str = "first",
+    strategy: Literal["first", "all"] = "first",
     normalize: bool = False,
     verbose: bool = False,
 ) -> tuple[list[str], dict[str, np.ndarray]]:
@@ -141,7 +141,7 @@ def get_embeddings_from_set(
         and then they are searched in the model vocabulary.
         by default [{}]
 
-    strategy : str, optional
+    strategy : Literal["first", "all"]
         The strategy indicates how it will use the preprocessed words: 'first' will
         include only the first transformed word found. 'all' will include all
         transformed words found, by default "first".
@@ -369,6 +369,11 @@ def get_embeddings_from_tuples(
         and as values their associated embeddings.
 
     """
+    if not isinstance(model, WordEmbeddingModel):
+        raise TypeError(
+            f"model should be a WordEmbeddingModel instance, got {type(model)}."
+        )
+
     if not isinstance(sets, (list, tuple, np.ndarray)):
         raise TypeError(
             "sets should be a sequence of sequences (list, tuple or np.array) "

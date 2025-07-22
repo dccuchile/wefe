@@ -102,54 +102,49 @@ def query_2t2a_uppercase(weat_wordsets: dict[str, list[str]]) -> Query:
 # --------------------------------------------------------------------------------------
 
 
-def test_preprocess_word() -> None:
-    word = preprocess_word("Woman")
-    assert word == "Woman"
-
-    word = preprocess_word("Woman", {"lowercase": True})
-    assert word == "woman"
-
-    word = preprocess_word("Woman", {"uppercase": True})
-    assert word == "WOMAN"
-
-    word = preprocess_word("Woman", {"titlecase": True})
-    assert word == "Woman"
-
-    word = preprocess_word("Woman", {"lowercase": True, "case": True, "title": True})
-    assert word == "woman"
-
-    word = preprocess_word("wömàn", {"strip_accents": True})
-    assert word == "woman"
-
-    word = preprocess_word("wömàn", {"strip_accents": "ascii"})
-    assert word == "woman"
-
-    word = preprocess_word("wömàn", {"strip_accents": "unicode"})
-    assert word == "woman"
-
-    # all together
-    word = preprocess_word("WöMàn", {"lowercase": True, "strip_accents": True})
-    assert word == "woman"
-
-    word = preprocess_word("WöMàn", {"uppercase": True, "strip_accents": True})
-    assert word == "WOMAN"
-
-    word = preprocess_word("WöMàn", {"titlecase": True, "strip_accents": True})
-    assert word == "Woman"
-
-    # check for custom preprocessor
-    word = preprocess_word("Woman", {"preprocessor": lambda x: x.lower()})
-    assert word == "woman"
-
-    # check if preprocessor overrides any other option
-    word = preprocess_word(
-        "Woman", {"preprocessor": lambda x: x.upper(), "lowercase": True}
-    )
-    assert word == "WOMAN"
-
-    # now with prefix
-    word = preprocess_word("woman", vocab_prefix="asd-")
-    assert word == "asd-woman"
+@pytest.mark.parametrize(
+    argnames=("input_word", "preprocessor_opts", "vocab_prefix", "expected"),
+    argvalues=[
+        ("Woman", {}, None, "Woman"),
+        ("Woman", {"lowercase": True}, None, "woman"),
+        ("Woman", {"uppercase": True}, None, "WOMAN"),
+        ("Woman", {"titlecase": True}, None, "Woman"),
+        ("Woman", {"lowercase": True, "case": True, "title": True}, None, "woman"),
+        ("wömàn", {"strip_accents": True}, None, "woman"),
+        ("wömàn", {"strip_accents": "ascii"}, None, "woman"),
+        ("wömàn", {"strip_accents": "unicode"}, None, "woman"),
+        ("WöMàn", {"lowercase": True, "strip_accents": True}, None, "woman"),
+        ("WöMàn", {"uppercase": True, "strip_accents": True}, None, "WOMAN"),
+        ("WöMàn", {"titlecase": True, "strip_accents": True}, None, "Woman"),
+        ("Woman", {"preprocessor": lambda x: x.lower()}, None, "woman"),
+        (
+            "Woman",
+            {"preprocessor": lambda x: x.upper(), "lowercase": True},
+            None,
+            "WOMAN",
+        ),
+        ("woman", {}, "asd-", "asd-woman"),
+    ],
+    ids=[
+        "no_preprocessor",
+        "lowercase",
+        "uppercase",
+        "titlecase",
+        "multiple_case_options",
+        "strip_accents_true",
+        "strip_accents_ascii",
+        "strip_accents_unicode",
+        "lowercase_and_strip_accents",
+        "uppercase_and_strip_accents",
+        "titlecase_and_strip_accents",
+        "custom_preprocessor_lower",
+        "custom_preprocessor_upper_overrides_lower",
+        "with_vocab_prefix",
+    ],
+)
+def test_preprocess_word(input_word, preprocessor_opts, vocab_prefix, expected) -> None:
+    result = preprocess_word(input_word, preprocessor_opts, vocab_prefix=vocab_prefix)
+    assert result == expected
 
 
 # --------------------------------------------------------------------------------------
@@ -157,54 +152,99 @@ def test_preprocess_word() -> None:
 # --------------------------------------------------------------------------------------
 
 
-def test_get_embeddings_from_set_types(model: WordEmbeddingModel) -> None:
-    WORDS = ["man", "woman"]
-
-    with pytest.raises(
-        TypeError, match=r"model should be a WordEmbeddingModel instance, got .*\."
-    ):
-        get_embeddings_from_set(None, None)
-
-    with pytest.raises(
-        TypeError,
-        match=r"word_set should be a list, tuple or np.array of strings, got.*",
-    ):
-        get_embeddings_from_set(model, word_set=None)
-
-    with pytest.raises(
-        TypeError,
-        match=(
-            r"preprocessors should be a list of dicts which contains preprocessor "
-            r"options, got .*\."
+@pytest.mark.parametrize(
+    argnames=(
+        "model_",
+        "word_set",
+        "preprocessors",
+        "strategy",
+        "expected_exception",
+        "match",
+    ),
+    argvalues=[
+        (
+            None,
+            None,
+            [{}],
+            None,
+            TypeError,
+            r"model should be a WordEmbeddingModel instance, got .*\.",
         ),
-    ):
-        get_embeddings_from_set(model, WORDS, preprocessors=None)
-
-    with pytest.raises(
-        TypeError,
-        match=(
-            r"preprocessors must indicate at least one preprocessor, even if it is "
-            r"an empty dictionary {}, got: .*\."
+        (
+            "model",  # will be replaced in test body
+            None,
+            [{}],
+            None,
+            TypeError,
+            r"word_set should be a list, tuple or np.array of strings, got.*",
         ),
-    ):
-        get_embeddings_from_set(model, WORDS, preprocessors=[])
+        (
+            "model",
+            ["man", "woman"],
+            None,
+            None,
+            TypeError,
+            (
+                r"preprocessors should be a list of dicts which contains preprocessor "
+                r"options, got .*\."
+            ),
+        ),
+        (
+            "model",
+            ["man", "woman"],
+            [],
+            None,
+            TypeError,
+            (
+                r"preprocessors must indicate at least one preprocessor, even if it is "
+                r"an empty dictionary {}, got: .*\."
+            ),
+        ),
+        (
+            "model",
+            ["man", "woman"],
+            [{"lower": True}, {"upper": True}, 1],
+            None,
+            TypeError,
+            r"each preprocessor should be a dict, got .* at index .*\.",
+        ),
+        (
+            "model",
+            ["man", "woman"],
+            [{}],
+            "blabla",
+            ValueError,
+            r"strategy should be 'first' or 'all', got .*\.",
+        ),
+    ],
+    ids=[
+        "model_none",
+        "word_set_none",
+        "preprocessors_none",
+        "preprocessors_empty",
+        "preprocessor_not_dict",
+        "strategy_invalid",
+    ],
+)
+def test_get_embeddings_from_set_types(
+    model_,
+    word_set,
+    preprocessors,
+    strategy,
+    expected_exception,
+    match,
+    request,
+) -> None:
+    kwargs = {
+        "model": request.getfixturevalue("model") if model_ == "model" else model_,
+        "word_set": word_set,
+        "preprocessors": preprocessors,
+    }
+    if strategy is not None:
+        kwargs["strategy"] = strategy
 
-    with pytest.raises(
-        TypeError, match=r"each preprocessor should be a dict, got .* at index .*\."
-    ):
-        get_embeddings_from_set(
-            model, WORDS, preprocessors=[{"lower": True}, {"upper": True}, 1]
-        )
-
-    with pytest.raises(
-        ValueError, match=r"strategy should be 'first' or 'all', got .*\."
-    ):
-        get_embeddings_from_set(model, WORDS, strategy=None)
-
-    with pytest.raises(
-        ValueError, match=r"strategy should be 'first' or 'all', got .*\."
-    ):
-        get_embeddings_from_set(model, WORDS, strategy="blabla")
+    with pytest.raises(expected_exception, match=match):
+        get_embeddings_from_set(**kwargs)
 
 
 def test_get_embeddings_from_set(model: WordEmbeddingModel) -> None:
@@ -212,7 +252,11 @@ def test_get_embeddings_from_set(model: WordEmbeddingModel) -> None:
     # test basic operation of get_embeddings_from_set
     WORDS = ["man", "woman"]
 
-    not_found_words, embeddings = get_embeddings_from_set(model, WORDS)
+    not_found_words, embeddings = get_embeddings_from_set(
+        model=model,
+        word_set=WORDS,
+        preprocessors=[{}],
+    )
 
     assert len(embeddings) == 2
     assert len(not_found_words) == 0
@@ -227,7 +271,11 @@ def test_get_embeddings_from_set(model: WordEmbeddingModel) -> None:
 def test_get_embeddings_from_set_with_oov(model: WordEmbeddingModel) -> None:
     # test with a word that does not exists in the model
     WORDS = ["man", "woman", "not_a_word_"]
-    not_found_words, embeddings = get_embeddings_from_set(model, WORDS)
+    not_found_words, embeddings = get_embeddings_from_set(
+        model=model,
+        word_set=WORDS,
+        preprocessors=[{}],
+    )
 
     assert len(embeddings) == 2
     assert len(not_found_words) == 1
@@ -247,7 +295,9 @@ def test_get_embeddings_from_set_prep_lowercase(model: WordEmbeddingModel) -> No
         "WOmaN",
     ]
     not_found_words, embeddings = get_embeddings_from_set(
-        model, WORDS, [{"lowercase": True}]
+        model=model,
+        word_set=WORDS,
+        preprocessors=[{"lowercase": True}],
     )
 
     assert len(embeddings) == 2
@@ -267,7 +317,9 @@ def test_get_embeddings_from_set_prep_strip_accents(model: WordEmbeddingModel) -
         "wömàn",
     ]
     not_found_words, embeddings = get_embeddings_from_set(
-        model, WORDS, [{"strip_accents": True}]
+        model=model,
+        word_set=WORDS,
+        preprocessors=[{"strip_accents": True}],
     )
 
     assert len(embeddings) == 2
@@ -287,9 +339,9 @@ def test_get_embeddings_from_set_prep_strategy_first(model: WordEmbeddingModel) 
         "WöMàn",
     ]
     not_found_words, embeddings = get_embeddings_from_set(
-        model,
-        WORDS,
-        [
+        model=model,
+        word_set=WORDS,
+        preprocessors=[
             {"strip_accents": True},
             {"strip_accents": True, "lowercase": True},
             {"strip_accents": True, "uppercase": True},
@@ -314,9 +366,9 @@ def test_get_embeddings_from_set_prep_strategy_all(model: WordEmbeddingModel) ->
         "WöMàn",
     ]
     not_found_words, embeddings = get_embeddings_from_set(
-        model,
-        WORDS,
-        [
+        model=model,
+        word_set=WORDS,
+        preprocessors=[
             {"strip_accents": True},
             {"strip_accents": True, "lowercase": True},
             {"strip_accents": True, "uppercase": True},
@@ -335,7 +387,12 @@ def test_get_embeddings_from_set_with_normalization(model: WordEmbeddingModel) -
     # test normalize
     WORDS = ["man", "woman"]
 
-    _, embeddings = get_embeddings_from_set(model, WORDS, normalize=True)
+    _, embeddings = get_embeddings_from_set(
+        model=model,
+        word_set=WORDS,
+        preprocessors=[{}],
+        normalize=True,
+    )
 
     assert 0.99999 < np.linalg.norm(embeddings["man"]) < 1.00001
     assert 0.99999 < np.linalg.norm(embeddings["woman"]) < 1.00001
@@ -346,72 +403,147 @@ def test_get_embeddings_from_set_with_normalization(model: WordEmbeddingModel) -
 # --------------------------------------------------------------------------------------
 
 
-def test_get_embeddings_from_sets_type_checkings(model: WordEmbeddingModel) -> None:
-    # Test types and value checking.
-
-    with pytest.raises(
-        TypeError,
-        match=(r"model should be a WordEmbeddingModel instance, got None"),
-    ):
-        get_embeddings_from_tuples(None, [["he"]])
-
-    with pytest.raises(
-        TypeError,
-        match=(
-            r"sets should be a sequence of sequences \(list, tuple or np\.array\) of "
-            r"strings, got:.*"
+@pytest.mark.parametrize(
+    argnames=(
+        "model_",
+        "sets",
+        "sets_name",
+        "preprocessors",
+        "warn_lost_sets",
+        "verbose",
+        "match",
+    ),
+    argvalues=[
+        (
+            None,
+            [["he"]],
+            None,
+            [{}],
+            False,
+            False,
+            r"model should be a WordEmbeddingModel instance, got <class 'NoneType'>.",
         ),
-    ):
-        get_embeddings_from_tuples(model, None)
-
-    with pytest.raises(
-        TypeError,
-        match=(
-            r"Every set in sets should be a list, tuple or np.array of strings"
-            r", got in index.*"
+        (
+            "model",  # will be replaced in test body
+            None,
+            None,
+            [{}],
+            False,
+            False,
+            (
+                r"sets should be a sequence of sequences "
+                r"\(list, tuple or np\.array\) of strings, got:.*"
+            ),
         ),
-    ):
-        get_embeddings_from_tuples(model, [None])
-
-    with pytest.raises(
-        TypeError,
-        match=(
-            r"All set elements in a set of words should be strings. "
-            r"Got in set.*at position 0:.*"
+        (
+            "model",
+            [None],
+            None,
+            [{}],
+            False,
+            False,
+            (
+                r"Every set in sets should be a list, tuple or np.array of strings, "
+                "got in index.*"
+            ),
         ),
-    ):
-        get_embeddings_from_tuples(model, [[1, "he"]])
-
-    with pytest.raises(
-        TypeError,
-        match=(
-            r"All set elements in a set of words should be strings. "
-            r"Got in set.* at position 1:.*"
+        (
+            "model",
+            [[1, "he"]],
+            None,
+            [{}],
+            False,
+            False,
+            (
+                r"All set elements in a set of words should be strings. "
+                "Got in set.*at position 0:.*"
+            ),
         ),
-    ):
-        get_embeddings_from_tuples(model, [["she", 1]])
+        (
+            "model",
+            [["she", 1]],
+            None,
+            [{}],
+            False,
+            False,
+            (
+                r"All set elements in a set of words should be strings. "
+                "Got in set.* at position 1:.*"
+            ),
+        ),
+        (
+            "model",
+            [["she", "he"]],
+            0,
+            [{}],
+            False,
+            False,
+            r"sets_name should be a string or None, got:.*",
+        ),
+        (
+            "model",
+            [["she", "he"]],
+            "definning",
+            [{}],
+            None,
+            False,
+            r"warn_lost_sets should be a bool, got:.*",
+        ),
+        (
+            "model",
+            [["she", "he"]],
+            "definning",
+            [{}],
+            True,
+            "yes",
+            r"verbose should be a bool, got:.*",
+        ),
+        (
+            "model",
+            [["she", "he"]],
+            "definning",
+            [{}],
+            True,
+            None,
+            r"verbose should be a bool, got:.*",
+        ),
+    ],
+    ids=[
+        "model_none",
+        "sets_none",
+        "set_element_none",
+        "set_element_not_str_0",
+        "set_element_not_str_1",
+        "sets_name_not_str",
+        "warn_lost_sets_not_bool",
+        "verbose_not_bool_str",
+        "verbose_not_bool_none",
+    ],
+)
+def test_get_embeddings_from_sets_type_checkings(
+    model_,
+    sets,
+    sets_name,
+    preprocessors,
+    warn_lost_sets,
+    verbose,
+    match,
+    request,
+):
+    kwargs = {
+        "model": request.getfixturevalue("model") if model_ == "model" else model_,
+        "sets": sets,
+        "preprocessors": preprocessors,
+    }
+    if sets_name is not None:
+        kwargs["sets_name"] = sets_name
+    if warn_lost_sets is not False:
+        kwargs["warn_lost_sets"] = warn_lost_sets
+    if verbose is not False:
+        kwargs["verbose"] = verbose
 
-    with pytest.raises(
-        TypeError,
-        match=r"sets_name should be a string or None, got:.*",
-    ):
-        get_embeddings_from_tuples(model, [["she", "he"]], 0)
-
-    with pytest.raises(
-        TypeError,
-        match=r"warn_lost_sets should be a bool, got:.*",
-    ):
-        get_embeddings_from_tuples(
-            model, [["she", "he"]], "definning", warn_lost_sets=None
-        )
-
-    with pytest.raises(
-        TypeError,
-        match=r"verbose should be a bool, got:.*",
-    ):
-        get_embeddings_from_tuples(
-            model, [["she", "he"]], "definning", True, verbose=None
-        )
+    with pytest.raises(TypeError, match=match):
+        get_embeddings_from_tuples(**kwargs)
 
 
 def test_get_embeddings_from_sets_with_monuples(model: WordEmbeddingModel) -> None:
@@ -421,7 +553,10 @@ def test_get_embeddings_from_sets_with_monuples(model: WordEmbeddingModel) -> No
     pairs_set_name = "definning"
 
     embedding_pairs = get_embeddings_from_tuples(
-        model, sets=pairs, sets_name=pairs_set_name
+        model,
+        sets=pairs,
+        sets_name=pairs_set_name,
+        preprocessors=[{}],
     )
 
     assert isinstance(embedding_pairs, list)
@@ -445,7 +580,10 @@ def test_get_embeddings_from_sets_with_pairs(model: WordEmbeddingModel) -> None:
     pairs_set_name = "definning"
 
     embedding_pairs = get_embeddings_from_tuples(
-        model, sets=pairs, sets_name=pairs_set_name
+        model,
+        sets=pairs,
+        sets_name=pairs_set_name,
+        preprocessors=[{}],
     )
 
     assert isinstance(embedding_pairs, list)
@@ -472,7 +610,12 @@ def test_get_embeddings_from_sets_with_triple(model: WordEmbeddingModel) -> None
     ]
     sets_name = "definning"
 
-    embedding_pairs = get_embeddings_from_tuples(model, sets=sets, sets_name=sets_name)
+    embedding_pairs = get_embeddings_from_tuples(
+        model=model,
+        sets=sets,
+        sets_name=sets_name,
+        preprocessors=[{}],
+    )
 
     assert isinstance(embedding_pairs, list)
 
@@ -507,6 +650,7 @@ def test_get_embeddings_from_sets_with_oov(
             sets=pairs_with_oov,
             sets_name=pairs_set_name,
             warn_lost_sets=True,
+            preprocessors=[{}],
             verbose=True,
         )
         out = capsys.readouterr().out
@@ -527,7 +671,11 @@ def test_get_embeddings_from_sets_with_no_set_converted(
         match=r"No set could be converted to embedding because no set "
         "could be fully found in the model vocabulary.",
     ):
-        get_embeddings_from_tuples(model, sets=oov_pairs)
+        get_embeddings_from_tuples(
+            model=model,
+            sets=oov_pairs,
+            preprocessors=[{}],
+        )
 
 
 # --------------------------------------------------------------------------------------
@@ -539,7 +687,12 @@ def test_warn_not_found_words(caplog) -> None:
     with pytest.raises(
         TypeError, match=r"warn_not_found_words should be a boolean, got .*\."
     ):
-        _warn_not_found_words(None, [], "", "")
+        _warn_not_found_words(
+            warn_not_found_words=None,
+            not_found_words=[],
+            model_name="",
+            set_name="",
+        )
 
     _warn_not_found_words(True, ["aaa", "bbb"], "some_model", "set1")
     msg = (
@@ -554,32 +707,82 @@ def test_warn_not_found_words(caplog) -> None:
 # --------------------------------------------------------------------------------------
 
 
-def test_get_embeddings_from_query_input_checking(
-    query_2t2a_1: Query, model: WordEmbeddingModel
-) -> None:
-    # target sets None
-    with pytest.raises(TypeError, match="query should be an instance of Query, got"):
-        get_embeddings_from_query(model, None)
-
-    with pytest.raises(
-        TypeError,
-        match=(
-            r"preprocessors should be a list of dicts which contains preprocessor "
-            r"options, got .*\."
+@pytest.mark.parametrize(
+    (
+        "query",
+        "preprocessors",
+        "lost_vocabulary_threshold",
+        "warn_not_found_words",
+        "expected_exception",
+        "match",
+    ),
+    [
+        (
+            None,
+            [{}],
+            0.2,
+            False,
+            TypeError,
+            "query should be an instance of Query, got",
         ),
-    ):
-        get_embeddings_from_query(model, query_2t2a_1, preprocessors=1)
+        (
+            "query",
+            1,
+            0.2,
+            False,
+            TypeError,
+            (
+                r"preprocessors should be a list of dicts which contains preprocessor "
+                r"options, got .*\."
+            ),
+        ),
+        (
+            "query",
+            [{}],
+            0.2,
+            None,
+            TypeError,
+            "warn_not_found_words should be a boolean, got",
+        ),
+        (
+            "query",
+            [{}],
+            "",
+            False,
+            TypeError,
+            r"lost_vocabulary_threshold should be float, .*",
+        ),
+    ],
+    ids=[
+        "query_none",
+        "preprocessors_not_list",
+        "warn_not_found_words_not_bool",
+        "lost_vocabulary_threshold_not_float",
+    ],
+)
+def test_get_embeddings_from_query_input_checking_parametrized(
+    query: str | None,
+    preprocessors,
+    lost_vocabulary_threshold,
+    warn_not_found_words,
+    expected_exception,
+    match,
+    request: pytest.FixtureRequest,
+) -> None:
+    query = request.getfixturevalue("query_2t2a_1") if query == "query" else query
+    model = request.getfixturevalue("model")
 
-    with pytest.raises(
-        TypeError, match="warn_not_found_words should be a boolean, got"
-    ):
-        get_embeddings_from_query(model, query_2t2a_1, warn_not_found_words=None)
+    kwargs = {
+        "model": model,
+        "query": query,
+        "preprocessors": preprocessors,
+        "lost_vocabulary_threshold": lost_vocabulary_threshold,
+    }
+    if warn_not_found_words is not False:
+        kwargs["warn_not_found_words"] = warn_not_found_words
 
-    # check param type
-    with pytest.raises(
-        TypeError, match=r"lost_vocabulary_threshold should be float, .*"
-    ):
-        get_embeddings_from_query(model, query_2t2a_1, lost_vocabulary_threshold="")
+    with pytest.raises(expected_exception, match=match):
+        get_embeddings_from_query(**kwargs)
 
 
 def test_get_embeddings_from_query(
@@ -594,7 +797,12 @@ def test_get_embeddings_from_query(
 
     word_vectors = model.wv
 
-    embeddings = get_embeddings_from_query(model, query_2t2a_1)
+    embeddings = get_embeddings_from_query(
+        model=model,
+        query=query_2t2a_1,
+        preprocessors=[{}],
+        lost_vocabulary_threshold=0.2,
+    )
 
     assert embeddings is not None
     target_embeddings, attribute_embeddings = embeddings
@@ -653,7 +861,11 @@ def test_get_embeddings_from_query_oov_warns(
     )
 
     embeddings = get_embeddings_from_query(
-        model, query_with_oov_1, warn_not_found_words=True
+        model=model,
+        query=query_with_oov_1,
+        preprocessors=[{}],
+        lost_vocabulary_threshold=0.2,
+        warn_not_found_words=True,
     )
     assert embeddings is not None
     assert (
@@ -677,7 +889,10 @@ def test_get_embeddings_from_query_with_lower_preprocessor(
     )
 
     embeddings = get_embeddings_from_query(
-        model, query_2t2a_uppercase, preprocessors=[{"lowercase": True}]
+        model=model,
+        query=query_2t2a_uppercase,
+        preprocessors=[{"lowercase": True}],
+        lost_vocabulary_threshold=0.2,
     )
 
     assert embeddings is not None
@@ -715,7 +930,10 @@ def test_get_embeddings_from_query_with_two_preprocessors(
         weat_wordsets["unpleasant_5"],
     )
     embeddings = get_embeddings_from_query(
-        model, query_2t2a_uppercase, preprocessors=[{}, {"lowercase": True}]
+        model=model,
+        query=query_2t2a_uppercase,
+        preprocessors=[{}, {"lowercase": True}],
+        lost_vocabulary_threshold=0.2,
     )
 
     assert embeddings is not None
@@ -758,7 +976,12 @@ def test_get_embeddings_from_query_lost_threshold(
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
-    embeddings = get_embeddings_from_query(model, query, lost_vocabulary_threshold=0.1)
+    embeddings = get_embeddings_from_query(
+        model=model,
+        query=query,
+        preprocessors=[{}],
+        lost_vocabulary_threshold=0.1,
+    )
 
     assert embeddings is None
     assert "The transformation of 'Flowers' into" in caplog.text
@@ -771,7 +994,12 @@ def test_get_embeddings_from_query_lost_threshold(
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
-    embeddings = get_embeddings_from_query(model, query, lost_vocabulary_threshold=0.1)
+    embeddings = get_embeddings_from_query(
+        model=model,
+        query=query,
+        preprocessors=[{}],
+        lost_vocabulary_threshold=0.1,
+    )
 
     assert embeddings is None
     assert "The transformation of 'Insects' into" in caplog.text
@@ -794,7 +1022,12 @@ def test_get_embeddings_from_query_lost_threshold(
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
-    embeddings = get_embeddings_from_query(model, query, lost_vocabulary_threshold=0.1)
+    embeddings = get_embeddings_from_query(
+        model=model,
+        query=query,
+        preprocessors=[{}],
+        lost_vocabulary_threshold=0.1,
+    )
 
     assert embeddings is None
     assert "The transformation of 'Pleasant' into" in caplog.text
@@ -817,7 +1050,12 @@ def test_get_embeddings_from_query_lost_threshold(
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
-    embeddings = get_embeddings_from_query(model, query, lost_vocabulary_threshold=0.1)
+    embeddings = get_embeddings_from_query(
+        model=model,
+        query=query,
+        preprocessors=[{}],
+        lost_vocabulary_threshold=0.1,
+    )
 
     assert embeddings is None
     assert "The transformation of 'Unpleasant' into" in caplog.text
@@ -840,6 +1078,11 @@ def test_get_embeddings_from_query_lost_threshold(
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
-    embeddings = get_embeddings_from_query(model, query, lost_vocabulary_threshold=0.5)
+    embeddings = get_embeddings_from_query(
+        model=model,
+        query=query,
+        preprocessors=[{}],
+        lost_vocabulary_threshold=0.5,
+    )
 
     assert embeddings is not None

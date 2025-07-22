@@ -166,7 +166,11 @@ class HalfSiblingRegression(BaseDebias):
         self, model: WordEmbeddingModel, non_bias: list[str]
     ) -> dict[str, np.ndarray]:
         dictionary = get_embeddings_from_tuples(
-            model=model, sets=[non_bias], sets_name="non_bias", normalize=False
+            model=model,
+            sets=[non_bias],
+            preprocessors=[{}],
+            sets_name="non_bias",
+            normalize=False,
         )
         return dictionary[0]
 

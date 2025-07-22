@@ -169,9 +169,10 @@ def gender_query_3(
         .reshape(2, -1)
         .tolist()
     )
-    gender_analogy_templates = np.array(
-        list(multiclass_debias_wordsets["gender_analogy_templates"].values())
-    ).tolist()
+    gender_analogy_templates = list(
+        multiclass_debias_wordsets["gender_analogy_templates"].values()
+    )
+
     query = Query(
         [gender_eval[0], gender_eval[1]],
         [gender_analogy_templates[0], gender_analogy_templates[1]],

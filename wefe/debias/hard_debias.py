@@ -247,7 +247,6 @@ class HardDebias(BaseDebias):
         ignore: Optional[list[str]],
     ) -> None:
         target_ = set(target) if target is not None else set(model.vocab.keys())
-
         ignore_ = set(ignore) if ignore is not None and target is None else set()
 
         for word in tqdm(target_):
@@ -332,6 +331,7 @@ class HardDebias(BaseDebias):
             print("Obtaining definitional pairs.")
         self.definitional_pairs_embeddings_ = get_embeddings_from_tuples(
             model=model,
+            preprocessors=[{}],
             sets=definitional_pairs,
             sets_name="definitional",
             warn_lost_sets=self.verbose,
@@ -383,6 +383,7 @@ class HardDebias(BaseDebias):
             model=model,
             sets=self.equalize_pairs_candidates_,
             sets_name="equalize",
+            preprocessors=[{}],
             warn_lost_sets=self.verbose,
             normalize=True,
             verbose=self.verbose,

@@ -245,6 +245,7 @@ class MulticlassHardDebias(BaseDebias):
             model=model,
             sets=definitional_sets,
             sets_name="definitional",
+            preprocessors=[{}],
             warn_lost_sets=True,
             normalize=True,
             verbose=self.verbose,
@@ -272,6 +273,7 @@ class MulticlassHardDebias(BaseDebias):
             sets_name="equalize",
             normalize=True,
             warn_lost_sets=True,
+            preprocessors=[{}],
             verbose=self.verbose,
         )
         return self

@@ -406,6 +406,7 @@ class DoubleHardDebias(BaseDebias):
             model=model,
             sets=definitional_pairs,
             sets_name="definitional",
+            preprocessors=[{}],
             warn_lost_sets=self.verbose,
             normalize=False,
             verbose=self.verbose,

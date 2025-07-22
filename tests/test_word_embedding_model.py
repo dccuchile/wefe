@@ -1,4 +1,5 @@
 """Tests of the word embedding model module."""
+
 import gensim
 import numpy as np
 import pytest
@@ -13,12 +14,11 @@ gensim_version = semantic_version.Version.coerce(gensim.__version__)
 
 @pytest.fixture
 def test_keyed_vectors() -> KeyedVectors:
-
     test_model = KeyedVectors.load("./wefe/datasets/data/test_model.kv")
     return test_model
 
 
-def test__init__():
+def test__init__() -> None:
     # Test types verifications
 
     # target sets None
@@ -70,7 +70,7 @@ def test__init__():
     assert model.vocab_prefix == "\\c\\en"
 
 
-def test__eq__(test_keyed_vectors: gensim.models.KeyedVectors):
+def test__eq__(test_keyed_vectors: gensim.models.KeyedVectors) -> None:
     model_1 = WordEmbeddingModel(test_keyed_vectors, "w2v")
     model_2 = WordEmbeddingModel(test_keyed_vectors, "w2v_2")
     model_3_prefix_a = WordEmbeddingModel(test_keyed_vectors, "w2v_3", vocab_prefix="a")
@@ -91,7 +91,7 @@ def test__eq__(test_keyed_vectors: gensim.models.KeyedVectors):
     assert model_3_prefix_b != model_3_prefix_a
 
 
-def test__contains__(test_keyed_vectors: gensim.models.KeyedVectors):
+def test__contains__(test_keyed_vectors: gensim.models.KeyedVectors) -> None:
     model = WordEmbeddingModel(test_keyed_vectors, "w2v")
 
     assert "men" in model
@@ -100,7 +100,7 @@ def test__contains__(test_keyed_vectors: gensim.models.KeyedVectors):
     assert 0 not in model
 
 
-def test__getitem__(test_keyed_vectors: gensim.models.KeyedVectors):
+def test__getitem__(test_keyed_vectors: gensim.models.KeyedVectors) -> None:
     model = WordEmbeddingModel(test_keyed_vectors, "w2v")
 
     embedding = model["ASDF"]
@@ -111,8 +111,7 @@ def test__getitem__(test_keyed_vectors: gensim.models.KeyedVectors):
     assert embedding.shape == (300,)
 
 
-def test__repr__(test_keyed_vectors: gensim.models.KeyedVectors):
-
+def test__repr__(test_keyed_vectors: gensim.models.KeyedVectors) -> None:
     model_1 = WordEmbeddingModel(test_keyed_vectors, "w2v")
     model_1_no_name = WordEmbeddingModel(test_keyed_vectors)
     model_1_prefix_a = WordEmbeddingModel(test_keyed_vectors, "w2v", vocab_prefix="a")
@@ -138,8 +137,7 @@ def test__repr__(test_keyed_vectors: gensim.models.KeyedVectors):
     assert model_1.__repr__() == "<WordEmbeddingModel with wrong __repr__>"
 
 
-def test__init__with_w2v_model():
-
+def test__init__with_w2v_model() -> None:
     if gensim_version.major >= 4:
         w2v = Word2Vec(common_texts, vector_size=100, window=5, min_count=1, workers=-1)
     else:
@@ -150,8 +148,7 @@ def test__init__with_w2v_model():
     assert w2v.wv == wem.wv
 
 
-def test__init_with_fast_model():
-
+def test__init_with_fast_model() -> None:
     if gensim_version.major >= 4:
         fast = FastText(
             vector_size=4, window=3, min_count=1, sentences=common_texts, epochs=10
@@ -165,7 +162,7 @@ def test__init_with_fast_model():
 
 
 # -------------------------------------------------------------------------------------
-def test_normalize_embeddings(test_keyed_vectors: gensim.models.KeyedVectors):
+def test_normalize_embeddings(test_keyed_vectors: gensim.models.KeyedVectors) -> None:
     model = WordEmbeddingModel(test_keyed_vectors, "w2v")
 
     # test unnormalized embeddings
@@ -186,7 +183,7 @@ def test_normalize_embeddings(test_keyed_vectors: gensim.models.KeyedVectors):
 
 
 # -------------------------------------------------------------------------------------
-def test_update_embedding(test_keyed_vectors: gensim.models.KeyedVectors):
+def test_update_embedding(test_keyed_vectors: gensim.models.KeyedVectors) -> None:
     model = WordEmbeddingModel(test_keyed_vectors, "w2v")
 
     new_embedding = np.ones(300, dtype=model.wv.vectors.dtype)
@@ -219,7 +216,7 @@ def test_update_embedding(test_keyed_vectors: gensim.models.KeyedVectors):
 
 
 # -------------------------------------------------------------------------------------
-def test_update_embeddings(test_keyed_vectors: gensim.models.KeyedVectors):
+def test_update_embeddings(test_keyed_vectors: gensim.models.KeyedVectors) -> None:
     model = WordEmbeddingModel(test_keyed_vectors, "w2v")
 
     words = ["The", "in"]

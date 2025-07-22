@@ -1,6 +1,7 @@
 """Base metric class that all metrics must extend.."""
+
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Tuple, Union
+from typing import Any, Callable, Union
 
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
@@ -15,7 +16,7 @@ class BaseMetric(ABC):
     """
 
     # A tuple that indicates the cardinality of target and attribute sets
-    metric_template: Tuple[Union[int, str], Union[int, str]]
+    metric_template: tuple[Union[int, str], Union[int, str]]
 
     # The name of the metric
     metric_name: str
@@ -24,7 +25,7 @@ class BaseMetric(ABC):
     metric_short_name: str
 
     def _check_input(
-        self, query: Query, model: WordEmbeddingModel, _locals: Dict[str, Any]
+        self, query: Query, model: WordEmbeddingModel, _locals: dict[str, Any]
     ) -> None:
         """Check if Query and WordEmbeddingModel parameters are valid.
 
@@ -53,16 +54,16 @@ class BaseMetric(ABC):
         Exception
             if the metric require different number of attribute sets than
             the delivered query
+
         """
         # check if the query passed is a instance of Query
         if not isinstance(query, Query):
-            raise TypeError("query should be a Query instance, got {}".format(query))
+            raise TypeError(f"query should be a Query instance, got {query}")
 
         # check if the word_embedding is a instance of
         if not isinstance(model, WordEmbeddingModel):
             raise TypeError(
-                "word_embedding should be a WordEmbeddingModel instance, "
-                "got: {}".format(model)
+                f"word_embedding should be a WordEmbeddingModel instance, got: {model}"
             )
 
         # templates:
@@ -73,14 +74,10 @@ class BaseMetric(ABC):
             and query.template[0] != self.metric_template[0]
         ):
             raise Exception(
-                "The cardinality of the set of target words of the '{}' "
-                "query does not match with the cardinality required by {}. "
-                "Provided query: {}, metric: {}.".format(
-                    query.query_name,
-                    self.metric_short_name,
-                    query.template[0],
-                    self.metric_template[0],
-                )
+                f"The cardinality of the set of target words of the "
+                f"'{query.query_name}' query does not match with the cardinality "
+                f"required by {self.metric_short_name}. Provided query: "
+                f"{query.template[0]}, metric: {self.metric_template[0]}."
             )
 
         # check the cardinality of the attribute sets of the provided query
@@ -90,13 +87,10 @@ class BaseMetric(ABC):
         ):
             raise Exception(
                 "The cardinality of the set of attribute words of the "
-                "'{}' query does not match with the cardinality "
-                "required by {}. Provided query: {}, metric: {}.".format(
-                    query.query_name,
-                    self.metric_short_name,
-                    query.template[1],
-                    self.metric_template[1],
-                )
+                f"'{query.query_name}' query does not match with the cardinality "
+                f"required by {self.metric_short_name}. "
+                f"Provided query: {query.template[1]}, metric: "
+                f"{self.metric_template[1]}."
             )
 
         preprocessor_in_args = "preprocessor_args" in _locals
@@ -106,22 +100,22 @@ class BaseMetric(ABC):
             raise DeprecationWarning(
                 "preprocessor_args and secondary_preprocessor_args arguments are "
                 "deprecated. Use "
-                f'preprocessors=[{_locals["preprocessor_args"]}, '
-                f'{_locals["secondary_preprocessor_args"]}] '
+                f"preprocessors=[{_locals['preprocessor_args']}, "
+                f"{_locals['secondary_preprocessor_args']}] "
                 "instead.\n\nSee https://wefe.readthedocs.io/en/latest/user_guide_"
                 "measurement.html#word-preprocessors for more information."
             )
         if preprocessor_in_args:
             raise DeprecationWarning(
                 "preprocessor_args argument is deprecated. Use "
-                f'preprocessors=[{_locals["preprocessor_args"]}] '
+                f"preprocessors=[{_locals['preprocessor_args']}] "
                 "instead.\n\nSee https://wefe.readthedocs.io/en/latest/user_guide_"
                 "measurement.html#word-preprocessors for more information."
             )
         if secondary_preprocessor_in_args:
             raise DeprecationWarning(
                 "secondary_preprocessor_args is deprecated. Use "
-                f'preprocessors=[{{}}, {_locals["secondary_preprocessor_args"]}] '
+                f"preprocessors=[{{}}, {_locals['secondary_preprocessor_args']}] "
                 "instead.\n\nSee https://wefe.readthedocs.io/en/latest/user_guide_"
                 "measurement.html#word-preprocessors for more information."
             )
@@ -132,11 +126,11 @@ class BaseMetric(ABC):
         query: Query,
         model: WordEmbeddingModel,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
         *args: Any,
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         raise NotImplementedError()

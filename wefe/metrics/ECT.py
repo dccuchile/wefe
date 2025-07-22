@@ -1,5 +1,6 @@
 """Embedding Coherence Test metric implementation."""
-from typing import Any, Callable, Dict, List, Union
+
+from typing import Any, Callable, Union
 
 import numpy as np
 from scipy.spatial.distance import cosine
@@ -38,6 +39,7 @@ class ECT(BaseMetric):
     ----------
     | [1]: Dev, S., & Phillips, J. (2019, April). Attenuating Bias in Word vectors.
     | [2]: https://github.com/sunipa/Attenuating-Bias-in-Word-Vec
+
     """
 
     # The metrics accepts two target sets and a single attribute set
@@ -50,13 +52,13 @@ class ECT(BaseMetric):
         query: Query,
         model: WordEmbeddingModel,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
         *args: Any,
-        **kwargs: Any
-    ) -> Dict[str, Any]:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Run ECT with the given query with the given parameters.
 
         Parameters
@@ -155,6 +157,7 @@ class ECT(BaseMetric):
         {'query_name': 'Female terms and Male Terms wrt Family',
         'result': 0.7619047619047621,
         'ect': 0.7619047619047621}
+
         """
         # check the types of the provided arguments (only the defaults).
         self._check_input(query, model, locals())
@@ -207,6 +210,7 @@ class ECT(BaseMetric):
         -------
         float
             The value denoting the Spearman correlation.
+
         """
         # Calculate mean vectors for both target vector sets
         target_means = [np.mean(s, axis=0) for s in (target_set_1, target_set_2)]

@@ -1,5 +1,4 @@
 import logging
-from typing import Dict, List
 
 import numpy as np
 import pytest
@@ -25,12 +24,13 @@ def model() -> WordEmbeddingModel:
     -------
     WordEmbeddingModel
         The loaded testing model.
+
     """
     return load_test_model()
 
 
 @pytest.fixture
-def query_2t2a_1(weat_wordsets: Dict[str, List[str]]) -> Query:
+def query_2t2a_1(weat_wordsets: dict[str, list[str]]) -> Query:
     """Generate a Flower and Insects wrt Pleasant vs Unpleasant test query.
 
     Parameters
@@ -42,6 +42,7 @@ def query_2t2a_1(weat_wordsets: Dict[str, List[str]]) -> Query:
     -------
     Query
         The generated query.
+
     """
     query = Query(
         [weat_wordsets["flowers"], weat_wordsets["insects"]],
@@ -53,20 +54,21 @@ def query_2t2a_1(weat_wordsets: Dict[str, List[str]]) -> Query:
 
 
 @pytest.fixture
-def weat_wordsets() -> Dict[str, List[str]]:
+def weat_wordsets() -> dict[str, list[str]]:
     """Load the word sets used in WEAT original work.
 
     Returns
     -------
     Dict[str, List[str]]
         A dictionary that map a word set name to a set of words.
+
     """
     weat_wordsets = load_weat()
     return weat_wordsets
 
 
 @pytest.fixture
-def query_2t2a_uppercase(weat_wordsets: Dict[str, List[str]]) -> Query:
+def query_2t2a_uppercase(weat_wordsets: dict[str, list[str]]) -> Query:
     """Generate a Flower and Insects wrt Pleasant vs Unpleasant test query.
 
     Parameters
@@ -78,6 +80,7 @@ def query_2t2a_uppercase(weat_wordsets: Dict[str, List[str]]) -> Query:
     -------
     Query
         The generated query.
+
     """
     query = Query(
         [
@@ -99,8 +102,7 @@ def query_2t2a_uppercase(weat_wordsets: Dict[str, List[str]]) -> Query:
 # --------------------------------------------------------------------------------------
 
 
-def test_preprocess_word():
-
+def test_preprocess_word() -> None:
     word = preprocess_word("Woman")
     assert word == "Woman"
 
@@ -155,8 +157,7 @@ def test_preprocess_word():
 # --------------------------------------------------------------------------------------
 
 
-def test_get_embeddings_from_set_types(model):
-
+def test_get_embeddings_from_set_types(model) -> None:
     WORDS = ["man", "woman"]
 
     with pytest.raises(
@@ -206,8 +207,7 @@ def test_get_embeddings_from_set_types(model):
         get_embeddings_from_set(model, WORDS, strategy="blabla")
 
 
-def test_get_embeddings_from_set(model):
-
+def test_get_embeddings_from_set(model) -> None:
     # ----------------------------------------------------------------------------------
     # test basic operation of get_embeddings_from_set
     WORDS = ["man", "woman"]
@@ -224,8 +224,7 @@ def test_get_embeddings_from_set(model):
     assert np.array_equal(model["woman"], embeddings["woman"])
 
 
-def test_get_embeddings_from_set_with_oov(model):
-
+def test_get_embeddings_from_set_with_oov(model) -> None:
     # test with a word that does not exists in the model
     WORDS = ["man", "woman", "not_a_word_"]
     not_found_words, embeddings = get_embeddings_from_set(model, WORDS)
@@ -234,13 +233,13 @@ def test_get_embeddings_from_set_with_oov(model):
     assert len(not_found_words) == 1
 
     assert list(embeddings.keys()) == ["man", "woman"]
-    assert ["not_a_word_"] == not_found_words
+    assert not_found_words == ["not_a_word_"]
 
     assert np.array_equal(model["man"], embeddings["man"])
     assert np.array_equal(model["woman"], embeddings["woman"])
 
 
-def test_get_embeddings_from_set_prep_lowercase(model):
+def test_get_embeddings_from_set_prep_lowercase(model) -> None:
     # test word preprocessor lowercase
 
     WORDS = [
@@ -261,7 +260,7 @@ def test_get_embeddings_from_set_prep_lowercase(model):
     assert np.array_equal(model["woman"], embeddings["woman"])
 
 
-def test_get_embeddings_from_set_prep_strip_accents(model):
+def test_get_embeddings_from_set_prep_strip_accents(model) -> None:
     # test word preprocessor strip_accents:
     WORDS = [
         "mán",
@@ -281,7 +280,7 @@ def test_get_embeddings_from_set_prep_strip_accents(model):
     assert np.array_equal(model["woman"], embeddings["woman"])
 
 
-def test_get_embeddings_from_set_prep_strategy_first(model):
+def test_get_embeddings_from_set_prep_strategy_first(model) -> None:
     # test two word preprocessors strip_accents strategy="first":
     WORDS = [
         "mán",
@@ -308,7 +307,7 @@ def test_get_embeddings_from_set_prep_strategy_first(model):
     assert np.array_equal(model["woman"], embeddings["woman"])
 
 
-def test_get_embeddings_from_set_prep_strategy_all(model):
+def test_get_embeddings_from_set_prep_strategy_all(model) -> None:
     # test two word preprocessors strip_accents strategy="all":
     WORDS = [
         "mán",
@@ -329,10 +328,10 @@ def test_get_embeddings_from_set_prep_strategy_all(model):
     assert list(embeddings.keys()) == ["man", "MAN", "Man", "woman", "WOMAN", "Woman"]
     assert not_found_words == ["WoMan"]
 
-    assert [np.array_equal(model[k], embeddings[k]) for k in embeddings.keys()]
+    assert [np.array_equal(model[k], embeddings[k]) for k in embeddings]
 
 
-def test_get_embeddings_from_set_with_normalization(model):
+def test_get_embeddings_from_set_with_normalization(model) -> None:
     # test normalize
     WORDS = ["man", "woman"]
 
@@ -347,7 +346,7 @@ def test_get_embeddings_from_set_with_normalization(model):
 # --------------------------------------------------------------------------------------
 
 
-def test_get_embeddings_from_sets_type_checkings(model):
+def test_get_embeddings_from_sets_type_checkings(model) -> None:
     # Test types and value checking.
 
     with pytest.raises(
@@ -415,7 +414,7 @@ def test_get_embeddings_from_sets_type_checkings(model):
         )
 
 
-def test_get_embeddings_from_sets_with_monuples(model):
+def test_get_embeddings_from_sets_with_monuples(model) -> None:
     # Test with 1-tuples
 
     pairs = [["woman"], ["she"], ["mother"]]
@@ -439,7 +438,7 @@ def test_get_embeddings_from_sets_with_monuples(model):
             assert all(model[word] == embedding)
 
 
-def test_get_embeddings_from_sets_with_pairs(model):
+def test_get_embeddings_from_sets_with_pairs(model) -> None:
     # Test with pairs of words (2-tuples)
 
     pairs = [["woman", "man"], ["she", "he"], ["mother", "father"]]
@@ -463,7 +462,7 @@ def test_get_embeddings_from_sets_with_pairs(model):
             assert all(model[word] == embedding)
 
 
-def test_get_embeddings_from_sets_with_triple(model):
+def test_get_embeddings_from_sets_with_triple(model) -> None:
     # Test with 3-tuples
 
     sets = [
@@ -489,7 +488,7 @@ def test_get_embeddings_from_sets_with_triple(model):
             assert all(model[word] == embedding)
 
 
-def test_get_embeddings_from_sets_with_oov(model, caplog, capsys):
+def test_get_embeddings_from_sets_with_oov(model, caplog, capsys) -> None:
     # Test out of vocabulary (OOV) words and failures
 
     pairs = [["woman", "man"], ["she", "he"], ["mother", "father"]]
@@ -514,8 +513,7 @@ def test_get_embeddings_from_sets_with_oov(model, caplog, capsys):
         assert "3/5 sets of words were correctly converted to sets of embeddings" in out
 
 
-def test_get_embeddings_from_sets_with_no_set_converted(model):
-
+def test_get_embeddings_from_sets_with_no_set_converted(model) -> None:
     oov_pairs = [["the", "vbbge"], ["ddsds", "ferhh"]]
 
     with pytest.raises(
@@ -531,8 +529,7 @@ def test_get_embeddings_from_sets_with_no_set_converted(model):
 # --------------------------------------------------------------------------------------
 
 
-def test_warn_not_found_words(caplog):
-
+def test_warn_not_found_words(caplog) -> None:
     with pytest.raises(
         TypeError, match=r"warn_not_found_words should be a boolean, got .*\."
     ):
@@ -553,8 +550,7 @@ def test_warn_not_found_words(caplog):
 
 def test_get_embeddings_from_query_input_checking(
     query_2t2a_1: Query, model: WordEmbeddingModel
-):
-
+) -> None:
     # target sets None
     with pytest.raises(TypeError, match="query should be an instance of Query, got"):
         get_embeddings_from_query(model, None)
@@ -581,9 +577,8 @@ def test_get_embeddings_from_query_input_checking(
 
 
 def test_get_embeddings_from_query(
-    query_2t2a_1: Query, weat_wordsets: Dict[str, List[str]], model: WordEmbeddingModel
-):
-
+    query_2t2a_1: Query, weat_wordsets: dict[str, list[str]], model: WordEmbeddingModel
+) -> None:
     flowers, insects, pleasant, unpleasant = (
         weat_wordsets["flowers"],
         weat_wordsets["insects"],
@@ -632,8 +627,8 @@ def test_get_embeddings_from_query(
 def test_get_embeddings_from_query_oov_warns(
     caplog,
     model: WordEmbeddingModel,
-    weat_wordsets: Dict[str, List[str]],
-):
+    weat_wordsets: dict[str, list[str]],
+) -> None:
     # check lost words warning when warn_not_found_words is True
 
     flowers, insects, pleasant, unpleasant = (
@@ -665,8 +660,8 @@ def test_get_embeddings_from_query_oov_warns(
 def test_get_embeddings_from_query_with_lower_preprocessor(
     model: WordEmbeddingModel,
     query_2t2a_uppercase: Query,
-    weat_wordsets: Dict[str, List[str]],
-):
+    weat_wordsets: dict[str, list[str]],
+) -> None:
     # check get_embeddings_from_query with lowercase and one preprocessor options
     flowers, insects, pleasant, unpleasant = (
         weat_wordsets["flowers"],
@@ -704,8 +699,8 @@ def test_get_embeddings_from_query_with_lower_preprocessor(
 def test_get_embeddings_from_query_with_two_preprocessors(
     model: WordEmbeddingModel,
     query_2t2a_uppercase: Query,
-    weat_wordsets: Dict[str, List[str]],
-):
+    weat_wordsets: dict[str, list[str]],
+) -> None:
     # test get_embeddings_from_query with secondary preprocessor_options options
     flowers, insects, pleasant, unpleasant = (
         weat_wordsets["flowers"],
@@ -740,9 +735,8 @@ def test_get_embeddings_from_query_with_two_preprocessors(
 
 
 def test_get_embeddings_from_query_lost_threshold(
-    caplog, model: WordEmbeddingModel, weat_wordsets: Dict[str, List[str]]
-):
-
+    caplog, model: WordEmbeddingModel, weat_wordsets: dict[str, list[str]]
+) -> None:
     flowers, insects, pleasant, unpleasant = (
         weat_wordsets["flowers"],
         weat_wordsets["insects"],

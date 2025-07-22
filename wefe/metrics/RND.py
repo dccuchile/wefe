@@ -1,5 +1,6 @@
 """Relative Norm Distance (RND) metric implementation."""
-from typing import Any, Callable, Dict, List, Tuple, Union
+
+from typing import Any, Callable, Union
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -36,6 +37,7 @@ class RND(BaseMetric):
     | Word embeddings quantify 100 years of gender and ethnic stereotypes.
     | Proceedings of the National Academy of Sciences, 115(16):E3635–E3644,2018.
     | [2]: https://github.com/nikhgarg/EmbeddingDynamicStereotypes
+
     """
 
     metric_template = (2, 1)
@@ -56,8 +58,7 @@ class RND(BaseMetric):
             return c[0]
 
         raise ValueError(
-            'distance_type can be either "norm" or "cos", '
-            "got: {} ".format(distance_type)
+            f'distance_type can be either "norm" or "cos", got: {distance_type} '
         )
 
     def __calc_rnd(
@@ -67,8 +68,7 @@ class RND(BaseMetric):
         attribute: np.ndarray,
         attribute_words: list,
         distance_type: str,
-    ) -> Tuple[float, Dict[str, float]]:
-
+    ) -> tuple[float, dict[str, float]]:
         # calculates the average wv for the group words.
         target_1_avg_vector = np.average(target_0, axis=0)
         target_2_avg_vector = np.average(target_1, axis=0)
@@ -77,7 +77,6 @@ class RND(BaseMetric):
         distance_by_words = {}
 
         for attribute_word_index, attribute_embedding in enumerate(attribute):
-
             # calculate the distance
             current_distance = self.__calc_distance(
                 attribute_embedding,
@@ -96,9 +95,9 @@ class RND(BaseMetric):
             # by word
             distance_by_words[attribute_words[attribute_word_index]] = current_distance
 
-        sorted_distance_by_word = {
-            k: v for k, v in sorted(distance_by_words.items(), key=lambda item: item[1])
-        }
+        sorted_distance_by_word = dict(
+            sorted(distance_by_words.items(), key=lambda item: item[1])
+        )
 
         # calculate the average of the distances and return
         mean_distance = sum_of_distances / len(distance_by_words)
@@ -110,13 +109,13 @@ class RND(BaseMetric):
         model: WordEmbeddingModel,
         distance: str = "norm",
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: List[Dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,
         *args: Any,
-        **kwargs: Any
-    ) -> Dict[str, Any]:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Calculate the RND metric over the provided parameters.
 
         Parameters
@@ -259,6 +258,7 @@ class RND(BaseMetric):
                                'children': 0.09255883,
                                'marriage': 0.09959312,
                                'wedding': 0.104610026}}
+
         """
         # check the types of the provided arguments (only the defaults).
         self._check_input(query, model, locals())

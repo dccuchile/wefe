@@ -1,5 +1,6 @@
 """MAC metric testing."""
-from typing import Any, Dict
+
+from typing import Any
 
 import numpy as np
 
@@ -8,11 +9,11 @@ from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-def check_MAC_result_keys(results: Dict[str, Any]):
+def check_MAC_result_keys(results: dict[str, Any]) -> None:
     assert list(results.keys()) == ["query_name", "result", "mac", "targets_eval"]
 
 
-def check_MAC_result_values(results: Dict[str, Any]):
+def check_MAC_result_values(results: dict[str, Any]) -> None:
     # note: this checking only applies when the result is not np.nan.
     assert isinstance(results["query_name"], str)
 
@@ -36,8 +37,7 @@ def check_MAC_result_values(results: Dict[str, Any]):
                 assert isinstance(attribute_score, (np.number, float))
 
 
-def test_MAC(model, query_1t4_1):
-
+def test_MAC(model, query_1t4_1) -> None:
     mac = MAC()
     results = mac.run_query(query_1t4_1, model)
 
@@ -57,7 +57,7 @@ def test_MAC(model, query_1t4_1):
 
 def test_MAC_lost_vocabulary_threshold(
     model: WordEmbeddingModel, query_2t2a_lost_vocab_1: Query
-):
+) -> None:
     mac = MAC()
 
     # test metric with a target set that loses more words than allowed.

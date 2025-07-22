@@ -8,7 +8,7 @@ from wefe.datasets.datasets import (
 )
 
 
-def test_load_bingliu():
+def test_load_bingliu() -> None:
     bingliu = load_bingliu()
     assert isinstance(bingliu, dict)
     assert list(bingliu.keys()) == ["positive_words", "negative_words"]
@@ -23,7 +23,7 @@ def test_load_bingliu():
             assert len(word) > 0
 
 
-def test_fetch_eds():
+def test_fetch_eds() -> None:
     eds_dataset = fetch_eds()
     assert isinstance(eds_dataset, dict)
     assert list(eds_dataset.keys()) == [
@@ -60,7 +60,7 @@ def test_fetch_eds():
             assert len(word) > 0
 
 
-def test_fetch_debiaswe():
+def test_fetch_debiaswe() -> None:
     debiaswe_datatset = fetch_debiaswe()
     assert isinstance(debiaswe_datatset, dict)
     assert list(debiaswe_datatset.keys()) == [
@@ -82,7 +82,7 @@ def test_fetch_debiaswe():
             assert len(word) > 0
 
 
-def test_fetch_debias_multiclass():
+def test_fetch_debias_multiclass() -> None:
     debias_multiclass_dataset = fetch_debias_multiclass()
     assert isinstance(debias_multiclass_dataset, dict)
     assert list(debias_multiclass_dataset.keys()) == [
@@ -125,7 +125,7 @@ def test_fetch_debias_multiclass():
                 assert len(word) > 0
 
 
-def test_load_weat():
+def test_load_weat() -> None:
     weat = load_weat()
     assert isinstance(weat, dict)
     assert list(weat.keys()) == [
@@ -169,7 +169,7 @@ def test_load_weat():
             assert len(word) > 0
 
 
-def test_load_gn_glove():
+def test_load_gn_glove() -> None:
     gn_glove_words = fetch_gn_glove()
     assert isinstance(gn_glove_words, dict)
     assert list(gn_glove_words.keys()) == ["male_terms", "female_terms"]

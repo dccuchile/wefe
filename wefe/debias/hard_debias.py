@@ -1,7 +1,8 @@
 """Hard Debias WEFE implementation."""
+
 import logging
 from copy import deepcopy
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import numpy as np
 from sklearn.decomposition import PCA
@@ -145,6 +146,7 @@ class HardDebias(BaseDebias):
     | Man is to computer programmer as woman is to homemaker? debiasing word embeddings.
     | Advances in Neural Information Processing Systems.
     | [2]: https://github.com/tolga-b/debiaswe
+
     """
 
     name = "Hard Debias"
@@ -152,7 +154,7 @@ class HardDebias(BaseDebias):
 
     def __init__(
         self,
-        pca_args: Dict[str, Any] = {"n_components": 10},
+        pca_args: dict[str, Any] = {"n_components": 10},
         verbose: bool = False,
         criterion_name: Optional[str] = None,
     ) -> None:
@@ -170,6 +172,7 @@ class HardDebias(BaseDebias):
             The name of the criterion for which the debias is being executed,
             e.g., 'Gender'. This will indicate the name of the model returning
             transform, by default None
+
         """
         # check verbose
         if not isinstance(verbose, bool):
@@ -185,13 +188,11 @@ class HardDebias(BaseDebias):
 
     def _identify_bias_subspace(
         self,
-        definning_pairs_embeddings: List[EmbeddingDict],
+        definning_pairs_embeddings: list[EmbeddingDict],
         verbose: bool = False,
     ) -> PCA:
-
         matrix = []
         for embedding_dict_pair in definning_pairs_embeddings:
-
             # Get the center of the current definning pair.
             pair_embeddings = np.array(list(embedding_dict_pair.values()))
             center = np.mean(pair_embeddings, axis=0)
@@ -206,7 +207,9 @@ class HardDebias(BaseDebias):
 
         if verbose:
             explained_variance = pca.explained_variance_ratio_
-            print(f"PCA variance explained: {explained_variance[0:pca.n_components_]}")
+            print(
+                f"PCA variance explained: {explained_variance[0 : pca.n_components_]}"
+            )
 
         return pca
 
@@ -232,6 +235,7 @@ class HardDebias(BaseDebias):
         -------
         np.ndarray
             A neutralized embedding.
+
         """
         return u - v * u.dot(v) / v.dot(v)
 
@@ -239,25 +243,19 @@ class HardDebias(BaseDebias):
         self,
         model: WordEmbeddingModel,
         bias_direction: np.ndarray,
-        target: Optional[List[str]],
-        ignore: Optional[List[str]],
+        target: Optional[list[str]],
+        ignore: Optional[list[str]],
     ) -> None:
+        target_ = set(target) if target is not None else set(model.vocab.keys())
 
-        if target is not None:
-            target_ = set(target)
-        else:
-            target_ = set(model.vocab.keys())
-
-        if ignore is not None and target is None:
-            ignore_ = set(ignore)
-        else:
-            ignore_ = set()
+        ignore_ = set(ignore) if ignore is not None and target is None else set()
 
         for word in tqdm(target_):
             if word not in ignore_ and word in model.vocab:
                 current_embedding = model[word]
                 neutralized_embedding = self._drop(
-                    current_embedding, bias_direction  # type: ignore
+                    current_embedding,
+                    bias_direction,  # type: ignore
                 )
                 neutralized_embedding = neutralized_embedding.astype(np.float32)
                 model.update(word, neutralized_embedding)
@@ -265,7 +263,7 @@ class HardDebias(BaseDebias):
     def _equalize(
         self,
         embedding_model: WordEmbeddingModel,
-        equalize_pairs_embeddings: List[EmbeddingDict],
+        equalize_pairs_embeddings: list[EmbeddingDict],
         bias_direction: np.ndarray,
     ) -> None:
         for equalize_pair_embeddings in equalize_pairs_embeddings:
@@ -298,8 +296,8 @@ class HardDebias(BaseDebias):
     def fit(
         self,
         model: WordEmbeddingModel,
-        definitional_pairs: List[List[str]],
-        equalize_pairs: Optional[List[List[str]]] = None,
+        definitional_pairs: list[list[str]],
+        equalize_pairs: Optional[list[list[str]]] = None,
         **fit_params,
     ) -> BaseDebias:
         """Compute the bias direction and obtains the equalize embedding pairs.
@@ -322,6 +320,7 @@ class HardDebias(BaseDebias):
         -------
         BaseDebias
             The debias method fitted.
+
         """
         # Check arguments types
         self._check_sets_sizes(definitional_pairs, set_name="definitional", set_size=2)
@@ -340,7 +339,7 @@ class HardDebias(BaseDebias):
             verbose=self.verbose,
         )
 
-        # ------------------------------------------------------------------------------:
+        # -----------------------------------------------------------------------------:
         # Identify the bias subspace using the definning pairs.
         if self.verbose:
             print("Identifying the bias subspace.")
@@ -351,7 +350,7 @@ class HardDebias(BaseDebias):
         )
         self.bias_direction_ = self.pca_.components_[0]
 
-        # ------------------------------------------------------------------------------:
+        # -----------------------------------------------------------------------------:
         # Obtain the equalization pairs.
 
         # if equalize pairs are none, set the definitional pairs as the pairs
@@ -394,8 +393,8 @@ class HardDebias(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[List[str]] = None,
-        ignore: Optional[List[str]] = None,
+        target: Optional[list[str]] = None,
+        ignore: Optional[list[str]] = None,
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Execute hard debias over the provided model.
@@ -431,6 +430,7 @@ class HardDebias(BaseDebias):
         -------
         WordEmbeddingModel
             The debiased embedding model.
+
         """
         # ------------------------------------------------------------------------------
         # Check types and if the method is fitted

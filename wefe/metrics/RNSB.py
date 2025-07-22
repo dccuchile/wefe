@@ -792,7 +792,12 @@ class RNSB(BaseMetric):
 
         """
         # check the types of the provided arguments (only the defaults).
-        self._check_input(query, model, locals())
+        self._check_input(
+            query=query,
+            model=model,
+            lost_vocabulary_threshold=lost_vocabulary_threshold,
+            warn_not_found_words=warn_not_found_words,
+        )
 
         if n_iterations > 1 and random_state is not None:
             raise ValueError(

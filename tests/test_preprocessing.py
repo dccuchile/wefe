@@ -168,7 +168,7 @@ def test_preprocess_word(input_word, preprocessor_opts, vocab_prefix, expected) 
             [{}],
             None,
             TypeError,
-            r"model should be a WordEmbeddingModel instance, got .*\.",
+            r"model must be a WordEmbeddingModel instance, got .*\.",
         ),
         (
             "model",  # will be replaced in test body
@@ -176,7 +176,7 @@ def test_preprocess_word(input_word, preprocessor_opts, vocab_prefix, expected) 
             [{}],
             None,
             TypeError,
-            r"word_set should be a list, tuple or np.array of strings, got.*",
+            r"word_set must be a list, tuple or np.array of strings, got.*",
         ),
         (
             "model",
@@ -185,7 +185,7 @@ def test_preprocess_word(input_word, preprocessor_opts, vocab_prefix, expected) 
             None,
             TypeError,
             (
-                r"preprocessors should be a list of dicts which contains preprocessor "
+                r"preprocessors must be a list of dicts which contains preprocessor "
                 r"options, got .*\."
             ),
         ),
@@ -206,7 +206,7 @@ def test_preprocess_word(input_word, preprocessor_opts, vocab_prefix, expected) 
             [{"lower": True}, {"upper": True}, 1],
             None,
             TypeError,
-            r"each preprocessor should be a dict, got .* at index .*\.",
+            r"each preprocessor must be a dict, got .* at index .*\.",
         ),
         (
             "model",
@@ -214,7 +214,7 @@ def test_preprocess_word(input_word, preprocessor_opts, vocab_prefix, expected) 
             [{}],
             "blabla",
             ValueError,
-            r"strategy should be 'first' or 'all', got .*\.",
+            r"strategy must be 'first' or 'all', got .*\.",
         ),
     ],
     ids=[
@@ -421,7 +421,7 @@ def test_get_embeddings_from_set_with_normalization(model: WordEmbeddingModel) -
             [{}],
             False,
             False,
-            r"model should be a WordEmbeddingModel instance, got <class 'NoneType'>.",
+            r"model must be a WordEmbeddingModel instance, got <class 'NoneType'>.",
         ),
         (
             "model",  # will be replaced in test body
@@ -431,7 +431,7 @@ def test_get_embeddings_from_set_with_normalization(model: WordEmbeddingModel) -
             False,
             False,
             (
-                r"sets should be a sequence of sequences "
+                r"sets must be a sequence of sequences "
                 r"\(list, tuple or np\.array\) of strings, got:.*"
             ),
         ),
@@ -443,7 +443,7 @@ def test_get_embeddings_from_set_with_normalization(model: WordEmbeddingModel) -
             False,
             False,
             (
-                r"Every set in sets should be a list, tuple or np.array of strings, "
+                r"Every set in sets must be a list, tuple or np.array of strings, "
                 "got in index.*"
             ),
         ),
@@ -455,7 +455,7 @@ def test_get_embeddings_from_set_with_normalization(model: WordEmbeddingModel) -
             False,
             False,
             (
-                r"All set elements in a set of words should be strings. "
+                r"All set elements in a set of words must be strings. "
                 "Got in set.*at position 0:.*"
             ),
         ),
@@ -467,7 +467,7 @@ def test_get_embeddings_from_set_with_normalization(model: WordEmbeddingModel) -
             False,
             False,
             (
-                r"All set elements in a set of words should be strings. "
+                r"All set elements in a set of words must be strings. "
                 "Got in set.* at position 1:.*"
             ),
         ),
@@ -478,7 +478,7 @@ def test_get_embeddings_from_set_with_normalization(model: WordEmbeddingModel) -
             [{}],
             False,
             False,
-            r"sets_name should be a string or None, got:.*",
+            r"sets_name must be a string or None, got:.*",
         ),
         (
             "model",
@@ -487,7 +487,7 @@ def test_get_embeddings_from_set_with_normalization(model: WordEmbeddingModel) -
             [{}],
             None,
             False,
-            r"warn_lost_sets should be a bool, got:.*",
+            r"warn_lost_sets must be a bool, got:.*",
         ),
         (
             "model",
@@ -496,7 +496,7 @@ def test_get_embeddings_from_set_with_normalization(model: WordEmbeddingModel) -
             [{}],
             True,
             "yes",
-            r"verbose should be a bool, got:.*",
+            r"verbose must be a bool, got:.*",
         ),
         (
             "model",
@@ -505,7 +505,7 @@ def test_get_embeddings_from_set_with_normalization(model: WordEmbeddingModel) -
             [{}],
             True,
             None,
-            r"verbose should be a bool, got:.*",
+            r"verbose must be a bool, got:.*",
         ),
     ],
     ids=[
@@ -685,7 +685,7 @@ def test_get_embeddings_from_sets_with_no_set_converted(
 
 def test_warn_not_found_words(caplog) -> None:
     with pytest.raises(
-        TypeError, match=r"warn_not_found_words should be a boolean, got .*\."
+        TypeError, match=r"warn_not_found_words must be a boolean, got .*\."
     ):
         _warn_not_found_words(
             warn_not_found_words=None,
@@ -723,7 +723,7 @@ def test_warn_not_found_words(caplog) -> None:
             0.2,
             False,
             TypeError,
-            "query should be an instance of Query, got",
+            "query must be an instance of Query, got",
         ),
         (
             "query",
@@ -732,7 +732,7 @@ def test_warn_not_found_words(caplog) -> None:
             False,
             TypeError,
             (
-                r"preprocessors should be a list of dicts which contains preprocessor "
+                r"preprocessors must be a list of dicts which contains preprocessor "
                 r"options, got .*\."
             ),
         ),
@@ -742,7 +742,7 @@ def test_warn_not_found_words(caplog) -> None:
             0.2,
             None,
             TypeError,
-            "warn_not_found_words should be a boolean, got",
+            "warn_not_found_words must be a boolean, got",
         ),
         (
             "query",
@@ -750,7 +750,7 @@ def test_warn_not_found_words(caplog) -> None:
             "",
             False,
             TypeError,
-            r"lost_vocabulary_threshold should be float, .*",
+            r"lost_vocabulary_threshold must be float, .*",
         ),
     ],
     ids=[

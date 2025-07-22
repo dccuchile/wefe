@@ -144,16 +144,16 @@ class DoubleHardDebias(BaseDebias):
         if not isinstance(incremental_pca, bool):
             raise TypeError(f"incremental_pca should be a bool, got {verbose}.")
 
-        if incremental_pca:
-            self.pca_type = IncrementalPCA()
-        else:
-            self.pca_type = PCA(svd_solver="randomized")
-
         if not isinstance(pca_args, dict):
             raise TypeError(f"pca_args should be a dict, got {verbose}.")
 
         self.pca_args = pca_args
         self.verbose = verbose
+
+        if incremental_pca:
+            self.pca_type = IncrementalPCA(**self.pca_args)
+        else:
+            self.pca_type = PCA(svd_solver="randomized", **self.pca_args)
 
         if criterion_name is None or isinstance(criterion_name, str):
             self.criterion_name_ = criterion_name

@@ -157,12 +157,12 @@ class WordEmbeddingModel:
 
         return self.wv[key]
 
-    def __contains__(self, key) -> bool:
+    def __contains__(self, key: str) -> bool:
         """Check if a word is in the model's vocabulary.
 
         Parameters
         ----------
-        key
+        key: str
             Some word.
 
         Returns
@@ -441,7 +441,7 @@ class WordEmbeddingModel:
                     f"but expected a 2D array with {expected_vector_size} columns "
                     f"(model's vector size {expected_vector_size})."
                 )
-            if not np.issubdtype(
+            if not np.can_cast(
                 embeddings.dtype, model_dtype
             ):  # Check if source dtype can be cast to target dtype
                 raise ValueError(
@@ -468,7 +468,7 @@ class WordEmbeddingModel:
                         f"({expected_vector_size},)."
                     )
                 # Ensure data type compatibility
-                if not np.issubdtype(
+                if not np.can_cast(
                     emb.dtype, model_dtype
                 ):  # Check if source dtype can be cast to target dtype
                     raise ValueError(

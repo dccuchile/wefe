@@ -1,9 +1,9 @@
 import gensim
+from gensim.models import KeyedVectors
 import numpy as np
 import pandas as pd
 import pytest
 import semantic_version
-from gensim.models import KeyedVectors
 
 from wefe.datasets import load_weat
 from wefe.metrics import RND, WEAT

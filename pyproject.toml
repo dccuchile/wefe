@@ -147,3 +147,15 @@ select = [
 ]
 
 ignore = ["B006"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "S101"] # Ignore docstring and assert rules in tests
+"__init__.py" = ["F401"]  # Ignore unused imports in __init__.py
+
+
+[tool.ruff.lint.isort]
+known-first-party = ["wefe"]
+force-sort-within-sections = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"

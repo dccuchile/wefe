@@ -1,8 +1,8 @@
 """Word Embedding Assosiation Test (WEAT) metric implementation."""
 
+from collections.abc import Callable
 import logging
 import math
-from collections.abc import Callable
 from typing import Any
 
 import numpy as np

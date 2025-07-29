@@ -1,7 +1,7 @@
 """Module with utilities that ease the transformation of word sets to embeddings."""
 
-import logging
 from collections.abc import Callable, Sequence
+import logging
 
 import numpy as np
 from sklearn.feature_extraction.text import strip_accents_ascii, strip_accents_unicode

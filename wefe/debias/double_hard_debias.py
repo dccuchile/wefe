@@ -1,7 +1,7 @@
 """Double Hard Debias WEFE implementation."""
 
-import operator
 from copy import deepcopy
+import operator
 from typing import Any
 
 import numpy as np

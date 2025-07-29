@@ -1,7 +1,7 @@
 """Relative Negative Sentiment Bias (RNSB) metric implementation."""
 
-import logging
 from collections.abc import Callable
+import logging
 from typing import Any
 
 import numpy as np

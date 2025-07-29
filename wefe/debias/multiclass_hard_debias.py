@@ -1,7 +1,7 @@
 """Multiclass Hard Debias WEFE implementation."""
 
-import logging
 from copy import deepcopy
+import logging
 from typing import Any
 
 import numpy as np

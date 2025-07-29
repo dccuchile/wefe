@@ -5,8 +5,8 @@ from typing import Any
 
 import gensim
 import numpy as np
-import semantic_version
 from numpy.typing import NDArray
+import semantic_version
 
 GENSIM_VERSION = semantic_version.Version.coerce(gensim.__version__)
 GENSIM_V4_OR_GREATER = GENSIM_VERSION.major >= 4  # type: ignore

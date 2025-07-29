@@ -2,10 +2,12 @@
 
 from abc import abstractmethod
 
+from sklearn.base import BaseEstimator
+
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-class BaseDebias:
+class BaseDebias(BaseEstimator):
     """Mixin class for implement any debias method in WEFE."""
 
     # The name of the method.

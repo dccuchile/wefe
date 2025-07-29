@@ -4,8 +4,8 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 import os
-import sys
 from pathlib import Path
+import sys
 
 # Add the project root to the Python path
 project_root = Path(__file__).parent.parent

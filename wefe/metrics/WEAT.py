@@ -1,8 +1,9 @@
 """Word Embedding Assosiation Test (WEAT) metric implementation."""
 
+from collections.abc import Callable
 import logging
 import math
-from typing import Any, Callable, Union
+from typing import Any
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -172,7 +173,7 @@ class WEAT(BaseMetric):
             )
         test_function = TEST_FUNCTION_DISPATCHER[test_type]
 
-        if not isinstance(iterations, (int, float)):
+        if not isinstance(iterations, int | float):
             raise TypeError(
                 f"p value iterations should be int instance, got {iterations}."
             )
@@ -252,7 +253,7 @@ class WEAT(BaseMetric):
         p_value_iterations: int = 10000,
         p_value_verbose: bool = False,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, str | bool | Callable]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,

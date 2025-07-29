@@ -5,8 +5,8 @@ from typing import Any
 
 import gensim
 import numpy as np
-import semantic_version
 from numpy.typing import NDArray
+import semantic_version
 
 GENSIM_VERSION = semantic_version.Version.coerce(gensim.__version__)
 GENSIM_V4_OR_GREATER = GENSIM_VERSION.major >= 4  # type: ignore
@@ -383,12 +383,12 @@ class WordEmbeddingModel:
 
         """
         # Initial type and length validation for the input containers
-        if not isinstance(words, (list, tuple, np.ndarray)):
+        if not isinstance(words, list | tuple | np.ndarray):
             raise TypeError(
                 f"words argument should be a list, tuple or np.array of strings, "
                 f"but got {type(words)}."
             )
-        if not isinstance(embeddings, (list, tuple, np.ndarray)):
+        if not isinstance(embeddings, list | tuple | np.ndarray):
             raise TypeError(
                 "embeddings argument should be a list, tuple or np.array of "
                 f"NumPy arrays, but got {type(embeddings)}."

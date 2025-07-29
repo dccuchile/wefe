@@ -1,12 +1,13 @@
 """Contains a base class for implement any debias method in WEFE."""
 
 from abc import abstractmethod
-from typing import Optional, Union
+
+from sklearn.base import BaseEstimator
 
 from wefe.word_embedding_model import WordEmbeddingModel
 
 
-class BaseDebias:
+class BaseDebias(BaseEstimator):
     """Mixin class for implement any debias method in WEFE."""
 
     # The name of the method.
@@ -35,8 +36,8 @@ class BaseDebias:
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[list[str]] = None,
-        ignore: Optional[list[str]] = None,
+        target: list[str] | None = None,
+        ignore: list[str] | None = None,
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Perform the debiasing method over the model provided.
@@ -74,8 +75,8 @@ class BaseDebias:
     def fit_transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[list[str]] = None,
-        ignore: Optional[list[str]] = None,
+        target: list[str] | None = None,
+        ignore: list[str] | None = None,
         copy: bool = True,
         **fit_params,
     ) -> WordEmbeddingModel:
@@ -116,8 +117,8 @@ class BaseDebias:
     def _check_transform_args(
         self,
         model: WordEmbeddingModel,
-        target: Optional[list[str]] = None,
-        ignore: Optional[list[str]] = None,
+        target: list[str] | None = None,
+        ignore: list[str] | None = None,
         copy: bool = True,
     ) -> None:
         # check if model is a WordEmbeddingModel
@@ -164,7 +165,7 @@ class BaseDebias:
         self,
         sets: list[list[str]],
         set_name: str,
-        set_size: Union[int, str],
+        set_size: int | str,
     ) -> None:
         if len(sets) == 0:
             raise ValueError("")

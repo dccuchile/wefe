@@ -232,7 +232,7 @@ def test_templates(weat_wordsets: dict[str, list[str]]) -> None:
         ["Weapons", "Instruments"],
     ]
 
-    for target_name, subquery in zip(target_names, subqueries):
+    for target_name, subquery in zip(target_names, subqueries, strict=False):
         assert target_name == subquery.target_sets_names
 
     # attribute subqueries
@@ -240,7 +240,7 @@ def test_templates(weat_wordsets: dict[str, list[str]]) -> None:
     attribute_names = [["Pleasant"], ["Unpleasant"]]
     assert len(subqueries) == 2
 
-    for attribute_name, subquery in zip(attribute_names, subqueries):
+    for attribute_name, subquery in zip(attribute_names, subqueries, strict=False):
         assert attribute_name == subquery.attribute_sets_names
 
 

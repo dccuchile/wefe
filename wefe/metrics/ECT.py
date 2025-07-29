@@ -1,6 +1,7 @@
 """Embedding Coherence Test metric implementation."""
 
-from typing import Any, Callable, Union
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 from scipy.spatial.distance import cosine
@@ -52,7 +53,7 @@ class ECT(BaseMetric):
         query: Query,
         model: WordEmbeddingModel,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, str | bool | Callable]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,

@@ -1,7 +1,8 @@
 """Relative Negative Sentiment Bias (RNSB) metric implementation."""
 
+from collections.abc import Callable
 import logging
-from typing import Any, Callable, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -94,7 +95,7 @@ class RNSB(BaseMetric):
         attribute_embeddings_dict: list[dict[str, np.ndarray]],
         estimator: BaseEstimator,
         estimator_params: dict[str, Any],
-        random_state: Union[int, None],
+        random_state: int | None,
         holdout: bool,
         print_model_evaluation: bool,
     ) -> tuple[BaseEstimator, float]:
@@ -270,7 +271,7 @@ class RNSB(BaseMetric):
 
         # set the probabilities for each word in a dict.
         negative_sentiment_probabilities = dict(
-            zip(flatten_target_words, negative_probabilities)
+            zip(flatten_target_words, negative_probabilities, strict=False)
         )
 
         return kl_divergence, negative_sentiment_probabilities
@@ -282,11 +283,11 @@ class RNSB(BaseMetric):
         estimator: BaseEstimator = LogisticRegression,
         estimator_params: dict[str, Any] = {"solver": "liblinear", "max_iter": 10000},
         n_iterations: int = 1,
-        random_state: Union[int, None] = None,
+        random_state: int | None = None,
         holdout: bool = True,
         print_model_evaluation: bool = False,
         lost_vocabulary_threshold: float = 0.2,
-        preprocessors: list[dict[str, Union[str, bool, Callable]]] = [{}],
+        preprocessors: list[dict[str, str | bool | Callable]] = [{}],
         strategy: str = "first",
         normalize: bool = False,
         warn_not_found_words: bool = False,

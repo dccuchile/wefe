@@ -34,7 +34,7 @@ def check_MAC_result_values(results: dict[str, Any]) -> None:
             assert isinstance(attribute_scores, dict)
             for attribute_name, attribute_score in attribute_scores.items():
                 assert isinstance(attribute_name, str)
-                assert isinstance(attribute_score, (np.number, float))
+                assert isinstance(attribute_score, np.number | float)
 
 
 def test_MAC(model, query_1t4_1) -> None:

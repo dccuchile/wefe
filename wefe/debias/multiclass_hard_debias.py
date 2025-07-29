@@ -1,8 +1,8 @@
 """Multiclass Hard Debias WEFE implementation."""
 
-import logging
 from copy import deepcopy
-from typing import Any, Optional
+import logging
+from typing import Any
 
 import numpy as np
 from sklearn.decomposition import PCA
@@ -79,7 +79,7 @@ class MulticlassHardDebias(BaseDebias):
         self,
         pca_args: dict[str, Any] = {"n_components": 10},
         verbose: bool = False,
-        criterion_name: Optional[str] = None,
+        criterion_name: str | None = None,
     ) -> None:
         """Initialize a Multiclass Hard Debias instance.
 
@@ -157,8 +157,8 @@ class MulticlassHardDebias(BaseDebias):
         self,
         model: WordEmbeddingModel,
         bias_subspace: np.ndarray,
-        target: Optional[list[str]],
-        ignore: Optional[list[str]],
+        target: list[str] | None,
+        ignore: list[str] | None,
     ) -> None:
         target_ = set(target) if target is not None else set(model.vocab.keys())
 
@@ -197,7 +197,7 @@ class MulticlassHardDebias(BaseDebias):
             # discard the projection from the mean
             upsilon = mean - mean_b
 
-            for word, embedding in zip(words, embeddings):
+            for word, embedding in zip(words, embeddings, strict=False):
                 v_b = self._project_onto_subspace(embedding, bias_subspace)
                 frac = (v_b - mean_b) / np.linalg.norm(v_b - mean_b)
                 new_v = upsilon + np.sqrt(1 - np.sum(np.square(upsilon))) * frac
@@ -279,8 +279,8 @@ class MulticlassHardDebias(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[list[str]] = None,
-        ignore: Optional[list[str]] = None,
+        target: list[str] | None = None,
+        ignore: list[str] | None = None,
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Execute Multiclass Hard Debias over the provided model.

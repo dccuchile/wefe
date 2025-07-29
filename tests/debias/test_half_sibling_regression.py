@@ -108,7 +108,7 @@ def test_half_sibling_regression_ignore_param(
     )
 
     targets = weat_wordsets["male_names"] + weat_wordsets["female_names"]
-    attributes = weat_wordsets["pleasant_5"] + weat_wordsets["unpleasant_5"]
+    attributes = weat_wordsets["pleasant_5"] + weat_wordsets["unpleasant_5a"]
     ignore = targets + attributes
 
     gender_debiased_w2v = hsr.fit(model, definitional_words=gender_specific).transform(

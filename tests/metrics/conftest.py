@@ -72,7 +72,7 @@ def query_2t2a_1(weat_wordsets: dict[str, list[str]]) -> Query:
     """
     query = Query(
         [weat_wordsets["flowers"], weat_wordsets["insects"]],
-        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5a"]],
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
@@ -87,7 +87,7 @@ def query_3t2a_1(weat_wordsets: dict[str, list[str]]) -> Query:
             weat_wordsets["insects"],
             weat_wordsets["instruments"],
         ],
-        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5a"]],
         ["Flowers", "Weapons", "Instruments"],
         ["Pleasant", "Unpleasant"],
     )
@@ -104,7 +104,7 @@ def query_4t2a_1(weat_wordsets: dict[str, list[str]]) -> Query:
             weat_wordsets["instruments"],
             weat_wordsets["weapons"],
         ],
-        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5a"]],
         ["Flowers", "Insects", "Instruments", "Weapons"],
         ["Pleasant", "Unpleasant"],
     )
@@ -119,7 +119,7 @@ def query_1t4_1(weat_wordsets: dict[str, list[str]]) -> Query:
         [
             weat_wordsets["pleasant_5"],
             weat_wordsets["pleasant_9"],
-            weat_wordsets["unpleasant_5"],
+            weat_wordsets["unpleasant_5a"],
             weat_wordsets["unpleasant_9"],
         ],
         ["Flowers"],
@@ -144,7 +144,7 @@ def query_2t1a_lost_vocab_1(weat_wordsets: dict[str, list[str]]) -> Query:
 def query_2t2a_lost_vocab_1(weat_wordsets: dict[str, list[str]]) -> Query:
     query = Query(
         [["bla", "asd"], weat_wordsets["insects"]],
-        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5a"]],
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )

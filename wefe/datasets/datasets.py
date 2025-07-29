@@ -1,6 +1,10 @@
 """Module with functions to load datasets and sets of words related to bias."""
 
 import json
+import logging
+import socket
+import time
+import urllib.error
 import urllib.request
 from typing import Union
 
@@ -9,8 +13,92 @@ import pandas as pd
 import pkg_resources
 
 
+def _retry_request(func, *args, n_retries: int = 3, **kwargs):
+    """Retry a function call with exponential backoff for rate limiting errors.
+
+    Parameters
+    ----------
+    func : callable
+        The function to retry (pd.read_csv or urllib.request.urlopen)
+    *args : tuple
+        Positional arguments to pass to the function
+    n_retries : int, optional
+        Number of retries to attempt, by default 3
+    **kwargs : dict
+        Keyword arguments to pass to the function
+
+    Returns
+    -------
+    Any
+        The result of the function call
+
+    Raises
+    ------
+    Exception
+        The last exception encountered if all retries fail
+
+    Notes
+    -----
+    This function handles the following error types with retries:
+    - HTTP 429 (Too Many Requests) and 503 (Service Unavailable) errors
+      with exponential backoff
+    - Timeout errors (socket.timeout, TimeoutError, OSError) with exponential backoff
+    - Other exceptions with a fixed 1-second delay
+    """
+    last_exception = None
+
+    for attempt in range(n_retries + 1):
+        try:
+            return func(*args, **kwargs)
+        except (urllib.error.HTTPError, urllib.error.URLError) as e:
+            last_exception = e
+            # Check if it's a rate limiting error (429 or 503)
+            if (
+                isinstance(e, urllib.error.HTTPError)
+                and e.code in [429, 503]
+                and attempt < n_retries
+            ):
+                wait_time = 2**attempt  # Exponential backoff: 1s, 2s, 4s
+                logging.warning(
+                    f"Rate limit encountered, retrying in {wait_time} "
+                    f"seconds... (attempt {attempt + 1}/{n_retries})"
+                )
+                time.sleep(wait_time)
+                continue
+            # For non-rate-limiting errors, don't retry
+            raise e
+        except (socket.timeout, TimeoutError, OSError) as e:
+            last_exception = e
+            # Handle timeout errors with retry
+            if attempt < n_retries:
+                wait_time = 2**attempt  # Exponential backoff
+                logging.warning(
+                    f"Timeout error encountered, retrying in {wait_time} "
+                    f"seconds... (attempt {attempt + 1}/{n_retries})"
+                )
+                time.sleep(wait_time)
+                continue
+            raise e
+        except Exception as e:
+            last_exception = e
+            # For pandas errors or other exceptions, retry with short delay
+            if attempt < n_retries:
+                logging.warning(
+                    f"Request failed, retrying in 1 second... "
+                    f"(attempt {attempt + 1}/{n_retries})"
+                )
+                time.sleep(1)
+                continue
+            raise e
+
+    # If we get here, all retries failed
+    if last_exception:
+        raise last_exception
+    raise RuntimeError("All retries failed without capturing an exception")
+
+
 def fetch_eds(
-    occupations_year: int = 2015, top_n_race_occupations: int = 10
+    occupations_year: int = 2015, top_n_race_occupations: int = 10, n_retries: int = 3
 ) -> dict[str, list[str]]:
     """Fetch the sets of words used in the experiments of the _Word Embeddings
        Quantify 100 Years Of Gender And Ethnic Stereotypes_ work.
@@ -39,6 +127,8 @@ def fetch_eds(
     top_n_race_occupations : int, optional
         The year of the census for the occupations file.
         The number of occupations by race, by default 10
+    n_retries : int, optional
+        Number of retries to attempt for each request, by default 3
 
     Returns
     -------
@@ -46,10 +136,7 @@ def fetch_eds(
         A dictionary with the word sets.
 
     """  # noqa: D205
-    EDS_BASE_URL = (
-        "https://raw.githubusercontent.com/nikhgarg/"
-        "EmbeddingDynamicStereotypes/master/data/"
-    )
+    EDS_BASE_URL = "https://raw.githubusercontent.com/nikhgarg/EmbeddingDynamicStereotypes/refs/heads/master/data/"
     EDS_WORD_SETS_NAMES = [
         "adjectives_appearance.txt",
         "adjectives_intelligencegeneral.txt",
@@ -71,7 +158,14 @@ def fetch_eds(
     word_sets = []
     for EDS_words_set_name in EDS_WORD_SETS_NAMES:
         name = EDS_words_set_name.replace(".txt", "")
-        word_sets.append(pd.read_csv(EDS_BASE_URL + EDS_words_set_name, names=[name]))
+        word_sets.append(
+            _retry_request(
+                pd.read_csv,
+                EDS_BASE_URL + EDS_words_set_name,
+                names=[name],
+                n_retries=n_retries,
+            )
+        )
 
     word_sets_dict = pd.concat(word_sets, sort=False, axis=1).to_dict(orient="list")
 
@@ -84,8 +178,10 @@ def fetch_eds(
     # ---- Occupations by Gender ----
 
     # fetch occupations by gender
-    gender_occupations = pd.read_csv(
-        EDS_BASE_URL + "occupation_percentages_gender_occ1950.csv"
+    gender_occupations = _retry_request(
+        pd.read_csv,
+        EDS_BASE_URL + "occupation_percentages_gender_occ1950.csv",
+        n_retries=n_retries,
     )
     # filter by year
     gender_occupations = gender_occupations[
@@ -109,7 +205,11 @@ def fetch_eds(
 
     # ---- Occupations by Ethnicity ----
 
-    occupations = pd.read_csv(EDS_BASE_URL + "occupation_percentages_race_occ1950.csv")
+    occupations = _retry_request(
+        pd.read_csv,
+        EDS_BASE_URL + "occupation_percentages_race_occ1950.csv",
+        n_retries=n_retries,
+    )
     occupations_filtered = occupations[occupations["Census year"] == occupations_year]
     occupations_white = (
         occupations_filtered.sort_values("white")
@@ -156,7 +256,7 @@ def fetch_eds(
     return word_sets_dict
 
 
-def fetch_debiaswe() -> dict[str, Union[list[str], list]]:
+def fetch_debiaswe(n_retries: int = 3) -> dict[str, Union[list[str], list]]:
     """Fetch the word sets used in the paper Man is to Computer Programmer as
     Woman is to Homemaker? from the source. It includes gender (male, female)
     terms and related word sets.
@@ -168,6 +268,11 @@ def fetch_debiaswe() -> dict[str, Union[list[str], list]]:
            Venkatesh Saligrama, and Adam Kalai.
     |      Proceedings of NIPS 2016.
 
+    Parameters
+    ----------
+    n_retries : int, optional
+        Number of retries to attempt for each request, by default 3
+
     Returns
     -------
     Dict[str, Union[List[str], list]]
@@ -176,7 +281,7 @@ def fetch_debiaswe() -> dict[str, Union[list[str], list]]:
 
     """  # noqa: D205
     DEBIAS_WE_BASE_URL = (
-        "https://raw.githubusercontent.com/tolga-b/debiaswe/master/data/"
+        "https://raw.githubusercontent.com/tolga-b/debiaswe/refs/heads/master/data/"
     )
 
     DEBIAS_WE_WORD_SETS = [
@@ -186,23 +291,31 @@ def fetch_debiaswe() -> dict[str, Union[list[str], list]]:
         "professions.json",
     ]
 
-    with urllib.request.urlopen(
-        DEBIAS_WE_BASE_URL + DEBIAS_WE_WORD_SETS[0]
+    with _retry_request(
+        urllib.request.urlopen,
+        DEBIAS_WE_BASE_URL + DEBIAS_WE_WORD_SETS[0],
+        n_retries=n_retries,
     ) as json_file:
         definitional_pairs = json.loads(json_file.read().decode())
         male_words = [p[0] for p in definitional_pairs]
         female_words = [p[1] for p in definitional_pairs]
 
-    with urllib.request.urlopen(
-        DEBIAS_WE_BASE_URL + DEBIAS_WE_WORD_SETS[1]
+    with _retry_request(
+        urllib.request.urlopen,
+        DEBIAS_WE_BASE_URL + DEBIAS_WE_WORD_SETS[1],
+        n_retries=n_retries,
     ) as json_file:
         equalize_pairs = json.loads(json_file.read().decode())
-    with urllib.request.urlopen(
-        DEBIAS_WE_BASE_URL + DEBIAS_WE_WORD_SETS[2]
+    with _retry_request(
+        urllib.request.urlopen,
+        DEBIAS_WE_BASE_URL + DEBIAS_WE_WORD_SETS[2],
+        n_retries=n_retries,
     ) as json_file:
         gender_specific = json.loads(json_file.read().decode())
-    with urllib.request.urlopen(
-        DEBIAS_WE_BASE_URL + DEBIAS_WE_WORD_SETS[3]
+    with _retry_request(
+        urllib.request.urlopen,
+        DEBIAS_WE_BASE_URL + DEBIAS_WE_WORD_SETS[3],
+        n_retries=n_retries,
     ) as json_file:
         professions = json.loads(json_file.read().decode())
 
@@ -257,7 +370,7 @@ def load_bingliu() -> dict[str, list[str]]:
     }
 
 
-def fetch_debias_multiclass() -> dict[str, Union[list[str], list]]:
+def fetch_debias_multiclass(n_retries: int = 3) -> dict[str, Union[list[str], list]]:
     """Fetch the word sets used in the paper Black Is To Criminals as Caucasian
        Is To Police: Detecting And Removing Multiclass Bias In Word Embeddings.
 
@@ -281,6 +394,11 @@ def fetch_debias_multiclass() -> dict[str, Union[list[str], list]]:
     | [2]: https://github.com/TManzini/DebiasMulticlassWordEmbedding/blob/master/Debiasing/evalBias.py
 
 
+    Parameters
+    ----------
+    n_retries : int, optional
+        Number of retries to attempt for each request, by default 3
+
     Returns
     -------
     dict
@@ -288,17 +406,16 @@ def fetch_debias_multiclass() -> dict[str, Union[list[str], list]]:
         its to_numpy() correspond to the word set.
 
     """  # noqa: D205, E501
-    BASE_URL = (
-        "https://raw.githubusercontent.com/TManzini/"
-        "DebiasMulticlassWordEmbedding/master/Debiasing/data/vocab/"
-    )
+    BASE_URL = "https://raw.githubusercontent.com/TManzini/DebiasMulticlassWordEmbedding/refs/heads/master/Debiasing/data/vocab/"
     WORD_SETS_FILES = [
         "gender_attributes_optm.json",
         "race_attributes_optm.json",
         "religion_attributes_optm.json",
     ]
     # fetch gender
-    with urllib.request.urlopen(BASE_URL + WORD_SETS_FILES[0]) as file:
+    with _retry_request(
+        urllib.request.urlopen, BASE_URL + WORD_SETS_FILES[0], n_retries=n_retries
+    ) as file:
         gender = json.loads(file.read().decode())
 
         gender_definitional_sets = np.array(gender["definite_sets"])
@@ -313,7 +430,9 @@ def fetch_debias_multiclass() -> dict[str, Union[list[str], list]]:
         gender_eval_target = gender["eval_targets"]
 
     # fetch ethnicity
-    with urllib.request.urlopen(BASE_URL + WORD_SETS_FILES[1]) as file:
+    with _retry_request(
+        urllib.request.urlopen, BASE_URL + WORD_SETS_FILES[1], n_retries=n_retries
+    ) as file:
         ethnicity = json.loads(file.read().decode())
 
         ethnicity_definitional_sets = np.array(ethnicity["definite_sets"])
@@ -330,7 +449,9 @@ def fetch_debias_multiclass() -> dict[str, Union[list[str], list]]:
         ethnicity_eval_target = ethnicity["eval_targets"]
 
     # fetch religion
-    with urllib.request.urlopen(BASE_URL + WORD_SETS_FILES[2]) as file:
+    with _retry_request(
+        urllib.request.urlopen, BASE_URL + WORD_SETS_FILES[2], n_retries=n_retries
+    ) as file:
         religion = json.loads(file.read().decode())
 
         religion_definitional_sets = np.array(religion["definite_sets"])
@@ -377,7 +498,7 @@ def fetch_debias_multiclass() -> dict[str, Union[list[str], list]]:
     }
 
 
-def fetch_gn_glove() -> dict[str, list[str]]:
+def fetch_gn_glove(n_retries: int = 3) -> dict[str, list[str]]:
     """Fetch the word sets used in the paper Learning Gender-Neutral Word Embeddings.
 
     This dataset contain two sets of 221 female and male related words.
@@ -388,24 +509,35 @@ def fetch_gn_glove() -> dict[str, list[str]]:
     |      Learning Gender-Neutral Word Embeddings.
     |      In EMNLP.
 
+    Parameters
+    ----------
+    n_retries : int, optional
+        Number of retries to attempt for each request, by default 3
+
     Returns
     -------
     Dict[str, List[str]]
         A dictionary with male and female word sets.
 
     """
-    BASE_URL = "https://raw.githubusercontent.com/uclanlp/gn_glove/master/wordlist/"
+    BASE_URL = (
+        "https://raw.githubusercontent.com/uclanlp/gn_glove/refs/heads/master/wordlist/"
+    )
     FILES = [
         "female_word_file.txt",
         "male_word_file.txt",
     ]
 
     # fetch female words
-    with urllib.request.urlopen(BASE_URL + FILES[0]) as file:
+    with _retry_request(
+        urllib.request.urlopen, BASE_URL + FILES[0], n_retries=n_retries
+    ) as file:
         female_terms = file.read().decode().split("\n")
         female_terms = list(filter(lambda x: x != "", female_terms))
     # fetch male words
-    with urllib.request.urlopen(BASE_URL + FILES[1]) as file:
+    with _retry_request(
+        urllib.request.urlopen, BASE_URL + FILES[1], n_retries=n_retries
+    ) as file:
         male_terms = file.read().decode().split("\n")
         male_terms = list(filter(lambda x: x != "", male_terms))
 

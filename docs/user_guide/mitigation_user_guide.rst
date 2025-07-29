@@ -281,7 +281,7 @@ Next, we measure the gender bias exposed by query 2 (Male Names and Female Names
 
     gender_query_2 = Query(
         [weat_wordset["male_names"], weat_wordset["female_names"]],
-        [weat_wordset["pleasant_5"], weat_wordset["unpleasant_5"]],
+        [weat_wordset["pleasant_5"], weat_wordset["unpleasant_5a"]],
         ["Male Names", "Female Names"],
         ["Pleasant", "Unpleasant"],
     )
@@ -433,7 +433,7 @@ equalized.
 
     gender_query_2 = Query(
         [weat_wordset["male_names"], weat_wordset["female_names"]],
-        [weat_wordset["pleasant_5"], weat_wordset["unpleasant_5"]],
+        [weat_wordset["pleasant_5"], weat_wordset["unpleasant_5a"]],
         ["Male Names", "Female Names"],
         ["Pleasant", "Unpleasant"],
     )

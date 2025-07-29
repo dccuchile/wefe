@@ -62,14 +62,14 @@ def queries_and_models():
     # Create ethnicity queries
     test_query_1 = Query(
         [word_sets["insects"], word_sets["flowers"]],
-        [word_sets["pleasant_5"], word_sets["unpleasant_5"]],
+        [word_sets["pleasant_5"], word_sets["unpleasant_5a"]],
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
 
     test_query_2 = Query(
         [word_sets["weapons"], word_sets["instruments"]],
-        [word_sets["pleasant_5"], word_sets["unpleasant_5"]],
+        [word_sets["pleasant_5"], word_sets["unpleasant_5a"]],
         ["Instruments", "Weapons"],
         ["Pleasant", "Unpleasant"],
     )

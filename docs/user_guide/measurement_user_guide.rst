@@ -309,7 +309,7 @@ names with respect to pleasant and unpleasant attributes.
 
     ethnicity_query = Query(
         [word_sets["european_american_names_5"], word_sets["african_american_names_5"]],
-        [word_sets["pleasant_5"], word_sets["unpleasant_5"]],
+        [word_sets["pleasant_5"], word_sets["unpleasant_5a"]],
         ["European american names", "African american names"],
         ["Pleasant", "Unpleasant"],
     )
@@ -1265,7 +1265,7 @@ Ethnicity Bias Model Ranking
     # define the queries
     ethnicity_query_1 = Query(
         [word_sets["european_american_names_5"], word_sets["african_american_names_5"]],
-        [word_sets["pleasant_5"], word_sets["unpleasant_5"]],
+        [word_sets["pleasant_5"], word_sets["unpleasant_5a"]],
         ["European Names", "African Names"],
         ["Pleasant", "Unpleasant"],
     )

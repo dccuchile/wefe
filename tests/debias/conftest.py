@@ -1,7 +1,5 @@
 """Test configurations and fixtures."""
 
-from typing import Union
-
 import numpy as np
 import pytest
 
@@ -149,7 +147,7 @@ def gender_query_2(weat_wordsets: dict[str, list[str]]) -> Query:
 
 @pytest.fixture
 def gender_query_3(
-    multiclass_debias_wordsets: dict[str, dict[str, Union[list[str], list]]],
+    multiclass_debias_wordsets: dict[str, dict[str, list[str] | list]],
 ) -> Query:
     """Generate a Male and Female names wrt Career vs Family terms test query.
 

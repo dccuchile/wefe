@@ -1,16 +1,14 @@
 """Module with functions to load datasets and sets of words related to bias."""
 
+from importlib import resources
 import json
 import logging
-import socket
 import time
 import urllib.error
 import urllib.request
-from typing import Union
 
 import numpy as np
 import pandas as pd
-import pkg_resources
 
 
 def _retry_request(func, *args, n_retries: int = 3, **kwargs):
@@ -44,6 +42,7 @@ def _retry_request(func, *args, n_retries: int = 3, **kwargs):
       with exponential backoff
     - Timeout errors (socket.timeout, TimeoutError, OSError) with exponential backoff
     - Other exceptions with a fixed 1-second delay
+
     """
     last_exception = None
 
@@ -67,7 +66,7 @@ def _retry_request(func, *args, n_retries: int = 3, **kwargs):
                 continue
             # For non-rate-limiting errors, don't retry
             raise e
-        except (socket.timeout, TimeoutError, OSError) as e:
+        except (TimeoutError, OSError) as e:
             last_exception = e
             # Handle timeout errors with retry
             if attempt < n_retries:
@@ -256,7 +255,7 @@ def fetch_eds(
     return word_sets_dict
 
 
-def fetch_debiaswe(n_retries: int = 3) -> dict[str, Union[list[str], list]]:
+def fetch_debiaswe(n_retries: int = 3) -> dict[str, list[str] | list]:
     """Fetch the word sets used in the paper Man is to Computer Programmer as
     Woman is to Homemaker? from the source. It includes gender (male, female)
     terms and related word sets.
@@ -345,24 +344,17 @@ def load_bingliu() -> dict[str, list[str]]:
         A dictionary with the positive and negative words.
 
     """
-    # extract the file
-    resource_package = __name__
-    resource_neg_path = "/".join(("data", "negative-words.txt"))
-    bingliu_neg_bytes = pkg_resources.resource_stream(
-        resource_package, resource_neg_path
-    )
+    # Read negative words file
+    with resources.open_text(
+        "wefe.datasets.data", "negative-words.txt", encoding="latin-1"
+    ) as neg_file:
+        negative_words = [word.strip() for word in neg_file.readlines()][31:]
 
-    resource_pos_path = "/".join(("data", "positive-words.txt"))
-    bingliu_pos_bytes = pkg_resources.resource_stream(
-        resource_package, resource_pos_path
-    )
-
-    negative_words = [
-        word.decode("latin-1").strip() for word in bingliu_neg_bytes.readlines()
-    ][31:]
-    positive_words = [
-        word.decode("latin-1").strip() for word in bingliu_pos_bytes.readlines()
-    ][30:]
+    # Read positive words file
+    with resources.open_text(
+        "wefe.datasets.data", "positive-words.txt", encoding="latin-1"
+    ) as pos_file:
+        positive_words = [word.strip() for word in pos_file.readlines()][30:]
 
     return {
         "positive_words": positive_words,
@@ -370,7 +362,7 @@ def load_bingliu() -> dict[str, list[str]]:
     }
 
 
-def fetch_debias_multiclass(n_retries: int = 3) -> dict[str, Union[list[str], list]]:
+def fetch_debias_multiclass(n_retries: int = 3) -> dict[str, list[str] | list]:
     """Fetch the word sets used in the paper Black Is To Criminals as Caucasian
        Is To Police: Detecting And Removing Multiclass Bias In Word Embeddings.
 
@@ -590,8 +582,5 @@ def load_weat() -> dict[str, list[str]]:
         A dictionary with the word sets.
 
     """  # noqa: D205
-    resource_package = __name__
-    resource_path = "/".join(("data", "WEAT.json"))
-    weat_data = pkg_resources.resource_string(resource_package, resource_path)
-
-    return json.loads(weat_data.decode())
+    weat_data = resources.read_text("wefe.datasets.data", "WEAT.json")
+    return json.loads(weat_data)

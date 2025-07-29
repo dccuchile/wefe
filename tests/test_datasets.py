@@ -1,4 +1,3 @@
-import socket
 import urllib.error
 
 import pytest
@@ -84,7 +83,7 @@ def test_fetch_debiaswe() -> None:
         assert isinstance(set_, list)
         assert len(set_) > 0
         for word in set_:
-            assert isinstance(word, (str, list))
+            assert isinstance(word, str | list)
             assert len(word) > 0
 
 
@@ -123,11 +122,11 @@ def test_fetch_debias_multiclass() -> None:
 
     for set_name, set_ in debias_multiclass_dataset.items():
         assert isinstance(set_name, str)
-        assert isinstance(set_, (list, dict))
+        assert isinstance(set_, list | dict)
         if isinstance(set_, list):
             assert len(set_) > 0
             for word in set_:
-                assert isinstance(word, (str, list))
+                assert isinstance(word, str | list)
                 assert len(word) > 0
 
 
@@ -253,7 +252,7 @@ class TestRetryRequest:
         mock_func = Mock()
 
         # First call fails with timeout, second succeeds
-        mock_func.side_effect = [socket.timeout("Connection timeout"), "success"]
+        mock_func.side_effect = [TimeoutError("Connection timeout"), "success"]
 
         result = _retry_request(mock_func, n_retries=2)
 

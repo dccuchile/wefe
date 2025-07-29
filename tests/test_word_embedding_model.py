@@ -1,10 +1,10 @@
 """Unit tests for the WordEmbeddingModel class from wefe.word_embedding_model."""
 
 import gensim
-import numpy as np
-import pytest
 from gensim.models import FastText, KeyedVectors, Word2Vec
 from gensim.test.utils import common_texts
+import numpy as np
+import pytest
 
 from wefe.word_embedding_model import GENSIM_V4_OR_GREATER, WordEmbeddingModel
 

@@ -1,7 +1,6 @@
 """Half Sibling Regression WEFE implementation."""
 
 from copy import deepcopy
-from typing import Optional
 
 import numpy as np
 from tqdm import tqdm
@@ -130,7 +129,7 @@ class HalfSiblingRegression(BaseDebias):
     def __init__(
         self,
         verbose: bool = False,
-        criterion_name: Optional[str] = None,
+        criterion_name: str | None = None,
     ) -> None:
         """Initialize a Half Sibling Regression Debias instance.
 
@@ -257,8 +256,8 @@ class HalfSiblingRegression(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[list[str]] = None,
-        ignore: Optional[list[str]] = None,
+        target: list[str] | None = None,
+        ignore: list[str] | None = None,
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Substracts the gender information from vectors.
@@ -338,7 +337,7 @@ class HalfSiblingRegression(BaseDebias):
             bias_info = self.bias_information[:, indexes]
             vectors = np.asarray(list(self.non_bias_dict.values())).T[:, indexes]
             debiased_vectors = self._subtract_bias_information(vectors, bias_info).T
-            self.non_bias_dict = dict(zip(target, debiased_vectors))
+            self.non_bias_dict = dict(zip(target, debiased_vectors, strict=False))
 
         # if target and ignores are not provided the debias is applied to
         # all non bias vectors
@@ -347,7 +346,9 @@ class HalfSiblingRegression(BaseDebias):
             debiased_vectors = self._subtract_bias_information(
                 vectors, self.bias_information
             ).T
-            self.non_bias_dict = dict(zip(self.non_bias_dict.keys(), debiased_vectors))
+            self.non_bias_dict = dict(
+                zip(self.non_bias_dict.keys(), debiased_vectors, strict=False)
+            )
 
         if self.verbose:
             print("Updating debiased vectors")

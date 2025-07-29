@@ -1,7 +1,8 @@
 """Base metric class that all metrics must extend.."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Callable, ClassVar, Union
+from collections.abc import Callable
+from typing import Any, ClassVar
 
 from wefe.query import Query
 from wefe.word_embedding_model import WordEmbeddingModel
@@ -33,7 +34,7 @@ class BaseMetric(ABC):
     """
 
     # These attributes MUST be overridden by any class that extends BaseMetric.
-    metric_template: ClassVar[tuple[Union[int, str], Union[int, str]]]
+    metric_template: ClassVar[tuple[int | str, int | str]]
     metric_name: ClassVar[str]
     metric_short_name: ClassVar[str]
 

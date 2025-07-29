@@ -55,90 +55,154 @@ The official documentation can be found at this `link <https://wefe.readthedocs.
 Installation
 ============
 
-There are two different ways to install WEFE:
+WEFE requires Python 3.10 or higher. There are two different ways to install WEFE:
 
-
-To install the package with ``pip``  ::
+**Install with pip** (recommended)::
 
     pip install wefe
 
-- With conda:
-
-To install the package with ``conda``::
+**Install with conda**::
 
     conda install -c pbadilla wefe
+
+**Install development version**::
+
+    pip install git+https://github.com/dccuchile/wefe.git
+
+**Install with development dependencies**::
+
+    pip install "wefe[dev]"
+
+**Install with PyTorch support**::
+
+    pip install "wefe[pytorch]"
 
 
 Requirements
 ------------
 
-These package will be installed along with the package, in case these have not already been installed:
+WEFE automatically installs the following dependencies:
 
-1. numpy
-2. scipy
-3. scikit-learn
-4. scipy
-5. pandas
-6. gensim
-7. plotly
-8. requests
-9. tqdm
-10. semantic_version
+- gensim (>=3.8.3)
+- numpy (<=1.26.4)
+- pandas (>=2.0.0)
+- plotly (>=6.0.0)
+- requests (>=2.22.0)
+- scikit-learn (>=1.5.0)
+- scipy (<1.13)
+- semantic_version (>=2.8.0)
+- tqdm (>=4.0.0)
 
 Contributing
 ------------
 
-You can download the code executing ::
+To contribute to WEFE development:
+
+1. **Clone the repository**::
 
     git clone https://github.com/dccuchile/wefe
+    cd wefe
 
+2. **Install in development mode with all dependencies**::
 
-To contribute, visit the `Contributing <https://wefe.readthedocs.io/en/latest/user_guide/contribute.html>`_ section in the documentation.
+    pip install -e ".[dev]"
+
+3. **Run tests to ensure everything works**::
+
+    pytest tests
+
+4. **Make your changes and run tests again**
+
+5. **Follow our coding standards**:
+   - Use ``ruff`` for code formatting: ``ruff format .``
+   - Check code quality: ``ruff check .``
+   - Run type checking: ``mypy wefe``
+
+For detailed contributing guidelines, visit the `Contributing <https://wefe.readthedocs.io/en/latest/user_guide/contribute.html>`_ section in the documentation.
 
 Development Requirements
 ------------------------
 
-To install the necessary dependencies for the development, testing and compilation
-of WEFE documentation, run ::
+To install WEFE with all development dependencies for testing, documentation building, and code quality tools::
 
-    pip install -r requirements-dev.txt
+    pip install "wefe[dev]"
+
+This installs additional packages including:
+
+- pytest and pytest-cov for testing
+- sphinx and related packages for documentation
+- ruff for code formatting and linting
+- mypy for type checking
+- ipython for interactive development
 
 
 Testing
 -------
 
-All unit tests are in the wefe/tests folder. It uses ``pytest`` as a framework to
-run them.
+All unit tests are in the ``tests/`` folder. WEFE uses ``pytest`` as the testing framework.
 
-To run the test, execute::
+To run all tests::
 
     pytest tests
 
-To check the coverage, run::
+To run tests with coverage reporting::
 
-    pytest tests --cov-report xml:cov.xml --cov wefe
+    pytest tests --cov=wefe --cov-report=html
 
-And then::
+To run a specific test file::
 
-    coverage report -m
+    pytest tests/test_datasets.py
+
+Coverage reports will be generated in ``htmlcov/`` directory.
 
 
 Build the documentation
 -----------------------
 
-The documentation is created using sphinx.
-It can be found in the docs folder at the root of the project.
-To compile the documentation, run:
+The documentation is built using Sphinx and can be found in the ``docs/`` folder.
 
-.. code-block:: bash
+To build the documentation::
 
     cd docs
     make html
 
-Then, you can visit the documentation at ``docs/_build/html/index.html``
+Or using the development environment::
+
+    pip install "wefe[dev]"
+    cd docs
+    make html
+
+The built documentation will be available at ``docs/_build/html/index.html``
 
 Changelog
 =========
+
+Version 1.0.0
+-------------------
+
+**Major Release - Breaking Changes**
+
+- **Python 3.10+ Required**: Dropped support for Python 3.6-3.9
+- **Modern Packaging**: Migrated from ``setup.py`` to ``pyproject.toml``
+- **Updated Dependencies**: All packages updated for modern Python ecosystem
+
+**New Features**:
+- Robust dataset fetching with retry mechanism and exponential backoff
+- HTTP 429 (rate limiting) and timeout error handling
+- Optional dependencies: ``pip install "wefe[dev]"`` and ``"wefe[pytorch]"``
+- Dynamic version loading from ``wefe.__version__``
+
+**Core Improvements**:
+- **WordEmbeddingModel**: Enhanced type safety, better gensim compatibility, improved error handling
+- **BaseMetric**: Refactored input validation, standardized ``run_query`` methods across all metrics
+- **Testing**: Converted to pytest patterns with monkeypatch, comprehensive test coverage
+- **Code Quality**: Migration from flake8 to Ruff, enhanced documentation with detailed docstrings
+
+**Development Workflow**:
+- GitHub Actions upgraded with Python 3.10-3.13 matrix testing
+- Pre-commit hooks enhanced with JSON/TOML validation and security checks
+- Modernized Sphinx documentation configuration
+- Updated benchmark documentation and metrics comparison tables
 
 Version 0.4.1
 -------------------

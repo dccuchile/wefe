@@ -4,16 +4,16 @@ This file contains functions for to process to massively execute queries, aggreg
 through rankings and graph these results.
 """
 
+from collections.abc import Callable
 import copy
+from importlib import resources
 import logging
-from typing import Callable, Union
 
+from gensim.models.keyedvectors import KeyedVectors
 import numpy as np
 import pandas as pd
-import pkg_resources
 import plotly.express as px
 import plotly.graph_objects as go
-from gensim.models.keyedvectors import KeyedVectors
 from sklearn.utils.validation import check_is_fitted as _check_is_fitted
 
 from wefe.metrics.base_metric import BaseMetric
@@ -104,7 +104,7 @@ def run_queries(
     metric_params: dict = {},
     generate_subqueries: bool = False,
     aggregate_results: bool = False,
-    aggregation_function: Union[str, Callable] = "abs_avg",
+    aggregation_function: str | Callable = "abs_avg",
     return_only_aggregation: bool = False,
     warn_not_found_words: bool = False,
 ) -> pd.DataFrame:
@@ -163,7 +163,7 @@ def run_queries(
     # raise Exception('metric parameter must be instance of BaseMetric')
 
     # queries handling
-    if not isinstance(queries, (list, np.ndarray)):
+    if not isinstance(queries, list | np.ndarray):
         raise TypeError(
             f"queries parameter must be a list or a numpy array. given: {queries}"
         )
@@ -179,7 +179,7 @@ def run_queries(
             )
 
     # word vectors wrappers handling
-    if not isinstance(models, (list, np.ndarray)):
+    if not isinstance(models, list | np.ndarray):
         raise TypeError(
             "word_embeddings_models parameter must be a list or a numpy array."
             f" given: {models}"
@@ -588,12 +588,11 @@ def load_test_model() -> WordEmbeddingModel:
     from gensim.models import KeyedVectors
 
     # load dummy weat word vectors:
+    import wefe.datasets as datasets_package
 
-    resource_package = __name__
-    resource_path = "/".join(("datasets", "data", "test_model.kv"))
-    weat_w2v_path = pkg_resources.resource_filename(resource_package, resource_path)
-
-    test_model = KeyedVectors.load(weat_w2v_path)
+    test_model_path = resources.files(datasets_package) / "data" / "test_model.kv"
+    with resources.as_file(test_model_path) as weat_w2v_path:
+        test_model = KeyedVectors.load(str(weat_w2v_path))
     return WordEmbeddingModel(test_model, "test_w2v")
 
 

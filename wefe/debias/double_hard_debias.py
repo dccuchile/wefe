@@ -1,8 +1,8 @@
 """Double Hard Debias WEFE implementation."""
 
-import operator
 from copy import deepcopy
-from typing import Any, Optional
+import operator
+from typing import Any
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -102,7 +102,7 @@ class DoubleHardDebias(BaseDebias):
         self,
         pca_args: dict[str, Any] = {"n_components": 10},
         verbose: bool = False,
-        criterion_name: Optional[str] = None,
+        criterion_name: str | None = None,
         incremental_pca: bool = True,
         n_words: int = 1000,
         n_components: int = 4,
@@ -208,7 +208,7 @@ class DoubleHardDebias(BaseDebias):
         )
 
         words = list(model.vocab.keys())
-        similarities = dict(zip(words, similarities_vectors))
+        similarities = dict(zip(words, similarities_vectors, strict=False))
         for word in ignore:
             if word in similarities:
                 similarities.pop(word)
@@ -360,7 +360,10 @@ class DoubleHardDebias(BaseDebias):
         ]
         kmeans = KMeans(n_cluster).fit(embeddings)
         y_pred = kmeans.predict(embeddings)
-        correct = [1 if item1 == item2 else 0 for (item1, item2) in zip(y_true, y_pred)]
+        correct = [
+            1 if item1 == item2 else 0
+            for (item1, item2) in zip(y_true, y_pred, strict=False)
+        ]
         alignment_score = sum(correct) / float(len(correct))
         alignment_score = max(alignment_score, 1 - alignment_score)
         return alignment_score
@@ -439,8 +442,8 @@ class DoubleHardDebias(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[list[str]] = None,
-        ignore: Optional[list[str]] = [],
+        target: list[str] | None = None,
+        ignore: list[str] | None = [],
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Execute hard debias over the provided model.

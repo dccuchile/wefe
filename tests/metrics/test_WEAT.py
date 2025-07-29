@@ -31,7 +31,7 @@ def check_WEAT_result_values(results: dict[str, Any]) -> None:
     assert isinstance(results["effect_size"], np.number)
 
     # check p_value options
-    assert isinstance(results["p_value"], (float, np.number)) or np.isnan(
+    assert isinstance(results["p_value"], float | np.number) or np.isnan(
         results["p_value"]
     )
 

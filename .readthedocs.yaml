@@ -7,15 +7,14 @@ formats:
 build:
   os: ubuntu-22.04
   tools:
-    python: "3.11"
-
+    python: "3.12"
 
 sphinx:
   configuration: docs/conf.py
 
 python:
   install:
-    - requirements: requirements.txt
-    - requirements: requirements-dev.txt
     - method: pip
       path: .
+      extra_requirements:
+        - dev

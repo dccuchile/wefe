@@ -1,3 +1,100 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wefe"
+dynamic = ["version"]
+description = "The Word Embedding Fairness Evaluation Framework"
+readme = "README.rst"
+license = { text = "MIT" }
+authors = [{ name = "WEFE Team", email = "fbravo@dcc.uchile.cl" }]
+maintainers = [{ name = "WEFE Team", email = "fbravo@dcc.uchile.cl" }]
+keywords = [
+    "bias",
+    "fairness",
+    "nlp",
+    "word embeddings",
+    "machine learning",
+    "artificial intelligence",
+]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "gensim>=3.8.3",
+    "numpy<=1.26.4",
+    "pandas>=2.0.0",
+    "plotly>=6.0.0",
+    "requests>=2.22.0",
+    "scikit-learn>=1.5.0",
+    "scipy<1.13",
+    "semantic_version>=2.8.0",
+    "tqdm>=4.0.0",
+]
+
+[project.optional-dependencies]
+pytorch = ["torch>=2.1.0"]
+dev = [
+    "docutils>=0.21.2",
+    "ipython>=8.25.0",
+    "mypy>=1.17.0",
+    "numpydoc>=1.9.0",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "ruff>=0.12.3",
+    "Sphinx>=8.1.0",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-gallery>=0.19.0",
+    "sphinx-rtd-theme>=3.0.2",
+    "torch>=2.1.0",
+    "urllib3>=2.5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/dccuchile/wefe"
+Documentation = "https://wefe.readthedocs.io/"
+Repository = "https://github.com/dccuchile/wefe"
+"Bug Tracker" = "https://github.com/dccuchile/wefe/issues"
+Changelog = "https://github.com/dccuchile/wefe/blob/master/docs/changes.rst"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.dynamic]
+version = { attr = "wefe.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["wefe*"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+wefe = ["datasets/data/*"]
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
 [tool.ruff]
 
 exclude = [

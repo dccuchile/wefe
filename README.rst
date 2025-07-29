@@ -182,26 +182,27 @@ Version 1.0.0
 
 **Major Release - Breaking Changes**
 
-- **Python Version Update**: Minimum Python version is now 3.10 (dropped support for Python 3.6, 3.7, 3.8, 3.9)
-- **Modern Package Configuration**: Migrated from ``setup.py`` to ``pyproject.toml`` for package configuration
-- **Enhanced Dataset Fetching**: Added robust retry mechanism for dataset downloading with configurable retry attempts
-- **Improved Error Handling**: Added timeout and rate-limiting error handling for network requests
-- **Testing Framework Modernization**: Converted test suite to use pytest patterns with monkeypatch
-- **Development Workflow**: Updated development dependencies and tooling for modern Python development
-- **Documentation**: Updated installation and development instructions
-- **Dependencies**: Updated dependency versions to support modern Python ecosystem
+- **Python 3.10+ Required**: Dropped support for Python 3.6-3.9
+- **Modern Packaging**: Migrated from ``setup.py`` to ``pyproject.toml``
+- **Updated Dependencies**: All packages updated for modern Python ecosystem
 
 **New Features**:
-- Retry mechanism for dataset fetching with exponential backoff
-- Support for HTTP 429 (rate limiting) and timeout error handling
-- Optional development dependencies via ``pip install "wefe[dev]"``
-- PyTorch support via ``pip install "wefe[pytorch]"``
-
-**Technical Improvements**:
+- Robust dataset fetching with retry mechanism and exponential backoff
+- HTTP 429 (rate limiting) and timeout error handling
+- Optional dependencies: ``pip install "wefe[dev]"`` and ``"wefe[pytorch]"``
 - Dynamic version loading from ``wefe.__version__``
-- Improved package data handling
-- Better error messages and logging
-- Comprehensive test coverage for new retry functionality
+
+**Core Improvements**:
+- **WordEmbeddingModel**: Enhanced type safety, better gensim compatibility, improved error handling
+- **BaseMetric**: Refactored input validation, standardized ``run_query`` methods across all metrics
+- **Testing**: Converted to pytest patterns with monkeypatch, comprehensive test coverage
+- **Code Quality**: Migration from flake8 to Ruff, enhanced documentation with detailed docstrings
+
+**Development Workflow**:
+- GitHub Actions upgraded with Python 3.10-3.13 matrix testing
+- Pre-commit hooks enhanced with JSON/TOML validation and security checks
+- Modernized Sphinx documentation configuration
+- Updated benchmark documentation and metrics comparison tables
 
 Version 0.4.1
 -------------------

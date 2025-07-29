@@ -8,7 +8,11 @@ dynamic = ["version"]
 description = "The Word Embedding Fairness Evaluation Framework"
 readme = "README.rst"
 license = "MIT"
-authors = [{ name = "WEFE Team", email = "fbravo@dcc.uchile.cl" }]
+authors = [
+    { name = "Pablo Badilla", email = "pablo.badilla@ug.uchile.cl" },
+    { name = "Felipe Bravo", email = "fbravo@dcc.uchile.cl" },
+    { name = "WEFE Team", email = "fbravo@dcc.uchile.cl" },
+]
 maintainers = [{ name = "WEFE Team", email = "fbravo@dcc.uchile.cl" }]
 keywords = [
     "bias",

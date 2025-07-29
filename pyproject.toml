@@ -7,7 +7,7 @@ name = "wefe"
 dynamic = ["version"]
 description = "The Word Embedding Fairness Evaluation Framework"
 readme = "README.rst"
-license = { text = "MIT" }
+license = "MIT"
 authors = [{ name = "WEFE Team", email = "fbravo@dcc.uchile.cl" }]
 maintainers = [{ name = "WEFE Team", email = "fbravo@dcc.uchile.cl" }]
 keywords = [
@@ -21,7 +21,6 @@ keywords = [
 classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -71,7 +70,6 @@ Homepage = "https://github.com/dccuchile/wefe"
 Documentation = "https://wefe.readthedocs.io/"
 Repository = "https://github.com/dccuchile/wefe"
 "Bug Tracker" = "https://github.com/dccuchile/wefe/issues"
-Changelog = "https://github.com/dccuchile/wefe/blob/master/docs/changes.rst"
 
 [tool.setuptools]
 include-package-data = true

@@ -1097,22 +1097,22 @@ Fairness Metrics
 ~~~~~~~~~~~~~~~~
 
 ====================== ==================== ===== ===== =========== ========================
-Metric                Implementable in WEFE WEFE  FEE   Responsibly EmbeddingBiasScores
+Metric                 Implementable in WEFE WEFE  FEE   Responsibly EmbeddingBiasScores
 ====================== ==================== ===== ===== =========== ========================
-WEAT                  ✔                     ✔     ✔     ✔           ✔
-WEAT ES               ✔                     ✔     ✖     ✖           ✖
-RNSB                  ✔                     ✔     ✖     ✖           ✖
-RIPA                  ✔                     ✔     ✖     ✖           ✔
-ECT                   ✔                     ✔     ✖     ✖           ✖
-RND                   ✔                     ✔     ✖     ✖           ✖
-MAC                   ✔                     ✔     ✖     ✖           ✔
-Direct Bias           ✔                     ✖     ✔     ✔           ✔
-SAME                  ✔                     ✖     ✖     ✖           ✔
-Generalized WEAT      ✔                     ✖     ✖     ✖           ✔
-IndirectBias          ✖                     ✖     ✖     ✔           ✖
-GIPE                  ✖                     ✖     ✔     ✖           ✖
-PMN                   ✖                     ✖     ✔     ✖           ✖
-Proximity Bias        ✖                     ✖     ✔     ✖           ✖
+WEAT                   ✔                     ✔     ✔     ✔           ✔
+WEAT ES                ✔                     ✔     ✖     ✖           ✖
+RNSB                   ✔                     ✔     ✖     ✖           ✖
+RIPA                   ✔                     ✔     ✖     ✖           ✔
+ECT                    ✔                     ✔     ✖     ✖           ✖
+RND                    ✔                     ✔     ✖     ✖           ✖
+MAC                    ✔                     ✔     ✖     ✖           ✔
+Direct Bias            ✔                     ✖     ✔     ✔           ✔
+SAME                   ✔                     ✖     ✖     ✖           ✔
+Generalized WEAT       ✔                     ✖     ✖     ✖           ✔
+IndirectBias           ✖                     ✖     ✖     ✔           ✖
+GIPE                   ✖                     ✖     ✔     ✖           ✖
+PMN                    ✖                     ✖     ✔     ✖           ✖
+Proximity Bias         ✖                     ✖     ✔     ✖           ✖
 ====================== ==================== ===== ===== =========== ========================
 
 Metrics marked as "✔" in the "Implementable in WEFE" column can be implemented directly within

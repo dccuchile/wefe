@@ -1,4 +1,10 @@
+import socket
+import urllib.error
+
+import pytest
+
 from wefe.datasets.datasets import (
+    _retry_request,
     fetch_debias_multiclass,
     fetch_debiaswe,
     fetch_eds,
@@ -137,6 +143,7 @@ def test_load_weat() -> None:
         "weapons",
         "european_american_names_5",
         "african_american_names_5",
+        "unpleasant_5b",
         "european_american_names_7",
         "african_american_names_7",
         "pleasant_9",
@@ -180,3 +187,186 @@ def test_load_gn_glove() -> None:
         for word in set_:
             assert isinstance(word, str)
             assert len(word) > 0
+
+
+# Tests for retry functionality
+class TestRetryRequest:
+    """Test cases for the _retry_request function."""
+
+    def test_retry_request_success_on_first_attempt(self):
+        """Test _retry_request result when function succeeds on first attempt."""
+        from unittest.mock import Mock
+
+        mock_func = Mock(return_value="success")
+
+        result = _retry_request(mock_func, "arg1", "arg2", kwarg1="value1")
+
+        assert result == "success"
+        mock_func.assert_called_once_with("arg1", "arg2", kwarg1="value1")
+
+    def test_retry_request_rate_limit_error(self, monkeypatch):
+        """Test retry behavior for HTTP 429 rate limit errors."""
+        from unittest.mock import Mock
+
+        mock_sleep = Mock()
+        mock_warning = Mock()
+        monkeypatch.setattr("time.sleep", mock_sleep)
+        monkeypatch.setattr("logging.warning", mock_warning)
+
+        mock_func = Mock()
+
+        # Create HTTPError with code 429
+        from email.message import EmailMessage
+
+        headers = EmailMessage()
+        http_error = urllib.error.HTTPError(
+            url="http://test.com",
+            code=429,
+            msg="Too Many Requests",
+            hdrs=headers,
+            fp=None,
+        )
+
+        # First two calls fail with 429, third succeeds
+        mock_func.side_effect = [http_error, http_error, "success"]
+
+        result = _retry_request(mock_func, n_retries=3)
+
+        assert result == "success"
+        assert mock_func.call_count == 3
+        assert mock_sleep.call_count == 2
+        assert mock_warning.call_count == 2
+
+        # Check exponential backoff sleep times
+        mock_sleep.assert_any_call(1)  # 2^0 = 1
+        mock_sleep.assert_any_call(2)  # 2^1 = 2
+
+    def test_retry_request_timeout_error(self, monkeypatch):
+        """Test retry behavior for timeout errors."""
+        from unittest.mock import Mock
+
+        mock_sleep = Mock()
+        mock_warning = Mock()
+        monkeypatch.setattr("time.sleep", mock_sleep)
+        monkeypatch.setattr("logging.warning", mock_warning)
+
+        mock_func = Mock()
+
+        # First call fails with timeout, second succeeds
+        mock_func.side_effect = [socket.timeout("Connection timeout"), "success"]
+
+        result = _retry_request(mock_func, n_retries=2)
+
+        assert result == "success"
+        assert mock_func.call_count == 2
+        mock_sleep.assert_called_once_with(1)  # 2^0 = 1
+        mock_warning.assert_called_once()
+
+    def test_retry_request_timeout_error_os_error(self, monkeypatch):
+        """Test retry behavior for OSError (network timeout)."""
+        from unittest.mock import Mock
+
+        mock_sleep = Mock()
+        mock_warning = Mock()
+        monkeypatch.setattr("time.sleep", mock_sleep)
+        monkeypatch.setattr("logging.warning", mock_warning)
+
+        mock_func = Mock()
+
+        # First call fails with OSError, second succeeds
+        mock_func.side_effect = [OSError("Network timeout"), "success"]
+
+        result = _retry_request(mock_func, n_retries=2)
+
+        assert result == "success"
+        assert mock_func.call_count == 2
+        mock_sleep.assert_called_once_with(1)  # 2^0 = 1
+        mock_warning.assert_called_once()
+
+    def test_retry_request_generic_exception(self, monkeypatch):
+        """Test retry behavior for generic exceptions."""
+        from unittest.mock import Mock
+
+        mock_sleep = Mock()
+        mock_warning = Mock()
+        monkeypatch.setattr("time.sleep", mock_sleep)
+        monkeypatch.setattr("logging.warning", mock_warning)
+
+        mock_func = Mock()
+
+        # First call fails with generic exception, second succeeds
+        mock_func.side_effect = [ValueError("Generic error"), "success"]
+
+        result = _retry_request(mock_func, n_retries=2)
+
+        assert result == "success"
+        assert mock_func.call_count == 2
+        mock_sleep.assert_called_once_with(1)  # Fixed 1-second delay
+        mock_warning.assert_called_once()
+
+    def test_retry_request_non_retryable_http_error(self):
+        """Test that non-retryable HTTP errors are not retried."""
+        from unittest.mock import Mock
+
+        mock_func = Mock()
+
+        # 404 Not Found should not be retried
+        from email.message import EmailMessage
+
+        headers = EmailMessage()
+        http_error = urllib.error.HTTPError(
+            url="http://test.com", code=404, msg="Not Found", hdrs=headers, fp=None
+        )
+        mock_func.side_effect = http_error
+
+        with pytest.raises(urllib.error.HTTPError) as exc_info:
+            _retry_request(mock_func, n_retries=3)
+
+        assert exc_info.value.code == 404
+        mock_func.assert_called_once()  # Should only be called once
+
+    def test_retry_request_exhaust_retries(self, monkeypatch):
+        """Test that function raises exception when all retries are exhausted."""
+        from unittest.mock import Mock
+
+        mock_sleep = Mock()
+        mock_warning = Mock()
+        monkeypatch.setattr("time.sleep", mock_sleep)
+        monkeypatch.setattr("logging.warning", mock_warning)
+
+        mock_func = Mock()
+
+        # Always fail with rate limit error
+        from email.message import EmailMessage
+
+        headers = EmailMessage()
+        http_error = urllib.error.HTTPError(
+            url="http://test.com",
+            code=429,
+            msg="Too Many Requests",
+            hdrs=headers,
+            fp=None,
+        )
+        mock_func.side_effect = http_error
+
+        with pytest.raises(urllib.error.HTTPError) as exc_info:
+            _retry_request(mock_func, n_retries=2)
+
+        assert exc_info.value.code == 429
+        assert mock_func.call_count == 3  # Initial call + 2 retries
+        assert mock_sleep.call_count == 2
+        assert mock_warning.call_count == 2
+
+    def test_retry_request_url_error(self):
+        """Test that URLError without code is not retried."""
+        from unittest.mock import Mock
+
+        mock_func = Mock()
+
+        url_error = urllib.error.URLError("Connection failed")
+        mock_func.side_effect = url_error
+
+        with pytest.raises(urllib.error.URLError):
+            _retry_request(mock_func, n_retries=3)
+
+        mock_func.assert_called_once()  # Should only be called once

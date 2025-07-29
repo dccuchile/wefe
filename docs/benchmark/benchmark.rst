@@ -1095,6 +1095,7 @@ methods they implement to date.
 
 Fairness Metrics
 ~~~~~~~~~~~~~~~~
+
 ====================== ==================== ===== ===== =========== ========================
 Metric                Implementable in WEFE WEFE  FEE   Responsibly EmbeddingBiasScores
 ====================== ==================== ===== ===== =========== ========================

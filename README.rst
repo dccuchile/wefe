@@ -140,6 +140,39 @@ Then, you can visit the documentation at ``docs/_build/html/index.html``
 Changelog
 =========
 
+<<<<<<< Updated upstream
+=======
+Version 1.0.0
+-------------------
+
+**Major Release - Breaking Changes**
+
+- **Python 3.10+ Required**: Dropped support for Python 3.6-3.9
+- **Modern Packaging**: Migrated from ``setup.py`` to ``pyproject.toml``
+- **Updated Dependencies**: All packages updated for modern Python ecosystem
+
+**New Features**:
+
+- Robust dataset fetching with retry mechanism and exponential backoff
+- HTTP 429 (rate limiting) and timeout error handling
+- Optional dependencies: ``pip install "wefe[dev]"`` and ``"wefe[pytorch]"``
+- Dynamic version loading from ``wefe.__version__``
+
+**Core Improvements**:
+
+- **WordEmbeddingModel**: Enhanced type safety, better gensim compatibility, improved error handling
+- **BaseMetric**: Refactored input validation, standardized ``run_query`` methods across all metrics
+- **Testing**: Converted to pytest patterns with monkeypatch, comprehensive test coverage
+- **Code Quality**: Migration from flake8 to Ruff, enhanced documentation with detailed docstrings
+
+**Development Workflow**:
+
+- GitHub Actions upgraded with Python 3.10-3.13 matrix testing
+- Pre-commit hooks enhanced with JSON/TOML validation and security checks
+- Modernized Sphinx documentation configuration
+- Updated benchmark documentation and metrics comparison tables
+
+>>>>>>> Stashed changes
 Version 0.4.1
 -------------------
 

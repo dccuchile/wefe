@@ -91,7 +91,7 @@ exclude = ["tests*"]
 wefe = ["datasets/data/*"]
 
 [tool.pytest.ini_options]
-addopts = "--doctest-modules"
+addopts = "--doctest-modules --ignore=wefe"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]

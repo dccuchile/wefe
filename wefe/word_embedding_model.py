@@ -383,12 +383,12 @@ class WordEmbeddingModel:
 
         """
         # Initial type and length validation for the input containers
-        if not isinstance(words, (list, tuple, np.ndarray)):
+        if not isinstance(words, list | tuple | np.ndarray):
             raise TypeError(
                 f"words argument should be a list, tuple or np.array of strings, "
                 f"but got {type(words)}."
             )
-        if not isinstance(embeddings, (list, tuple, np.ndarray)):
+        if not isinstance(embeddings, list | tuple | np.ndarray):
             raise TypeError(
                 "embeddings argument should be a list, tuple or np.array of "
                 f"NumPy arrays, but got {type(embeddings)}."

@@ -213,13 +213,13 @@ def test_run_queries(queries_and_models) -> None:
         "Male terms and Female terms wrt Math and Arts",
     ]
 
-    for given_col, expected_col in zip(results.columns, expected_cols):
+    for given_col, expected_col in zip(results.columns, expected_cols, strict=False):
         assert given_col == expected_col
 
     # Check index
     expected_index = ["dummy_model_1", "dummy_model_2", "dummy_model_3"]
 
-    for given_idx, expected_idx in zip(results.index, expected_index):
+    for given_idx, expected_idx in zip(results.index, expected_index, strict=False):
         assert given_idx, expected_idx
 
     # Check values

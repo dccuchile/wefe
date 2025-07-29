@@ -32,7 +32,7 @@ def check_RND_result_values(results: dict[str, Any]) -> None:
     assert len(distances_by_word) > 0
     for word, distance in distances_by_word.items():
         assert isinstance(word, str)
-        assert isinstance(distance, (float, np.number))
+        assert isinstance(distance, float | np.number)
         assert len(word) > 0
 
 

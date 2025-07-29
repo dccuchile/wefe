@@ -2,7 +2,7 @@
 
 import logging
 from copy import deepcopy
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from sklearn.decomposition import PCA
@@ -156,7 +156,7 @@ class HardDebias(BaseDebias):
         self,
         pca_args: dict[str, Any] = {"n_components": 10},
         verbose: bool = False,
-        criterion_name: Optional[str] = None,
+        criterion_name: str | None = None,
     ) -> None:
         """Initialize a Hard Debias instance.
 
@@ -243,8 +243,8 @@ class HardDebias(BaseDebias):
         self,
         model: WordEmbeddingModel,
         bias_direction: np.ndarray,
-        target: Optional[list[str]],
-        ignore: Optional[list[str]],
+        target: list[str] | None,
+        ignore: list[str] | None,
     ) -> None:
         target_ = set(target) if target is not None else set(model.vocab.keys())
 
@@ -297,7 +297,7 @@ class HardDebias(BaseDebias):
         self,
         model: WordEmbeddingModel,
         definitional_pairs: list[list[str]],
-        equalize_pairs: Optional[list[list[str]]] = None,
+        equalize_pairs: list[list[str]] | None = None,
         **fit_params,
     ) -> BaseDebias:
         """Compute the bias direction and obtains the equalize embedding pairs.
@@ -393,8 +393,8 @@ class HardDebias(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[list[str]] = None,
-        ignore: Optional[list[str]] = None,
+        target: list[str] | None = None,
+        ignore: list[str] | None = None,
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Execute hard debias over the provided model.

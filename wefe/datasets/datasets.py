@@ -2,11 +2,9 @@
 
 import json
 import logging
-import socket
 import time
 import urllib.error
 import urllib.request
-from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -67,7 +65,7 @@ def _retry_request(func, *args, n_retries: int = 3, **kwargs):
                 continue
             # For non-rate-limiting errors, don't retry
             raise e
-        except (socket.timeout, TimeoutError, OSError) as e:
+        except (TimeoutError, OSError) as e:
             last_exception = e
             # Handle timeout errors with retry
             if attempt < n_retries:
@@ -256,7 +254,7 @@ def fetch_eds(
     return word_sets_dict
 
 
-def fetch_debiaswe(n_retries: int = 3) -> dict[str, Union[list[str], list]]:
+def fetch_debiaswe(n_retries: int = 3) -> dict[str, list[str] | list]:
     """Fetch the word sets used in the paper Man is to Computer Programmer as
     Woman is to Homemaker? from the source. It includes gender (male, female)
     terms and related word sets.
@@ -370,7 +368,7 @@ def load_bingliu() -> dict[str, list[str]]:
     }
 
 
-def fetch_debias_multiclass(n_retries: int = 3) -> dict[str, Union[list[str], list]]:
+def fetch_debias_multiclass(n_retries: int = 3) -> dict[str, list[str] | list]:
     """Fetch the word sets used in the paper Black Is To Criminals as Caucasian
        Is To Police: Detecting And Removing Multiclass Bias In Word Embeddings.
 

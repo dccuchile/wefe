@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 from copy import deepcopy
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from sklearn.decomposition import PCA
@@ -276,7 +276,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         self,
         pca_args: dict[str, Any] = {"n_components": 10},
         verbose: bool = False,
-        criterion_name: Optional[str] = None,
+        criterion_name: str | None = None,
         epochs: int = 300,
         theta: float = 0.05,
         n_neighbours: int = 100,
@@ -402,7 +402,7 @@ class RepulsionAttractionNeutralization(BaseDebias):
         self, model: WordEmbeddingModel, word: str, n_neighbours: int
     ) -> list[str]:
         similar_words = model.wv.most_similar(positive=word, topn=n_neighbours)
-        similar_words = list(list(zip(*similar_words))[0])
+        similar_words = list(list(zip(*similar_words, strict=False))[0])
         return similar_words
 
     def _get_repulsion_set(
@@ -537,8 +537,8 @@ class RepulsionAttractionNeutralization(BaseDebias):
     def transform(
         self,
         model: WordEmbeddingModel,
-        target: Optional[list[str]] = None,
-        ignore: Optional[list[str]] = [],
+        target: list[str] | None = None,
+        ignore: list[str] | None = [],
         copy: bool = True,
     ) -> WordEmbeddingModel:
         """Execute Repulsion Attraction Neutralization Debias over the provided model.

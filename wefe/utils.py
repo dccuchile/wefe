@@ -6,7 +6,7 @@ through rankings and graph these results.
 
 import copy
 import logging
-from typing import Callable, Union
+from collections.abc import Callable
 
 import numpy as np
 import pandas as pd
@@ -104,7 +104,7 @@ def run_queries(
     metric_params: dict = {},
     generate_subqueries: bool = False,
     aggregate_results: bool = False,
-    aggregation_function: Union[str, Callable] = "abs_avg",
+    aggregation_function: str | Callable = "abs_avg",
     return_only_aggregation: bool = False,
     warn_not_found_words: bool = False,
 ) -> pd.DataFrame:
@@ -163,7 +163,7 @@ def run_queries(
     # raise Exception('metric parameter must be instance of BaseMetric')
 
     # queries handling
-    if not isinstance(queries, (list, np.ndarray)):
+    if not isinstance(queries, list | np.ndarray):
         raise TypeError(
             f"queries parameter must be a list or a numpy array. given: {queries}"
         )
@@ -179,7 +179,7 @@ def run_queries(
             )
 
     # word vectors wrappers handling
-    if not isinstance(models, (list, np.ndarray)):
+    if not isinstance(models, list | np.ndarray):
         raise TypeError(
             "word_embeddings_models parameter must be a list or a numpy array."
             f" given: {models}"

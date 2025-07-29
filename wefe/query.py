@@ -1,7 +1,7 @@
 """Module that implements the Query object."""
 
 from itertools import combinations
-from typing import Any, Union
+from typing import Any
 
 import numpy as np
 
@@ -13,8 +13,8 @@ class Query:
         self,
         target_sets: list[Any],
         attribute_sets: list[Any],
-        target_sets_names: Union[list[str], None] = None,
-        attribute_sets_names: Union[list[str], None] = None,
+        target_sets_names: list[str] | None = None,
+        attribute_sets_names: list[str] | None = None,
     ) -> None:
         """Initializes the container. It could include a name for each word set.
 
@@ -82,12 +82,12 @@ class Query:
 
         """
         # check input type
-        if not isinstance(target_sets, (list, np.ndarray)):
+        if not isinstance(target_sets, list | np.ndarray):
             raise TypeError(
                 f"target_sets must be a numpy array or list. Given: {type(target_sets)}"
             )
 
-        if not isinstance(attribute_sets, (list, np.ndarray)):
+        if not isinstance(attribute_sets, list | np.ndarray):
             raise TypeError(
                 f"attribute_sets must be a numpy array or list. "
                 f"Given: {type(attribute_sets)}"
@@ -102,7 +102,7 @@ class Query:
 
         # check all words that target sets contains.
         for idx, target_set in enumerate(target_sets):
-            if not isinstance(target_set, (np.ndarray, list)):
+            if not isinstance(target_set, np.ndarray | list):
                 raise TypeError(
                     "Each target set must be a list or an array of strings. "
                     f"Given: {type(target_set)} at postion {idx}"
@@ -116,7 +116,7 @@ class Query:
 
         # check all words that attribute sets contains.
         for idx, attribute_set in enumerate(attribute_sets):
-            if not isinstance(attribute_set, (np.ndarray, list)):
+            if not isinstance(attribute_set, np.ndarray | list):
                 raise TypeError(
                     "Each attribute set must be a list or an array of strings."
                     f" Given: {type(attribute_set)} at postion {idx}"
@@ -205,6 +205,7 @@ class Query:
         for target_set, other_target_set in zip(
             self.target_sets,
             other.target_sets,
+            strict=False,
         ):
             if target_set != other_target_set:
                 return False
@@ -212,6 +213,7 @@ class Query:
         for attribute_set, other_attribute_set in zip(
             self.attribute_sets,
             other.attribute_sets,
+            strict=False,
         ):
             if attribute_set != other_attribute_set:
                 return False
@@ -219,6 +221,7 @@ class Query:
         for names, other_names in zip(
             self.target_sets_names,
             other.target_sets_names,
+            strict=False,
         ):
             if names != other_names:
                 return False
@@ -226,6 +229,7 @@ class Query:
         for names, other_names in zip(
             self.attribute_sets_names,
             other.attribute_sets_names,
+            strict=False,
         ):
             if names != other_names:
                 return False
@@ -336,11 +340,11 @@ class Query:
                     attribute_subset_name,
                 )
                 for attribute_subset, attribute_subset_name in zip(
-                    attribute_subsets, attribute_subsets_names
+                    attribute_subsets, attribute_subsets_names, strict=False
                 )
             ]
             for target_subset, target_subset_name in zip(
-                target_subsets, target_subsets_names
+                target_subsets, target_subsets_names, strict=False
             )
         ]
 

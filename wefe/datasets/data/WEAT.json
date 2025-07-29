@@ -80,7 +80,7 @@
     "paradise",
     "vacation"
   ],
-  "unpleasant_5": [
+  "unpleasant_5a": [
     "abuse",
     "crash",
     "filth",
@@ -183,8 +183,6 @@
     "Courtney",
     "Heather",
     "Melanie",
-    "Sara",
-    "Amber",
     "Katie",
     "Betsy",
     "Kristin",
@@ -230,6 +228,33 @@
     "Yolanda",
     "Malika",
     "Yvette"
+  ],
+  "unpleasant_5b": [
+    "abuse",
+    "crash",
+    "filth",
+    "murder",
+    "sickness",
+    "accident",
+    "death",
+    "grief",
+    "poison",
+    "stink",
+    "assault",
+    "disaster",
+    "hatred",
+    "pollute",
+    "tragedy",
+    "bomb",
+    "divorce",
+    "jail",
+    "poverty",
+    "ugly",
+    "cancer",
+    "evil",
+    "kill",
+    "rotten",
+    "vomit"
   ],
   "european_american_names_7": [
     "Brad",

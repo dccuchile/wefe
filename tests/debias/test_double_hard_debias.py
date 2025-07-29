@@ -170,7 +170,7 @@ def test_double_hard_debias_checks(
 #     )
 
 #     targets = weat_wordsets["male_names"] + weat_wordsets["female_names"]
-#     attributes = weat_wordsets["pleasant_5"] + weat_wordsets["unpleasant_5"]
+#     attributes = weat_wordsets["pleasant_5"] + weat_wordsets["unpleasant_5a"]
 #     ignore = targets + attributes
 
 #     gender_debiased_w2v = dhd.fit(

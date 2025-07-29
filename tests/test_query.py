@@ -78,7 +78,7 @@ def test_create_query() -> None:
     flowers = weat_wordsets["flowers"]
     insects = weat_wordsets["insects"]
     pleasant = weat_wordsets["pleasant_5"]
-    unpleasant = weat_wordsets["unpleasant_5"]
+    unpleasant = weat_wordsets["unpleasant_5a"]
 
     # create a query using the word sets:
     query = Query(
@@ -108,7 +108,7 @@ def test_eq() -> None:
     weapons = weat["weapons"]
     pleasant_1 = weat["pleasant_5"]
     pleasant_2 = weat["pleasant_9"]
-    unpleasant_1 = weat["unpleasant_5"]
+    unpleasant_1 = weat["unpleasant_5a"]
     unpleasant_2 = weat["unpleasant_9"]
 
     query = Query([flowers, insects], [pleasant_1, unpleasant_1])
@@ -266,7 +266,7 @@ def test_generate_query_name() -> None:
 
     query = Query(
         [weat_word_set["flowers"], weat_word_set["instruments"]],
-        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5"]],
+        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5a"]],
         ["Flowers", "Instruments"],
         ["Pleasant", "Unpleasant"],
     )
@@ -280,7 +280,7 @@ def test_generate_query_name() -> None:
             weat_word_set["weapons"],
             weat_word_set["insects"],
         ],
-        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5"]],
+        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5a"]],
         ["Flowers", "Instruments", "Weapons", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
@@ -297,7 +297,7 @@ def test_generate_query_name() -> None:
             weat_word_set["weapons"],
             weat_word_set["insects"],
         ],
-        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5"]],
+        [weat_word_set["pleasant_5"], weat_word_set["unpleasant_5a"]],
     )
 
     assert (

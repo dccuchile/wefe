@@ -116,7 +116,7 @@ def gender_query_1(weat_wordsets: dict[str, list[str]]) -> Query:
     """
     query = Query(
         [weat_wordsets["male_names"], weat_wordsets["female_names"]],
-        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5a"]],
         ["Male Names", "Female Names"],
         ["Pleasant", "Unpleasant"],
     )
@@ -202,9 +202,9 @@ def ethnicity_query_1(weat_wordsets: dict[str, list[str]]) -> Query:
             weat_wordsets["european_american_names_5"],
             weat_wordsets["african_american_names_5"],
         ],
-        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5a"]],
         ["european_american_names_5", "african_american_names_5"],
-        ["pleasant_5", "unpleasant_5"],
+        ["pleasant_5", "unpleasant_5a"],
     )
     return query
 
@@ -226,8 +226,8 @@ def control_query_1(weat_wordsets: dict[str, list[str]]) -> Query:
     """
     query = Query(
         [weat_wordsets["flowers"], weat_wordsets["insects"]],
-        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5a"]],
         ["flowers", "insects"],
-        ["pleasant_5", "unpleasant_5"],
+        ["pleasant_5", "unpleasant_5a"],
     )
     return query

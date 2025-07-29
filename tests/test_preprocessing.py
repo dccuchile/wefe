@@ -46,7 +46,7 @@ def query_2t2a_1(weat_wordsets: dict[str, list[str]]) -> Query:
     """
     query = Query(
         [weat_wordsets["flowers"], weat_wordsets["insects"]],
-        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5"]],
+        [weat_wordsets["pleasant_5"], weat_wordsets["unpleasant_5a"]],
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
     )
@@ -89,7 +89,7 @@ def query_2t2a_uppercase(weat_wordsets: dict[str, list[str]]) -> Query:
         ],
         [
             [s.upper() for s in weat_wordsets["pleasant_5"]],
-            [s.upper() for s in weat_wordsets["unpleasant_5"]],
+            [s.upper() for s in weat_wordsets["unpleasant_5a"]],
         ],
         ["Flowers", "Insects"],
         ["Pleasant", "Unpleasant"],
@@ -583,7 +583,7 @@ def test_get_embeddings_from_query(
         weat_wordsets["flowers"],
         weat_wordsets["insects"],
         weat_wordsets["pleasant_5"],
-        weat_wordsets["unpleasant_5"],
+        weat_wordsets["unpleasant_5a"],
     )
 
     word_vectors = model.wv
@@ -635,7 +635,7 @@ def test_get_embeddings_from_query_oov_warns(
         weat_wordsets["flowers"],
         weat_wordsets["insects"],
         weat_wordsets["pleasant_5"],
-        weat_wordsets["unpleasant_5"],
+        weat_wordsets["unpleasant_5a"],
     )
 
     flowers_with_oov = flowers + ["aaa", "bbb"]
@@ -667,7 +667,7 @@ def test_get_embeddings_from_query_with_lower_preprocessor(
         weat_wordsets["flowers"],
         weat_wordsets["insects"],
         weat_wordsets["pleasant_5"],
-        weat_wordsets["unpleasant_5"],
+        weat_wordsets["unpleasant_5a"],
     )
 
     embeddings = get_embeddings_from_query(
@@ -706,7 +706,7 @@ def test_get_embeddings_from_query_with_two_preprocessors(
         weat_wordsets["flowers"],
         weat_wordsets["insects"],
         weat_wordsets["pleasant_5"],
-        weat_wordsets["unpleasant_5"],
+        weat_wordsets["unpleasant_5a"],
     )
     embeddings = get_embeddings_from_query(
         model, query_2t2a_uppercase, preprocessors=[{}, {"lowercase": True}]
@@ -741,7 +741,7 @@ def test_get_embeddings_from_query_lost_threshold(
         weat_wordsets["flowers"],
         weat_wordsets["insects"],
         weat_wordsets["pleasant_5"],
-        weat_wordsets["unpleasant_5"],
+        weat_wordsets["unpleasant_5a"],
     )
 
     # with lost vocabulary threshold.

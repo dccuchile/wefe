@@ -188,7 +188,7 @@ def test_multiclass_hard_debias_ignore_param(
     # this implies that neither of these words should be subjected to debias and
     # therefore, both queries when executed with weat should return the same score.
     targets = weat_wordsets["male_names"] + weat_wordsets["female_names"]
-    attributes = weat_wordsets["pleasant_5"] + weat_wordsets["unpleasant_5"]
+    attributes = weat_wordsets["pleasant_5"] + weat_wordsets["unpleasant_5a"]
     ignore = targets + attributes
 
     gender_debiased_w2v = mhd.fit(

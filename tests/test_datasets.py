@@ -132,7 +132,7 @@ def test_load_weat() -> None:
         "flowers",
         "insects",
         "pleasant_5",
-        "unpleasant_5",
+        "unpleasant_5a",
         "instruments",
         "weapons",
         "european_american_names_5",

@@ -177,6 +177,13 @@ The built documentation will be available at ``docs/_build/html/index.html``
 Changelog
 =========
 
+Version 1.0.1
+-------------------
+
+**Patch Release - Documentation Updates**
+
+- Updated citation information in documentation with new JMLR 2025 publication
+
 Version 1.0.0
 -------------------
 
@@ -311,13 +318,9 @@ Version 0.2.0
 Citation
 =========
 
-
 Please cite the following paper if using this package in an academic publication:
 
-P. Badilla, F. Bravo-Marquez, and J. Pérez
-`WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the
-29th International Joint Conference on Artificial Intelligence and the 17th
-Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. <https://www.ijcai.org/Proceedings/2020/60>`_
+`P. Badilla, F. Bravo-Marquez, and J. Pérez WEFE: The Word Embeddings Fairness Evaluation Framework In Proceedings of the 29th International Joint Conference on Artificial Intelligence and the 17th Pacific Rim International Conference on Artificial Intelligence (IJCAI-PRICAI 2020), Yokohama, Japan. <https://www.ijcai.org/Proceedings/2020/60>`__
 
 Bibtex:
 
@@ -335,6 +338,14 @@ Bibtex:
         doi       = {10.24963/ijcai.2020/60},
         url       = {https://doi.org/10.24963/ijcai.2020/60},
         }
+
+For the library paper, please cite:
+
+`Pablo Badilla, Felipe Bravo-Marquez, María José Zambrano, and Jorge Pérez WEFE: A Python Library for Measuring and Mitigating Bias in Word Embeddings Journal of Machine Learning Research, vol. 26, no. 156, pages 1-6. <http://jmlr.org/papers/v26/22-1133.html>`__
+
+Bibtex:
+
+.. code-block:: latex
 
     @article{JMLR:v26:22-1133,
         author  = {Pablo Badilla and Felipe Bravo-Marquez and María José Zambrano and Jorge Pérez},

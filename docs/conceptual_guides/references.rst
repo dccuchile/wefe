@@ -28,7 +28,6 @@ Bias Mitigation
 Surveys and other resources
 ---------------------------
 
-
 A Survey on Bias and Fairness in Machine Learning
 
 - `Mehrabi, N., Morstatter, F., Saxena, N., Lerman, K., & Galstyan, A. (2019). A survey on bias and fairness in machine learning. arXiv preprint arXiv:1908.09635. <https://arxiv.org/pdf/1908.09635.pdf>`_

@@ -336,6 +336,17 @@ Bibtex:
         url       = {https://doi.org/10.24963/ijcai.2020/60},
         }
 
+    @article{JMLR:v26:22-1133,
+        author  = {Pablo Badilla and Felipe Bravo-Marquez and María José Zambrano and Jorge Pérez},
+        title   = {WEFE: A Python Library for Measuring and Mitigating Bias in Word Embeddings},
+        journal = {Journal of Machine Learning Research},
+        year    = {2025},
+        volume  = {26},
+        number  = {156},
+        pages   = {1--6},
+        url     = {http://jmlr.org/papers/v26/22-1133.html}
+    }
+
 
 Team
 ====
